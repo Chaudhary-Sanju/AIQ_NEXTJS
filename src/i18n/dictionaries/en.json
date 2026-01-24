@@ -12,8 +12,9 @@
     "searchPlaceholder": "Search for Products",
     "searchAria": "Search",
 
-    "hello": "Hello User",
+    "hello": "Hello, ",
     "account": "My Account",
+    "login": "Login",
 
     "cartAria": "Cart",
 

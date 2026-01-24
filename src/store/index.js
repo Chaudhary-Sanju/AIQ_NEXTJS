@@ -1,20 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import { combineReducers } from 'redux';
-import userReducer from './userSlice';
-import { inStorage, fromStorage, clearStorage } from '@/lib'; // Assuming these functions are in storage.js
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { persistReducer } from "redux-persist";
+import userReducer from "./userSlice";
+import { inStorage, fromStorage, clearStorage } from "@/lib";
 
-// Custom storage engine using cookies with Promises
+// IMPORTANT: only use this storage in the browser
 const cookieStorage = {
-  getItem: (key) => {
-    return Promise.resolve(fromStorage(key));
-  },
-  setItem: (key, value) => {
-    return Promise.resolve(inStorage(key, value)); 
-  },
-  removeItem: (key) => {
-    return Promise.resolve(clearStorage(key));
-  }
+  getItem: (key) => Promise.resolve(fromStorage(key)),
+  setItem: (key, value) => Promise.resolve(inStorage(key, value)),
+  removeItem: (key) => Promise.resolve(clearStorage(key)),
 };
 
 const rootReducer = combineReducers({
@@ -22,14 +15,19 @@ const rootReducer = combineReducers({
 });
 
 const persistConfig = {
-  key: 'root',
-  storage: cookieStorage, // Use the custom cookie storage engine
+  key: "root",
+  storage: cookieStorage,
+  whitelist: ["user"], // recommended: only persist what you need
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export const store = configureStore({
-  reducer: persistedReducer,
-});
-
-export const persistor = persistStore(store);
+export function makeStore() {
+  return configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: false, // redux-persist stores non-serializable stuff
+      }),
+  });
+}

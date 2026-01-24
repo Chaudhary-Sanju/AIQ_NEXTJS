@@ -12,8 +12,11 @@
     "searchPlaceholder": "उत्पादन खोज्नुहोस्",
     "searchAria": "खोज्नुहोस्",
 
-    "hello": "नमस्ते",
+    "hello": "नमस्ते, ",
     "account": "मेरो खाता",
+    "login": "लगइन",
+    "logout": "लगआउट",
+
 
     "cartAria": "कार्ट",
 

@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    // domains: ['https://easehub-rja9.onrender.com'],
-    domains: ['127.0.0.1'],
+    domains: ['https://easehub-rja9.onrender.com'],
+    // domains: ['127.0.0.1'],
   },
 };
 

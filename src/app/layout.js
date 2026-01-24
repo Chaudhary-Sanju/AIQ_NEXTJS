@@ -1,4 +1,5 @@
 import "./globals.css";
+import Providers from "./providers";
 
 export async function generateMetadata() {
     return {
@@ -51,14 +52,20 @@ export async function generateMetadata() {
 
 export default function RootLayout({ children }) {
     return (
-        <html>
+        <html suppressHydrationWarning>
             <head>
+                <link
+                    rel="stylesheet"
+                    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+                />
 
                 {/* <meta name="google-site-verification" content="dFiRWQVmiz3oPKLqPqhUdrvzqpn-iaqM_6f-pJOFeVc" /> */}
 
                 <title>Yalakhom (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform</title>
             </head>
-            <body>{children}</body>
+            <body>
+                <Providers>{children}</Providers>
+            </body>
         </html>
     );
 }

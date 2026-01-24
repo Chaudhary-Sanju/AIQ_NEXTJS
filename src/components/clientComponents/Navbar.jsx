@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, Menu, X, Search, User, ShoppingCart } from "lucide-react";
+import { ChevronDown, Menu, X, Search, User, ShoppingCart, LogOut, LogIn } from "lucide-react";
+
+import { useSelector, useDispatch } from "react-redux";
+import { setUser, clearUser } from "@/store/userSlice";
+import http from "@/http";
+import { fromStorage, clearStorage } from "@/lib";
 
 const LOCALES = ["en", "ne", "zh"];
 const LABELS = { en: "EN", zh: "粵", ne: "NP" };
@@ -15,9 +20,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const [servicesOpen, setServicesOpen] = useState(false);
 
     const servicesRef = useRef(null);
-
     const router = useRouter();
     const pathname = usePathname();
+
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.user.value);
+    const isLoggedIn = user && Object.keys(user).length > 0;
 
     // safe translate helper: t("nav.account", "My Account")
     const t = (key, fallback) => {
@@ -30,6 +38,38 @@ export default function Navbar({ locale = "en", dict = {} }) {
     // Prefix any internal route with locale
     const l = (path) => `/${locale}${path}`;
 
+    // Hydrate user if cookie exists but redux empty (after refresh)
+    useEffect(() => {
+        const token = fromStorage("yalakhom");
+        if (!isLoggedIn && token) {
+            http
+                .get("frontend/auth/details")
+                .then((res) => {
+                    const u = res.data?.user ?? res.data;
+                    if (u) dispatch(setUser(u));
+                })
+                .catch(() => {
+                    // token invalid -> clear token + user
+                    clearStorage("yalakhom");
+                    dispatch(clearUser());
+                });
+        }
+    }, [isLoggedIn, dispatch]);
+
+    // Logout handler
+    const handleLogout = async () => {
+        // optional: if you have backend logout endpoint call it here
+        // await http.post("frontend/auth/logout").catch(() => {});
+
+        clearStorage("yalakhom"); // remove JWT cookie
+        dispatch(clearUser());
+        setMobileOpen(false);
+        setServicesOpen(false);
+
+        router.replace(l("/"));
+        router.refresh();
+    };
+
     // Switch locale but keep the same path after the locale segment
     const switchLocale = (nextLocale) => {
         if (!pathname) return;
@@ -39,7 +79,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
             segments[1] = nextLocale;
             router.push(segments.join("/"));
         } else {
-            // If user somehow is on non-localized path, push to localized
             router.push(`/${nextLocale}${pathname}`);
         }
 
@@ -70,6 +109,8 @@ export default function Navbar({ locale = "en", dict = {} }) {
             document.removeEventListener("mousedown", onClickOutside);
         };
     }, []);
+
+    const displayName = user?.name;
 
     return (
         <header className="w-full">
@@ -154,21 +195,45 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                         {/* Right: Actions */}
                         <div className="flex items-center gap-2 sm:gap-3">
-                            {/* Account */}
-                            <Link
-                                href={l("/account")}
-                                className="hidden sm:flex items-center gap-2 rounded-lg px-2 py-1.5 text-white/95 hover:bg-white/10"
-                            >
-                                <User className="h-5 w-5" />
-                                <div className="leading-tight">
-                                    <div className="text-[10px] opacity-90">
-                                        {t("nav.hello", "Hello User")}
-                                    </div>
-                                    <div className="text-xs font-medium">
-                                        {t("nav.account", "My Account")}
-                                    </div>
+                            {/* Account area */}
+                            {!isLoggedIn ? (
+                                <div className="hidden sm:flex items-center justify-center">
+                                    <Link
+                                        href={l("/auth/login")}
+                                        className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-3 py-2 text-sm font-medium text-white hover:bg-white/20"
+                                    >
+                                        <LogIn className="h-4 w-4" />
+                                        {t("nav.login", "Login")}
+                                    </Link>
                                 </div>
-                            </Link>
+
+
+                            ) : (
+                                <div className="hidden sm:flex items-center gap-2">
+                                    <Link
+                                        href={l("/secure")}
+                                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-white/95 hover:bg-white/10"
+                                    >
+                                        <User className="h-5 w-5" />
+                                        <div className="leading-tight">
+                                            <div className="text-[10px] opacity-90">
+                                                {t("nav.hello", "Hello,")} {displayName}
+                                            </div>
+                                            <div className="text-xs font-medium">{t("nav.account", "My Account")}</div>
+                                        </div>
+                                    </Link>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleLogout}
+                                        className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white/95 hover:bg-white/10"
+                                        title={t("nav.logout", "Logout")}
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        {t("nav.logout", "Logout")}
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Cart */}
                             <Link
@@ -197,20 +262,15 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             sizes="24px"
                                         />
                                     </span>
-                                    <span className="text-xs font-semibold">
-                                        {LABELS[locale] || "EN"}
-                                    </span>
+                                    <span className="text-xs font-semibold">{LABELS[locale] || "EN"}</span>
                                 </button>
 
-                                {/* Optional: quick buttons */}
                                 <div className="hidden md:flex items-center gap-1">
                                     {LOCALES.map((lc) => (
                                         <button
                                             key={lc}
                                             onClick={() => switchLocale(lc)}
-                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale
-                                                    ? "bg-white/20 text-white"
-                                                    : "text-white/90 hover:bg-white/10"
+                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale ? "bg-white/20 text-white" : "text-white/90 hover:bg-white/10"
                                                 }`}
                                             type="button"
                                         >
@@ -300,14 +360,40 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 </div>
                             )}
 
-                            <Link
-                                href={l("/account")}
-                                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
-                                onClick={() => setMobileOpen(false)}
-                            >
-                                <User className="h-5 w-5" />
-                                {t("nav.account", "My Account")}
-                            </Link>
+                            {/* Mobile auth/account */}
+                            {!isLoggedIn ? (
+                                <div className="flex gap-2">
+                                    <Link
+                                        href={l("/auth/login")}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/15"
+                                    >
+                                        <LogIn className="h-4 w-4" />
+                                        {t("nav.login", "Login")}
+                                    </Link>
+                                </div>
+
+                            ) : (
+                                <div className="space-y-2">
+                                    <Link
+                                        href={l("/secure")}
+                                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
+                                        onClick={() => setMobileOpen(false)}
+                                    >
+                                        <User className="h-5 w-5" />
+                                        {t("nav.hello", "Hello,")} {displayName} — {t("nav.account", "My Account")}
+                                    </Link>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleLogout}
+                                        className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/15"
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        {t("nav.logout", "Logout")}
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Mobile language buttons */}
                             <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-white/95 bg-white/10">
@@ -328,9 +414,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <button
                                             key={lc}
                                             onClick={() => switchLocale(lc)}
-                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale
-                                                    ? "bg-white/20 text-white"
-                                                    : "text-white/90 hover:bg-white/10"
+                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale ? "bg-white/20 text-white" : "text-white/90 hover:bg-white/10"
                                                 }`}
                                             type="button"
                                         >
