@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "logo": "YALAKOM",
+
+    "servicesTitle": "Perfect Services",
+    "services": {
+      "design": "Design",
+      "development": "Development",
+      "marketing": "Marketing"
+    },
+
+    "searchPlaceholder": "Search for Products",
+    "searchAria": "Search",
+
+    "hello": "Hello User",
+    "account": "My Account",
+
+    "cartAria": "Cart",
+
+    "language": "Language",
+    "changeLanguageAria": "Change language",
+    "changeLanguageTitle": "Change language",
+
+    "openMenuAria": "Open menu"
+  },
+
+  "footer": {
+    "download": {
+      "title": "Download the App",
+      "previewAlt": "App Preview",
+      "descLine1": "Download our mobile app",
+      "descLine2": "to manage everything",
+      "descLine3": "on the go.",
+      "googlePlayAlt": "Google Play",
+      "appStoreAlt": "App Store",
+      "appCodeBtn": "App Code"
+    },
+    "perfectServices": {
+      "title": "Perfect Services",
+      "items": [
+        "Accounting Packages",
+        "Company Registration",
+        "Visa and Immigration",
+        "Travel and Tour Packages",
+        "Repair and Installation",
+        "Home/Office Moving",
+        "Transport Booking",
+        "Flight Ticketing",
+        "All over HK Pickup and Drop"
+      ]
+    },
+    "customerService": {
+      "title": "Customer Service",
+      "items": [
+        "Track Order",
+        "Track Courier",
+        "Shipping and Handling",
+        "Return and Exchanges",
+        "Payments"
+      ]
+    },
+    "payment": {
+      "title": "Payment",
+      "razorpayAlt": "Razorpay"
+    },
+    "aboutUs": {
+      "title": "About Us",
+      "items": ["About Us", "Contact Us", "Mart Brands", "Mart Category"]
+    },
+    "support": {
+      "title": "Customer Support",
+      "emailLabel": "Email Us:",
+      "email": "support@exechub.com",
+      "emailNote": "We will get back to within 24 hrs.",
+      "callLabel": "Call Us:",
+      "callNote": "Available from 8am – 5pm HK",
+      "phone": "+852-1111-1111"
+    },
+    "links": {
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "faqs": "FAQs"
+    },
+    "bottom": "© 2026 yalakhom Private Limited."
+  }
+}

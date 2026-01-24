@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "logo": "YALAKOM",
+
+    "servicesTitle": "完美服務",
+    "services": {
+      "design": "設計",
+      "development": "開發",
+      "marketing": "行銷"
+    },
+
+    "searchPlaceholder": "搜尋產品",
+    "searchAria": "搜尋",
+
+    "hello": "你好",
+    "account": "我的帳戶",
+
+    "cartAria": "購物車",
+
+    "language": "語言",
+    "changeLanguageAria": "切換語言",
+    "changeLanguageTitle": "切換語言",
+
+    "openMenuAria": "開啟選單"
+  },
+
+  "footer": {
+    "download": {
+      "title": "下載應用程式",
+      "previewAlt": "應用預覽",
+      "descLine1": "下載我們的手機應用程式",
+      "descLine2": "隨時隨地管理一切",
+      "descLine3": "更方便快捷。",
+      "googlePlayAlt": "Google Play",
+      "appStoreAlt": "App Store",
+      "appCodeBtn": "應用碼"
+    },
+    "perfectServices": {
+      "title": "完美服務",
+      "items": [
+        "會計套裝",
+        "公司註冊",
+        "簽證及移民",
+        "旅遊及行程套票",
+        "維修及安裝",
+        "家居/辦公室搬運",
+        "交通預訂",
+        "機票預訂",
+        "全港接送服務"
+      ]
+    },
+    "customerService": {
+      "title": "客戶服務",
+      "items": ["追蹤訂單", "追蹤快遞", "運送及處理", "退貨及換貨", "付款"]
+    },
+    "payment": {
+      "title": "付款",
+      "razorpayAlt": "Razorpay"
+    },
+    "aboutUs": {
+      "title": "關於我們",
+      "items": ["關於我們", "聯絡我們", "Mart 品牌", "Mart 分類"]
+    },
+    "support": {
+      "title": "客戶支援",
+      "emailLabel": "電郵我們：",
+      "email": "support@exechub.com",
+      "emailNote": "我們會在 24 小時內回覆。",
+      "callLabel": "致電我們：",
+      "callNote": "香港時間上午 8 點至下午 5 點提供服務",
+      "phone": "+852-1111-1111"
+    },
+    "links": {
+      "terms": "條款及細則",
+      "privacy": "私隱政策",
+      "faqs": "常見問題"
+    },
+    "bottom": "© 2026 Yalakhom Private Limited."
+  }
+}
