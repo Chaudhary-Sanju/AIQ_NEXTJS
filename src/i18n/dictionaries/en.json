@@ -83,5 +83,170 @@
       "faqs": "FAQs"
     },
     "bottom": "© 2026 yalakhom Private Limited."
+  },
+
+  "login": {
+    "title": "Login",
+    "subtitle": "Enter your email and password to continue",
+    "secureTag": "Secure Login",
+    "welcomeTitle": "Welcome back",
+    "welcomeDesc": "Sign in to access your account, manage orders, and explore Perfect Services.",
+    "tip": "Tip: Use “Remember me” only on your personal device.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "remember": "Remember me",
+    "forgot": "Forgot password?",
+    "submit": "Sign in",
+    "loading": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "agreePrefix": "By signing in, you agree to our",
+    "terms": "Terms",
+    "and": "and",
+    "privacy": "Privacy Policy",
+    "errorDefault": "Login failed. Please try again."
+  },
+
+  "signup": {
+    "aria": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+
+    "left": {
+      "tagCreate": "Create Account",
+      "tagOtp": "Verify OTP",
+      "titleCreate": "Join Yalakhom",
+      "titleOtp": "Secure Verification",
+      "descCreate": "Create your account to manage orders and access services.",
+      "descOtp": "Enter the OTP sent to your email to activate your account.",
+      "passwordRuleTitle": "Password rule",
+      "passwordRuleText": "8+ chars, uppercase, lowercase, number, special (@$!%*?&).",
+      "phoneRuleTitle": "Phone formats",
+      "phoneRuleText": "Nepal: +9779876543210 or +977-9876543210 or 9876543210\nHK: +85251234567 or +852-51234567 or 51234567",
+      "tipCreate": "Tip: Use a strong password and keep it private.",
+      "tipOtp": "Didn’t receive OTP? You can resend it."
+    },
+
+    "mobile": {
+      "titleCreate": "Sign up",
+      "titleOtp": "Verify OTP",
+      "descCreate": "Fill in your details to create an account",
+      "descOtp": "Enter the OTP sent to your email"
+    },
+
+    "form": {
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+9779876543210",
+      "address": "Address",
+      "addressPlaceholder": "City / Area",
+      "password": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat password"
+    },
+
+    "buttons": {
+      "pleaseWait": "Please wait...",
+      "createAccount": "Create account",
+      "verifyOtp": "Verify OTP",
+      "resendOtp": "Resend OTP",
+      "backToSignup": "Back to Signup"
+    },
+
+    "links": {
+      "alreadyHave": "Already have an account?",
+      "alreadyRegister": "Already register?",
+      "verifyNow": "Verify Account Now",
+      "wantLogin": "Want to login?",
+      "login": "Login"
+    },
+
+    "footer": {
+      "agreePrefix": "By creating an account, you agree to our",
+      "terms": "Terms",
+      "and": "and",
+      "privacy": "Privacy Policy"
+    },
+
+    "otp": {
+      "sentTo": "OTP sent to",
+      "label": "OTP Code",
+      "placeholder": "Enter 6-digit OTP"
+    },
+
+    "errors": {
+      "fixFields": "Please fix the highlighted fields.",
+      "unexpected": "Unexpected response from server. Please try again.",
+      "otpCheck": "Please check the OTP and try again.",
+      "otpResendFail": "Unable to resend OTP. Please check your email."
+    },
+
+    "success": {
+      "register": "Registration successful! OTP has been sent to your email.",
+      "otpVerified": "OTP verified successfully! Redirecting to login...",
+      "otpResent": "OTP resent successfully. Please check your email."
+    },
+
+    "validation": {
+      "nameMin": "Name must be at least 2 characters.",
+      "emailRequired": "Email is required.",
+      "passwordRule": "Password must be 8+ chars and include uppercase, lowercase, number, and special character.",
+      "confirmRequired": "Confirm password is required.",
+      "confirmMismatch": "Password does not match.",
+      "phoneRule": "Phone must be a valid Nepal (+977) or Hong Kong (+852) number.",
+      "addressRequired": "Address is required."
+    }
+  },
+
+  "verify": {
+    "left": {
+      "tag": "Verify Account",
+      "title": "Complete verification",
+      "desc": "If you registered but didn’t verify OTP, your account stays pending. Resend OTP and verify to activate it.",
+      "tip": "Tip: Check spam folder if you don’t see OTP."
+    },
+    "mobile": {
+      "title": "Verify Account",
+      "desc": "Resend OTP and verify your account"
+    },
+    "form": {
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "otp": "OTP Code",
+      "otpPlaceholder": "Enter 6-digit OTP"
+    },
+    "buttons": {
+      "pleaseWait": "Please wait...",
+      "verifyOtp": "Verify OTP",
+      "resendOtp": "Resend OTP"
+    },
+    "links": {
+      "goTo": "Go to",
+      "login": "Login",
+      "or": "or",
+      "signup": "Signup",
+      "needHelp": "Need help?",
+      "contactSupport": "Contact support"
+    },
+    "validation": {
+      "emailRequired": "Email is required.",
+      "otpRequired": "OTP is required."
+    },
+    "errors": {
+      "enterEmail": "Please enter your email.",
+      "fixFields": "Please fix the highlighted fields.",
+      "otpCheck": "Please check your OTP and try again."
+    },
+    "success": {
+      "otpResent": "OTP resent successfully. Please check your email.",
+      "otpVerified": "OTP verified successfully! Redirecting to login..."
+    }
   }
 }

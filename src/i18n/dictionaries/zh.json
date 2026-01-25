@@ -78,5 +78,167 @@
       "faqs": "常見問題"
     },
     "bottom": "© 2026 Yalakhom Private Limited."
+  },
+
+  "login": {
+    "title": "登入",
+    "subtitle": "輸入電郵與密碼以繼續",
+    "secureTag": "安全登入",
+    "welcomeTitle": "歡迎回來",
+    "welcomeDesc": "登入以查看帳戶、管理訂單並探索 Perfect Services。",
+    "tip": "提示：僅在私人裝置上使用「記住我」。",
+    "emailLabel": "電郵",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "密碼",
+    "passwordPlaceholder": "輸入密碼",
+    "remember": "記住我",
+    "forgot": "忘記密碼？",
+    "submit": "登入",
+    "loading": "登入中...",
+    "noAccount": "還沒有帳戶？",
+    "register": "註冊",
+    "agreePrefix": "登入即表示你同意我們的",
+    "terms": "條款",
+    "and": "及",
+    "privacy": "私隱政策",
+    "errorDefault": "登入失敗，請再試一次。"
+  },
+
+  "signup": {
+    "aria": { "showPassword": "顯示密碼", "hidePassword": "隱藏密碼" },
+
+    "left": {
+      "tagCreate": "建立帳戶",
+      "tagOtp": "驗證 OTP",
+      "titleCreate": "加入 Yalakhom",
+      "titleOtp": "安全驗證",
+      "descCreate": "建立帳戶以管理訂單並使用服務。",
+      "descOtp": "輸入已寄到你電郵的 OTP 以啟用帳戶。",
+      "passwordRuleTitle": "密碼規則",
+      "passwordRuleText": "至少 8 位，需包含大寫、小寫、數字及特殊字元 (@$!%*?&)。",
+      "phoneRuleTitle": "電話格式",
+      "phoneRuleText": "尼泊爾: +9779876543210 或 +977-9876543210 或 9876543210\n香港: +85251234567 或 +852-51234567 或 51234567",
+      "tipCreate": "提示：使用強密碼並妥善保管。",
+      "tipOtp": "收不到 OTP？你可以重新發送。"
+    },
+
+    "mobile": {
+      "titleCreate": "註冊",
+      "titleOtp": "驗證 OTP",
+      "descCreate": "填寫資料以建立帳戶",
+      "descOtp": "輸入已寄到你電郵的 OTP"
+    },
+
+    "form": {
+      "fullName": "姓名",
+      "fullNamePlaceholder": "你的姓名",
+      "email": "電郵",
+      "emailPlaceholder": "you@example.com",
+      "phone": "電話",
+      "phonePlaceholder": "+9779876543210",
+      "address": "地址",
+      "addressPlaceholder": "城市 / 地區",
+      "password": "密碼",
+      "passwordPlaceholder": "建立密碼",
+      "confirmPassword": "確認密碼",
+      "confirmPasswordPlaceholder": "再次輸入密碼"
+    },
+
+    "buttons": {
+      "pleaseWait": "請稍候...",
+      "createAccount": "建立帳戶",
+      "verifyOtp": "驗證 OTP",
+      "resendOtp": "重發 OTP",
+      "backToSignup": "返回註冊"
+    },
+
+    "links": {
+      "alreadyHave": "已有帳戶？",
+      "alreadyRegister": "已註冊？",
+      "verifyNow": "立即驗證帳戶",
+      "wantLogin": "想登入？",
+      "login": "登入"
+    },
+
+    "footer": {
+      "agreePrefix": "建立帳戶即表示你同意我們的",
+      "terms": "條款",
+      "and": "及",
+      "privacy": "私隱政策"
+    },
+
+    "otp": {
+      "sentTo": "OTP 已發送到",
+      "label": "OTP 代碼",
+      "placeholder": "輸入 6 位 OTP"
+    },
+
+    "errors": {
+      "fixFields": "請修正已標示的欄位。",
+      "unexpected": "伺服器回應異常，請再試一次。",
+      "otpCheck": "請檢查 OTP 後再試。",
+      "otpResendFail": "無法重發 OTP，請確認電郵。"
+    },
+
+    "success": {
+      "register": "註冊成功！OTP 已發送到你的電郵。",
+      "otpVerified": "OTP 驗證成功！正在跳轉到登入頁...",
+      "otpResent": "OTP 已重發，請查看電郵。"
+    },
+
+    "validation": {
+      "nameMin": "姓名至少需要 2 個字元。",
+      "emailRequired": "必須填寫電郵。",
+      "passwordRule": "密碼需至少 8 位，並包含大寫、小寫、數字與特殊字元。",
+      "confirmRequired": "必須填寫確認密碼。",
+      "confirmMismatch": "密碼不一致。",
+      "phoneRule": "電話必須是有效的尼泊爾 (+977) 或香港 (+852) 號碼。",
+      "addressRequired": "必須填寫地址。"
+    }
+  },
+
+  "verify": {
+    "left": {
+      "tag": "驗證帳戶",
+      "title": "完成驗證",
+      "desc": "如果你已註冊但未驗證 OTP，帳戶會保持待處理狀態。請重發 OTP 並完成驗證以啟用帳戶。",
+      "tip": "提示：如收不到 OTP，請檢查垃圾郵件匣。"
+    },
+    "mobile": {
+      "title": "驗證帳戶",
+      "desc": "重發 OTP 並驗證你的帳戶"
+    },
+    "form": {
+      "email": "電郵",
+      "emailPlaceholder": "you@example.com",
+      "otp": "OTP 代碼",
+      "otpPlaceholder": "輸入 6 位 OTP"
+    },
+    "buttons": {
+      "pleaseWait": "請稍候...",
+      "verifyOtp": "驗證 OTP",
+      "resendOtp": "重發 OTP"
+    },
+    "links": {
+      "goTo": "前往",
+      "login": "登入",
+      "or": "或",
+      "signup": "註冊",
+      "needHelp": "需要協助？",
+      "contactSupport": "聯絡客服"
+    },
+    "validation": {
+      "emailRequired": "必須填寫電郵。",
+      "otpRequired": "必須填寫 OTP。"
+    },
+    "errors": {
+      "enterEmail": "請輸入你的電郵。",
+      "fixFields": "請修正已標示的欄位。",
+      "otpCheck": "請檢查 OTP 後再試。"
+    },
+    "success": {
+      "otpResent": "OTP 已重發，請查看電郵。",
+      "otpVerified": "OTP 驗證成功！正在跳轉到登入頁..."
+    }
   }
 }

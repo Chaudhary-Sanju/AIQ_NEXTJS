@@ -17,7 +17,6 @@
     "login": "लगइन",
     "logout": "लगआउट",
 
-
     "cartAria": "कार्ट",
 
     "language": "भाषा",
@@ -90,5 +89,194 @@
       "faqs": "सोधिने प्रश्नहरू"
     },
     "bottom": "© 2026 Yalakhom Private Limited."
+  },
+
+  "login": {
+    "title": "लगइन",
+    "subtitle": "जारी राख्न इमेल र पासवर्ड लेख्नुहोस्",
+    "secureTag": "सुरक्षित लगइन",
+    "welcomeTitle": "फेरि स्वागत छ",
+    "welcomeDesc": "आफ्नो खाता, अर्डर व्यवस्थापन, र Perfect Services हेर्न लगइन गर्नुहोस्।",
+    "tip": "टिप: “Remember me” आफ्नै डिभाइसमा मात्र प्रयोग गर्नुहोस्।",
+    "emailLabel": "इमेल",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "पासवर्ड",
+    "passwordPlaceholder": "पासवर्ड लेख्नुहोस्",
+    "remember": "मलाई सम्झिरहनुहोस्",
+    "forgot": "पासवर्ड बिर्सनुभयो?",
+    "submit": "लगइन",
+    "loading": "लगइन हुँदैछ...",
+    "noAccount": "खाता छैन?",
+    "register": "दर्ता गर्नुहोस्",
+    "agreePrefix": "लगइन गर्दा तपाईंले हाम्रो",
+    "terms": "सर्तहरू",
+    "and": "र",
+    "privacy": "गोपनीयता नीति",
+    "errorDefault": "लगइन असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।"
+  },
+
+  "login": {
+    "title": "लगइन",
+    "subtitle": "जारी राख्न इमेल र पासवर्ड लेख्नुहोस्",
+    "secureTag": "सुरक्षित लगइन",
+    "welcomeTitle": "फेरि स्वागत छ",
+    "welcomeDesc": "आफ्नो खाता, अर्डर व्यवस्थापन, र Perfect Services हेर्न लगइन गर्नुहोस्।",
+    "tip": "टिप: “Remember me” आफ्नै डिभाइसमा मात्र प्रयोग गर्नुहोस्।",
+    "emailLabel": "इमेल",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "पासवर्ड",
+    "passwordPlaceholder": "पासवर्ड लेख्नुहोस्",
+    "remember": "मलाई सम्झिरहनुहोस्",
+    "forgot": "पासवर्ड बिर्सनुभयो?",
+    "submit": "लगइन",
+    "loading": "लगइन हुँदैछ...",
+    "noAccount": "खाता छैन?",
+    "register": "दर्ता गर्नुहोस्",
+    "agreePrefix": "लगइन गर्दा तपाईंले हाम्रो",
+    "terms": "सर्तहरू",
+    "and": "र",
+    "privacy": "गोपनीयता नीति",
+    "errorDefault": "लगइन असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।"
+  },
+
+  "signup": {
+    "aria": {
+      "showPassword": "पासवर्ड देखाउनुहोस्",
+      "hidePassword": "पासवर्ड लुकाउनुहोस्"
+    },
+
+    "left": {
+      "tagCreate": "खाता बनाउनुहोस्",
+      "tagOtp": "OTP पुष्टि",
+      "titleCreate": "Yalakhom मा जोडिनुहोस्",
+      "titleOtp": "सुरक्षित प्रमाणीकरण",
+      "descCreate": "अर्डर व्यवस्थापन र सेवा पहुँच गर्न खाता बनाउनुहोस्।",
+      "descOtp": "खाता सक्रिय गर्न इमेलमा आएको OTP प्रविष्ट गर्नुहोस्।",
+      "passwordRuleTitle": "पासवर्ड नियम",
+      "passwordRuleText": "८+ अक्षर, ठूलो/सानो अक्षर, नम्बर, विशेष (@$!%*?&).",
+      "phoneRuleTitle": "फोन ढाँचा",
+      "phoneRuleText": "नेपाल: +9779876543210 वा +977-9876543210 वा 9876543210\nHK: +85251234567 वा +852-51234567 वा 51234567",
+      "tipCreate": "टिप: बलियो पासवर्ड प्रयोग गर्नुहोस् र गोप्य राख्नुहोस्।",
+      "tipOtp": "OTP आएन? पुनः पठाउन सक्नुहुन्छ।"
+    },
+
+    "mobile": {
+      "titleCreate": "साइन अप",
+      "titleOtp": "OTP पुष्टि",
+      "descCreate": "खाता बनाउन आफ्नो विवरण भर्नुहोस्",
+      "descOtp": "इमेलमा आएको OTP लेख्नुहोस्"
+    },
+
+    "form": {
+      "fullName": "पूरा नाम",
+      "fullNamePlaceholder": "तपाईंको पूरा नाम",
+      "email": "इमेल",
+      "emailPlaceholder": "you@example.com",
+      "phone": "फोन",
+      "phonePlaceholder": "+9779876543210",
+      "address": "ठेगाना",
+      "addressPlaceholder": "सहर / क्षेत्र",
+      "password": "पासवर्ड",
+      "passwordPlaceholder": "पासवर्ड बनाउनुहोस्",
+      "confirmPassword": "पासवर्ड पुष्टि",
+      "confirmPasswordPlaceholder": "पासवर्ड फेरि लेख्नुहोस्"
+    },
+
+    "buttons": {
+      "pleaseWait": "कृपया पर्खनुहोस्...",
+      "createAccount": "खाता बनाउनुहोस्",
+      "verifyOtp": "OTP पुष्टि गर्नुहोस्",
+      "resendOtp": "OTP पुनः पठाउनुहोस्",
+      "backToSignup": "साइन अपमा फर्किनुहोस्"
+    },
+
+    "links": {
+      "alreadyHave": "पहिल्यै खाता छ?",
+      "alreadyRegister": "पहिल्यै दर्ता गर्नुभएको छ?",
+      "verifyNow": "अहिले नै खाता पुष्टि गर्नुहोस्",
+      "wantLogin": "लगइन गर्न चाहनुहुन्छ?",
+      "login": "लगइन"
+    },
+
+    "footer": {
+      "agreePrefix": "खाता बनाउँदा तपाईंले हाम्रो",
+      "terms": "सर्तहरू",
+      "and": "र",
+      "privacy": "गोपनीयता नीति"
+    },
+
+    "otp": {
+      "sentTo": "OTP पठाइएको इमेल",
+      "label": "OTP कोड",
+      "placeholder": "६-अङ्कको OTP लेख्नुहोस्"
+    },
+
+    "errors": {
+      "fixFields": "कृपया हाइलाइट गरिएको फील्डहरू सुधार्नुहोस्।",
+      "unexpected": "सर्भरबाट अनपेक्षित प्रतिक्रिया आयो। फेरि प्रयास गर्नुहोस्।",
+      "otpCheck": "OTP जाँच गरेर फेरि प्रयास गर्नुहोस्।",
+      "otpResendFail": "OTP पुनः पठाउन सकिएन। इमेल जाँच गर्नुहोस्।"
+    },
+
+    "success": {
+      "register": "दर्ता सफल! OTP इमेलमा पठाइएको छ।",
+      "otpVerified": "OTP सफलतापूर्वक पुष्टि भयो! लगइनमा लैजाँदै...",
+      "otpResent": "OTP पुनः पठाइयो। कृपया इमेल जाँच गर्नुहोस्।"
+    },
+
+    "validation": {
+      "nameMin": "नाम कम्तीमा २ अक्षर हुनुपर्छ।",
+      "emailRequired": "इमेल आवश्यक छ।",
+      "passwordRule": "पासवर्ड ८+ अक्षर, ठूलो/सानो अक्षर, नम्बर र विशेष क्यारेक्टर हुनुपर्छ।",
+      "confirmRequired": "पासवर्ड पुष्टि आवश्यक छ।",
+      "confirmMismatch": "पासवर्ड मिलेन।",
+      "phoneRule": "फोन नेपाल (+977) वा हङकङ (+852) ढाँचामा हुनुपर्छ।",
+      "addressRequired": "ठेगाना आवश्यक छ।"
+    }
+  },
+
+  "verify": {
+    "left": {
+      "tag": "खाता पुष्टि",
+      "title": "पुष्टि पूरा गर्नुहोस्",
+      "desc": "दर्ता गरेपछि OTP पुष्टि नगरेमा खाता Pending रहन्छ। OTP पुनः पठाएर पुष्टि गरी सक्रिय गर्नुहोस्।",
+      "tip": "टिप: OTP नदेखिए Spam फोल्डर पनि जाँच गर्नुहोस्।"
+    },
+    "mobile": {
+      "title": "खाता पुष्टि",
+      "desc": "OTP पुनः पठाएर खाता पुष्टि गर्नुहोस्"
+    },
+    "form": {
+      "email": "इमेल",
+      "emailPlaceholder": "you@example.com",
+      "otp": "OTP कोड",
+      "otpPlaceholder": "६-अङ्कको OTP लेख्नुहोस्"
+    },
+    "buttons": {
+      "pleaseWait": "कृपया पर्खनुहोस्...",
+      "verifyOtp": "OTP पुष्टि गर्नुहोस्",
+      "resendOtp": "OTP पुनः पठाउनुहोस्"
+    },
+    "links": {
+      "goTo": "जानुहोस्",
+      "login": "लगइन",
+      "or": "वा",
+      "signup": "साइन अप",
+      "needHelp": "सहायता चाहियो?",
+      "contactSupport": "समर्थन सम्पर्क गर्नुहोस्"
+    },
+    "validation": {
+      "emailRequired": "इमेल आवश्यक छ।",
+      "otpRequired": "OTP आवश्यक छ।"
+    },
+    "errors": {
+      "enterEmail": "कृपया इमेल लेख्नुहोस्।",
+      "fixFields": "कृपया हाइलाइट गरिएको फील्डहरू सुधार्नुहोस्।",
+      "otpCheck": "OTP जाँच गरेर फेरि प्रयास गर्नुहोस्।"
+    },
+    "success": {
+      "otpResent": "OTP पुनः पठाइयो। कृपया इमेल जाँच गर्नुहोस्।",
+      "otpVerified": "OTP सफलतापूर्वक पुष्टि भयो! लगइनमा लैजाँदै..."
+    }
   }
 }

@@ -1,4 +1,4 @@
-import Login from "@/components/pageComponents/Login";
+import VerifyAccount from "@/components/pageComponents/VerifyAccount";
 
 // If you already load dictionaries in layout, you can pass dict down from there.
 // Here is a simple page-level version:
@@ -11,5 +11,5 @@ export default async function Page({ params }) {
 
     const dict = await getDictionary(locale);
 
-    return <Login locale={locale} dict={dict} />;
+    return <VerifyAccount locale={locale} dict={dict} />;
 }

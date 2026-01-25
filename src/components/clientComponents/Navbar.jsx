@@ -117,7 +117,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
             {/* Top Bar */}
             <div className="bg-gradient-to-r from-[#5f57ff] to-[#2b2458]">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 items-center justify-between gap-3">
+                    <div className="flex h-20 items-center justify-between gap-3">
                         {/* Left: Logo + Services */}
                         <div className="flex items-center gap-3 sm:gap-6">
                             <Link href={l("/")} className="flex items-center">
@@ -429,7 +429,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
             </div>
 
             {/* Bottom white strip */}
-            <div className="h-8 bg-white" />
+            {/* <div className="h-8 bg-white" /> */}
         </header>
     );
 }
