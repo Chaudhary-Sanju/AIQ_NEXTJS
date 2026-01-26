@@ -166,7 +166,7 @@ export default function Login({ locale = "en", dict = {} }) {
     const handleInputChange = (ev) => setInForm(ev, form, setForm);
 
     return (
-        <section className="w-full">
+        <section className="w-full z-0">
             <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
                 <Glow />
 
@@ -248,13 +248,13 @@ export default function Login({ locale = "en", dict = {} }) {
                                             />
                                             {t("login.remember", "Remember me")}
                                         </label>
-
+                                        {/* 
                                         <Link
                                             href={`/${locale}/auth/forgot-password`}
                                             className="text-xs text-white/75 hover:text-white hover:underline"
                                         >
                                             {t("login.forgot", "Forgot password?")}
-                                        </Link>
+                                        </Link> */}
                                     </div>
                                 </Field>
 

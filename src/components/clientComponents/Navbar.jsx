@@ -141,7 +141,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                                 {servicesOpen && (
                                     <div
-                                        className="absolute left-0 mt-2 w-56 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5"
+                                        className="absolute left-0 mt-2 w-56 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 z-10"
                                         role="menu"
                                     >
                                         <Link

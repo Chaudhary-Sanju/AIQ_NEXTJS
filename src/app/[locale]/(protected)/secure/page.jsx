@@ -7,10 +7,12 @@ export default async function SecurePage({ params }) {
     const user = await requireAuth(locale, `/${locale}/secure`);
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-semibold">Secure Page</h1>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum libero minima quibusdam eaque cupiditate amet temporibus! Perferendis fuga ipsa fugit vero sed pariatur, aperiam deleniti, tempora autem illum cum veniam.</p>
-            <p className="mt-2">Welcome, {user?.name ?? "User"} 👋</p>
-        </div>
+        <>
+            <div className="p-6">
+                <h1 className="text-2xl font-semibold">Secure Page</h1>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum libero minima quibusdam eaque cupiditate amet temporibus! Perferendis fuga ipsa fugit vero sed pariatur, aperiam deleniti, tempora autem illum cum veniam.</p>
+                <p className="mt-2">Welcome, {user?.name ?? "User"} 👋</p>
+            </div>
+        </>
     );
 }

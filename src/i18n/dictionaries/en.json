@@ -82,7 +82,7 @@
       "privacy": "Privacy Policy",
       "faqs": "FAQs"
     },
-    "bottom": "© 2026 yalakhom Private Limited."
+    "bottom": "© 2026 Yalakhom Private Limited."
   },
 
   "login": {
@@ -248,5 +248,13 @@
       "otpResent": "OTP resent successfully. Please check your email.",
       "otpVerified": "OTP verified successfully! Redirecting to login..."
     }
+  },
+
+  "deliveryHero": {
+    "alt": "Delivery rider",
+    "title": "Delivering at the Speed\nof Your Life",
+    "subtitle": "Real-time tracking, instant pickups,\nand lightning-fast delivery\npowered by Yalakhom.",
+    "ctaPrimary": "Get Started",
+    "ctaSecondary": "Track Order"
   }
 }

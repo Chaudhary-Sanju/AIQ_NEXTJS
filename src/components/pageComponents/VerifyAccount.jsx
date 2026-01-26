@@ -376,7 +376,7 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
     };
 
     return (
-        <section className="w-full">
+        <section className="w-full z-0">
             <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
                 <Glow />
 

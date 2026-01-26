@@ -288,7 +288,7 @@ export default function Footer({ locale = "en", dict = {} }) {
 
                 {/* Divider + Bottom copyright */}
                 <div className="mt-12 border-t border-white/20 py-6 text-center text-sm text-white/70">
-                    {t("footer.bottom", "© 2026 Easehub Private Limited.")}
+                    {t("footer.bottom", "© 2026 Yalakhom Private Limited.")}
                 </div>
             </div>
         </footer>

@@ -240,5 +240,13 @@
       "otpResent": "OTP 已重發，請查看電郵。",
       "otpVerified": "OTP 驗證成功！正在跳轉到登入頁..."
     }
+  },
+
+  "deliveryHero": {
+    "alt": "送貨騎手",
+    "title": "以你的生活速度\n為你送達",
+    "subtitle": "即時追蹤、即刻取件、\n閃電般快速送貨，\n由 Yalakhom 提供支援。",
+    "ctaPrimary": "立即開始",
+    "ctaSecondary": "追蹤訂單"
   }
 }
