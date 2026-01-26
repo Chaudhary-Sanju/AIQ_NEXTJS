@@ -256,6 +256,119 @@ function SecondaryButton({ loading, onClick, loadingText, children }) {
     );
 }
 
+function OtpInput({
+    value,
+    onChange, // gets full otp string
+    length = 6,
+    disabled = false,
+    hasError = false,
+    t,
+}) {
+    const digits = useMemo(() => {
+        const v = (value || "").replace(/\D/g, "").slice(0, length);
+        return Array.from({ length }, (_, i) => v[i] || "");
+    }, [value, length]);
+
+    const refs = useMemo(() => Array.from({ length }, () => null), [length]);
+
+    const commit = (nextDigits, focusIdx) => {
+        onChange(nextDigits.join(""));
+        if (typeof focusIdx === "number") refs[focusIdx]?.focus?.();
+    };
+
+    const setAt = (idx, raw) => {
+        const clean = (raw || "").replace(/\D/g, "");
+        const next = [...digits];
+
+        if (!clean) {
+            next[idx] = "";
+            commit(next);
+            return;
+        }
+
+        // support typing/pasting multiple digits
+        const chunk = clean.slice(0, length - idx).split("");
+        for (let i = 0; i < chunk.length; i++) next[idx + i] = chunk[i];
+
+        const focusTo = Math.min(idx + chunk.length, length - 1);
+        commit(next, focusTo);
+    };
+
+    const onKeyDown = (idx, e) => {
+        if (disabled) return;
+
+        if (e.key === "Backspace") {
+            e.preventDefault();
+
+            if (digits[idx]) {
+                const next = [...digits];
+                next[idx] = "";
+                commit(next);
+            } else if (idx > 0) {
+                const next = [...digits];
+                next[idx - 1] = "";
+                commit(next, idx - 1);
+            }
+        }
+
+        if (e.key === "ArrowLeft" && idx > 0) refs[idx - 1]?.focus?.();
+        if (e.key === "ArrowRight" && idx < length - 1) refs[idx + 1]?.focus?.();
+    };
+
+    const onPaste = (idx, e) => {
+        if (disabled) return;
+        e.preventDefault();
+        const text = e.clipboardData.getData("text") || "";
+        setAt(idx, text);
+    };
+
+    return (
+        <div className="space-y-2">
+            <div className="grid grid-cols-6 gap-2">
+                {digits.map((d, idx) => (
+                    <input
+                        key={idx}
+                        ref={(el) => (refs[idx] = el)}
+                        value={d}
+                        onChange={(e) => {
+                            setAt(idx, e.target.value);
+                            if (e.target.value && idx < length - 1) refs[idx + 1]?.focus?.();
+                        }}
+                        onKeyDown={(e) => onKeyDown(idx, e)}
+                        onPaste={(e) => onPaste(idx, e)}
+                        inputMode="numeric"
+                        autoComplete={idx === 0 ? "one-time-code" : "off"}
+                        disabled={disabled}
+                        aria-label={
+                            t ? t("signup.otp.digitAria", `OTP digit ${idx + 1}`) : `OTP digit ${idx + 1}`
+                        }
+                        className={[
+                            "h-11 w-full rounded-xl border bg-white/5 text-center text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
+                            hasError
+                                ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
+                                : "border-white/15 focus:border-white/35 focus:ring-white/10",
+                            "disabled:opacity-60",
+                        ].join(" ")}
+                    />
+                ))}
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-white/55">
+                <span>{t ? t("signup.otp.helper", "Enter the 6-digit code") : "Enter the 6-digit code"}</span>
+                <button
+                    type="button"
+                    disabled={disabled || !value}
+                    onClick={() => onChange("")}
+                    className="underline hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    {t ? t("signup.otp.clear", "Clear") : "Clear"}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+
 /* ---------------------------------- */
 /* Page */
 /* ---------------------------------- */
@@ -645,14 +758,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                         </div>
 
                                         <Field label={t("signup.otp.label", "OTP Code")} error={fieldErrors?.otp}>
-                                            <TextInput
-                                                icon={KeyRound}
-                                                type="text"
-                                                name="otp"
-                                                id="otp"
+                                            <OtpInput
                                                 value={otp}
-                                                onChange={(e) => {
-                                                    setOtp(e.target.value);
+                                                onChange={(v) => {
+                                                    setOtp(v);
                                                     if (fieldErrors?.otp) {
                                                         setFieldErrors((prev) => {
                                                             const next = { ...prev };
@@ -662,13 +771,13 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     }
                                                     if (error) setError("");
                                                 }}
-                                                placeholder={t("signup.otp.placeholder", "Enter 6-digit OTP")}
-                                                inputMode="numeric"
-                                                maxLength={6}
-                                                autoComplete="one-time-code"
+                                                length={6}
+                                                disabled={loadingVerify || loadingResend}
                                                 hasError={!!fieldErrors?.otp}
+                                                t={t}
                                             />
                                         </Field>
+
 
                                         <PrimaryButton
                                             loading={loadingVerify}

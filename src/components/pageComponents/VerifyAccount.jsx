@@ -140,6 +140,117 @@ function SecondaryButton({ loading, onClick, loadingText, children }) {
     );
 }
 
+function OtpInput({
+    value,
+    onChange,       // receives full otp string
+    length = 6,
+    disabled = false,
+    hasError = false,
+}) {
+    const digits = useMemo(() => {
+        const v = (value || "").replace(/\D/g, "").slice(0, length);
+        return Array.from({ length }, (_, i) => v[i] || "");
+    }, [value, length]);
+
+    const refs = useMemo(() => Array.from({ length }, () => null), [length]);
+
+    const setAt = (idx, char) => {
+        const clean = (char || "").replace(/\D/g, "");
+        const next = [...digits];
+
+        if (!clean) {
+            next[idx] = "";
+            onChange(next.join(""));
+            return;
+        }
+
+        // if user pasted multiple digits into one box
+        const chunk = clean.slice(0, length - idx).split("");
+        for (let i = 0; i < chunk.length; i++) {
+            next[idx + i] = chunk[i];
+        }
+        onChange(next.join(""));
+
+        const focusTo = Math.min(idx + chunk.length, length - 1);
+        refs[focusTo]?.focus?.();
+    };
+
+    const handleKeyDown = (idx, e) => {
+        if (disabled) return;
+
+        if (e.key === "Backspace") {
+            e.preventDefault();
+            if (digits[idx]) {
+                setAt(idx, "");
+            } else if (idx > 0) {
+                refs[idx - 1]?.focus?.();
+                // also clear previous for a nice UX
+                const next = [...digits];
+                next[idx - 1] = "";
+                onChange(next.join(""));
+            }
+        }
+
+        if (e.key === "ArrowLeft" && idx > 0) refs[idx - 1]?.focus?.();
+        if (e.key === "ArrowRight" && idx < length - 1) refs[idx + 1]?.focus?.();
+    };
+
+    const handlePaste = (idx, e) => {
+        if (disabled) return;
+        e.preventDefault();
+        const text = e.clipboardData.getData("text") || "";
+        setAt(idx, text);
+    };
+
+    return (
+        <div className="space-y-2">
+            <div
+                className={[
+                    "grid grid-cols-6 gap-2",
+                    length === 6 ? "" : "",
+                ].join(" ")}
+            >
+                {digits.map((d, idx) => (
+                    <input
+                        key={idx}
+                        ref={(el) => (refs[idx] = el)}
+                        value={d}
+                        onChange={(e) => {
+                            setAt(idx, e.target.value);
+                            if (e.target.value && idx < length - 1) refs[idx + 1]?.focus?.();
+                        }}
+                        onKeyDown={(e) => handleKeyDown(idx, e)}
+                        onPaste={(e) => handlePaste(idx, e)}
+                        inputMode="numeric"
+                        autoComplete={idx === 0 ? "one-time-code" : "off"}
+                        disabled={disabled}
+                        className={[
+                            "h-11 w-full rounded-xl border bg-white/5 text-center text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
+                            hasError
+                                ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
+                                : "border-white/15 focus:border-white/35 focus:ring-white/10",
+                            "disabled:opacity-60",
+                        ].join(" ")}
+                    />
+                ))}
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-white/55">
+                <span>Enter the 6-digit code</span>
+                <button
+                    type="button"
+                    disabled={disabled || !value}
+                    onClick={() => onChange("")}
+                    className="underline hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    Clear
+                </button>
+            </div>
+        </div>
+    );
+}
+
+
 /* ---------------------------------- */
 /* Page */
 /* ---------------------------------- */
@@ -330,20 +441,25 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                     </Field>
 
                                     <Field label={t("verify.form.otp", "OTP Code")} error={fieldErrors?.otp}>
-                                        <TextInput
-                                            icon={KeyRound}
-                                            name="otp"
-                                            id="otp"
+                                        <OtpInput
                                             value={otp}
-                                            onChange={onOtpChange}
-                                            placeholder={t("verify.form.otpPlaceholder", "Enter 6-digit OTP")}
-                                            inputMode="numeric"
-                                            maxLength={6}
-                                            autoComplete="one-time-code"
+                                            onChange={(v) => {
+                                                setOtp(v);
+                                                if (fieldErrors?.otp) {
+                                                    setFieldErrors((p) => {
+                                                        const n = { ...p };
+                                                        delete n.otp;
+                                                        return n;
+                                                    });
+                                                }
+                                                if (error) setError("");
+                                            }}
+                                            length={6}
                                             hasError={!!fieldErrors?.otp}
                                             disabled={loadingVerify || loadingResend}
                                         />
                                     </Field>
+
 
                                     <PrimaryButton
                                         loading={loadingVerify}
