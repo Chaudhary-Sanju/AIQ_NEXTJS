@@ -14,6 +14,11 @@ const nextConfig = {
         hostname: "easehub-rja9.onrender.com",
         pathname: "/image/**",
       },
+      {
+        protocol: "https",
+        hostname: "yalakhom.sanjuchaudhary.com.np",
+        pathname: "/image/**",
+      },
     ],
   },
 };
