@@ -3,25 +3,28 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { imgUrl } from "@/lib";
+import http from "@/http";
 
-/**
- * Reusable Slider / Carousel (Next.js + Tailwind)
- * - autoplay (optional)
- * - arrows + dots
- * - swipe (touch/mouse drag)
- * - fully responsive
- *
- * Usage:
- * <HeroSlider
- *   slides={[
- *     { id:"1", image:"/banners/kbeauty.png", alt:"KBeauty", href:"/en/products" },
- *     { id:"2", image:"/banners/banner2.png", alt:"Banner 2" },
- *   ]}
- * />
- */
+function withLocale(locale, href) {
+    if (!href) return undefined;
+
+    // absolute urls keep as is
+    if (/^https?:\/\//i.test(href)) return href;
+
+    const path = href.startsWith("/") ? href : `/${href}`;
+
+    // already has locale prefix
+    if (/^\/(en|zh|ne)(\/|$)/i.test(path)) return path;
+
+    return `/${locale}${path}`;
+}
 
 export default function HeroSlider({
-    slides = [],
+    // If slides passed, it will use them; if not, it will fetch from API.
+    slides,
+    locale = "en",
+
     heightClass = "h-[220px] sm:h-[260px] md:h-[320px]",
     autoPlay = true,
     interval = 4500,
@@ -29,7 +32,15 @@ export default function HeroSlider({
     showArrows = true,
     className = "",
 }) {
-    const safeSlides = useMemo(() => slides.filter(Boolean), [slides]);
+    const [apiSlides, setApiSlides] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    // Decide which slides to use
+    const finalSlides = useMemo(() => {
+        const src = Array.isArray(slides) ? slides : apiSlides;
+        return (src || []).filter(Boolean);
+    }, [slides, apiSlides]);
+
     const [index, setIndex] = useState(0);
     const [paused, setPaused] = useState(false);
 
@@ -41,7 +52,7 @@ export default function HeroSlider({
         deltaX: 0,
     });
 
-    const count = safeSlides.length;
+    const count = finalSlides.length;
 
     const clampIndex = (i) => {
         if (count === 0) return 0;
@@ -51,6 +62,48 @@ export default function HeroSlider({
     const goTo = (i) => setIndex(clampIndex(i));
     const prev = () => goTo(index - 1);
     const next = () => goTo(index + 1);
+
+    // Reset index when slides change
+    useEffect(() => {
+        setIndex(0);
+    }, [count]);
+
+    // Fetch sliders ONLY if slides prop not provided
+    useEffect(() => {
+        let mounted = true;
+
+        async function fetchSliders() {
+            if (Array.isArray(slides)) return; // external slides already provided
+
+            setLoading(true);
+            try {
+                const res = await http.get("/frontend/slider");
+                const rows = Array.isArray(res?.data?.data) ? res.data.data : [];
+
+                const mapped = rows
+                    .filter((s) => s?.status === true)
+                    .sort((a, b) => (a?.index ?? 0) - (b?.index ?? 0))
+                    .map((s) => ({
+                        id: s?._id,
+                        image: s?.image, // filename from API
+                        alt: s?.title ?? "Banner",
+                        href: withLocale(locale, s?.href),
+                    }));
+
+                if (mounted) setApiSlides(mapped);
+            } catch (e) {
+                // toast is already handled by your http interceptor
+                if (mounted) setApiSlides([]);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        }
+
+        fetchSliders();
+        return () => {
+            mounted = false;
+        };
+    }, [slides, locale]);
 
     // autoplay
     useEffect(() => {
@@ -80,7 +133,6 @@ export default function HeroSlider({
         drag.current.lastX = drag.current.startX;
         drag.current.deltaX = 0;
 
-        // stop image ghost drag
         if (e.preventDefault) e.preventDefault();
     };
 
@@ -91,7 +143,6 @@ export default function HeroSlider({
         drag.current.deltaX = x - drag.current.startX;
         drag.current.lastX = x;
 
-        // translate track as you drag
         const pct = (drag.current.deltaX / trackRef.current.clientWidth) * 100;
         trackRef.current.style.transition = "none";
         trackRef.current.style.transform = `translateX(calc(${-index * 100}% + ${pct}%))`;
@@ -102,8 +153,7 @@ export default function HeroSlider({
 
         drag.current.isDown = false;
 
-        // snap logic
-        const thresholdPx = 50; // swipe threshold
+        const thresholdPx = 50;
         const dx = drag.current.deltaX;
 
         trackRef.current.style.transition = "transform 450ms ease";
@@ -112,13 +162,18 @@ export default function HeroSlider({
         if (dx > thresholdPx) prev();
         else if (dx < -thresholdPx) next();
 
-        // resume autoplay shortly after
         setTimeout(() => setPaused(false), 250);
     };
 
+    if (loading && count === 0) {
+        return (
+            <div className={`w-full ${heightClass} rounded-xl bg-slate-100 animate-pulse ${className}`} />
+        );
+    }
+
     if (!count) {
         return (
-            <div className={`w-full rounded-xl border text-slate-600 ${className}`}>
+            <div className={`w-full rounded-xl border p-4 text-slate-600 ${className}`}>
                 No slides provided.
             </div>
         );
@@ -126,14 +181,10 @@ export default function HeroSlider({
 
     return (
         <div
-            className={[
-                "relative w-full overflow-hidden shadow-sm",
-                className,
-            ].join(" ")}
+            className={["relative w-full overflow-hidden shadow-sm", className].join(" ")}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
         >
-            {/* Track */}
             <div
                 className={`relative w-full ${heightClass} select-none`}
                 onMouseDown={onPointerDown}
@@ -152,33 +203,34 @@ export default function HeroSlider({
                         transition: "transform 450ms ease",
                     }}
                 >
-                    {safeSlides.map((s, i) => (
+                    {finalSlides.map((s, i) => (
                         <div key={s.id ?? i} className="relative h-full w-full shrink-0">
                             {s.href ? (
                                 <a href={s.href} className="block h-full w-full">
                                     <Image
-                                        src={s.image}
+                                        src={imgUrl(s.image)}
                                         alt={s.alt ?? `Slide ${i + 1}`}
                                         fill
                                         priority={i === 0}
                                         className="object-cover"
                                         sizes="100vw"
                                         draggable={false}
+                                        unoptimized
                                     />
                                 </a>
                             ) : (
                                 <Image
-                                    src={s.image}
+                                    src={imgUrl(s.image)}
                                     alt={s.alt ?? `Slide ${i + 1}`}
                                     fill
                                     priority={i === 0}
                                     className="object-cover"
                                     sizes="100vw"
                                     draggable={false}
+                                    unoptimized
                                 />
                             )}
 
-                            {/* Optional overlay content */}
                             {s.overlay ? (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     {typeof s.overlay === "function" ? s.overlay() : s.overlay}
@@ -188,7 +240,6 @@ export default function HeroSlider({
                     ))}
                 </div>
 
-                {/* Arrows */}
                 {showArrows && count > 1 && (
                     <>
                         <button
@@ -212,10 +263,9 @@ export default function HeroSlider({
                 )}
             </div>
 
-            {/* Dots */}
             {showDots && count > 1 && (
                 <div className="absolute bottom-3 left-0 right-0 z-20 flex items-center justify-center gap-2">
-                    {safeSlides.map((_, i) => (
+                    {finalSlides.map((_, i) => (
                         <button
                             key={i}
                             type="button"

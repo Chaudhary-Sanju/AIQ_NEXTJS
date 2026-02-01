@@ -2,8 +2,19 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['https://easehub-rja9.onrender.com'],
-    // domains: ['127.0.0.1'],
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/image/**",
+      },
+      {
+        protocol: "https",
+        hostname: "easehub-rja9.onrender.com",
+        pathname: "/image/**",
+      },
+    ],
   },
 };
 

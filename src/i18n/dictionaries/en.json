@@ -256,5 +256,69 @@
     "subtitle": "Real-time tracking, instant pickups,\nand lightning-fast delivery\npowered by Yalakhom.",
     "ctaPrimary": "Get Started",
     "ctaSecondary": "Track Order"
+  },
+
+  "licenseHero": {
+    "pill": "For restaurants, cafés & food businesses",
+    "title1": "Get your",
+    "titleHighlight": "F&B licensing",
+    "title2": "done with ease fast, compliant solutions for food businesses",
+    "subtitle": "We handle food and beverage licensing, permits, and documentation so you can focus on launching and running your business with confidence.",
+    "ctaPrimary": "View F&B Licensing Services",
+    "ctaSecondary": "Contact on WhatsApp",
+    "badge1": "Monthly & Annual Plans",
+    "badge2": "GST & Tax Ready",
+    "alt": "Licensing",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "dealsHero": {
+    "title": "Enjoying our prices?",
+    "subtitle": "Hop into our deals page and browse all of our exclusive offers!",
+    "cta": "Go To Deals"
+  },
+
+  "companyRegisterHero": {
+    "pill": "For startups & growing businesses",
+
+    "titleLine1": "Register your",
+    "titleLine2": "business",
+    "titleLine3": "with confidence",
+
+    "subtitle": "Streamlined company registration with expert guidance at every step.",
+
+    "benefit1": "Fast & Easy Process",
+    "benefit2": "Legal Compliance",
+    "benefit3": "Expert Support",
+
+    "ctaPrimary": "Start Registration",
+    "ctaSecondary": "Contact on WhatsApp",
+
+    "badge": "100% Legal Compliance",
+    "support": "7-day support",
+
+    "stat1Value": "24h",
+    "stat1": "Fast Setup",
+    "stat2Value": "99%",
+    "stat2": "Success Rate",
+    "stat3Value": "5K+",
+    "stat3": "Companies",
+
+    "alt": "Company registration process",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "travelHero": {
+    "pill": "For leisure & business travelers",
+
+    "title": "Plan your travel with ease carefully crafted\ntour packages for every journey",
+
+    "subtitle": "Explore thoughtfully designed tour packages tailored for relaxation, adventure, and business travel — planned to give you a seamless and memorable experience.",
+
+    "ctaPrimary": "View Tour Packages",
+    "ctaSecondary": "Contact on WhatsApp",
+
+    "alt": "Travel tour packages",
+    "whatsappLink": "https://wa.me/"
   }
 }

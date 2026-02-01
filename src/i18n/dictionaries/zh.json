@@ -248,5 +248,69 @@
     "subtitle": "即時追蹤、即刻取件、\n閃電般快速送貨，\n由 Yalakhom 提供支援。",
     "ctaPrimary": "立即開始",
     "ctaSecondary": "追蹤訂單"
+  },
+
+  "licenseHero": {
+    "pill": "适用于餐厅、咖啡馆与食品业务",
+    "title1": "轻松完成您的",
+    "titleHighlight": "餐饮许可",
+    "title2": "快速合规，为食品业务提供可靠解决方案",
+    "subtitle": "我们负责餐饮许可、相关证照与文件准备，让您专注于业务启动与运营。",
+    "ctaPrimary": "查看餐饮许可服务",
+    "ctaSecondary": "通过 WhatsApp 联系我们",
+    "badge1": "月度与年度方案",
+    "badge2": "GST 与税务就绪",
+    "alt": "许可",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "dealsHero": {
+    "title": "鍾意我哋嘅價錢？",
+    "subtitle": "去優惠專頁睇晒我哋所有獨家優惠啦！",
+    "cta": "前往優惠"
+  },
+
+  "companyRegisterHero": {
+    "pill": "適合初創企業及成長中公司",
+
+    "titleLine1": "安心",
+    "titleLine2": "註冊公司",
+    "titleLine3": "由專家為你處理",
+
+    "subtitle": "一站式公司註冊服務，全程由專業顧問協助。",
+
+    "benefit1": "快速簡單流程",
+    "benefit2": "符合法律規定",
+    "benefit3": "專家支援",
+
+    "ctaPrimary": "立即開始註冊",
+    "ctaSecondary": "通过 WhatsApp 联系我们",
+
+    "badge": "100% 合法合規",
+    "support": "7 日支援服務",
+
+    "stat1Value": "24 小時",
+    "stat1": "快速設立",
+    "stat2Value": "99%",
+    "stat2": "成功率",
+    "stat3Value": "5K+",
+    "stat3": "已註冊公司",
+
+    "alt": "公司註冊流程",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "travelHero": {
+    "pill": "適合休閒及商務旅客",
+
+    "title": "輕鬆計劃旅程\n為每段旅途精心設計的旅遊套票",
+
+    "subtitle": "精心策劃的旅遊套票，適合放鬆、冒險及商務出行，為你帶來順暢而難忘的旅遊體驗。",
+
+    "ctaPrimary": "查看旅遊套票",
+    "ctaSecondary": "通过 WhatsApp 联系我们",
+
+    "alt": "旅遊套票",
+    "whatsappLink": "https://wa.me/"
   }
 }
