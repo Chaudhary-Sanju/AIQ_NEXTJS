@@ -46,7 +46,7 @@ export default function CompanyRegisterHero({ locale = "en", dict = {} }) {
             {/* subtle grid */}
             <div className="pointer-events-none absolute inset-0 opacity-[0.25] [background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:28px_28px]" />
 
-            <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+            <div className="relative py-10 md:py-14 px-6 sm:px-10 lg:px-16 mx-auto w-full max-w-7xl">
                 <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                     {/* LEFT */}
                     <div className="text-white">

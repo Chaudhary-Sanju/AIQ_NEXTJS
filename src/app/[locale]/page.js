@@ -10,6 +10,14 @@ import DealsHero from "@/components/clientComponents/DealsHero";
 import CompanyRegisterHero from "@/components/clientComponents/CompanyRegisterHero";
 import Brands from "@/components/clientComponents/BrandsRow";
 import TravelHero from "@/components/clientComponents/TravelHero";
+import ImageLinkBanner from "@/components/clientComponents/ImageLinkBanner";
+import AirportHero from "@/components/clientComponents/AirportHero";
+import TransportHero from "@/components/clientComponents/TransportHero";
+import AccountingHero from "@/components/clientComponents/AccountingHero";
+import VisaImmigrationHero from "@/components/clientComponents/VisaImmigrationHero";
+import ImageLinkBigBanner from "@/components/clientComponents/ImageLinkBigBanner";
+import OfficeMovingHero from "@/components/clientComponents/OfficeMovingHero";
+import RepairInstallationSection from "@/components/clientComponents/RepairInstallationSection";
 
 export default async function Home({ params }) {
   const { locale } = await params;
@@ -31,22 +39,65 @@ export default async function Home({ params }) {
 
       <ProductTypeSection locale={locale} type="featuredProduct" limit={5} />
 
-      <LicenseHero locale={locale} dict={dict} />
+      <AccountingHero locale={locale} dict={dict} />
 
       <ProductTypeSection locale={locale} type="trendingProduct" limit={5} />
 
-      <DealsHero locale={locale} dict={dict} />
+      <LicenseHero locale={locale} dict={dict} />
 
       <ProductTypeSection locale={locale} type="hotProduct" limit={5} />
 
-      <CompanyRegisterHero locale={locale} dict={dict} />
+      <DealsHero locale={locale} dict={dict} />
 
-      <ProductTypeSection locale={locale} type="mostSearchedProduct" limit={5} />
+      <CompanyRegisterHero locale={locale} dict={dict} />
 
       <Brands locale={locale} limit={4} />
 
       <TravelHero locale={locale} dict={dict} />
 
+      <ImageLinkBanner
+        locale={locale}
+        src="/banners/baby-offer.png"
+        href="/deals"
+        alt="Flat Rs.100 off"
+        className="my-6"
+      />
+
+      <AirportHero locale={locale} dict={dict} />
+
+      <ImageLinkBanner
+        locale={locale}
+        src="/banners/seasonal-saving.png"
+        href="/deals"
+        alt="Flat Rs.100 off"
+        className="my-6"
+      />
+
+      <TransportHero locale={locale} dict={dict} />
+
+      <ProductTypeSection locale={locale} type="mostSearchedProduct" limit={5} />
+
+      <VisaImmigrationHero locale={locale} dict={dict} />
+
+      <ImageLinkBigBanner
+        locale={locale}
+        src="/banners/sale.png"
+        href="/deals"
+        alt="Flat Rs.100 off"
+        className="my-0"
+      />
+
+      <OfficeMovingHero locale={locale} dict={dict} />
+
+      <ImageLinkBigBanner
+        locale={locale}
+        src="/banners/discount.png"
+        href="/deals"
+        alt="Flat Rs.100 off"
+        className="my-0"
+      />
+
+      <RepairInstallationSection locale={locale} dict={dict} />
     </>
   );
 }

@@ -320,5 +320,98 @@
 
     "alt": "Travel tour packages",
     "whatsappLink": "https://wa.me/"
+  },
+
+  "airportHero": {
+    "pill": "For smooth arrivals & departures",
+
+    "title": "Airport transfers & flight tickets\neverything arranged for your journey",
+
+    "subtitle": "Reliable airport pickup and drop services combined with easy flight ticket booking, ensuring a smooth, comfortable, and well-planned travel experience.",
+
+    "ctaPrimary": "Book Travel Services",
+    "ctaSecondary": "Contact on WhatsApp",
+
+    "alt": "Airport transfers and flight tickets",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "transportHero": {
+    "pill": "For local & long-distance travel",
+
+    "titleLine1": "Book",
+    "titleHighlight": "transport",
+    "titleLine2": "with confidence",
+    "titleLine3": "buses, vans, and private vehicles made easy",
+
+    "subtitle": "Flexible transport booking solutions for individuals, families, and groups. Choose from buses, vans, and private vehicles designed for comfort, safety, and reliable travel across short and long distances.",
+
+    "perfectFor": "Perfect For",
+    "point1": "City travel & intercity routes",
+    "point2": "Group tours & family trips",
+    "point3": "Corporate and business travel",
+
+    "ctaPrimary": "View Transport Service",
+    "ctaSecondary": "Contact on WhatsApp",
+
+    "alt": "Transport booking services",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "visaHero": {
+    "pill": "For all visa & immigration needs",
+
+    "titleBlue1": "Visa",
+    "titleRest1": "and",
+    "titleBlue2": "immigration",
+    "titleRest2": "made simple",
+    "titleLine2": "international applications without stress",
+
+    "subtitle": "Comprehensive visa and immigration solutions for study, work, travel, and business. Get step-by-step support, document verification, and personalized guidance to ensure a smooth and hassle-free application process.",
+
+    "ctaPrimary": "Get Started with Your Visa Application",
+    "ctaSecondary": "Contact on WhatsApp",
+
+    "feature1": "Step-by-step application guidance",
+    "feature2": "Fast and reliable process",
+
+    "alt": "Visa application",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "movingHero": {
+    "pill": "For all home & office relocation needs",
+
+    "titleBlue": "Home & Office Moving",
+    "titleRest1": "made easy",
+    "titleLine2": "Reliable packing, transport, and setup—without the stress.",
+
+    "subtitle": "Professional home and office moving solutions for local and long-distance relocation. Get end-to-end support including packing, loading, transportation, and safe unloading. Our experienced team ensures a smooth, secure, and hassle-free moving experience from start to finish.",
+
+    "ctaPrimary": "Get Started with Your Move",
+    "ctaSecondary": "Contact on WhatsApp",
+
+    "feature1": "Step-by-step guidance",
+    "feature2": "Fast and reliable service",
+
+    "alt": "Home and office moving",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "repairSection": {
+    "title": "Repair & Installation Services",
+    "subtitle": "Fast, reliable repair and professional installation — done right the first time.",
+
+    "card1Title": "Device Repair",
+    "card1Desc": "Quick diagnosis and expert repair for home and office devices. Affordable service with transparent pricing and trusted technicians.",
+
+    "card2Title": "New Installation",
+    "card2Desc": "Professional installation of appliances, electronics, and smart devices. Safe setup, proper testing, and complete guidance included.",
+
+    "card3Title": "Maintenance & Support",
+    "card3Desc": "Regular checkups and long-term maintenance to keep your devices running smoothly and efficiently without interruptions.",
+
+    "ctaPrimary": "Book Service",
+    "ctaSecondary": "Learn More"
   }
 }

@@ -23,7 +23,7 @@ export default function LicenseHero({ locale = "en", dict = {} }) {
                 <div className="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-100/40 blur-3xl" />
             </div>
 
-            <div className="relative mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
+            <div className="relative py-10 md:py-14 px-6 sm:px-10 lg:px-16 mx-auto w-full max-w-7xl">
                 <div className="grid items-center gap-10 lg:grid-cols-2">
                     {/* LEFT CONTENT */}
                     <div>

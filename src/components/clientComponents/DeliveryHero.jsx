@@ -32,8 +32,8 @@ export default function DeliveryHero({ locale = "en", dict = {} }) {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
 
                 {/* Content */}
-                <div className="absolute inset-0 flex items-center">
-                    <div className="w-full px-6 sm:px-10 lg:px-16">
+                <div className="absolute inset-0 flex items-center ">
+                    <div className="px-6 sm:px-10 lg:px-16 mx-auto w-full max-w-7xl">
                         <div className="max-w-xl">
                             <h1 className="text-white font-semibold leading-tight tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
                                 {t(

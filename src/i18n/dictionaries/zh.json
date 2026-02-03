@@ -312,5 +312,98 @@
 
     "alt": "旅遊套票",
     "whatsappLink": "https://wa.me/"
+  },
+
+  "airportHero": {
+    "pill": "順暢抵達及離境服務",
+
+    "title": "機場接送及機票預訂\n為你旅程妥善安排一切",
+
+    "subtitle": "可靠嘅機場接送服務配合簡單嘅機票預訂，確保你享受順暢、舒適同周到安排嘅旅遊體驗。",
+
+    "ctaPrimary": "預訂旅遊服務",
+    "ctaSecondary": "通过 WhatsApp 联系我们",
+
+    "alt": "機場接送及機票服務",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "transportHero": {
+    "pill": "適合本地及長途出行",
+
+    "titleLine1": "安心",
+    "titleHighlight": "預訂交通",
+    "titleLine2": "服務",
+    "titleLine3": "巴士、客貨車及私人車輛輕鬆安排",
+
+    "subtitle": "為個人、家庭及團體提供靈活嘅交通預訂方案，提供巴士、客貨車同私人車輛，確保短途及長途旅程舒適、安全同可靠。",
+
+    "perfectFor": "適合用途",
+    "point1": "市內及城際交通",
+    "point2": "團體旅遊及家庭出行",
+    "point3": "企業及商務出行",
+
+    "ctaPrimary": "查看交通服務",
+    "ctaSecondary": "通过 WhatsApp 联系我们",
+
+    "alt": "交通預訂服務",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "visaHero": {
+    "pill": "適合所有簽證及移民需要",
+
+    "titleBlue1": "簽證",
+    "titleRest1": "及",
+    "titleBlue2": "移民",
+    "titleRest2": "服務更簡單",
+    "titleLine2": "海外申請無壓力",
+
+    "subtitle": "提供讀書、工作、旅遊及商務嘅一站式簽證及移民方案。由文件核對到逐步指導，配合個人化建議，令申請流程更順暢、更省心。",
+
+    "ctaPrimary": "立即開始簽證申請",
+    "ctaSecondary": "通过 WhatsApp 联系我们",
+
+    "feature1": "逐步申請指導",
+    "feature2": "快速可靠處理",
+
+    "alt": "簽證申請",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "movingHero": {
+    "pill": "適合所有家居及辦公室搬遷需要",
+
+    "titleBlue": "家居及辦公室搬運",
+    "titleRest1": "更輕鬆",
+    "titleLine2": "可靠包裝、運輸及安置—無需煩惱。",
+
+    "subtitle": "提供本地及長途搬遷一站式服務，包括包裝、搬運、運輸及安全卸貨。專業團隊由頭到尾跟進，確保搬屋過程順暢、安全、零壓力。",
+
+    "ctaPrimary": "立即開始搬遷安排",
+    "ctaSecondary": "通过 WhatsApp 联系我们",
+
+    "feature1": "逐步指導",
+    "feature2": "快速可靠服務",
+
+    "alt": "家居及辦公室搬運服務",
+    "whatsappLink": "https://wa.me/"
+  },
+
+  "repairSection": {
+    "title": "維修及安裝服務",
+    "subtitle": "快速可靠維修及專業安裝—一次做好。",
+
+    "card1Title": "設備維修",
+    "card1Desc": "為家居及辦公室設備提供快速檢查及專業維修。收費透明，技師可靠，服務更安心。",
+
+    "card2Title": "全新安裝",
+    "card2Desc": "專業安裝家電、電子產品及智能設備，包括安全設置、測試及完整使用指導。",
+
+    "card3Title": "保養及支援",
+    "card3Desc": "定期檢查及長期保養，保持設備運作順暢高效，減少中斷。",
+
+    "ctaPrimary": "預約服務",
+    "ctaSecondary": "了解更多"
   }
 }
