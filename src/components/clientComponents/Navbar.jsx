@@ -145,30 +145,96 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         role="menu"
                                     >
                                         <Link
-                                            href={l("/services/design")}
+                                            href={l("/services/courier")}
                                             className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                                             role="menuitem"
                                             onClick={() => setServicesOpen(false)}
                                         >
-                                            {t("nav.services.design", "Design")}
+                                            {t("nav.services.courier", "AI Courier")}
                                         </Link>
+
                                         <Link
-                                            href={l("/services/development")}
+                                            href={l("/services/software")}
                                             className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                                             role="menuitem"
                                             onClick={() => setServicesOpen(false)}
                                         >
-                                            {t("nav.services.development", "Development")}
+                                            {t("nav.services.software", "Accounting Software")}
                                         </Link>
+
                                         <Link
-                                            href={l("/services/marketing")}
+                                            href={l("/services/license")}
                                             className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                                             role="menuitem"
                                             onClick={() => setServicesOpen(false)}
                                         >
-                                            {t("nav.services.marketing", "Marketing")}
+                                            {t("nav.services.license", "F&B License")}
+                                        </Link>
+
+                                        <Link
+                                            href={l("/services/copmanyReg")}
+                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            role="menuitem"
+                                            onClick={() => setServicesOpen(false)}
+                                        >
+                                            {t("nav.services.copmanyReg", "Company Register")}
+                                        </Link>
+
+                                        <Link
+                                            href={l("/services/tourAndTravel")}
+                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            role="menuitem"
+                                            onClick={() => setServicesOpen(false)}
+                                        >
+                                            {t("nav.services.tourAndTravel", "Tour and Travel")}
+                                        </Link>
+
+                                        <Link
+                                            href={l("/services/flightTicket")}
+                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            role="menuitem"
+                                            onClick={() => setServicesOpen(false)}
+                                        >
+                                            {t("nav.services.flightTicket", "Flight Ticket")}
+                                        </Link>
+
+                                        <Link
+                                            href={l("/services/bookTransport")}
+                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            role="menuitem"
+                                            onClick={() => setServicesOpen(false)}
+                                        >
+                                            {t("nav.services.bookTransport", "Book Transport")}
+                                        </Link>
+
+                                        <Link
+                                            href={l("/services/visaAndImmigration")}
+                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            role="menuitem"
+                                            onClick={() => setServicesOpen(false)}
+                                        >
+                                            {t("nav.services.visaAndImmigration", "Visa and Immigration")}
+                                        </Link>
+
+                                        <Link
+                                            href={l("/services/homeAndOffice")}
+                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            role="menuitem"
+                                            onClick={() => setServicesOpen(false)}
+                                        >
+                                            {t("nav.services.homeAndOffice", "Home and Office Moving")}
+                                        </Link>
+
+                                        <Link
+                                            href={l("/services/repairAndInstall")}
+                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                            role="menuitem"
+                                            onClick={() => setServicesOpen(false)}
+                                        >
+                                            {t("nav.services.repairAndInstall", "Repair and Installation")}
                                         </Link>
                                     </div>
+
                                 )}
                             </div>
                         </div>
@@ -328,36 +394,116 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             {servicesOpen && (
                                 <div className="space-y-1 px-1 pb-2">
                                     <Link
-                                        href={l("/services/design")}
+                                        href={l("/services/courier")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
                                         onClick={() => {
                                             setMobileOpen(false);
                                             setServicesOpen(false);
                                         }}
                                     >
-                                        {t("nav.services.design", "Design")}
+                                        {t("nav.services.courier", "AI Courier")}
                                     </Link>
+
                                     <Link
-                                        href={l("/services/development")}
+                                        href={l("/services/software")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
                                         onClick={() => {
                                             setMobileOpen(false);
                                             setServicesOpen(false);
                                         }}
                                     >
-                                        {t("nav.services.development", "Development")}
+                                        {t("nav.services.software", "Accounting Software")}
                                     </Link>
+
                                     <Link
-                                        href={l("/services/marketing")}
+                                        href={l("/services/license")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
                                         onClick={() => {
                                             setMobileOpen(false);
                                             setServicesOpen(false);
                                         }}
                                     >
-                                        {t("nav.services.marketing", "Marketing")}
+                                        {t("nav.services.license", "F&B License")}
+                                    </Link>
+
+                                    <Link
+                                        href={l("/services/copmanyReg")}
+                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setServicesOpen(false);
+                                        }}
+                                    >
+                                        {t("nav.services.copmanyReg", "Company Register")}
+                                    </Link>
+
+                                    <Link
+                                        href={l("/services/tourAndTravel")}
+                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setServicesOpen(false);
+                                        }}
+                                    >
+                                        {t("nav.services.tourAndTravel", "Tour and Travel")}
+                                    </Link>
+
+                                    <Link
+                                        href={l("/services/flightTicket")}
+                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setServicesOpen(false);
+                                        }}
+                                    >
+                                        {t("nav.services.flightTicket", "Flight Ticket")}
+                                    </Link>
+
+                                    <Link
+                                        href={l("/services/bookTransport")}
+                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setServicesOpen(false);
+                                        }}
+                                    >
+                                        {t("nav.services.bookTransport", "Book Transport")}
+                                    </Link>
+
+                                    <Link
+                                        href={l("/services/visaAndImmigration")}
+                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setServicesOpen(false);
+                                        }}
+                                    >
+                                        {t("nav.services.visaAndImmigration", "Visa and Immigration")}
+                                    </Link>
+
+                                    <Link
+                                        href={l("/services/homeAndOffice")}
+                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setServicesOpen(false);
+                                        }}
+                                    >
+                                        {t("nav.services.homeAndOffice", "Home and Office Moving")}
+                                    </Link>
+
+                                    <Link
+                                        href={l("/services/repairAndInstall")}
+                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setServicesOpen(false);
+                                        }}
+                                    >
+                                        {t("nav.services.repairAndInstall", "Repair and Installation")}
                                     </Link>
                                 </div>
+
                             )}
 
                             {/* Mobile auth/account */}

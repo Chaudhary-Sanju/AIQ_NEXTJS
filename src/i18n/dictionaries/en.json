@@ -4,9 +4,16 @@
 
     "servicesTitle": "Perfect Services",
     "services": {
-      "design": "Design",
-      "development": "Development",
-      "marketing": "Marketing"
+      "courier": "AI Courier",
+      "software": "Accounting Software",
+      "license": "F&B license",
+      "copmanyReg": "Company Register",
+      "tourAndTravel": "Tour and Travel",
+      "flightTicket": "Flight Ticket",
+      "bookTransport": "Book Transport",
+      "visaAndImmigration": "Visa and Immigration",
+      "homeAndOffice": "Home and Office Moving",
+      "repairAndInstall": "Repair and Installation"
     },
 
     "searchPlaceholder": "Search for Products",
@@ -413,5 +420,174 @@
 
     "ctaPrimary": "Book Service",
     "ctaSecondary": "Learn More"
+  },
+
+  "aiCourier": {
+    "title": "AI Courier System (Hong Kong ↔ Nepal ↔ Hong Kong )",
+    "subtitle": "A complete AI-powered courier platform.",
+    "cards": [
+      {
+        "title": "AI-Powered Courier Solutions",
+        "desc": "Utilize intelligent algorithms and real-time data to optimize delivery routes, reduce delays, and ensure secure parcel handling across borders."
+      },
+      {
+        "title": "Lightning-Fast Deliveries",
+        "desc": "Experience ultra-fast courier services between Hong Kong and Nepal with optimized logistics and AI-driven dispatch systems."
+      },
+      {
+        "title": "Real-Time Tracking",
+        "desc": "Track your shipment live from pickup to delivery with instant updates, notifications, and status transparency."
+      },
+      {
+        "title": "Instant Pickup Requests",
+        "desc": "Request pickups in minutes from Hong Kong or Nepal through our streamlined AI scheduling system."
+      },
+      {
+        "title": "Cross-Border Expertise",
+        "desc": "Specialized handling of Hong Kong ↔ Nepal shipments, including customs coordination and international compliance."
+      },
+      {
+        "title": "Powered by Yalakhom",
+        "desc": "Built on Yalakhom technology, ensuring scalability, reliability, and enterprise-grade courier performance."
+      }
+    ]
+  },
+
+  "aiCourierAbout": {
+    "title": "About Us",
+    "p1": "YALAKOM is a next-generation AI courier platform built to redefine international deliveries between Hong Kong and Nepal. By combining artificial intelligence, real-time tracking, and logistics automation, we deliver faster, safer, and smarter courier services.",
+    "p2": "Our mission is to eliminate cross-border delivery complexity and replace it with speed, transparency, and trust.",
+    "whyTitle": "Why Choose YALAKOM?",
+    "bullets": [
+      "Fast and Secure International Deliveries",
+      "Transparent and Affordable Pricing",
+      "24/7 Customer Support",
+      "AI-Optimized Logistics Network",
+      "Specialized Hong Kong ↔ Nepal Operations"
+    ],
+    "imageAlt": "Courier delivering packages"
+  },
+
+  "coverage": {
+    "title": "Our Coverage",
+    "subtitle": "Connecting Hong Kong and Nepal seamlessly with efficient and reliable courier services."
+  },
+
+  "aiFaq": {
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "q": "How long does delivery take between Hong Kong and Nepal?",
+        "a": "Delivery typically takes 3–5 business days depending on customs clearance and shipment type."
+      },
+      {
+        "q": "Do you provide real-time tracking?",
+        "a": "Yes. All shipments include live tracking updates from pickup to final delivery."
+      },
+      {
+        "q": "Are there any hidden charges?",
+        "a": "No. Our pricing is transparent with no hidden costs."
+      },
+      {
+        "q": "Can I request a pickup online?",
+        "a": "Yes. You can request a pickup directly from our platform within minutes."
+      },
+      {
+        "q": "Do you handle customs clearance?",
+        "a": "Yes. We manage cross-border documentation and customs coordination."
+      }
+    ]
+  },
+
+  "aiCourierPage": {
+    "addTitle": "Add Courier Order",
+    "addSubtitle": "Pickup/Drop dropdown + auto cost estimation + payment fields",
+    "backToList": "Back to courier orders",
+
+    "senderDetails": "Sender Details",
+    "receiverDetails": "Receiver & Drop",
+    "pickupPackage": "Pickup & Package",
+    "payment": "Payment",
+
+    "fields": {
+      "senderName": "Sender Name",
+      "senderEmail": "Sender Email (optional)",
+      "senderContact": "Sender Contact",
+
+      "pickupLocation": "Pickup Location",
+      "pickupLandmark": "Pickup Landmark (optional)",
+      "packageDescription": "Package Description (optional)",
+      "deliveryType": "Delivery Type",
+      "handling": "Handling",
+      "pickupDateTime": "Pickup Time/Date",
+      "packageSize": "Package Size (KG)",
+      "senderInstruction": "Sender Instruction (optional)",
+
+      "receiverName": "Receiver Name",
+      "receiverEmail": "Receiver Email (optional)",
+      "receiverContact": "Receiver Contact",
+      "dropLocation": "Drop Location",
+      "dropLandmark": "Drop Landmark",
+
+      "estimatedCost": "Estimated Cost (NPR)",
+
+      "paymentMethod": "Payment Method",
+      "paymentStatus": "Payment Status",
+      "partialAmount": "Partially Paid Amount (NPR)"
+    },
+
+    "placeholders": {
+      "selectPickup": "Select pickup location",
+      "selectDrop": "Select drop location",
+      "phoneExample": "9800000000 or +977-9800000000",
+      "packageSize": "5",
+      "instruction": "Pack in waterproof bag",
+      "estimatedCost": "Auto-filled, but you can override",
+      "partialAmount": "100"
+    },
+
+    "buttons": {
+      "reset": "Reset",
+      "cancel": "Cancel",
+      "create": "Create Courier Order",
+      "creating": "Creating...",
+      "useAuto": "Use Auto"
+    },
+
+    "status": {
+      "loadingLocations": "Loading pickup/drop locations...",
+      "fetchingRate": "Fetching rate...",
+      "rateLoadedFragile": "Rate loaded (Fragile)",
+      "rateLoadedNonFragile": "Rate loaded (Non-fragile)",
+      "selectForAuto": "Select pickup + drop to auto-calc",
+      "manualOverride": "Manual override enabled. Click “Use Auto” to revert.",
+      "autoEstimate": "Auto estimate"
+    },
+
+    "paymentOptions": {
+      "payOnPickup": "Pay on Pickup",
+      "cashOnDelivery": "Cash on Delivery",
+      "pending": "Pending",
+      "partiallyPaid": "Partially Paid",
+      "paid": "Paid"
+    },
+
+    "deliveryTypes": {
+      "door2door": "Door to Door",
+      "door2branch": "Door to Branch",
+      "branch2door": "Branch to Door",
+      "branch2branch": "Branch to Branch"
+    },
+
+    "handlingTypes": {
+      "fragile": "Fragile",
+      "nonFragile": "Non Fragile"
+    },
+
+    "messages": {
+      "loadFailed": "Failed to load pickup/drop locations.",
+      "costNotFound": "No cost rule found for selected pickup/drop location. Please enter estimated cost manually.",
+      "somethingWrong": "Something went wrong."
+    }
   }
 }

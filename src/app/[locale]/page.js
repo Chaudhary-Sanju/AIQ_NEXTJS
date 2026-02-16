@@ -35,7 +35,14 @@ export default async function Home({ params }) {
 
       <CategoriesRow locale={locale} limit={4} />
 
-      <DeliveryHero locale={locale} dict={dict} />
+      <DeliveryHero
+        locale={locale}
+        dict={dict}
+        links={{
+          getStarted: `/${locale}/services/courier`,
+          trackOrder: `/${locale}/track-order`
+        }}
+      />
 
       <ProductTypeSection locale={locale} type="featuredProduct" limit={5} />
 

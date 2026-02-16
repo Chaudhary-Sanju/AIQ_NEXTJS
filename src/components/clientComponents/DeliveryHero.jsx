@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function DeliveryHero({ locale = "en", dict = {} }) {
+export default function DeliveryHero({ locale = "en", dict = {}, links  }) {
     const t = (key, fallback) => {
         const parts = key.split(".");
         let cur = dict;
@@ -63,14 +63,14 @@ export default function DeliveryHero({ locale = "en", dict = {} }) {
 
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <Link
-                                    href={l("/get-started")}
+                                    href={links.getStarted}
                                     className="inline-flex items-center gap-2 rounded-md bg-white/15 px-4 py-2 text-sm font-medium text-white ring-1 ring-white/20 hover:bg-white/20"
                                 >
                                     🚀 {t("deliveryHero.ctaPrimary", "Get Started")}
                                 </Link>
 
                                 <Link
-                                    href={l("/track-order")}
+                                    href={links.trackOrder}
                                     className="inline-flex items-center gap-2 rounded-md bg-white/15 px-4 py-2 text-sm font-medium text-white ring-1 ring-white/20 hover:bg-white/20"
                                 >
                                     📦 {t("deliveryHero.ctaSecondary", "Track Order")}
