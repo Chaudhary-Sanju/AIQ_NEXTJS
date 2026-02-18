@@ -589,5 +589,133 @@
       "costNotFound": "No cost rule found for selected pickup/drop location. Please enter estimated cost manually.",
       "somethingWrong": "Something went wrong."
     }
+  },
+
+  "aiCourierCreate": {
+    "title": "Add Courier Order",
+    "subtitle": "Pickup/Drop dropdown + auto cost estimation + payment fields",
+    "sections": {
+      "sender": "Sender Details",
+      "pickup": "Pickup & Package",
+      "receiver": "Receiver & Drop",
+      "payment": "Payment"
+    },
+    "fields": {
+      "senderName": "Sender Name",
+      "senderEmail": "Sender Email (optional)",
+      "senderContact": "Sender Contact",
+
+      "pickUpLocation": "Pickup Location",
+      "pickupLandmark": "Pickup Landmark (optional)",
+      "packageDescription": "Package Description (optional)",
+      "deliveryType": "Delivery Type",
+      "handling": "Handling",
+      "pickUpTimeOrDate": "Pickup Time/Date",
+      "packageSize": "Package Size (KG)",
+      "senderInstruction": "Sender Instruction (optional)",
+
+      "recieverName": "Receiver Name",
+      "recieverEmail": "Receiver Email (optional)",
+      "recieverContact": "Receiver Contact",
+      "dropLocation": "Drop Location",
+      "dropLandmark": "Drop Landmark",
+
+      "estimatedCost": "Estimated Cost",
+      "paymentMethod": "Payment Method"
+    },
+    "placeholders": {
+      "phone": "9800000000 or +977-9800000000",
+      "selectPickup": "Select pickup location",
+      "selectDrop": "Select drop location",
+      "kg": "5",
+      "instruction": "Pack in waterproof bag",
+      "estimatedCost": "This amount is auto-filled and subject to change upon staff confirmation."
+    },
+    "buttons": {
+      "reset": "Reset",
+      "placeOrder": "Place Order"
+    },
+    "status": {
+      "loadingLocations": "Loading pickup/drop locations...",
+      "fetchingRate": "Fetching rate...",
+      "rateLoaded": "Rate loaded",
+      "selectToAuto": "Select pickup + drop to auto-calc",
+      "autoEstimate": "Auto estimate"
+    },
+    "errors": {
+      "loadFailed": "Failed to load pickup/drop locations.",
+      "costNotFound": "No cost rule found for selected pickup/drop location.",
+      "generic": "Something went wrong"
+    }
+  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Manage your profile and orders",
+    "tabs": {
+      "profile": "Profile",
+      "orders": "Orders",
+      "addresses": "Addresses",
+      "security": "Security"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "name": "Full Name",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "orders": {
+      "title": "My Orders",
+      "search": "Search by order ID / location / name",
+      "status": "Status",
+      "statusAll": "All",
+      "empty": "No orders found.",
+      "view": "View",
+      "refresh": "Refresh",
+      "table": {
+        "order": "Order",
+        "route": "Route",
+        "cost": "Cost",
+        "status": "Status",
+        "action": "Action"
+      },
+      "statuses": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "picked": "Picked",
+        "in_transit": "In Transit",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "drawer": {
+        "details": "Order Details",
+        "track": "Track",
+        "done": "Done",
+        "status": "Status",
+        "created": "Created",
+        "pickup": "Pickup",
+        "drop": "Drop",
+        "sender": "Sender",
+        "receiver": "Receiver",
+        "cost": "Cost",
+        "weight": "Weight",
+        "type": "Delivery Type",
+        "handling": "Handling",
+        "pickupTime": "Pickup Time",
+        "remark": "Remark",
+        "payment": "Payment Method"
+      }
+    },
+    "addresses": { "coming": "Coming next: saved pickup/drop addresses." },
+    "security": {
+      "coming": "Coming next: change password, sessions, logout all devices."
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "close": "Close"
   }
 }

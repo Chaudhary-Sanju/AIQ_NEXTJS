@@ -527,5 +527,63 @@
         "a": "हो। हामी सीमापार कागजात प्रक्रिया र कस्टम्स समन्वय व्यवस्थापन गर्छौं।"
       }
     ]
+  },
+
+  "aiCourierCreate": {
+    "title": "कुरियर अर्डर थप्नुहोस्",
+    "subtitle": "Pickup/Drop ड्रपडाउन + स्वतः लागत अनुमान + भुक्तानी फिल्डहरू",
+    "sections": {
+      "sender": "प्रेषक विवरण",
+      "pickup": "पिकअप र प्याकेज",
+      "receiver": "प्रापक र ड्रप",
+      "payment": "भुक्तानी"
+    },
+    "fields": {
+      "senderName": "प्रेषकको नाम",
+      "senderEmail": "प्रेषकको इमेल (ऐच्छिक)",
+      "senderContact": "प्रेषकको सम्पर्क नम्बर",
+
+      "pickUpLocation": "पिकअप स्थान",
+      "pickupLandmark": "पिकअप ल्यान्डमार्क (ऐच्छिक)",
+      "packageDescription": "प्याकेज विवरण (ऐच्छिक)",
+      "deliveryType": "डेलिभरी प्रकार",
+      "handling": "ह्यान्डलिङ",
+      "pickUpTimeOrDate": "पिकअप समय/मिति",
+      "packageSize": "प्याकेज तौल (KG)",
+      "senderInstruction": "प्रेषक निर्देशन (ऐच्छिक)",
+
+      "recieverName": "प्रापकको नाम",
+      "recieverEmail": "प्रापकको इमेल (ऐच्छिक)",
+      "recieverContact": "प्रापकको सम्पर्क नम्बर",
+      "dropLocation": "ड्रप स्थान",
+      "dropLandmark": "ड्रप ल्यान्डमार्क",
+
+      "estimatedCost": "अनुमानित लागत",
+      "paymentMethod": "भुक्तानी विधि"
+    },
+    "placeholders": {
+      "phone": "9800000000 वा +977-9800000000",
+      "selectPickup": "पिकअप स्थान छान्नुहोस्",
+      "selectDrop": "ड्रप स्थान छान्नुहोस्",
+      "kg": "5",
+      "instruction": "वाटरप्रुफ ब्यागमा प्याक गर्नुहोस्",
+      "estimatedCost": "यो रकम स्वतः गणना हुन्छ र स्टाफ पुष्टि पछि परिवर्तन हुन सक्छ।"
+    },
+    "buttons": {
+      "reset": "रिसेट",
+      "placeOrder": "अर्डर राख्नुहोस्"
+    },
+    "status": {
+      "loadingLocations": "पिकअप/ड्रप स्थानहरू लोड हुँदैछ...",
+      "fetchingRate": "रेट ल्याइँदैछ...",
+      "rateLoaded": "रेट लोड भयो",
+      "selectToAuto": "स्वतः लागत अनुमानका लागि पिकअप + ड्रप छान्नुहोस्",
+      "autoEstimate": "स्वतः अनुमान"
+    },
+    "errors": {
+      "loadFailed": "पिकअप/ड्रप स्थानहरू लोड गर्न असफल भयो।",
+      "costNotFound": "छानिएको पिकअप/ड्रपका लागि लागत नियम भेटिएन।",
+      "generic": "केहि गलत भयो"
+    }
   }
 }

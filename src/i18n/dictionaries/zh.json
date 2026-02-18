@@ -489,5 +489,63 @@
         "a": "是的。我们会处理跨境所需文件并协调清关流程。"
       }
     ]
+  },
+
+  "aiCourierCreate": {
+    "title": "新增速遞訂單",
+    "subtitle": "取件/派送下拉選單 + 自動費用估算 + 付款欄位",
+    "sections": {
+      "sender": "寄件人資料",
+      "pickup": "取件與包裹",
+      "receiver": "收件人與派送",
+      "payment": "付款"
+    },
+    "fields": {
+      "senderName": "寄件人姓名",
+      "senderEmail": "寄件人電郵（可選）",
+      "senderContact": "寄件人聯絡電話",
+
+      "pickUpLocation": "取件地點",
+      "pickupLandmark": "取件地標（可選）",
+      "packageDescription": "包裹描述（可選）",
+      "deliveryType": "配送類型",
+      "handling": "處理方式",
+      "pickUpTimeOrDate": "取件時間/日期",
+      "packageSize": "包裹重量（KG）",
+      "senderInstruction": "寄件人備註（可選）",
+
+      "recieverName": "收件人姓名",
+      "recieverEmail": "收件人電郵（可選）",
+      "recieverContact": "收件人聯絡電話",
+      "dropLocation": "派送地點",
+      "dropLandmark": "派送地標",
+
+      "estimatedCost": "預估費用",
+      "paymentMethod": "付款方式"
+    },
+    "placeholders": {
+      "phone": "9800000000 或 +977-9800000000",
+      "selectPickup": "選擇取件地點",
+      "selectDrop": "選擇派送地點",
+      "kg": "5",
+      "instruction": "請用防水袋包裝",
+      "estimatedCost": "此金額為自動計算，最終可能會因工作人員確認而變更。"
+    },
+    "buttons": {
+      "reset": "重設",
+      "placeOrder": "提交訂單"
+    },
+    "status": {
+      "loadingLocations": "正在載入取件/派送地點...",
+      "fetchingRate": "正在取得費率...",
+      "rateLoaded": "已載入費率",
+      "selectToAuto": "請選擇取件 + 派送以自動計算",
+      "autoEstimate": "自動估算"
+    },
+    "errors": {
+      "loadFailed": "無法載入取件/派送地點。",
+      "costNotFound": "找不到所選取件/派送地點的費用規則。",
+      "generic": "發生錯誤"
+    }
   }
 }

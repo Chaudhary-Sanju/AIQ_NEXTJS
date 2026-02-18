@@ -1,19 +1,107 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-
+import { useParams, useRouter } from "next/navigation";
 import http from "@/http";
 
-export default function AddCourierOrder() {
-    const router = useRouter();
+const LOCALES = ["en", "ne", "zh"];
 
+const tGet = (obj, path, fallback = "") => {
+    try {
+        return path.split(".").reduce((acc, k) => acc?.[k], obj) ?? fallback;
+    } catch {
+        return fallback;
+    }
+};
+
+export default function AddCourierOrder({ dict }) {
+    const router = useRouter();
+    const params = useParams();
+
+    const locale = LOCALES.includes(params?.locale) ? params.locale : "en";
+    const l = (path) => `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
+
+    // ====== Translations (fallback safe) ======
+    const T = {
+        title: tGet(dict, "aiCourierCreate.title", "Add Courier Order"),
+        subtitle: tGet(
+            dict,
+            "aiCourierCreate.subtitle",
+            "Pickup/Drop dropdown + auto cost estimation + payment fields"
+        ),
+
+        sections: {
+            sender: tGet(dict, "aiCourierCreate.sections.sender", "Sender Details"),
+            pickup: tGet(dict, "aiCourierCreate.sections.pickup", "Pickup & Package"),
+            receiver: tGet(dict, "aiCourierCreate.sections.receiver", "Receiver & Drop"),
+            payment: tGet(dict, "aiCourierCreate.sections.payment", "Payment"),
+        },
+
+        fields: {
+            senderName: tGet(dict, "aiCourierCreate.fields.senderName", "Sender Name"),
+            senderEmail: tGet(dict, "aiCourierCreate.fields.senderEmail", "Sender Email (optional)"),
+            senderContact: tGet(dict, "aiCourierCreate.fields.senderContact", "Sender Contact"),
+
+            pickUpLocation: tGet(dict, "aiCourierCreate.fields.pickUpLocation", "Pickup Location"),
+            pickupLandmark: tGet(dict, "aiCourierCreate.fields.pickupLandmark", "Pickup Landmark (optional)"),
+            packageDescription: tGet(dict, "aiCourierCreate.fields.packageDescription", "Package Description (optional)"),
+            deliveryType: tGet(dict, "aiCourierCreate.fields.deliveryType", "Delivery Type"),
+            handling: tGet(dict, "aiCourierCreate.fields.handling", "Handling"),
+            pickUpTimeOrDate: tGet(dict, "aiCourierCreate.fields.pickUpTimeOrDate", "Pickup Time/Date"),
+            packageSize: tGet(dict, "aiCourierCreate.fields.packageSize", "Package Size (KG)"),
+            senderInstruction: tGet(dict, "aiCourierCreate.fields.senderInstruction", "Sender Instruction (optional)"),
+
+            recieverName: tGet(dict, "aiCourierCreate.fields.recieverName", "Receiver Name"),
+            recieverEmail: tGet(dict, "aiCourierCreate.fields.recieverEmail", "Receiver Email (optional)"),
+            recieverContact: tGet(dict, "aiCourierCreate.fields.recieverContact", "Receiver Contact"),
+            dropLocation: tGet(dict, "aiCourierCreate.fields.dropLocation", "Drop Location"),
+            dropLandmark: tGet(dict, "aiCourierCreate.fields.dropLandmark", "Drop Landmark"),
+
+            estimatedCost: tGet(dict, "aiCourierCreate.fields.estimatedCost", "Estimated Cost"),
+            paymentMethod: tGet(dict, "aiCourierCreate.fields.paymentMethod", "Payment Method"),
+        },
+
+        placeholders: {
+            phone: tGet(dict, "aiCourierCreate.placeholders.phone", "9800000000 or +977-9800000000"),
+            selectPickup: tGet(dict, "aiCourierCreate.placeholders.selectPickup", "Select pickup location"),
+            selectDrop: tGet(dict, "aiCourierCreate.placeholders.selectDrop", "Select drop location"),
+            kg: tGet(dict, "aiCourierCreate.placeholders.kg", "5"),
+            instruction: tGet(dict, "aiCourierCreate.placeholders.instruction", "Pack in waterproof bag"),
+            estimatedCost: tGet(
+                dict,
+                "aiCourierCreate.placeholders.estimatedCost",
+                "This amount is auto-filled and subject to change upon staff confirmation."
+            ),
+        },
+
+        buttons: {
+            reset: tGet(dict, "aiCourierCreate.buttons.reset", "Reset"),
+            placeOrder: tGet(dict, "aiCourierCreate.buttons.placeOrder", "Place Order"),
+        },
+
+        status: {
+            loadingLocations: tGet(dict, "aiCourierCreate.status.loadingLocations", "Loading pickup/drop locations..."),
+            fetchingRate: tGet(dict, "aiCourierCreate.status.fetchingRate", "Fetching rate..."),
+            rateLoaded: tGet(dict, "aiCourierCreate.status.rateLoaded", "Rate loaded"),
+            selectToAuto: tGet(dict, "aiCourierCreate.status.selectToAuto", "Select pickup + drop to auto-calc"),
+            autoEstimate: tGet(dict, "aiCourierCreate.status.autoEstimate", "Auto estimate"),
+        },
+
+        errors: {
+            loadFailed: tGet(dict, "aiCourierCreate.errors.loadFailed", "Failed to load pickup/drop locations."),
+            costNotFound: tGet(
+                dict,
+                "aiCourierCreate.errors.costNotFound",
+                "No cost rule found for selected pickup/drop location."
+            ),
+            generic: tGet(dict, "aiCourierCreate.errors.generic", "Something went wrong"),
+        },
+    };
+
+    // ====== constants (keep same values backend expects) ======
     const DELIVERY_TYPES = ["Door2Door", "Door2Branch", "Branch2Door", "Branch2Branch"];
     const HANDLING_TYPES = ["fragile", "nonFragile"];
-
     const PAYMENT_METHODS = ["Pay on Pickup", "Cash on Delivery"];
-    const PAYMENT_STATUSES = ["Pending", "Partially Paid", "Paid"];
 
     const PHONE_REGEX =
         /^((\+977-?\d{10})|(\d{10})|(\+852-?[569]\d{7})|([569]\d{7}))$/;
@@ -21,25 +109,45 @@ export default function AddCourierOrder() {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
-    // locations
     const [pickupOptions, setPickupOptions] = useState([]); // [{en,ne,zh}]
     const [dropOptions, setDropOptions] = useState([]); // [{en,ne,zh}]
     const [loadingLocations, setLoadingLocations] = useState(true);
 
-    // cost calc
     const [costLoading, setCostLoading] = useState(false);
     const [costInfo, setCostInfo] = useState(null);
-    const [isCostManual, setIsCostManual] = useState(false);
 
-    const lang = "en";
-    const labelOf = (locObj) => locObj?.[lang] || locObj?.en || "";
+
+    const pad2 = (n) => String(n).padStart(2, "0");
+
+    // returns "YYYY-MM-DDTHH:mm" in local time (for datetime-local)
+    const toLocalDateTimeValue = (date) => {
+        const y = date.getFullYear();
+        const m = pad2(date.getMonth() + 1);
+        const d = pad2(date.getDate());
+        const hh = pad2(date.getHours());
+        const mm = pad2(date.getMinutes());
+        return `${y}-${m}-${d}T${hh}:${mm}`;
+    };
+
+    const [minPickupDateTime, setMinPickupDateTime] = useState("");
+
+    useEffect(() => {
+        const now = new Date();
+        const min = new Date(now.getTime() + 30 * 60 * 1000); // +30 min
+        setMinPickupDateTime(toLocalDateTimeValue(min));
+    }, []);
+
+
+
+    // NOTE: keep form values for from/to as EN so your cost lookup always works
+    const labelOf = (locObj) => locObj?.[locale] || locObj?.en || "";
 
     const [formData, setFormData] = useState({
         senderName: "",
         senderEmail: "",
         senderContact: "",
 
-        pickUpLocation: "",
+        pickUpLocation: "", // store EN label here (loc.en)
         pickupLandmark: "",
 
         packageDescription: "",
@@ -55,19 +163,15 @@ export default function AddCourierOrder() {
         recieverEmail: "",
         recieverContact: "",
 
-        dropLocation: "",
+        dropLocation: "", // store EN label here (loc.en)
         dropLandmark: "",
 
-        // payment fields
         paymentMethod: "Cash on Delivery",
-        paymentStatus: "Pending",
-        partiallyPaidAmount: "",
 
         remark: "",
         deliveryEta: "",
     });
 
-    // Deduplicate helper
     const uniqueByEn = (arr) => {
         const map = new Map();
         for (const item of arr || []) {
@@ -77,14 +181,14 @@ export default function AddCourierOrder() {
         return Array.from(map.values());
     };
 
-    // Fetch pickup & drop lists
+    // Fetch pickup & drop
     useEffect(() => {
         const run = async () => {
             setLoadingLocations(true);
             try {
                 const [pickRes, dropRes] = await Promise.all([
-                    http.get("/cms/courierCost/getAllPickupLocation"),
-                    http.get("/cms/courierCost/getAllDropLocation"),
+                    http.get("/frontend/aiCourier/getAllPickupLocation"),
+                    http.get("/frontend/aiCourier/getAllDropLocation"),
                 ]);
 
                 const pick = (pickRes?.data?.result || []).map((x) => x.locations).filter(Boolean);
@@ -92,36 +196,21 @@ export default function AddCourierOrder() {
 
                 setPickupOptions(uniqueByEn(pick));
                 setDropOptions(uniqueByEn(drop));
-            } catch (e) {
-                setErrors((prev) => ({
-                    ...prev,
-                    general: "Failed to load pickup/drop locations.",
-                }));
+            } catch {
+                setErrors((prev) => ({ ...prev, general: T.errors.loadFailed }));
             } finally {
                 setLoadingLocations(false);
             }
         };
 
         run();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        setFormData((prev) => {
-            const next = { ...prev, [name]: value };
-
-            // If user edits estimatedCost manually -> lock auto updates
-            if (name === "estimatedCost") setIsCostManual(true);
-
-            // Payment status behavior
-            if (name === "paymentStatus") {
-                if (value === "Paid") next.partiallyPaidAmount = "";
-                if (value !== "Partially Paid") next.partiallyPaidAmount = "";
-            }
-
-            return next;
-        });
+        setFormData((prev) => ({ ...prev, [name]: value }));
 
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
         if (errors.general) setErrors((prev) => ({ ...prev, general: "" }));
@@ -158,27 +247,20 @@ export default function AddCourierOrder() {
         const to = formData.dropLocation?.trim();
 
         setCostInfo(null);
-        if (!isCostManual) {
-            setFormData((prev) => ({ ...prev, estimatedCost: "" }));
-        }
+        setFormData((prev) => ({ ...prev, estimatedCost: "" }));
 
         if (!from || !to || from.toLowerCase() === to.toLowerCase()) return;
 
         const fetchCost = async () => {
             setCostLoading(true);
             try {
-                const res = await http.get("/cms/courierCost/find", {
+                const res = await http.get("/frontend/aiCourier/find", {
                     params: { from: from.toLowerCase(), to: to.toLowerCase() },
                 });
-
                 setCostInfo(res?.data?.data || null);
-            } catch (e) {
+            } catch {
                 setCostInfo(null);
-                setErrors((prev) => ({
-                    ...prev,
-                    general:
-                        "No cost rule found for selected pickup/drop location. Please enter estimated cost manually.",
-                }));
+                setErrors((prev) => ({ ...prev, general: T.errors.costNotFound }));
             } finally {
                 setCostLoading(false);
             }
@@ -188,17 +270,15 @@ export default function AddCourierOrder() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.pickUpLocation, formData.dropLocation]);
 
-    // Auto-fill estimatedCost when we can compute, unless user manually overridden
+    // Auto-fill estimatedCost
     useEffect(() => {
-        if (isCostManual) return;
         if (computedCost == null) return;
         setFormData((prev) => ({ ...prev, estimatedCost: String(computedCost) }));
-    }, [computedCost, isCostManual]);
+    }, [computedCost]);
 
     const validateForm = () => {
         const newErrors = {};
 
-        // Sender
         if (!formData.senderName.trim()) newErrors.senderName = "senderName is required.";
         if (formData.senderEmail?.trim() && !isValidEmail(formData.senderEmail.trim())) {
             newErrors.senderEmail = "Email must be a valid email address.";
@@ -207,28 +287,33 @@ export default function AddCourierOrder() {
         else if (!PHONE_REGEX.test(formData.senderContact.trim()))
             newErrors.senderContact = "Phone must be a valid Nepal (+977) or Hong Kong (+852) number.";
 
-        // Pickup/Drop
         if (!formData.pickUpLocation.trim()) newErrors.pickUpLocation = "pickUpLocation is required.";
         if (!formData.dropLocation.trim()) newErrors.dropLocation = "dropLocation is required.";
         if (!formData.dropLandmark.trim()) newErrors.dropLandmark = "dropLandmark is required.";
 
-        // Time
-        if (!formData.pickUpTimeOrDate) newErrors.pickUpTimeOrDate = "pickUpTimeOrDate is required.";
+        if (!formData.pickUpTimeOrDate) {
+            newErrors.pickUpTimeOrDate = "pickUpTimeOrDate is required.";
+        } else {
+            const selected = new Date(formData.pickUpTimeOrDate);
+            const minAllowed = new Date(Date.now() + 30 * 60 * 1000);
 
-        // KG
+            if (Number.isNaN(selected.getTime())) {
+                newErrors.pickUpTimeOrDate = "Invalid date/time.";
+            } else if (selected < minAllowed) {
+                newErrors.pickUpTimeOrDate = "Pickup time must be at least 30 minutes from now.";
+            }
+        }
+
         if (formData.packageSize === "") newErrors.packageSize = "packageSize is required.";
         else if (Number.isNaN(Number(formData.packageSize)))
             newErrors.packageSize = "packageSize must be a number (wt in KG).";
         else if (Number(formData.packageSize) <= 0)
             newErrors.packageSize = "packageSize must be greater than 0.";
 
-        // Cost
         if (formData.estimatedCost === "") newErrors.estimatedCost = "estimatedCost is required.";
         else if (Number.isNaN(Number(formData.estimatedCost)))
             newErrors.estimatedCost = "estimatedCost must be a number.";
-        else if (Number(formData.estimatedCost) < 0) newErrors.estimatedCost = "estimatedCost must be >= 0.";
 
-        // Receiver
         if (!formData.recieverName.trim()) newErrors.recieverName = "recieverName is required.";
         if (formData.recieverEmail?.trim() && !isValidEmail(formData.recieverEmail.trim())) {
             newErrors.recieverEmail = "Email must be a valid email address.";
@@ -237,18 +322,7 @@ export default function AddCourierOrder() {
         else if (!PHONE_REGEX.test(formData.recieverContact.trim()))
             newErrors.recieverContact = "Phone must be a valid Nepal (+977) or Hong Kong (+852) number.";
 
-        // Payment validation
         if (!formData.paymentMethod) newErrors.paymentMethod = "paymentMethod is required.";
-        if (!formData.paymentStatus) newErrors.paymentStatus = "paymentStatus is required.";
-
-        if (formData.paymentStatus === "Partially Paid") {
-            if (formData.partiallyPaidAmount === "")
-                newErrors.partiallyPaidAmount = "partiallyPaidAmount is required when Partially Paid.";
-            else if (Number.isNaN(Number(formData.partiallyPaidAmount)))
-                newErrors.partiallyPaidAmount = "partiallyPaidAmount must be a number.";
-            else if (Number(formData.partiallyPaidAmount) <= 0)
-                newErrors.partiallyPaidAmount = "partiallyPaidAmount must be greater than 0.";
-        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -268,12 +342,12 @@ export default function AddCourierOrder() {
                 senderEmail: formData.senderEmail.trim() || "",
                 senderContact: formData.senderContact.trim(),
 
-                pickUpLocation: formData.pickUpLocation.trim(),
-                pickupLandmark: formData.pickupLandmark.trim() || "",
+                pickUpLocation: formData.pickUpLocation.trim(), // EN
+                pickupLandmark: formData.pickupLandmark?.trim() || "",
 
-                packageDescription: formData.packageDescription.trim() || "",
+                packageDescription: formData.packageDescription?.trim() || "",
                 deliveryType: formData.deliveryType,
-                senderInstruction: formData.senderInstruction.trim() || "",
+                senderInstruction: formData.senderInstruction?.trim() || "",
                 Handling: formData.Handling,
 
                 pickUpTimeOrDate: new Date(formData.pickUpTimeOrDate).toISOString(),
@@ -285,25 +359,18 @@ export default function AddCourierOrder() {
                 recieverEmail: formData.recieverEmail.trim() || "",
                 recieverContact: formData.recieverContact.trim(),
 
-                dropLocation: formData.dropLocation.trim(),
+                dropLocation: formData.dropLocation.trim(), // EN
                 dropLandmark: formData.dropLandmark.trim(),
 
-                // payment
                 paymentMethod: formData.paymentMethod,
-                paymentStatus: formData.paymentStatus,
-                partiallyPaidAmount:
-                    formData.paymentStatus === "Partially Paid"
-                        ? Number(formData.partiallyPaidAmount)
-                        : null,
 
                 remark: formData.remark?.trim() || "",
                 deliveryEta: formData.deliveryEta?.trim() || "",
             };
 
-            await http.post("/cms/courier", submitData);
+            await http.post("/frontend/aiCourier/placeOrderByLoggedInUser", submitData);
 
-            // Next.js navigation
-            router.push("/courier");
+            router.push(l("/"));
             router.refresh();
         } catch (err) {
             const status = err?.response?.status;
@@ -315,22 +382,14 @@ export default function AddCourierOrder() {
                 for (const k in fieldErrors) cleaned[k] = String(fieldErrors[k]).replace(/"/g, "");
                 setErrors(cleaned);
             } else {
-                setErrors({ general: data?.message || "Something went wrong" });
+                setErrors({ general: data?.message || T.errors.generic });
             }
         } finally {
             setLoading(false);
         }
     };
 
-    const resetCostOverride = () => {
-        setIsCostManual(false);
-        if (computedCost != null) {
-            setFormData((prev) => ({ ...prev, estimatedCost: String(computedCost) }));
-        }
-    };
-
     const resetForm = () => {
-        setIsCostManual(false);
         setCostInfo(null);
         setFormData({
             senderName: "",
@@ -350,27 +409,19 @@ export default function AddCourierOrder() {
             recieverContact: "",
             dropLocation: "",
             dropLandmark: "",
-
             paymentMethod: "Cash on Delivery",
-            paymentStatus: "Pending",
-            partiallyPaidAmount: "",
-
             remark: "",
             deliveryEta: "",
         });
         setErrors({});
     };
 
-    const isPartialPaid = formData.paymentStatus === "Partially Paid";
-
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900">Add Courier Order</h1>
-                    <p className="text-gray-600 mt-1">
-                        Pickup/Drop dropdown + auto cost estimation + payment fields
-                    </p>
+                    <h1 className="text-3xl font-bold text-gray-900">{T.title}</h1>
+                    <p className="text-gray-600 mt-1">{T.subtitle}</p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -383,11 +434,12 @@ export default function AddCourierOrder() {
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Sender */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Sender Details</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">{T.sections.sender}</h3>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Sender Name *
+                                        {T.fields.senderName} *
                                     </label>
                                     <input
                                         type="text"
@@ -397,14 +449,12 @@ export default function AddCourierOrder() {
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.senderName ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
                                     />
-                                    {errors.senderName && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.senderName}</p>
-                                    )}
+                                    {errors.senderName && <p className="text-red-600 text-sm mt-1">{errors.senderName}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Sender Email (optional)
+                                        {T.fields.senderEmail}
                                     </label>
                                     <input
                                         type="email"
@@ -414,42 +464,38 @@ export default function AddCourierOrder() {
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.senderEmail ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
                                     />
-                                    {errors.senderEmail && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.senderEmail}</p>
-                                    )}
+                                    {errors.senderEmail && <p className="text-red-600 text-sm mt-1">{errors.senderEmail}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Sender Contact *
+                                        {T.fields.senderContact} *
                                     </label>
                                     <input
                                         type="text"
                                         name="senderContact"
                                         value={formData.senderContact}
                                         onChange={handleChange}
+                                        placeholder={T.placeholders.phone}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.senderContact ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
-                                        placeholder="9800000000 or +977-9800000000"
                                     />
-                                    {errors.senderContact && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.senderContact}</p>
-                                    )}
+                                    {errors.senderContact && <p className="text-red-600 text-sm mt-1">{errors.senderContact}</p>}
                                 </div>
                             </div>
                         </div>
 
                         {/* Pickup & Package */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pickup & Package</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">{T.sections.pickup}</h3>
 
                             {loadingLocations ? (
-                                <div className="text-sm text-gray-600">Loading pickup/drop locations...</div>
+                                <div className="text-sm text-gray-600">{T.status.loadingLocations}</div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Pickup Location *
+                                            {T.fields.pickUpLocation} *
                                         </label>
                                         <select
                                             name="pickUpLocation"
@@ -458,21 +504,19 @@ export default function AddCourierOrder() {
                                             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.pickUpLocation ? "border-red-300 bg-red-50" : "border-gray-300"
                                                 }`}
                                         >
-                                            <option value="">Select pickup location</option>
+                                            <option value="">{T.placeholders.selectPickup}</option>
                                             {pickupOptions.map((loc) => (
                                                 <option key={loc.en} value={loc.en}>
                                                     {labelOf(loc)}
                                                 </option>
                                             ))}
                                         </select>
-                                        {errors.pickUpLocation && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.pickUpLocation}</p>
-                                        )}
+                                        {errors.pickUpLocation && <p className="text-red-600 text-sm mt-1">{errors.pickUpLocation}</p>}
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Pickup Landmark (optional)
+                                            {T.fields.pickupLandmark}
                                         </label>
                                         <input
                                             type="text"
@@ -485,7 +529,7 @@ export default function AddCourierOrder() {
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Package Description (optional)
+                                            {T.fields.packageDescription}
                                         </label>
                                         <input
                                             type="text"
@@ -498,7 +542,7 @@ export default function AddCourierOrder() {
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Delivery Type *
+                                            {T.fields.deliveryType} *
                                         </label>
                                         <select
                                             name="deliveryType"
@@ -516,7 +560,7 @@ export default function AddCourierOrder() {
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Handling *
+                                            {T.fields.handling} *
                                         </label>
                                         <select
                                             name="Handling"
@@ -534,50 +578,48 @@ export default function AddCourierOrder() {
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Pickup Time/Date *
+                                            {T.fields.pickUpTimeOrDate} *
                                         </label>
                                         <input
                                             type="datetime-local"
                                             name="pickUpTimeOrDate"
                                             value={formData.pickUpTimeOrDate}
                                             onChange={handleChange}
+                                            min={minPickupDateTime}
                                             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.pickUpTimeOrDate ? "border-red-300 bg-red-50" : "border-gray-300"
                                                 }`}
                                         />
-                                        {errors.pickUpTimeOrDate && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.pickUpTimeOrDate}</p>
-                                        )}
+
+                                        {errors.pickUpTimeOrDate && <p className="text-red-600 text-sm mt-1">{errors.pickUpTimeOrDate}</p>}
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Package Size (KG) *
+                                            {T.fields.packageSize} *
                                         </label>
                                         <input
                                             type="number"
                                             name="packageSize"
                                             value={formData.packageSize}
                                             onChange={handleChange}
+                                            placeholder={T.placeholders.kg}
                                             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.packageSize ? "border-red-300 bg-red-50" : "border-gray-300"
                                                 }`}
-                                            placeholder="5"
                                         />
-                                        {errors.packageSize && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.packageSize}</p>
-                                        )}
+                                        {errors.packageSize && <p className="text-red-600 text-sm mt-1">{errors.packageSize}</p>}
                                     </div>
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Sender Instruction (optional)
+                                            {T.fields.senderInstruction}
                                         </label>
                                         <input
                                             type="text"
                                             name="senderInstruction"
                                             value={formData.senderInstruction}
                                             onChange={handleChange}
+                                            placeholder={T.placeholders.instruction}
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                            placeholder="Pack in waterproof bag"
                                         />
                                     </div>
                                 </div>
@@ -586,11 +628,12 @@ export default function AddCourierOrder() {
 
                         {/* Receiver & Drop */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Receiver & Drop</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">{T.sections.receiver}</h3>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Receiver Name *
+                                        {T.fields.recieverName} *
                                     </label>
                                     <input
                                         type="text"
@@ -600,14 +643,12 @@ export default function AddCourierOrder() {
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.recieverName ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
                                     />
-                                    {errors.recieverName && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.recieverName}</p>
-                                    )}
+                                    {errors.recieverName && <p className="text-red-600 text-sm mt-1">{errors.recieverName}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Receiver Email (optional)
+                                        {T.fields.recieverEmail}
                                     </label>
                                     <input
                                         type="email"
@@ -617,14 +658,12 @@ export default function AddCourierOrder() {
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.recieverEmail ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
                                     />
-                                    {errors.recieverEmail && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.recieverEmail}</p>
-                                    )}
+                                    {errors.recieverEmail && <p className="text-red-600 text-sm mt-1">{errors.recieverEmail}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Receiver Contact *
+                                        {T.fields.recieverContact} *
                                     </label>
                                     <input
                                         type="text"
@@ -634,14 +673,12 @@ export default function AddCourierOrder() {
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.recieverContact ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
                                     />
-                                    {errors.recieverContact && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.recieverContact}</p>
-                                    )}
+                                    {errors.recieverContact && <p className="text-red-600 text-sm mt-1">{errors.recieverContact}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Drop Location *
+                                        {T.fields.dropLocation} *
                                     </label>
                                     <select
                                         name="dropLocation"
@@ -650,21 +687,19 @@ export default function AddCourierOrder() {
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.dropLocation ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
                                     >
-                                        <option value="">Select drop location</option>
+                                        <option value="">{T.placeholders.selectDrop}</option>
                                         {dropOptions.map((loc) => (
                                             <option key={loc.en} value={loc.en}>
                                                 {labelOf(loc)}
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.dropLocation && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.dropLocation}</p>
-                                    )}
+                                    {errors.dropLocation && <p className="text-red-600 text-sm mt-1">{errors.dropLocation}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Drop Landmark *
+                                        {T.fields.dropLandmark} *
                                     </label>
                                     <input
                                         type="text"
@@ -674,37 +709,25 @@ export default function AddCourierOrder() {
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.dropLandmark ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
                                     />
-                                    {errors.dropLandmark && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.dropLandmark}</p>
-                                    )}
+                                    {errors.dropLandmark && <p className="text-red-600 text-sm mt-1">{errors.dropLandmark}</p>}
                                 </div>
 
                                 {/* Estimated Cost */}
                                 <div className="md:col-span-2">
                                     <div className="flex items-center justify-between gap-3 mb-2">
                                         <label className="block text-sm font-medium text-gray-700">
-                                            Estimated Cost (NPR) *
+                                            {T.fields.estimatedCost} *
                                         </label>
 
                                         <div className="flex items-center gap-2 text-sm">
                                             {costLoading ? (
-                                                <span className="text-gray-500">Fetching rate...</span>
+                                                <span className="text-gray-500">{T.status.fetchingRate}</span>
                                             ) : costInfo ? (
                                                 <span className="text-green-700">
-                                                    Rate loaded ({formData.Handling === "fragile" ? "Fragile" : "Non-fragile"})
+                                                    {T.status.rateLoaded} ({formData.Handling === "fragile" ? "Fragile" : "Non-fragile"})
                                                 </span>
                                             ) : (
-                                                <span className="text-gray-500">Select pickup + drop to auto-calc</span>
-                                            )}
-
-                                            {isCostManual && (
-                                                <button
-                                                    type="button"
-                                                    onClick={resetCostOverride}
-                                                    className="text-blue-600 hover:text-blue-700 font-medium"
-                                                >
-                                                    Use Auto
-                                                </button>
+                                                <span className="text-gray-500">{T.status.selectToAuto}</span>
                                             )}
                                         </div>
                                     </div>
@@ -714,22 +737,15 @@ export default function AddCourierOrder() {
                                         name="estimatedCost"
                                         value={formData.estimatedCost}
                                         onChange={handleChange}
+                                        disabled
+                                        placeholder={T.placeholders.estimatedCost}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.estimatedCost ? "border-red-300 bg-red-50" : "border-gray-300"
                                             }`}
-                                        placeholder="Auto-filled, but you can override"
                                     />
-                                    {errors.estimatedCost && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.estimatedCost}</p>
-                                    )}
 
-                                    {costInfo && computedCost != null && !isCostManual && (
+                                    {costInfo && computedCost != null && (
                                         <p className="text-sm text-gray-500 mt-2">
-                                            Auto estimate: {computedCost} NPR (KG: {formData.packageSize || 0})
-                                        </p>
-                                    )}
-                                    {isCostManual && (
-                                        <p className="text-sm text-orange-600 mt-2">
-                                            Manual override enabled. Click “Use Auto” to revert.
+                                            {T.status.autoEstimate}: {computedCost} NPR (KG: {formData.packageSize || 0})
                                         </p>
                                     )}
                                 </div>
@@ -738,12 +754,12 @@ export default function AddCourierOrder() {
 
                         {/* Payment */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">{T.sections.payment}</h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Payment Method *
+                                        {T.fields.paymentMethod} *
                                     </label>
                                     <select
                                         name="paymentMethod"
@@ -758,57 +774,13 @@ export default function AddCourierOrder() {
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.paymentMethod && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.paymentMethod}</p>
-                                    )}
+                                    {errors.paymentMethod && <p className="text-red-600 text-sm mt-1">{errors.paymentMethod}</p>}
                                 </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Payment Status *
-                                    </label>
-                                    <select
-                                        name="paymentStatus"
-                                        value={formData.paymentStatus}
-                                        onChange={handleChange}
-                                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.paymentStatus ? "border-red-300 bg-red-50" : "border-gray-300"
-                                            }`}
-                                    >
-                                        {PAYMENT_STATUSES.map((s) => (
-                                            <option key={s} value={s}>
-                                                {s}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.paymentStatus && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.paymentStatus}</p>
-                                    )}
-                                </div>
-
-                                {isPartialPaid && (
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Partially Paid Amount (NPR) *
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="partiallyPaidAmount"
-                                            value={formData.partiallyPaidAmount}
-                                            onChange={handleChange}
-                                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.partiallyPaidAmount ? "border-red-300 bg-red-50" : "border-gray-300"
-                                                }`}
-                                            placeholder="100"
-                                        />
-                                        {errors.partiallyPaidAmount && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.partiallyPaidAmount}</p>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                         </div>
 
                         {/* Actions */}
-                        <div className="border-t pt-6">
+                        <div className="pt-6">
                             <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                                 <button
                                     type="button"
@@ -816,15 +788,8 @@ export default function AddCourierOrder() {
                                     disabled={loading}
                                     className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors disabled:opacity-50"
                                 >
-                                    Reset
+                                    {T.buttons.reset}
                                 </button>
-
-                                <Link
-                                    href="/courier"
-                                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors text-center"
-                                >
-                                    Cancel
-                                </Link>
 
                                 <button
                                     type="submit"
@@ -834,10 +799,10 @@ export default function AddCourierOrder() {
                                     {loading ? (
                                         <>
                                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                            Creating...
+                                            ...
                                         </>
                                     ) : (
-                                        "Create Courier Order"
+                                        T.buttons.placeOrder
                                     )}
                                 </button>
                             </div>
@@ -847,8 +812,7 @@ export default function AddCourierOrder() {
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
                     <p className="text-sm text-blue-800">
-                        • Pickup/Drop are loaded from CourierCost APIs • Estimated cost is auto-calculated from
-                        rate + KG + handling • Payment fields added (Pending/Partially Paid/Paid)
+                        • Pickup/Drop are loaded from APIs • Estimated cost is auto-calculated from rate + KG + handling.
                     </p>
                 </div>
             </div>
