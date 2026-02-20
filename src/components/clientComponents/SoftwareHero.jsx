@@ -60,7 +60,7 @@ export default function AccountingHero({ locale = "en", dict = {} }) {
                                 href={l(t("accountingHero.ctaPrimaryLink", "/services/accounting"))}
                                 className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:shadow-indigo-600/40 sm:w-auto sm:px-7 sm:py-3.5"
                             >
-                                {t("accountingHero.ctaPrimary", "Learn More")}
+                                {t("accountingHero.ctaPrimary1", "View Accounting Packages")}
                                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </Link>
 

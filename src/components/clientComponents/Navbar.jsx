@@ -4,7 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, Menu, X, Search, User, ShoppingCart, LogOut, LogIn } from "lucide-react";
+import {
+    ChevronDown,
+    Menu,
+    X,
+    Search,
+    User,
+    ShoppingCart,
+    LogOut,
+    LogIn,
+} from "lucide-react";
 
 import { useSelector, useDispatch } from "react-redux";
 import { setUser, clearUser } from "@/store/userSlice";
@@ -19,7 +28,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [servicesOpen, setServicesOpen] = useState(false);
 
+    // Desktop dropdown container
     const servicesRef = useRef(null);
+
+    // Mobile panel container (IMPORTANT FIX)
+    const mobilePanelRef = useRef(null);
+
     const router = useRouter();
     const pathname = usePathname();
 
@@ -49,7 +63,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     if (u) dispatch(setUser(u));
                 })
                 .catch(() => {
-                    // token invalid -> clear token + user
                     clearStorage("yalakhom");
                     dispatch(clearUser());
                 });
@@ -58,14 +71,11 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
     // Logout handler
     const handleLogout = async () => {
-        // optional: if you have backend logout endpoint call it here
         // await http.post("frontend/auth/logout").catch(() => {});
-
-        clearStorage("yalakhom"); // remove JWT cookie
+        clearStorage("yalakhom");
         dispatch(clearUser());
         setMobileOpen(false);
         setServicesOpen(false);
-
         router.replace(l("/"));
         router.refresh();
     };
@@ -93,24 +103,36 @@ export default function Navbar({ locale = "en", dict = {} }) {
         return LOCALES[nextIdx];
     };
 
-    // Close dropdown on outside click / ESC
+    // ✅ IMPORTANT FIX:
+    // Close dropdown on outside click / ESC, but treat BOTH desktop dropdown and mobile panel as "inside"
+    // Use pointerdown (better for touch devices)
     useEffect(() => {
         function onKeyDown(e) {
             if (e.key === "Escape") setServicesOpen(false);
         }
-        function onClickOutside(e) {
-            if (!servicesRef.current) return;
-            if (!servicesRef.current.contains(e.target)) setServicesOpen(false);
+
+        function onPointerDown(e) {
+            const inDesktop = servicesRef.current?.contains(e.target);
+            const inMobile = mobilePanelRef.current?.contains(e.target);
+            if (inDesktop || inMobile) return;
+            setServicesOpen(false);
         }
+
         document.addEventListener("keydown", onKeyDown);
-        document.addEventListener("mousedown", onClickOutside);
+        document.addEventListener("pointerdown", onPointerDown);
         return () => {
             document.removeEventListener("keydown", onKeyDown);
-            document.removeEventListener("mousedown", onClickOutside);
+            document.removeEventListener("pointerdown", onPointerDown);
         };
     }, []);
 
     const displayName = user?.name;
+
+    // Helper to close menus (use on mobile link clicks)
+    const closeMobileMenus = () => {
+        setServicesOpen(false);
+        setMobileOpen(false);
+    };
 
     return (
         <header className="w-full">
@@ -126,7 +148,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 </span>
                             </Link>
 
-                            {/* Services dropdown */}
+                            {/* Services dropdown (desktop) */}
                             <div className="relative hidden md:block" ref={servicesRef}>
                                 <button
                                     type="button"
@@ -234,7 +256,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             {t("nav.services.repairAndInstall", "Repair and Installation")}
                                         </Link>
                                     </div>
-
                                 )}
                             </div>
                         </div>
@@ -272,8 +293,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         {t("nav.login", "Login")}
                                     </Link>
                                 </div>
-
-
                             ) : (
                                 <div className="hidden sm:flex items-center gap-2">
                                     <Link
@@ -285,7 +304,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             <div className="text-[10px] opacity-90">
                                                 {t("nav.hello", "Hello,")} {displayName}
                                             </div>
-                                            <div className="text-xs font-medium">{t("nav.account", "My Account")}</div>
+                                            <div className="text-xs font-medium">
+                                                {t("nav.account", "My Account")}
+                                            </div>
                                         </div>
                                     </Link>
 
@@ -336,7 +357,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <button
                                             key={lc}
                                             onClick={() => switchLocale(lc)}
-                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale ? "bg-white/20 text-white" : "text-white/90 hover:bg-white/10"
+                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale
+                                                    ? "bg-white/20 text-white"
+                                                    : "text-white/90 hover:bg-white/10"
                                                 }`}
                                             type="button"
                                         >
@@ -360,7 +383,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
 
                 {/* Mobile: Search + Menu Panel */}
-                <div className={`md:hidden ${mobileOpen ? "block" : "hidden"}`}>
+                <div
+                    className={`md:hidden ${mobileOpen ? "block" : "hidden"}`}
+                    ref={mobilePanelRef}
+                >
                     <div className="mx-auto max-w-7xl px-4 pb-4">
                         {/* Search */}
                         <form className="pt-2">
@@ -396,10 +422,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/courier")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.courier", "AI Courier")}
                                     </Link>
@@ -407,10 +430,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/software")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.software", "Accounting Software")}
                                     </Link>
@@ -418,10 +438,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/license")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.license", "F&B License")}
                                     </Link>
@@ -429,10 +446,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/copmanyReg")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.copmanyReg", "Company Register")}
                                     </Link>
@@ -440,10 +454,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/tourAndTravel")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.tourAndTravel", "Tour and Travel")}
                                     </Link>
@@ -451,10 +462,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/flightTicket")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.flightTicket", "Flight Ticket")}
                                     </Link>
@@ -462,10 +470,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/bookTransport")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.bookTransport", "Book Transport")}
                                     </Link>
@@ -473,10 +478,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/visaAndImmigration")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.visaAndImmigration", "Visa and Immigration")}
                                     </Link>
@@ -484,10 +486,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/homeAndOffice")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.homeAndOffice", "Home and Office Moving")}
                                     </Link>
@@ -495,15 +494,11 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <Link
                                         href={l("/services/repairAndInstall")}
                                         className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setServicesOpen(false);
-                                        }}
+                                        onClick={closeMobileMenus}
                                     >
                                         {t("nav.services.repairAndInstall", "Repair and Installation")}
                                     </Link>
                                 </div>
-
                             )}
 
                             {/* Mobile auth/account */}
@@ -518,7 +513,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         {t("nav.login", "Login")}
                                     </Link>
                                 </div>
-
                             ) : (
                                 <div className="space-y-2">
                                     <Link
@@ -560,7 +554,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <button
                                             key={lc}
                                             onClick={() => switchLocale(lc)}
-                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale ? "bg-white/20 text-white" : "text-white/90 hover:bg-white/10"
+                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale
+                                                    ? "bg-white/20 text-white"
+                                                    : "text-white/90 hover:bg-white/10"
                                                 }`}
                                             type="button"
                                         >
@@ -574,8 +570,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            {/* Bottom white strip */}
-            {/* <div className="h-8 bg-white" /> */}
         </header>
     );
 }

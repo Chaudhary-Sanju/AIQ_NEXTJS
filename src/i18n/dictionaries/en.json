@@ -265,6 +265,20 @@
     "ctaSecondary": "Track Order"
   },
 
+  "accountingHero": {
+    "pill": "Made for individuals & growing businesses",
+    "titleLine1": "Manage your",
+    "titleHighlight": "Accounting",
+    "titleLine2": "with ease smart packages built for every business",
+    "subtitle": "Our accounting packages simplify bookkeeping, billing, compliance, and financial reporting. Designed for startups, SMEs, and enterprises all in one place.",
+    "ctaPrimary": "Learn More",
+    "ctaPrimary1": "View Accounting Packages",
+    "ctaPrimaryLink": "/services/software",
+    "ctaSecondary": "Contact on WhatsApp",
+    "whatsappLink": "https://wa.me/",
+    "alt": "Accounting dashboard"
+  },
+
   "licenseHero": {
     "pill": "For restaurants, cafés & food businesses",
     "title1": "Get your",
@@ -717,5 +731,98 @@
     "loading": "Loading...",
     "error": "Something went wrong.",
     "close": "Close"
+  },
+
+  "accountingBenefits": {
+    "title": "Discover the Benefits of YALAKOM’s Accounting Packages",
+    "items": [
+      {
+        "title": "Time-Saving Automation",
+        "desc": "Automate repetitive accounting tasks to save time and reduce errors.",
+        "icon": "/accounting-benefits/time-saving.png"
+      },
+      {
+        "title": "Secure Data Protection",
+        "desc": "Enterprise-grade security for financial data.",
+        "icon": "/accounting-benefits/secure-data.png"
+      },
+      {
+        "title": "Comprehensive Reporting",
+        "desc": "Real-time insights for smarter decisions.",
+        "icon": "/accounting-benefits/comprehensive-report.png"
+      },
+      {
+        "title": "Scalable Solutions",
+        "desc": "Accounting that grows with your business.",
+        "icon": "/accounting-benefits/scalable.png"
+      }
+    ]
+  },
+
+  "accountingSimplifies": {
+    "title": "How YALAKOM Simplifies Your Accounting?",
+    "alt": "Accounting process illustration",
+    "imageSrc": "/banners/accounting/accounting-simplifies.png",
+    "steps": [
+      {
+        "title": "Choose Your Package",
+        "desc": "Select an accounting package tailored to your business size and requirements."
+      },
+      {
+        "title": "Set Up Quickly",
+        "desc": "Get started with a fast, hassle-free onboarding process handled by our experts."
+      },
+      {
+        "title": "Automate & Manage",
+        "desc": "Let our smart systems handle daily accounting tasks while you focus on growth."
+      },
+      {
+        "title": "Monitor & Improve",
+        "desc": "Access real-time reports and expert insights to improve financial performance."
+      }
+    ]
+  },
+
+  "whyChooseYalakom": {
+    "titleLine1": "Why Businesses Choose",
+    "titleLine2": "YALAKOM",
+    "points": [
+      "Expert accountants with industry experience",
+      "Transparent and affordable pricing",
+      "Smart automation powered by modern technology",
+      "Dedicated customer support when you need it",
+      "Designed for startups, SMEs, and enterprises"
+    ]
+  },
+
+  "softwareFaq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about our software.",
+    "items": [
+      {
+        "q": "What is this software and who is it for?",
+        "a": "It’s an all-in-one platform designed for individuals, startups, SMEs, and growing teams to manage operations efficiently with smart tools and automation."
+      },
+      {
+        "q": "How long does setup take?",
+        "a": "Most businesses can get started within a few minutes. If you need help migrating data or configuring workflows, our team can assist."
+      },
+      {
+        "q": "Is my data secure?",
+        "a": "Yes. We follow best practices for security, access control, and data handling to keep your information protected."
+      },
+      {
+        "q": "Can I use it on mobile and desktop?",
+        "a": "Yes. The software is responsive and works on mobile, tablet, and desktop browsers."
+      },
+      {
+        "q": "Do you offer customer support?",
+        "a": "Yes. We provide support via chat/WhatsApp/email, depending on your plan and business needs."
+      },
+      {
+        "q": "Can I upgrade or change my plan later?",
+        "a": "Absolutely. You can upgrade, downgrade, or change your package anytime based on your requirements."
+      }
+    ]
   }
 }

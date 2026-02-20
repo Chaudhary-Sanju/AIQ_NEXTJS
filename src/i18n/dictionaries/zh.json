@@ -257,6 +257,20 @@
     "ctaSecondary": "追蹤訂單"
   },
 
+  "accountingHero": {
+    "pill": "为个人与成长型企业打造",
+    "titleLine1": "轻松管理你的",
+    "titleHighlight": "会计服务",
+    "titleLine2": "智能套餐，适用于各类企业",
+    "subtitle": "我们的会计套餐简化记账、开票、合规与财务报表。从初创到中小企业与大型企业，一站式搞定。",
+    "ctaPrimary": "了解更多",
+    "ctaPrimary1": "查看会计套餐",
+    "ctaPrimaryLink": "/services/software",
+    "ctaSecondary": "WhatsApp 联系我们",
+    "whatsappLink": "https://wa.me/",
+    "alt": "会计仪表盘"
+  },
+
   "licenseHero": {
     "pill": "适用于餐厅、咖啡馆与食品业务",
     "title1": "轻松完成您的",
@@ -547,5 +561,98 @@
       "costNotFound": "找不到所選取件/派送地點的費用規則。",
       "generic": "發生錯誤"
     }
+  },
+
+  "accountingBenefits": {
+    "title": "探索 YALAKOM 会计套餐的优势",
+    "items": [
+      {
+        "title": "省时自动化",
+        "desc": "自动处理重复的会计工作，节省时间并减少错误。",
+        "icon": "/accounting-benefits/time-saving.png"
+      },
+      {
+        "title": "安全数据保护",
+        "desc": "企业级安全保障，守护你的财务数据。",
+        "icon": "/accounting-benefits/secure-data.png"
+      },
+      {
+        "title": "全面报表分析",
+        "desc": "实时洞察，帮助你做出更明智的决策。",
+        "icon": "/accounting-benefits/comprehensive-report.png"
+      },
+      {
+        "title": "可扩展方案",
+        "desc": "会计服务随业务成长而扩展，灵活适配需求。",
+        "icon": "/accounting-benefits/scalable.png"
+      }
+    ]
+  },
+
+  "accountingSimplifies": {
+    "title": "YALAKOM 如何简化你的会计流程？",
+    "alt": "会计流程插图",
+    "imageSrc": "/banners/accounting/accounting-simplifies.png",
+    "steps": [
+      {
+        "title": "选择你的套餐",
+        "desc": "根据企业规模与需求，选择合适的会计套餐。"
+      },
+      {
+        "title": "快速开始",
+        "desc": "由我们的专家协助完成快速、无忧的入驻流程。"
+      },
+      {
+        "title": "自动化与管理",
+        "desc": "让智能系统处理日常会计工作，你专注于业务增长。"
+      },
+      {
+        "title": "监控与改进",
+        "desc": "查看实时报表与专业建议，持续提升财务表现。"
+      }
+    ]
+  },
+
+  "whyChooseYalakom": {
+    "titleLine1": "為何企業選擇",
+    "titleLine2": "YALAKOM",
+    "points": [
+      "具備豐富行業經驗的專業會計團隊",
+      "透明合理的收費制度，無隱藏成本",
+      "結合現代科技的智能自動化系統",
+      "即時回應的專屬客戶支援服務",
+      "專為初創企業、中小企及大型企業而設"
+    ]
+  },
+
+  "softwareFaq": {
+    "title": "常見問題",
+    "subtitle": "關於我們的軟件，你需要知道的重點。",
+    "items": [
+      {
+        "q": "這套軟件是什麼？適合誰使用？",
+        "a": "這是一個一站式平台，適合個人、初創企業、中小企及成長型團隊，透過智能工具與自動化提升營運效率。"
+      },
+      {
+        "q": "設定需要多久時間？",
+        "a": "一般可在數分鐘內完成基本設定。如需資料遷移或流程配置，我們的團隊亦可協助。"
+      },
+      {
+        "q": "我的資料安全嗎？",
+        "a": "安全。我們採用業界最佳做法，包括存取控制與資料保護措施，保障你的資訊。"
+      },
+      {
+        "q": "手機及電腦都可以使用嗎？",
+        "a": "可以。系統具備響應式設計，可在手機、平板及桌面瀏覽器順暢使用。"
+      },
+      {
+        "q": "有提供客戶支援嗎？",
+        "a": "有。我們可按你的方案與需要，提供 chat／WhatsApp／電郵支援。"
+      },
+      {
+        "q": "之後可以升級或更改方案嗎？",
+        "a": "當然可以。你可按業務需要隨時升級、降級或更改套餐。"
+      }
+    ]
   }
 }
