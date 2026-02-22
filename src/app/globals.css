@@ -6,3 +6,21 @@ body {
   font-family: var(--font-raleway), Arial, Helvetica, sans-serif;
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg,
+      rgba(244, 244, 245, 1) 25%,
+      rgba(228, 228, 231, 1) 37%,
+      rgba(244, 244, 245, 1) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}

@@ -274,6 +274,7 @@
     "ctaPrimary": "Learn More",
     "ctaPrimary1": "View Accounting Packages",
     "ctaPrimaryLink": "/services/software",
+    "ctaPrimaryLink1": "/services/software/listSoftware",
     "ctaSecondary": "Contact on WhatsApp",
     "whatsappLink": "https://wa.me/",
     "alt": "Accounting dashboard"

@@ -266,6 +266,7 @@
     "ctaPrimary": "了解更多",
     "ctaPrimary1": "查看会计套餐",
     "ctaPrimaryLink": "/services/software",
+    "ctaPrimaryLink1": "/services/software/listSoftware",
     "ctaSecondary": "WhatsApp 联系我们",
     "whatsappLink": "https://wa.me/",
     "alt": "会计仪表盘"
