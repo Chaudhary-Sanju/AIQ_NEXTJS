@@ -148,7 +148,7 @@ export default function Login({ locale = "en", dict = {} }) {
             const { data } = await http.post("frontend/auth/login", form);
 
             dispatch(setUser(data.user));
-            inStorage("yalakhom", data.token, remember);
+            inStorage("hkmandu", data.token, remember);
 
             router.replace(safeNext || `/${locale}/secure`);
             router.refresh();

@@ -1,11 +1,11 @@
 {
   "nav": {
-    "logo": "YALAKOM",
+    "logo": "HkMandu",
 
     "servicesTitle": "उत्कृष्ट सेवाहरू",
     "services": {
-      "courier": "एआई कुरियर",
-      "software": "लेखा सफ्टवेयर",
+      "accounting": "लेखा",
+      "software": "सफ्टवेयर विकास",
       "license": "खाद्य तथा पेय इजाजतपत्र",
       "copmanyReg": "कम्पनी दर्ता",
       "tourAndTravel": "टुर तथा यात्रा",
@@ -16,7 +16,7 @@
       "repairAndInstall": "मर्मत तथा जडान"
     },
 
-    "searchPlaceholder": "उत्पादन खोज्नुहोस्",
+    "searchPlaceholder": "सामान खोज्नुहोस्",
     "searchAria": "खोज्नुहोस्",
 
     "hello": "नमस्ते, ",
@@ -30,7 +30,10 @@
     "changeLanguageAria": "भाषा परिवर्तन गर्नुहोस्",
     "changeLanguageTitle": "भाषा परिवर्तन गर्नुहोस्",
 
-    "openMenuAria": "मेनु खोल्नुहोस्"
+    "openMenuAria": "मेनु खोल्नुहोस्",
+
+    "organicMart": "अर्गानिक मार्ट",
+    "aiExpress": "एआई एक्सप्रेस"
   },
 
   "footer": {
@@ -95,7 +98,7 @@
       "privacy": "गोपनीयता नीति",
       "faqs": "सोधिने प्रश्नहरू"
     },
-    "bottom": "© 2026 Yalakhom Private Limited."
+    "bottom": "© 2026 HkMandu Private Limited."
   },
 
   "login": {
@@ -155,7 +158,7 @@
     "left": {
       "tagCreate": "खाता बनाउनुहोस्",
       "tagOtp": "OTP पुष्टि",
-      "titleCreate": "Yalakhom मा जोडिनुहोस्",
+      "titleCreate": "HkMandu मा जोडिनुहोस्",
       "titleOtp": "सुरक्षित प्रमाणीकरण",
       "descCreate": "अर्डर व्यवस्थापन र सेवा पहुँच गर्न खाता बनाउनुहोस्।",
       "descOtp": "खाता सक्रिय गर्न इमेलमा आएको OTP प्रविष्ट गर्नुहोस्।",
@@ -492,8 +495,8 @@
         "desc": "हङकङ ↔ नेपाल शिपमेन्टका लागि विशेष ह्यान्डलिङ—कस्टम्स समन्वय र अन्तर्राष्ट्रिय कम्प्लायन्ससहित।"
       },
       {
-        "title": "शीर्षक: Yalakhom द्वारा Powered",
-        "desc": "Yalakhom टेक्नोलोजीमा निर्मित—स्केलेबिलिटी, रिलायबिलिटी र एण्टरप्राइज-ग्रेड प्रदर्शन सुनिश्चित।"
+        "title": "शीर्षक: HkMandu द्वारा Powered",
+        "desc": "HkMandu टेक्नोलोजीमा निर्मित—स्केलेबिलिटी, रिलायबिलिटी र एण्टरप्राइज-ग्रेड प्रदर्शन सुनिश्चित।"
       }
     ]
   },

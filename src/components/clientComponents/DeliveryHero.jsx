@@ -51,7 +51,7 @@ export default function DeliveryHero({ locale = "en", dict = {}, links  }) {
                             <p className="mt-4 text-white/80 text-sm sm:text-[15px] md:text-base leading-relaxed">
                                 {t(
                                     "deliveryHero.subtitle",
-                                    "Real-time tracking, instant pickups,\nand lightning-fast delivery\npowered by Yalakhom."
+                                    "Real-time tracking, instant pickups,\nand lightning-fast delivery\npowered by HkMandu."
                                 )
                                     .split("\n")
                                     .map((line, i) => (

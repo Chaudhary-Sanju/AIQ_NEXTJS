@@ -35,7 +35,7 @@ export function middleware(request) {
     }
 
     // 2) auth presence check (NOT full security)
-    const token = request.cookies.get("yalakhom")?.value;
+    const token = request.cookies.get("hkmandu")?.value;
 
     // extract locale from /{locale}/...
     const locale = pathname.split("/")[1];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,6 +13,13 @@ import {
     ShoppingCart,
     LogOut,
     LogIn,
+    Mail,
+    Phone,
+    Grid3x3,
+    Package,
+    Sparkles,
+    Settings,
+    LayoutDashboard,
 } from "lucide-react";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -24,24 +31,36 @@ const LOCALES = ["en", "ne", "zh"];
 const LABELS = { en: "EN", zh: "粵", ne: "NP" };
 const FLAGS = { en: "/flags/gb.jpg", zh: "/flags/hk.jpg", ne: "/flags/np.png" };
 
+const SERVICES = [
+    { key: "accounting", label: "Accouting", href: "/services/" },
+    { key: "software", label: "Software", href: "/services/software" },
+    { key: "license", label: "F&B License", href: "/services/license" },
+    { key: "copmanyReg", label: "Company Register", href: "/services/copmanyReg" },
+    { key: "tourAndTravel", label: "Tour and Travel", href: "/services/tourAndTravel" },
+    { key: "flightTicket", label: "Flight Ticket", href: "/services/flightTicket" },
+    { key: "bookTransport", label: "Book Transport", href: "/services/bookTransport" },
+    { key: "visaAndImmigration", label: "Visa and Immigration", href: "/services/visaAndImmigration" },
+    { key: "homeAndOffice", label: "Home and Office Moving", href: "/services/homeAndOffice" },
+    { key: "repairAndInstall", label: "Repair and Installation", href: "/services/repairAndInstall" },
+];
+
 export default function Navbar({ locale = "en", dict = {} }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [servicesOpen, setServicesOpen] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
 
-    // Desktop dropdown container
-    const servicesRef = useRef(null);
-
-    // Mobile panel container (IMPORTANT FIX)
-    const mobilePanelRef = useRef(null);
+    const desktopServicesRef = useRef(null);
+    const mobileDrawerRef = useRef(null);
+    const profileRef = useRef(null);
 
     const router = useRouter();
     const pathname = usePathname();
-
     const dispatch = useDispatch();
+
     const user = useSelector((state) => state.user.value);
     const isLoggedIn = user && Object.keys(user).length > 0;
+    const displayName = user?.name;
 
-    // safe translate helper: t("nav.account", "My Account")
     const t = (key, fallback) => {
         const parts = key.split(".");
         let cur = dict;
@@ -49,12 +68,19 @@ export default function Navbar({ locale = "en", dict = {} }) {
         return cur ?? fallback;
     };
 
-    // Prefix any internal route with locale
     const l = (path) => `/${locale}${path}`;
 
-    // Hydrate user if cookie exists but redux empty (after refresh)
+    const mobilePrimaryLinks = useMemo(
+        () => [
+            { label: t("nav.organicMart", "Organic Mart"), href: l("/organic-mart"), icon: Package },
+            { label: t("nav.aiExpress", "AI Express"), href: l("/ai-express"), icon: Sparkles },
+            { label: t("nav.servicesTitle", "Perfect Services"), href: l("/services"), icon: Grid3x3 },
+        ],
+        [locale, dict]
+    );
+
     useEffect(() => {
-        const token = fromStorage("yalakhom");
+        const token = fromStorage("hkmandu");
         if (!isLoggedIn && token) {
             http
                 .get("frontend/auth/details")
@@ -63,61 +89,28 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     if (u) dispatch(setUser(u));
                 })
                 .catch(() => {
-                    clearStorage("yalakhom");
+                    clearStorage("hkmandu");
                     dispatch(clearUser());
                 });
         }
-    }, [isLoggedIn, dispatch]);
+    }, [dispatch, isLoggedIn]);
 
-    // Logout handler
-    const handleLogout = async () => {
-        // await http.post("frontend/auth/logout").catch(() => {});
-        clearStorage("yalakhom");
-        dispatch(clearUser());
-        setMobileOpen(false);
-        setServicesOpen(false);
-        router.replace(l("/"));
-        router.refresh();
-    };
-
-    // Switch locale but keep the same path after the locale segment
-    const switchLocale = (nextLocale) => {
-        if (!pathname) return;
-
-        const segments = pathname.split("/"); // ["", "en", "products", ...]
-        if (LOCALES.includes(segments[1])) {
-            segments[1] = nextLocale;
-            router.push(segments.join("/"));
-        } else {
-            router.push(`/${nextLocale}${pathname}`);
-        }
-
-        setMobileOpen(false);
-        setServicesOpen(false);
-    };
-
-    // Cycle locale button (en -> ne -> zh -> en)
-    const nextLocaleInCycle = () => {
-        const idx = LOCALES.indexOf(locale);
-        const nextIdx = idx === -1 ? 0 : (idx + 1) % LOCALES.length;
-        return LOCALES[nextIdx];
-    };
-
-    // ✅ IMPORTANT FIX:
-    // Close dropdown on outside click / ESC, but treat BOTH desktop dropdown and mobile panel as "inside"
-    // Use pointerdown (better for touch devices)
     useEffect(() => {
         function onKeyDown(e) {
-            if (e.key === "Escape") setServicesOpen(false);
+            if (e.key === "Escape") {
+                setServicesOpen(false);
+                setMobileOpen(false);
+                setProfileOpen(false);
+            }
         }
-
         function onPointerDown(e) {
-            const inDesktop = servicesRef.current?.contains(e.target);
-            const inMobile = mobilePanelRef.current?.contains(e.target);
-            if (inDesktop || inMobile) return;
+            const inDesktopDropdown = desktopServicesRef.current?.contains(e.target);
+            const inMobileDrawer = mobileDrawerRef.current?.contains(e.target);
+            const inProfile = profileRef.current?.contains(e.target);
+            if (inDesktopDropdown || inMobileDrawer || inProfile) return;
             setServicesOpen(false);
+            setProfileOpen(false);
         }
-
         document.addEventListener("keydown", onKeyDown);
         document.addEventListener("pointerdown", onPointerDown);
         return () => {
@@ -126,450 +119,532 @@ export default function Navbar({ locale = "en", dict = {} }) {
         };
     }, []);
 
-    const displayName = user?.name;
-
-    // Helper to close menus (use on mobile link clicks)
-    const closeMobileMenus = () => {
-        setServicesOpen(false);
+    const switchLocale = (nextLocale) => {
+        if (!pathname) return;
+        const segments = pathname.split("/");
+        if (LOCALES.includes(segments[1])) {
+            segments[1] = nextLocale;
+            router.push(segments.join("/"));
+        } else {
+            router.push(`/${nextLocale}${pathname}`);
+        }
         setMobileOpen(false);
+        setServicesOpen(false);
+        setProfileOpen(false);
+    };
+
+    const handleLogout = () => {
+        clearStorage("hkmandu");
+        dispatch(clearUser());
+        setMobileOpen(false);
+        setServicesOpen(false);
+        setProfileOpen(false);
+        router.replace(l("/"));
+        router.refresh();
     };
 
     return (
-        <header className="w-full">
-            {/* Top Bar */}
-            <div className="bg-gradient-to-r from-[#5f57ff] to-[#2b2458]">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-20 items-center justify-between gap-3">
-                        {/* Left: Logo + Services */}
-                        <div className="flex items-center gap-3 sm:gap-6">
-                            <Link href={l("/")} className="flex items-center">
-                                <span className="text-2xl sm:text-3xl font-semibold tracking-wide text-white">
-                                    {t("nav.logo", "YALAKOM")}
+        <header className="w-full bg-white" style={{ boxShadow: "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)" }}>
+
+            {/* ── Top bar ── */}
+            <div className="hidden md:block" style={{ background: "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)" }}>
+                <div className="mx-auto max-w-7xl px-4 lg:px-6">
+                    <div className="flex h-9 items-center justify-between" style={{ fontSize: "11px", letterSpacing: "0.03em" }}>
+
+                        <div className="flex items-center gap-4 text-white/80">
+                            <span className="inline-flex items-center gap-1.5">
+                                <Mail className="h-3 w-3 opacity-70" />
+                                contact@hkmandu.com
+                            </span>
+                            <span className="h-3 w-px bg-white/20" />
+                            <span className="inline-flex items-center gap-1.5">
+                                <Phone className="h-3 w-3 opacity-70" />
+                                +852-1111-1111 &nbsp;|&nbsp; +977-9812345678
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-white/70">
+                            {[
+                                { key: "nav.terms", fallback: "Terms & Conditions", href: l("/terms") },
+                                { key: "nav.privacy", fallback: "Privacy Policy", href: l("/privacy-policy") },
+                                { key: "nav.faqs", fallback: "FAQs", href: l("/faqs") },
+                            ].map((item, i, arr) => (
+                                <span key={item.href} className="inline-flex items-center">
+                                    <Link
+                                        href={item.href}
+                                        className="hover:text-white transition-colors duration-150 px-2 py-0.5 rounded"
+                                        style={{ letterSpacing: "0.04em" }}
+                                    >
+                                        {t(item.key, item.fallback)}
+                                    </Link>
+                                    {i < arr.length - 1 && <span className="text-white/25">|</span>}
                                 </span>
-                            </Link>
-
-                            {/* Services dropdown (desktop) */}
-                            <div className="relative hidden md:block" ref={servicesRef}>
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center gap-1.5 text-white/95 hover:text-white text-sm font-medium"
-                                    onClick={() => setServicesOpen((v) => !v)}
-                                    aria-haspopup="menu"
-                                    aria-expanded={servicesOpen}
-                                >
-                                    {t("nav.servicesTitle", "Perfect Services")}
-                                    <ChevronDown className="h-4 w-4" />
-                                </button>
-
-                                {servicesOpen && (
-                                    <div
-                                        className="absolute left-0 mt-2 w-56 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 z-10"
-                                        role="menu"
-                                    >
-                                        <Link
-                                            href={l("/services/courier")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.courier", "AI Courier")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/software")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.software", "Accounting Software")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/license")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.license", "F&B License")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/copmanyReg")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.copmanyReg", "Company Register")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/tourAndTravel")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.tourAndTravel", "Tour and Travel")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/flightTicket")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.flightTicket", "Flight Ticket")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/bookTransport")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.bookTransport", "Book Transport")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/visaAndImmigration")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.visaAndImmigration", "Visa and Immigration")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/homeAndOffice")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.homeAndOffice", "Home and Office Moving")}
-                                        </Link>
-
-                                        <Link
-                                            href={l("/services/repairAndInstall")}
-                                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                            role="menuitem"
-                                            onClick={() => setServicesOpen(false)}
-                                        >
-                                            {t("nav.services.repairAndInstall", "Repair and Installation")}
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
+                            ))}
                         </div>
 
-                        {/* Center: Search (desktop/tablet) */}
-                        <div className="hidden flex-1 md:flex justify-center px-2">
-                            <form className="w-full max-w-xl">
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        placeholder={t("nav.searchPlaceholder", "Search for Products")}
-                                        className="w-full rounded-lg bg-white/90 px-4 py-2.5 pr-11 text-sm text-slate-800 placeholder:text-slate-500 outline-none ring-1 ring-white/30 focus:bg-white focus:ring-2 focus:ring-white/70"
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-[#5f57ff] hover:bg-slate-100"
-                                        aria-label={t("nav.searchAria", "Search")}
-                                    >
-                                        <Search className="h-5 w-5" />
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        {/* Right: Actions */}
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            {/* Account area */}
-                            {!isLoggedIn ? (
-                                <div className="hidden sm:flex items-center justify-center">
-                                    <Link
-                                        href={l("/auth/login")}
-                                        className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-3 py-2 text-sm font-medium text-white hover:bg-white/20"
-                                    >
-                                        <LogIn className="h-4 w-4" />
-                                        {t("nav.login", "Login")}
-                                    </Link>
-                                </div>
-                            ) : (
-                                <div className="hidden sm:flex items-center gap-2">
-                                    <Link
-                                        href={l("/secure")}
-                                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-white/95 hover:bg-white/10"
-                                    >
-                                        <User className="h-5 w-5" />
-                                        <div className="leading-tight">
-                                            <div className="text-[10px] opacity-90">
-                                                {t("nav.hello", "Hello,")} {displayName}
-                                            </div>
-                                            <div className="text-xs font-medium">
-                                                {t("nav.account", "My Account")}
-                                            </div>
-                                        </div>
-                                    </Link>
-
-                                    <button
-                                        type="button"
-                                        onClick={handleLogout}
-                                        className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white/95 hover:bg-white/10"
-                                        title={t("nav.logout", "Logout")}
-                                    >
-                                        <LogOut className="h-4 w-4" />
-                                        {t("nav.logout", "Logout")}
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Cart */}
-                            <Link
-                                href={l("/cart")}
-                                className="inline-flex items-center justify-center rounded-lg p-2 text-white/95 hover:bg-white/10"
-                                aria-label={t("nav.cartAria", "Cart")}
-                            >
-                                <ShoppingCart className="h-5 w-5" />
-                            </Link>
-
-                            {/* Language (desktop) */}
-                            <div className="hidden sm:flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-white/95 hover:bg-white/10"
-                                    onClick={() => switchLocale(nextLocaleInCycle())}
-                                    aria-label={t("nav.changeLanguageAria", "Change language")}
-                                    title={t("nav.changeLanguageTitle", "Change language")}
-                                >
-                                    <span className="relative h-4 w-6 overflow-hidden rounded-sm">
-                                        <Image
-                                            src={FLAGS[locale] || FLAGS.en}
-                                            alt={LABELS[locale] || "EN"}
-                                            fill
-                                            className="object-cover"
-                                            sizes="24px"
-                                        />
-                                    </span>
-                                    <span className="text-xs font-semibold">{LABELS[locale] || "EN"}</span>
-                                </button>
-
-                                <div className="hidden md:flex items-center gap-1">
-                                    {LOCALES.map((lc) => (
-                                        <button
-                                            key={lc}
-                                            onClick={() => switchLocale(lc)}
-                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale
-                                                    ? "bg-white/20 text-white"
-                                                    : "text-white/90 hover:bg-white/10"
-                                                }`}
-                                            type="button"
-                                        >
-                                            {LABELS[lc]}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Mobile menu toggle */}
-                            <button
-                                type="button"
-                                className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-white/95 hover:bg-white/10"
-                                onClick={() => setMobileOpen((v) => !v)}
-                                aria-label={t("nav.openMenuAria", "Open menu")}
-                            >
-                                {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                            </button>
-                        </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Mobile: Search + Menu Panel */}
-                <div
-                    className={`md:hidden ${mobileOpen ? "block" : "hidden"}`}
-                    ref={mobilePanelRef}
-                >
-                    <div className="mx-auto max-w-7xl px-4 pb-4">
+            {/* ── Desktop main nav ── */}
+            <div className="hidden md:block">
+                <div className="mx-auto max-w-7xl px-4 lg:px-6">
+                    <div className="grid h-[96px] grid-cols-[96px_minmax(260px,340px)_1fr_auto] items-center gap-5 lg:grid-cols-[104px_minmax(300px,380px)_1fr_auto]">
+
+                        {/* Logo */}
+                        <Link href={l("/")} className="group flex flex-col items-center justify-center leading-none">
+                            <Image
+                                src="/logo.png"
+                                alt={t("nav.logo", "HkMandu")}
+                                width={48}
+                                height={48}
+                                className="h-11 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                            />
+                            <span
+                                className="mt-1 text-[12px] font-bold tracking-widest uppercase"
+                                style={{ color: "#1a4b8f", letterSpacing: "0.16em" }}
+                            >
+                                HkMandu
+                            </span>
+                        </Link>
+
                         {/* Search */}
-                        <form className="pt-2">
+                        <form className="w-full">
                             <div className="relative">
                                 <input
                                     type="text"
-                                    placeholder={t("nav.searchPlaceholder", "Search for Products")}
-                                    className="w-full rounded-lg bg-white/90 px-4 py-2.5 pr-11 text-sm text-slate-800 placeholder:text-slate-500 outline-none ring-1 ring-white/30 focus:bg-white focus:ring-2 focus:ring-white/70"
+                                    placeholder={t("nav.searchPlaceholder", "Search for an item")}
+                                    className="h-11 w-full border bg-[#f8f9fc] pl-4 pr-12 text-sm text-neutral-800 outline-none transition-all duration-200 focus:bg-white"
+                                    style={{
+                                        borderRadius: "6px",
+                                        borderColor: "#dde1ea",
+                                        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)",
+                                    }}
+                                    onFocus={e => {
+                                        e.target.style.borderColor = "#1a4b8f";
+                                        e.target.style.boxShadow = "0 0 0 3px rgba(26,75,143,0.10), inset 0 1px 2px rgba(0,0,0,0.04)";
+                                    }}
+                                    onBlur={e => {
+                                        e.target.style.borderColor = "#dde1ea";
+                                        e.target.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.04)";
+                                    }}
                                 />
                                 <button
                                     type="submit"
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-[#5f57ff] hover:bg-slate-100"
                                     aria-label={t("nav.searchAria", "Search")}
+                                    className="absolute right-0 top-0 h-11 w-11 flex items-center justify-center rounded-r-md transition-colors duration-150 hover:bg-[#1a4b8f] hover:text-white"
+                                    style={{ color: "#1a4b8f", borderRadius: "0 6px 6px 0" }}
                                 >
-                                    <Search className="h-5 w-5" />
+                                    <Search className="h-4 w-4" />
                                 </button>
                             </div>
                         </form>
 
-                        {/* Mobile links */}
-                        <div className="mt-3 space-y-2 rounded-xl bg-white/10 p-3 ring-1 ring-white/10">
+                        {/* Center nav */}
+                        <nav className="flex min-w-0 items-center justify-center gap-1 whitespace-nowrap">
+                            {[
+                                { href: l("/ai-express"), label: t("nav.aiExpress", "AI Express") },
+                                { href: l("/"), label: t("nav.organicMart", "Organic Mart") },
+                            ].map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className="relative px-4 py-2 text-[14px] font-semibold text-neutral-700 transition-colors duration-150 hover:text-[#1a4b8f]"
+                                    style={{ letterSpacing: "0.01em" }}
+                                >
+                                    {item.label}
+                                    <span
+                                        className="absolute bottom-0 left-4 right-4 h-[2px] scale-x-0 rounded-full bg-[#1a4b8f] transition-transform duration-200 origin-center group-hover:scale-x-100"
+                                        style={{ transition: "transform 0.2s" }}
+                                    />
+                                </Link>
+                            ))}
+
+                            <span className="text-neutral-300 px-1 select-none">|</span>
+
+                            {/* Services dropdown */}
+                            <div className="relative" ref={desktopServicesRef}>
+                                <button
+                                    type="button"
+                                    onClick={() => { setServicesOpen((v) => !v); setProfileOpen(false); }}
+                                    className="inline-flex items-center gap-1.5 px-4 py-2 text-[14px] font-semibold transition-colors duration-150"
+                                    style={{
+                                        color: servicesOpen ? "#1a4b8f" : "#404040",
+                                        letterSpacing: "0.01em",
+                                    }}
+                                >
+                                    {t("nav.servicesTitle", "Perfect Services")}
+                                    <ChevronDown
+                                        className="h-3.5 w-3.5 transition-transform duration-200"
+                                        style={{ transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                    />
+                                </button>
+
+                                {servicesOpen && (
+                                    <div
+                                        className="absolute left-1/2 top-full z-30 mt-3 w-72 -translate-x-1/2 bg-white p-1.5"
+                                        style={{
+                                            borderRadius: "10px",
+                                            border: "1px solid #e8ecf4",
+                                            boxShadow: "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
+                                        }}
+                                    >
+                                        {SERVICES.map((service) => (
+                                            <Link
+                                                key={service.key}
+                                                href={l(service.href)}
+                                                onClick={() => setServicesOpen(false)}
+                                                className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                                                style={{ fontWeight: 450 }}
+                                            >
+                                                {t(`nav.services.${service.key}`, service.label)}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </nav>
+
+                        {/* Right actions */}
+                        <div className="flex items-center gap-2 whitespace-nowrap">
+
+                            {/* Cart */}
+                            <Link
+                                href={l("/cart")}
+                                aria-label={t("nav.cartAria", "Cart")}
+                                className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-neutral-700 transition-colors duration-150 hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                            >
+                                <ShoppingCart className="h-4 w-4" />
+                                <span>{t("nav.cart", "Cart")}</span>
+                            </Link>
+
+                            {/* Language switcher */}
                             <button
                                 type="button"
-                                className="w-full inline-flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
-                                onClick={() => setServicesOpen((v) => !v)}
+                                onClick={() => switchLocale(locale === "en" ? "zh" : locale === "zh" ? "ne" : "en")}
+                                aria-label={t("nav.changeLanguageAria", "Change language")}
+                                className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-neutral-700 transition-colors duration-150 hover:bg-[#f0f4fb]"
                             >
-                                {t("nav.servicesTitle", "Perfect Services")}
-                                <ChevronDown className="h-4 w-4" />
+                                <span className="relative h-4 w-6 overflow-hidden" style={{ borderRadius: "3px", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }}>
+                                    <Image
+                                        src={FLAGS[locale] || FLAGS.en}
+                                        alt={LABELS[locale] || "EN"}
+                                        fill
+                                        className="object-cover"
+                                        sizes="24px"
+                                    />
+                                </span>
+                                <span>{LABELS[locale] || "EN"}</span>
                             </button>
 
-                            {servicesOpen && (
-                                <div className="space-y-1 px-1 pb-2">
-                                    <Link
-                                        href={l("/services/courier")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.courier", "AI Courier")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/software")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.software", "Accounting Software")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/license")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.license", "F&B License")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/copmanyReg")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.copmanyReg", "Company Register")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/tourAndTravel")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.tourAndTravel", "Tour and Travel")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/flightTicket")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.flightTicket", "Flight Ticket")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/bookTransport")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.bookTransport", "Book Transport")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/visaAndImmigration")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.visaAndImmigration", "Visa and Immigration")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/homeAndOffice")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.homeAndOffice", "Home and Office Moving")}
-                                    </Link>
-
-                                    <Link
-                                        href={l("/services/repairAndInstall")}
-                                        className="block rounded-lg px-3 py-2 text-sm text-white/95 hover:bg-white/10"
-                                        onClick={closeMobileMenus}
-                                    >
-                                        {t("nav.services.repairAndInstall", "Repair and Installation")}
-                                    </Link>
-                                </div>
-                            )}
-
-                            {/* Mobile auth/account */}
+                            {/* Profile / Login */}
                             {!isLoggedIn ? (
-                                <div className="flex gap-2">
-                                    <Link
-                                        href={l("/auth/login")}
-                                        onClick={() => setMobileOpen(false)}
-                                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/15"
-                                    >
-                                        <LogIn className="h-4 w-4" />
-                                        {t("nav.login", "Login")}
-                                    </Link>
-                                </div>
+                                <Link
+                                    href={l("/auth/login")}
+                                    className="inline-flex h-9 items-center gap-2 px-3.5 text-sm font-semibold text-white transition-all duration-150"
+                                    style={{
+                                        borderRadius: "7px",
+                                        background: "linear-gradient(135deg, #1a4b8f 0%, #0f2a5e 100%)",
+                                        boxShadow: "0 2px 8px rgba(26,75,143,0.30)",
+                                        letterSpacing: "0.01em",
+                                    }}
+                                >
+                                    <LogIn className="h-3.5 w-3.5" />
+                                    {t("nav.login", "Login")}
+                                </Link>
                             ) : (
-                                <div className="space-y-2">
-                                    <Link
-                                        href={l("/secure")}
-                                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
-                                        onClick={() => setMobileOpen(false)}
-                                    >
-                                        <User className="h-5 w-5" />
-                                        {t("nav.hello", "Hello,")} {displayName} — {t("nav.account", "My Account")}
-                                    </Link>
-
+                                <div className="relative" ref={profileRef}>
                                     <button
                                         type="button"
-                                        onClick={handleLogout}
-                                        className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/15"
+                                        onClick={() => { setProfileOpen((v) => !v); setServicesOpen(false); }}
+                                        className="inline-flex h-9 items-center gap-2 px-3.5 text-sm font-semibold text-white transition-all duration-150"
+                                        style={{
+                                            borderRadius: "7px",
+                                            background: "linear-gradient(135deg, #1a4b8f 0%, #0f2a5e 100%)",
+                                            boxShadow: "0 2px 8px rgba(26,75,143,0.30)",
+                                            letterSpacing: "0.01em",
+                                        }}
                                     >
-                                        <LogOut className="h-4 w-4" />
-                                        {t("nav.logout", "Logout")}
+                                        <User className="h-3.5 w-3.5" />
+                                        <span>{displayName || t("nav.account", "My Account")}</span>
+                                        <ChevronDown
+                                            className="h-3.5 w-3.5 transition-transform duration-200"
+                                            style={{ transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                        />
                                     </button>
+
+                                    {profileOpen && (
+                                        <div
+                                            className="absolute right-0 z-40 mt-3 w-52 bg-white p-1.5"
+                                            style={{
+                                                borderRadius: "10px",
+                                                border: "1px solid #e8ecf4",
+                                                boxShadow: "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
+                                            }}
+                                        >
+                                            <Link
+                                                href={l("/secure")}
+                                                onClick={() => setProfileOpen(false)}
+                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                                            >
+                                                <LayoutDashboard className="h-4 w-4" />
+                                                {t("nav.dashboard", "Dashboard")}
+                                            </Link>
+                                            <Link
+                                                href={l("/settings")}
+                                                onClick={() => setProfileOpen(false)}
+                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                                            >
+                                                <Settings className="h-4 w-4" />
+                                                {t("nav.settings", "Settings")}
+                                            </Link>
+                                            <div className="my-1 border-t border-neutral-100" />
+                                            <button
+                                                type="button"
+                                                onClick={handleLogout}
+                                                className="flex w-full items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-left text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
+                                            >
+                                                <LogOut className="h-4 w-4" />
+                                                {t("nav.logout", "Logout")}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-
-                            {/* Mobile language buttons */}
-                            <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-white/95 bg-white/10">
-                                <span className="flex items-center gap-2">
-                                    <span className="relative h-4 w-6 overflow-hidden rounded-sm">
-                                        <Image
-                                            src={FLAGS[locale] || FLAGS.en}
-                                            alt={LABELS[locale] || "EN"}
-                                            fill
-                                            className="object-cover"
-                                            sizes="24px"
-                                        />
-                                    </span>
-                                    {t("nav.language", "Language")}
-                                </span>
-                                <div className="flex gap-1">
-                                    {LOCALES.map((lc) => (
-                                        <button
-                                            key={lc}
-                                            onClick={() => switchLocale(lc)}
-                                            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${lc === locale
-                                                    ? "bg-white/20 text-white"
-                                                    : "text-white/90 hover:bg-white/10"
-                                                }`}
-                                            type="button"
-                                        >
-                                            {LABELS[lc]}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* ── Mobile ── */}
+            <div className="md:hidden">
+                <div className="px-3 pt-3 pb-2.5">
+                    <div className="flex items-center gap-2">
+
+                        {/* Logo */}
+                        <Link href={l("/")} className="flex w-[58px] shrink-0 flex-col items-center justify-center leading-none">
+                            <Image
+                                src="/logo.png"
+                                alt={t("nav.logo", "HkMandu")}
+                                width={38}
+                                height={38}
+                                className="h-9 w-auto object-contain"
+                            />
+                            <span
+                                className="mt-0.5 font-bold uppercase tracking-widest"
+                                style={{ fontSize: "9px", color: "#1a4b8f", letterSpacing: "0.15em" }}
+                            >
+                                HkMandu
+                            </span>
+                        </Link>
+
+                        {/* Search */}
+                        <form className="flex-1">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder={t("nav.searchPlaceholder", "Search for an item")}
+                                    className="h-10 w-full border bg-[#f8f9fc] pl-3.5 pr-10 text-sm text-neutral-800 outline-none"
+                                    style={{
+                                        borderRadius: "6px",
+                                        borderColor: "#dde1ea",
+                                    }}
+                                />
+                                <button
+                                    type="submit"
+                                    aria-label={t("nav.searchAria", "Search")}
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2"
+                                    style={{ color: "#1a4b8f" }}
+                                >
+                                    <Search className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </form>
+
+                        {/* Cart */}
+                        <Link
+                            href={l("/cart")}
+                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700"
+                            aria-label={t("nav.cartAria", "Cart")}
+                        >
+                            <ShoppingCart className="h-5 w-5" />
+                        </Link>
+
+                        {/* Hamburger */}
+                        <button
+                            type="button"
+                            onClick={() => { setMobileOpen((v) => !v); setServicesOpen(false); }}
+                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700"
+                            aria-label={t("nav.openMenuAria", "Open menu")}
+                        >
+                            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile quick-nav bar */}
+                <div
+                    className="border-t border-b"
+                    style={{
+                        background: "linear-gradient(90deg, #f0f4fb 0%, #f8f9fc 100%)",
+                        borderColor: "#e4eaf5",
+                    }}
+                >
+                    <div className="grid grid-cols-3">
+                        {mobilePrimaryLinks.map((item, idx) => {
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-[#e4eaf5]"
+                                    style={{
+                                        borderRight: idx !== 2 ? "1px solid #dde6f5" : "none",
+                                    }}
+                                >
+                                    <span
+                                        className="flex h-8 w-8 items-center justify-center rounded-full"
+                                        style={{ background: "rgba(26,75,143,0.09)" }}
+                                    >
+                                        <Icon className="h-4 w-4" style={{ color: "#1a4b8f" }} />
+                                    </span>
+                                    <span
+                                        className="text-[12px] font-semibold"
+                                        style={{ color: "#1a2f5e", letterSpacing: "0.01em" }}
+                                    >
+                                        {item.label}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Mobile drawer */}
+                {mobileOpen && (
+                    <div
+                        ref={mobileDrawerRef}
+                        className="border-b px-3 py-4"
+                        style={{
+                            background: "#f8f9fc",
+                            borderColor: "#e4eaf5",
+                        }}
+                    >
+                        <div className="space-y-2">
+
+                            {/* Services accordion */}
+                            <div
+                                className="overflow-hidden rounded-xl border"
+                                style={{ borderColor: "#dde6f5", background: "white" }}
+                            >
+                                <button
+                                    type="button"
+                                    onClick={() => setServicesOpen((v) => !v)}
+                                    className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-semibold"
+                                    style={{ color: "#1a2f5e" }}
+                                >
+                                    <span>{t("nav.servicesTitle", "Perfect Services")}</span>
+                                    <ChevronDown
+                                        className="h-4 w-4 transition-transform duration-200"
+                                        style={{ transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)", color: "#1a4b8f" }}
+                                    />
+                                </button>
+
+                                {servicesOpen && (
+                                    <div className="border-t px-2 pb-2" style={{ borderColor: "#eef1f9" }}>
+                                        {SERVICES.map((service) => (
+                                            <Link
+                                                key={service.key}
+                                                href={l(service.href)}
+                                                onClick={() => { setServicesOpen(false); setMobileOpen(false); }}
+                                                className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-[#f0f4fb]"
+                                                style={{ color: "#374166", fontWeight: 450 }}
+                                            >
+                                                {t(`nav.services.${service.key}`, service.label)}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Account section */}
+                            <div
+                                className="overflow-hidden rounded-xl border"
+                                style={{ borderColor: "#dde6f5", background: "white" }}
+                            >
+                                {!isLoggedIn ? (
+                                    <Link
+                                        href={l("/auth/login")}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold"
+                                        style={{ color: "#1a4b8f" }}
+                                    >
+                                        <LogIn className="h-4 w-4" />
+                                        {t("nav.login", "Login")}
+                                    </Link>
+                                ) : (
+                                    <>
+                                        <Link
+                                            href={l("/secure")}
+                                            onClick={() => setMobileOpen(false)}
+                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-[#f0f4fb]"
+                                            style={{ borderColor: "#eef1f9", color: "#1a2f5e" }}
+                                        >
+                                            <LayoutDashboard className="h-4 w-4" style={{ color: "#1a4b8f" }} />
+                                            {t("nav.dashboard", "Dashboard")}
+                                        </Link>
+                                        <Link
+                                            href={l("/settings")}
+                                            onClick={() => setMobileOpen(false)}
+                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-[#f0f4fb]"
+                                            style={{ borderColor: "#eef1f9", color: "#1a2f5e" }}
+                                        >
+                                            <Settings className="h-4 w-4" style={{ color: "#1a4b8f" }} />
+                                            {t("nav.settings", "Settings")}
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            onClick={handleLogout}
+                                            className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-sm font-medium transition-colors hover:bg-red-50"
+                                            style={{ color: "#dc2626" }}
+                                        >
+                                            <LogOut className="h-4 w-4" />
+                                            {t("nav.logout", "Logout")}
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Language switcher */}
+                            <div
+                                className="flex items-center justify-between rounded-xl border px-4 py-3.5"
+                                style={{ borderColor: "#dde6f5", background: "white" }}
+                            >
+                                <span className="text-sm font-semibold" style={{ color: "#1a2f5e" }}>
+                                    {t("nav.language", "Language")}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    {LOCALES.map((lc) => (
+                                        <button
+                                            key={lc}
+                                            type="button"
+                                            onClick={() => switchLocale(lc)}
+                                            className="rounded-md px-2.5 py-1 text-xs font-semibold transition-all duration-150"
+                                            style={lc === locale
+                                                ? { background: "linear-gradient(135deg, #1a4b8f, #0f2a5e)", color: "white", boxShadow: "0 2px 6px rgba(26,75,143,0.3)" }
+                                                : { background: "#eef1f9", color: "#374166" }
+                                            }
+                                        >
+                                            {LABELS[lc]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                )}
+            </div>
         </header>
     );
 }

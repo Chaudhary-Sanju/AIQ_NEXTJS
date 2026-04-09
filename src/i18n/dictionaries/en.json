@@ -1,12 +1,12 @@
 {
-  "nav": {
-    "logo": "YALAKOM",
+ "nav": {
+    "logo": "HkMandu",
 
     "servicesTitle": "Perfect Services",
     "services": {
-      "courier": "AI Courier",
-      "software": "Accounting Software",
-      "license": "F&B license",
+      "accounting": "Accounting",
+      "software": "Software Development",
+      "license": "F&B License",
       "copmanyReg": "Company Register",
       "tourAndTravel": "Tour and Travel",
       "flightTicket": "Flight Ticket",
@@ -16,12 +16,13 @@
       "repairAndInstall": "Repair and Installation"
     },
 
-    "searchPlaceholder": "Search for Products",
+    "searchPlaceholder": "Search for an item",
     "searchAria": "Search",
 
     "hello": "Hello, ",
     "account": "My Account",
     "login": "Login",
+    "logout": "Logout",
 
     "cartAria": "Cart",
 
@@ -29,7 +30,10 @@
     "changeLanguageAria": "Change language",
     "changeLanguageTitle": "Change language",
 
-    "openMenuAria": "Open menu"
+    "openMenuAria": "Open menu",
+
+    "organicMart": "Organic Mart",
+    "aiExpress": "AI Express"
   },
 
   "footer": {
@@ -89,7 +93,7 @@
       "privacy": "Privacy Policy",
       "faqs": "FAQs"
     },
-    "bottom": "© 2026 Yalakhom Private Limited."
+    "bottom": "© 2026 HkMandu Private Limited."
   },
 
   "login": {
@@ -125,7 +129,7 @@
     "left": {
       "tagCreate": "Create Account",
       "tagOtp": "Verify OTP",
-      "titleCreate": "Join Yalakhom",
+      "titleCreate": "Join HkMandu",
       "titleOtp": "Secure Verification",
       "descCreate": "Create your account to manage orders and access services.",
       "descOtp": "Enter the OTP sent to your email to activate your account.",
@@ -260,7 +264,7 @@
   "deliveryHero": {
     "alt": "Delivery rider",
     "title": "Delivering at the Speed\nof Your Life",
-    "subtitle": "Real-time tracking, instant pickups,\nand lightning-fast delivery\npowered by Yalakhom.",
+    "subtitle": "Real-time tracking, instant pickups,\nand lightning-fast delivery\npowered by HkMandu.",
     "ctaPrimary": "Get Started",
     "ctaSecondary": "Track Order"
   },
@@ -462,8 +466,8 @@
         "desc": "Specialized handling of Hong Kong ↔ Nepal shipments, including customs coordination and international compliance."
       },
       {
-        "title": "Powered by Yalakhom",
-        "desc": "Built on Yalakhom technology, ensuring scalability, reliability, and enterprise-grade courier performance."
+        "title": "Powered by HkMandu",
+        "desc": "Built on HkMandu technology, ensuring scalability, reliability, and enterprise-grade courier performance."
       }
     ]
   },

@@ -8,7 +8,7 @@ import FAQSectionSoftware from "@/components/clientComponents/FAQSectionSoftware
 
 export async function generateMetadata() {
     return {
-        title: "Yalakhom Software Service Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
+        title: "HkMandu Software Service Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
 
         description:
             "AI-powered international courier platform connecting Hong Kong and Nepal with real-time tracking, secure cross-border logistics, and fast delivery services.",
@@ -21,7 +21,7 @@ export async function generateMetadata() {
         generator: "Next.js",
 
         keywords: [
-            "Yalakhom Software Service",
+            "HkMandu Software Service",
             "Hong Kong Nepal shipping",
             "international delivery",
             "cross-border logistics",
@@ -38,7 +38,7 @@ export async function generateMetadata() {
         publisher: "YALAKOM",
 
         openGraph: {
-            title: "Yalakhom Software Service Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
+            title: "HkMandu Software Service Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
             description:
                 "AI-powered international courier platform connecting Hong Kong and Nepal with real-time tracking, secure cross-border logistics, and fast delivery services.",
             locale: "en_HK",
@@ -48,14 +48,14 @@ export async function generateMetadata() {
                     url: "/default-og.png",
                     width: 1200,
                     height: 630,
-                    alt: "Yalakhom Software Service Hong Kong Nepal"
+                    alt: "HkMandu Software Service Hong Kong Nepal"
                 }
             ]
         },
 
         twitter: {
             card: "summary_large_image",
-            title: "Yalakhom Software Service Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
+            title: "HkMandu Software Service Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
             description:
                 "AI-powered international courier platform connecting Hong Kong and Nepal with real-time tracking, secure cross-border logistics, and fast delivery services.",
             images: ["/default-og.png"]

@@ -556,7 +556,7 @@ export default function Signup({ locale = "en", dict = {} }) {
 
                                     <h1 className="mt-6 text-4xl font-semibold tracking-wide text-white">
                                         {step === "register"
-                                            ? t("signup.left.titleCreate", "Join Yalakhom")
+                                            ? t("signup.left.titleCreate", "Join HkMandu")
                                             : t("signup.left.titleOtp", "Secure Verification")}
                                     </h1>
 

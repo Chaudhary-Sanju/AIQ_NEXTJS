@@ -11,7 +11,7 @@ const http = axios.create({
 })
 
 http.interceptors.request.use(config => {
-    const token = fromStorage('yalakhom')
+    const token = fromStorage('hkmandu')
 
     if (token) {
         config.headers['Authorization'] = `Bearer ${token}`

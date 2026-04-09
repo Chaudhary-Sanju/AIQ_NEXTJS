@@ -24,3 +24,34 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.2s ease-in-out infinite;
 }
+
+
+.marquee-wrapper {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 10px 0;
+}
+
+.marquee-track {
+  display: inline-flex;
+  min-width: 200%;
+  animation: marqueeMove 20s linear infinite;
+}
+
+.marquee-item {
+  display: inline-block;
+  padding-right: 80px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes marqueeMove {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}

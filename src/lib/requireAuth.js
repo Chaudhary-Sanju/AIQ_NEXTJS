@@ -24,7 +24,7 @@ async function getCookieValue(name) {
 }
 
 export async function requireAuth(locale, nextPath = "") {
-    const token = await getCookieValue("yalakhom");
+    const token = await getCookieValue("hkmandu");
 
     const loginUrl =
         `/${locale}/auth/login` +

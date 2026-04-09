@@ -26,17 +26,17 @@ export async function generateMetadata({ params }) {
         item?.summary?.[locale] ?? item?.summary?.en ?? "Software details";
 
     return {
-        title: `${title} | Yalakhom Software`,
+        title: `${title} | HkMandu Software`,
         description: summary,
         icons: { icon: "/default.ico" },
         openGraph: {
-            title: `${title} | Yalakhom Software`,
+            title: `${title} | HkMandu Software`,
             description: summary,
             type: "website",
         },
         twitter: {
             card: "summary_large_image",
-            title: `${title} | Yalakhom Software`,
+            title: `${title} | HkMandu Software`,
             description: summary,
         },
     };

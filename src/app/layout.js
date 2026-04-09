@@ -3,8 +3,8 @@ import Providers from "./providers";
 
 export async function generateMetadata() {
     return {
-        title: "Yalakhom (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform",
-        description: "Yalakhom (AIQ) is an all-in-one platform combining Food Mart e-commerce, courier booking & tracking (Hong Kong ↔ Nepal), and a services marketplace (immigration, company registration, licensing, travel, moving, repairs). Available on web and mobile with multilingual support.",
+        title: "HkMandu (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform",
+        description: "HkMandu (AIQ) is an all-in-one platform combining Food Mart e-commerce, courier booking & tracking (Hong Kong ↔ Nepal), and a services marketplace (immigration, company registration, licensing, travel, moving, repairs). Available on web and mobile with multilingual support.",
         icons: {
             icon: '/default.ico'
         },
@@ -12,7 +12,7 @@ export async function generateMetadata() {
         generator: "Next.js",
 
         keywords: [
-            "Yalakhom",
+            "HkMandu",
             "AIQ platform",
             "Food Mart",
             "online grocery store",
@@ -35,12 +35,12 @@ export async function generateMetadata() {
             "English Nepali Cantonese",
         ],
 
-        authors: [{ name: "Yalakhom Team", url: "https://yalakhom.com" }],
-        creator: "Yalakhom",
-        publisher: "Yalakhom",
+        authors: [{ name: "HkMandu Team", url: "https://hkmandu.com" }],
+        creator: "HkMandu",
+        publisher: "HkMandu",
         openGraph: {
-            title: "Yalakhom (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform",
-            description: "Yalakhom (AIQ) is an all-in-one platform combining Food Mart e-commerce, courier booking & tracking (Hong Kong ↔ Nepal), and a services marketplace (immigration, company registration, licensing, travel, moving, repairs). Available on web and mobile with multilingual support.",
+            title: "HkMandu (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform",
+            description: "HkMandu (AIQ) is an all-in-one platform combining Food Mart e-commerce, courier booking & tracking (Hong Kong ↔ Nepal), and a services marketplace (immigration, company registration, licensing, travel, moving, repairs). Available on web and mobile with multilingual support.",
             locale: "en_NP",
             type: "website",
             images: [
@@ -61,7 +61,7 @@ export default function RootLayout({ children }) {
 
                 {/* <meta name="google-site-verification" content="dFiRWQVmiz3oPKLqPqhUdrvzqpn-iaqM_6f-pJOFeVc" /> */}
 
-                <title>Yalakhom (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform</title>
+                <title>HkMandu (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform</title>
             </head>
             <body>
                 <Providers>{children}</Providers>

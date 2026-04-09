@@ -4,8 +4,8 @@
 
     "servicesTitle": "完美服務",
     "services": {
-      "courier": "AI 快遞",
-      "software": "會計軟體",
+      "accounting": "會計",
+      "software": "軟體開發",
       "license": "餐飲營業執照",
       "copmanyReg": "公司註冊",
       "tourAndTravel": "旅遊服務",
@@ -16,10 +16,10 @@
       "repairAndInstall": "維修與安裝"
     },
 
-    "searchPlaceholder": "搜尋產品",
+    "searchPlaceholder": "搜尋商品",
     "searchAria": "搜尋",
 
-    "hello": "你好, ",
+    "hello": "你好，",
     "account": "我的帳戶",
     "login": "登入",
     "logout": "登出",
@@ -30,7 +30,10 @@
     "changeLanguageAria": "切換語言",
     "changeLanguageTitle": "切換語言",
 
-    "openMenuAria": "開啟選單"
+    "openMenuAria": "開啟選單",
+
+    "organicMart": "有機市集",
+    "aiExpress": "AI Express"
   },
 
   "footer": {
@@ -84,7 +87,7 @@
       "privacy": "私隱政策",
       "faqs": "常見問題"
     },
-    "bottom": "© 2026 Yalakhom Private Limited."
+    "bottom": "© 2026 HkMandu Private Limited."
   },
 
   "login": {
@@ -117,7 +120,7 @@
     "left": {
       "tagCreate": "建立帳戶",
       "tagOtp": "驗證 OTP",
-      "titleCreate": "加入 Yalakhom",
+      "titleCreate": "加入 HkMandu",
       "titleOtp": "安全驗證",
       "descCreate": "建立帳戶以管理訂單並使用服務。",
       "descOtp": "輸入已寄到你電郵的 OTP 以啟用帳戶。",
@@ -252,7 +255,7 @@
   "deliveryHero": {
     "alt": "送貨騎手",
     "title": "以你的生活速度\n為你送達",
-    "subtitle": "即時追蹤、即刻取件、\n閃電般快速送貨，\n由 Yalakhom 提供支援。",
+    "subtitle": "即時追蹤、即刻取件、\n閃電般快速送貨，\n由 HkMandu 提供支援。",
     "ctaPrimary": "立即開始",
     "ctaSecondary": "追蹤訂單"
   },
@@ -454,8 +457,8 @@
         "desc": "专注香港 ↔ 尼泊尔跨境运输，包含清关协调与国际合规。"
       },
       {
-        "title": "标题：由 Yalakhom 驱动",
-        "desc": "基于 Yalakhom 技术打造，确保可扩展性、可靠性与企业级性能。"
+        "title": "标题：由 HkMandu 驱动",
+        "desc": "基于 HkMandu 技术打造，确保可扩展性、可靠性与企业级性能。"
       }
     ]
   },

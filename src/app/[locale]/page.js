@@ -1,23 +1,8 @@
 import { notFound } from "next/navigation";
-import DeliveryHero from "@/components/clientComponents/DeliveryHero";
 import HeroSlider from "@/components/clientComponents/HeroSlider";
 import { getDictionary, locales } from "@/i18n/getDictionary";
-import CategoriesRow from "@/components/clientComponents/CategoriesRow";
-import CategoryNameBar from "@/components/clientComponents/CategoryNameBar";
+import MarqueeBar from "@/components/clientComponents/MarqueeBar";
 import ProductTypeSection from "@/components/clientComponents/ProductTypeSection";
-import LicenseHero from "@/components/clientComponents/LicenseHero";
-import DealsHero from "@/components/clientComponents/DealsHero";
-import CompanyRegisterHero from "@/components/clientComponents/CompanyRegisterHero";
-import Brands from "@/components/clientComponents/BrandsRow";
-import TravelHero from "@/components/clientComponents/TravelHero";
-import ImageLinkBanner from "@/components/clientComponents/ImageLinkBanner";
-import AirportHero from "@/components/clientComponents/AirportHero";
-import TransportHero from "@/components/clientComponents/TransportHero";
-import AccountingHero from "@/components/clientComponents/AccountingHero";
-import VisaImmigrationHero from "@/components/clientComponents/VisaImmigrationHero";
-import ImageLinkBigBanner from "@/components/clientComponents/ImageLinkBigBanner";
-import OfficeMovingHero from "@/components/clientComponents/OfficeMovingHero";
-import RepairInstallationSection from "@/components/clientComponents/RepairInstallationSection";
 
 export default async function Home({ params }) {
   const { locale } = await params;
@@ -29,11 +14,13 @@ export default async function Home({ params }) {
   return (
     <>
 
-      <CategoryNameBar locale={locale} />
+      <MarqueeBar locale={locale} />
 
       <HeroSlider locale={locale} autoPlay interval={4000} />
 
-      <CategoriesRow locale={locale} limit={4} />
+      <ProductTypeSection locale={locale} type="featuredProduct" limit={5} />
+      
+      {/* <CategoriesRow locale={locale} limit={4} />
 
       <DeliveryHero
         locale={locale}
@@ -43,8 +30,6 @@ export default async function Home({ params }) {
           trackOrder: `/${locale}/track-order`
         }}
       />
-
-      <ProductTypeSection locale={locale} type="featuredProduct" limit={5} />
 
       <AccountingHero locale={locale} dict={dict} />
 
@@ -104,7 +89,7 @@ export default async function Home({ params }) {
         className="my-0"
       />
 
-      <RepairInstallationSection locale={locale} dict={dict} />
+      <RepairInstallationSection locale={locale} dict={dict} /> */}
     </>
   );
 }
