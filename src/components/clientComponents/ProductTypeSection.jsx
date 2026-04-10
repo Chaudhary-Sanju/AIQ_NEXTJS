@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Heart, ShoppingCart } from "lucide-react";
+import { ArrowUpRight, ShoppingCart } from "lucide-react";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
@@ -29,14 +29,13 @@ const UI = {
 export default function ProductTypeSection({
     locale = "en",
     type = "featuredProduct",
-    limit = 10,
-    className = "my-10",
-    title, // optional override
-    seeAllHref, // optional override
+    limit = 6,
+    className = "my-8",
+    title,
+    seeAllHref,
 }) {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [liked, setLiked] = useState(() => new Set());
 
     const resolvedTitle =
         title ||
@@ -45,7 +44,11 @@ export default function ProductTypeSection({
         type;
 
     const resolvedSeeAll =
-        locale === "ne" ? "सबै हेर्नुहोस्" : locale === "zh" ? "查看全部" : "See All";
+        locale === "ne"
+            ? "थप उत्पादन हेर्नुहोस्"
+            : locale === "zh"
+                ? "查看更多商品"
+                : "See more products";
 
     const resolvedSeeAllHref = seeAllHref || `/${locale}/products?type=${type}`;
 
@@ -79,6 +82,7 @@ export default function ProductTypeSection({
         }
 
         load();
+
         return () => {
             mounted = false;
         };
@@ -86,102 +90,85 @@ export default function ProductTypeSection({
 
     const products = useMemo(() => rows, [rows]);
 
-    const toggleLike = (id) => {
-        setLiked((prev) => {
-            const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
-            return next;
-        });
-    };
-
     return (
         <section className={className}>
-            <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
-                {/* Header */}
-                <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-2xl font-extrabold text-slate-900">{resolvedTitle}</h2>
+            <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
+                <div className="rounded-md p-4 md:p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                        <h2 className="text-xl font-extrabold text-[#1f1f1f] md:text-[30px]">
+                            {resolvedTitle}
+                        </h2>
 
-                    <Link
-                        href={resolvedSeeAllHref}
-                        className="inline-flex items-center gap-2 font-semibold text-slate-900 hover:text-[#4f46e5]"
-                    >
-                        {resolvedSeeAll}
-                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#4f46e5] text-white">
-                            <ArrowRight className="h-5 w-5" />
-                        </span>
-                    </Link>
-                </div>
+                        <Link
+                            href={resolvedSeeAllHref}
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1f1f1f] hover:text-[#5b4fd4]"
+                        >
+                            <ArrowUpRight className="h-4 w-4" />
+                            <span>{resolvedSeeAll}</span>
+                        </Link>
+                    </div>
 
-                {/* Body */}
-                {loading ? (
-                    <SkeletonGrid count={Math.min(limit, 10)} />
-                ) : products.length === 0 ? (
-                    <div className="rounded-xl border bg-white p-6 text-slate-600">No products found.</div>
-                ) : (
-                    <>
-                        {/* Desktop grid */}
-                        <div className="hidden gap-4 lg:grid lg:grid-cols-5">
-                            {products.map((p) => (
-                                <ProductCard
-                                    key={p.id}
-                                    p={p}
-                                    locale={locale}
-                                    liked={liked.has(p.id)}
-                                    onToggleLike={() => toggleLike(p.id)}
-                                />
-                            ))}
+                    {loading ? (
+                        <SkeletonGrid count={Math.min(limit, 6)} />
+                    ) : products.length === 0 ? (
+                        <div className="rounded-md bg-white p-5 text-sm text-slate-600">
+                            No products found.
                         </div>
-
-                        {/* Mobile / tablet horizontal scroll */}
-                        <div className="lg:hidden">
-                            <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-2">
+                    ) : (
+                        <>
+                            <div className="hidden lg:grid lg:grid-cols-6 lg:gap-3">
                                 {products.map((p) => (
-                                    <div key={p.id} className="w-[220px] shrink-0">
-                                        <ProductCard
-                                            p={p}
-                                            locale={locale}
-                                            liked={liked.has(p.id)}
-                                            onToggleLike={() => toggleLike(p.id)}
-                                        />
-                                    </div>
+                                    <ProductCard key={p.id} p={p} locale={locale} />
                                 ))}
                             </div>
 
-                            <style jsx>{`
-                .no-scrollbar::-webkit-scrollbar {
-                  display: none;
-                }
-                .no-scrollbar {
-                  -ms-overflow-style: none;
-                  scrollbar-width: none;
-                }
-              `}</style>
-                        </div>
-                    </>
-                )}
+                            <div className="lg:hidden">
+                                <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+                                    {products.map((p) => (
+                                        <div key={p.id} className="w-[168px] shrink-0">
+                                            <ProductCard p={p} locale={locale} />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <style jsx>{`
+                                    .no-scrollbar::-webkit-scrollbar {
+                                        display: none;
+                                    }
+                                    .no-scrollbar {
+                                        -ms-overflow-style: none;
+                                        scrollbar-width: none;
+                                    }
+                                `}</style>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         </section>
     );
 }
 
-function SkeletonGrid({ count = 10 }) {
+function SkeletonGrid({ count = 6 }) {
     return (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
             {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-black/5">
-                    <div className="aspect-square w-full rounded-lg bg-slate-200 animate-pulse" />
-                    <div className="mt-3 h-4 w-2/3 rounded bg-slate-200 animate-pulse" />
-                    <div className="mt-2 h-3 w-full rounded bg-slate-200 animate-pulse" />
-                    <div className="mt-2 h-3 w-4/5 rounded bg-slate-200 animate-pulse" />
-                    <div className="mt-4 h-10 w-full rounded-lg bg-slate-200 animate-pulse" />
+                <div key={i} className="rounded-md bg-white p-2.5 shadow-sm">
+                    <div className="h-[112px] w-full animate-pulse rounded-sm bg-slate-200" />
+                    <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
+                    <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-200" />
+                    <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-slate-200" />
+                    <div className="mt-3 h-3 w-10 animate-pulse rounded bg-slate-200" />
+                    <div className="mt-2 h-4 w-16 animate-pulse rounded bg-slate-200" />
+                    <div className="mt-3 h-8 w-full animate-pulse rounded bg-slate-200" />
                 </div>
             ))}
         </div>
     );
 }
 
-function ProductCard({ p, locale, liked, onToggleLike }) {
-    const href = `/${locale}/product/${p.slug}`; // change if your route differs
+function ProductCard({ p, locale }) {
+    const href = `/${locale}/product/${p.slug}`;
 
     const hasDiscount =
         p.discounted_price !== null &&
@@ -199,63 +186,61 @@ function ProductCard({ p, locale, liked, onToggleLike }) {
     })();
 
     return (
-        <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-black/5">
-            <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-slate-100">
+        <div className="rounded-md bg-white p-2.5 shadow-sm">
+            <Link
+                href={href}
+                className="relative block h-[110px] w-full overflow-hidden rounded-sm border border-[#efefef] bg-white"
+            >
                 {p.image ? (
-                    <Link href={href} className="block h-full w-full">
-                        <Image
-                            src={imgUrl(p.image)}
-                            alt={p.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 1024px) 220px, 20vw"
-                            unoptimized
-                        />
-                    </Link>
+                    <Image
+                        src={imgUrl(p.image)}
+                        alt={p.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 168px, 180px"
+                        unoptimized
+                    />
                 ) : null}
-
-                <button
-                    type="button"
-                    onClick={onToggleLike}
-                    aria-label="Wishlist"
-                    className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-1.5 shadow ring-1 ring-black/5"
-                >
-                    <Heart className={["h-5 w-5", liked ? "fill-red-500 text-red-500" : "text-red-500"].join(" ")} />
-                </button>
-            </div>
-
-            <Link href={href} className="mt-3 block">
-                <h3 className="line-clamp-1 text-sm font-extrabold text-slate-900">{p.name}</h3>
             </Link>
 
-            <p className="mt-2 line-clamp-2 text-xs text-slate-600 min-h-8">
-                {p.summary || "Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+            <Link href={href} className="mt-2.5 block">
+                <h3 className="line-clamp-1 text-[13px] font-bold text-[#202020]">
+                    {p.name}
+                </h3>
+            </Link>
+
+            <p className="mt-1.5 line-clamp-3 min-h-[42px] text-[10px] leading-[1.45] text-[#666]">
+                {p.summary || "Lorem ipsum dolor sit amet, consectetur adipisicing elit."}
             </p>
 
-            <div className="mt-3 flex items-center gap-2 text-xs">
-                <span className="text-green-500">★</span>
-                <span className="font-semibold text-slate-800">4.0</span>
+            <div className="mt-2 flex items-center gap-1 text-[11px]">
+                <span className="text-[#72b843]">★</span>
+                <span className="font-medium text-[#2d2d2d]">4.5</span>
             </div>
 
-            <div className="mt-3">
+            <div className="mt-1 min-h-[16px] text-[11px]">
                 {hasDiscount ? (
-                    <div className="flex items-center gap-2 text-sm min-h-7">
-                        <span className="text-slate-400 line-through">{money(p.price)}</span>
-                        {discountPercent ? <span className="text-red-500">-{discountPercent}%</span> : null}
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[#8b5cf6] line-through">{money(p.price)}</span>
+                        {discountPercent ? (
+                            <span className="font-semibold text-[#ef4444]">-{discountPercent}%</span>
+                        ) : null}
                     </div>
-                ) : <div className="flex items-center gap-2 text-sm min-h-7"></div>}
+                ) : (
+                    <div />
+                )}
+            </div>
 
-                <div className="text-sm font-extrabold text-[#4f46e5]">
-                    {money(hasDiscount ? p.discounted_price : p.price)}
-                </div>
+            <div className="text-[15px] font-extrabold leading-none text-[#5b4fd4]">
+                {money(hasDiscount ? p.discounted_price : p.price)}
             </div>
 
             <button
                 type="button"
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-3 py-2 text-sm font-semibold text-white hover:bg-[#4338ca]"
                 onClick={() => console.log("add to cart", p.id)}
+                className="mt-3 flex h-8 w-full items-center justify-center gap-2 rounded-[4px] bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0]"
             >
-                <ShoppingCart className="h-4 w-4" />
+                <ShoppingCart className="h-3.5 w-3.5" />
                 Add to Cart
             </button>
         </div>

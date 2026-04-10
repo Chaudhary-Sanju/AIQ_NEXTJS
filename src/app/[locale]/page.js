@@ -18,7 +18,7 @@ export default async function Home({ params }) {
 
       <HeroSlider locale={locale} autoPlay interval={4000} />
 
-      <ProductTypeSection locale={locale} type="featuredProduct" limit={5} />
+      <ProductTypeSection locale={locale} type="featuredProduct" limit={6} />
       
       {/* <CategoriesRow locale={locale} limit={4} />
 
