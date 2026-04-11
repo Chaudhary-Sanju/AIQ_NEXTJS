@@ -252,6 +252,54 @@
     }
   },
 
+
+  "perfectServices": {
+    "title": "精选服务",
+    "subtitle": "我们提供完整的商业、旅游和物流服务，一站式满足您的日常需求，让一切更简单。",
+    "items": {
+      "software": {
+        "title": "软件",
+        "description": "智能数字化解决方案，帮助支持您的日常业务运营。"
+      },
+      "accounting": {
+        "title": "会计服务",
+        "description": "可靠的会计支持，协助管理账目、报表和财务事务。"
+      },
+      "companyRegister": {
+        "title": "公司注册",
+        "description": "便捷的公司注册服务，帮助您顺利开展业务。"
+      },
+      "fnbLicense": {
+        "title": "餐饮牌照",
+        "description": "提供餐饮业务牌照申请与审批的专业协助。"
+      },
+      "visaImmigration": {
+        "title": "签证与移民",
+        "description": "为签证办理、文件准备和移民事务提供可靠支持。"
+      },
+      "tourTravel": {
+        "title": "旅游服务",
+        "description": "为度假、旅游和商务出行提供便捷的行程规划服务。"
+      },
+      "flightTicket": {
+        "title": "机票预订",
+        "description": "快速便捷的国内及国际航班机票预订服务。"
+      },
+      "bookTransport": {
+        "title": "交通预订",
+        "description": "满足个人和商业需求的简便交通预订方案。"
+      },
+      "homeOfficeMoving": {
+        "title": "搬屋与办公室搬迁",
+        "description": "为住宅、办公室和工作空间提供安全有序的搬迁服务。"
+      },
+      "repairInstallation": {
+        "title": "维修与安装",
+        "description": "为家庭和办公室设备提供专业维修与安装支持。"
+      }
+    }
+  },
+
   "deliveryHero": {
     "alt": "送貨騎手",
     "title": "以你的生活速度\n為你送達",

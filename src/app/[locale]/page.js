@@ -3,6 +3,8 @@ import HeroSlider from "@/components/clientComponents/HeroSlider";
 import { getDictionary, locales } from "@/i18n/getDictionary";
 import MarqueeBar from "@/components/clientComponents/MarqueeBar";
 import ProductTypeSection from "@/components/clientComponents/ProductTypeSection";
+import PerfectServicesSection from "@/components/clientComponents/PerfectServicesSection";
+import ServiceRequestForm from "@/components/clientComponents/ServiceRequestForm";
 
 export default async function Home({ params }) {
   const { locale } = await params;
@@ -19,6 +21,13 @@ export default async function Home({ params }) {
       <HeroSlider locale={locale} autoPlay interval={4000} />
 
       <ProductTypeSection locale={locale} type="featuredProduct" limit={6} />
+
+      <PerfectServicesSection locale={locale} />
+
+      <ProductTypeSection locale={locale} type="trendingProduct" limit={6} />
+
+      <ServiceRequestForm locale={locale} />
+      
       
       {/* <CategoriesRow locale={locale} limit={4} />
 

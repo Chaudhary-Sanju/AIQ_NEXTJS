@@ -261,6 +261,53 @@
     }
   },
 
+  "perfectServices": {
+    "title": "Perfect Services",
+    "subtitle": "We provide a complete range of business, travel, and logistics services designed to simplify your everyday needs — all in one place.",
+    "items": {
+      "software": {
+        "title": "Software",
+        "description": "Smart digital solutions built to support your daily business operations."
+      },
+      "accounting": {
+        "title": "Accounting",
+        "description": "Reliable accounting support to help manage records, reports, and finances."
+      },
+      "companyRegister": {
+        "title": "Company Register",
+        "description": "Easy company registration service to help you start your business smoothly."
+      },
+      "fnbLicense": {
+        "title": "F&B License",
+        "description": "Professional help for food and beverage licensing and approvals."
+      },
+      "visaImmigration": {
+        "title": "Visa and Immigration",
+        "description": "Trusted guidance for visa processing, documentation, and immigration support."
+      },
+      "tourTravel": {
+        "title": "Tour and Travel",
+        "description": "Convenient travel planning services for holidays, tours, and business trips."
+      },
+      "flightTicket": {
+        "title": "Flight Ticket",
+        "description": "Quick and easy flight ticket booking for domestic and international travel."
+      },
+      "bookTransport": {
+        "title": "Book Transport",
+        "description": "Simple transport booking solutions for personal and business needs."
+      },
+      "homeOfficeMoving": {
+        "title": "Home and Office Moving",
+        "description": "Safe and organized moving services for homes, offices, and workspaces."
+      },
+      "repairInstallation": {
+        "title": "Repair and Installation",
+        "description": "Expert repair and installation support for home and office essentials."
+      }
+    }
+  },
+
   "deliveryHero": {
     "alt": "Delivery rider",
     "title": "Delivering at the Speed\nof Your Life",
