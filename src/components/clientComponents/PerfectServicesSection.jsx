@@ -5,82 +5,47 @@ import Link from "next/link";
 
 const serviceOrder = [
     "softwareDevelopment",
-    "accountingDevelopment",
-    "companyRegister",
-    "fnbLicense",
-    "visaImmigration",
-    "tourTravel",
-    "flightTicket",
-    "bookTransport",
-    "homeOfficeMoving",
-    "repairInstallation",
+    "accountingFinance",
+    "businessServices",
+    "travelImmigration",
+    "homeOfficeServices",
 ];
 
 const translations = {
     en: {
         title: "Perfect Services",
         subtitle:
-            "We provide a complete range of business, travel, and logistics services designed to simplify your everyday needs — all in one place.",
+            "We provide a complete range of business, travel, home, and professional services designed to simplify your everyday needs — all in one place.",
         items: {
+            businessServices: {
+                title: "Company Register & F&B License",
+                description:
+                    "Complete support for company registration and food & beverage licensing to help you start and grow your business smoothly.",
+                href: "/services/business-services",
+            },
+            travelImmigration: {
+                title: "Travel & Immigration Services",
+                description:
+                    "All-in-one support for visa and immigration, tours and travel, flight booking, and transport arrangements.",
+                href: "/services/travel-immigration",
+            },
+            homeOfficeServices: {
+                title: "Home & Office Services",
+                description:
+                    "Reliable moving, repair, and installation services for homes, offices, and workspaces.",
+                href: "/services/home-office-services",
+            },
             softwareDevelopment: {
                 title: "Software Development",
                 description:
                     "Custom software solutions tailored to your business needs, from websites to enterprise systems.",
                 href: "/services/software-development",
             },
-            accountingDevelopment: {
-                title: "Accounting Development",
+            accountingFinance: {
+                title: "Accounting & Finance",
                 description:
-                    "Smart accounting system development to simplify reports, records, and financial operations.",
-                href: "/services/accounting-development",
-            },
-            companyRegister: {
-                title: "Company Register",
-                description:
-                    "Easy company registration support to help you start your business smoothly.",
-                href: "/services/company-register",
-            },
-            fnbLicense: {
-                title: "F&B License",
-                description:
-                    "Professional help for food and beverage licensing and approval processes.",
-                href: "/services/f&b-license",
-            },
-            visaImmigration: {
-                title: "Visa and Immigration",
-                description:
-                    "Trusted guidance for visa processing, documentation, and immigration support.",
-                href: "/services/visa-and-immigration",
-            },
-            tourTravel: {
-                title: "Tour and Travel",
-                description:
-                    "Convenient travel planning services for holidays, tours, and business trips.",
-                href: "/services/tour-and-travel",
-            },
-            flightTicket: {
-                title: "Flight Ticket",
-                description:
-                    "Quick and easy domestic and international flight booking assistance.",
-                href: "/services/flight-ticket",
-            },
-            bookTransport: {
-                title: "Book Transport",
-                description:
-                    "Reliable transport booking solutions for personal and business travel needs.",
-                href: "/services/book-transport",
-            },
-            homeOfficeMoving: {
-                title: "Home and Office Moving",
-                description:
-                    "Safe and organized moving services for homes, offices, and workspaces.",
-                href: "/services/home-and-office-moving",
-            },
-            repairInstallation: {
-                title: "Repair and Installation",
-                description:
-                    "Expert repair and installation support for home and office essentials.",
-                href: "/services/repair-and-installation",
+                    "Professional accounting and financial support to simplify records, reporting, and business operations.",
+                href: "/services/accounting-finance",
             },
         },
     },
@@ -88,67 +53,37 @@ const translations = {
     ne: {
         title: "उत्तम सेवाहरू",
         subtitle:
-            "हामी व्यवसाय, यात्रा र ढुवानीसम्बन्धी सम्पूर्ण सेवाहरू एकै ठाउँमा उपलब्ध गराउँछौं, जसले तपाईंको दैनिक आवश्यकतालाई सरल बनाउँछ।",
+            "हामी व्यवसाय, यात्रा, घर तथा व्यावसायिक सेवाहरू एकै ठाउँमा उपलब्ध गराउँछौं, जसले तपाईंको दैनिक आवश्यकतालाई सरल बनाउँछ।",
         items: {
+            businessServices: {
+                title: "कम्पनी दर्ता तथा F&B लाइसेन्स",
+                description:
+                    "कम्पनी दर्ता र खाना तथा पेय लाइसेन्सका लागि पूर्ण सहयोग, ताकि तपाईंले आफ्नो व्यवसाय सहज रूपमा सुरु र विस्तार गर्न सक्नुहोस्।",
+                href: "/services/business-services",
+            },
+            travelImmigration: {
+                title: "यात्रा तथा आप्रवासन सेवा",
+                description:
+                    "भिसा तथा आप्रवासन, टुर तथा ट्राभल, उडान टिकट, र यातायात बुकिङका लागि एकै ठाउँमा सम्पूर्ण सहयोग।",
+                href: "/services/travel-immigration",
+            },
+            homeOfficeServices: {
+                title: "घर तथा कार्यालय सेवा",
+                description:
+                    "घर, कार्यालय तथा कार्यस्थलका लागि भरपर्दो सार्ने, मर्मत तथा जडान सेवाहरू।",
+                href: "/services/home-office-services",
+            },
             softwareDevelopment: {
                 title: "सफ्टवेयर विकास",
                 description:
                     "वेबसाइटदेखि व्यवसायिक प्रणालीसम्म तपाईंको आवश्यकताअनुसार अनुकूल सफ्टवेयर समाधानहरू।",
                 href: "/services/software-development",
             },
-            accountingDevelopment: {
-                title: "लेखांकन विकास",
+            accountingFinance: {
+                title: "लेखांकन तथा वित्त",
                 description:
-                    "रिपोर्ट, रेकर्ड र आर्थिक सञ्चालनलाई सहज बनाउने स्मार्ट लेखांकन प्रणाली विकास।",
-                href: "/services/accounting-development",
-            },
-            companyRegister: {
-                title: "कम्पनी दर्ता",
-                description:
-                    "तपाईंको व्यवसाय सहज रूपमा सुरु गर्न सरल कम्पनी दर्ता सहयोग।",
-                href: "/services/company-register",
-            },
-            fnbLicense: {
-                title: "खाना तथा पेय लाइसेन्स",
-                description:
-                    "खाना तथा पेयसम्बन्धी लाइसेन्स र स्वीकृतिका लागि व्यावसायिक सहयोग।",
-                href: "/services/f&b-license",
-            },
-            visaImmigration: {
-                title: "भिसा तथा आप्रवासन",
-                description:
-                    "भिसा प्रक्रिया, कागजात र आप्रवासन सेवाका लागि विश्वसनीय मार्गदर्शन।",
-                href: "/services/visa-and-immigration",
-            },
-            tourTravel: {
-                title: "टुर तथा ट्राभल",
-                description:
-                    "घुमफिर, भ्रमण र व्यवसायिक यात्राका लागि सहज यात्रा योजना सेवा।",
-                href: "/services/tour-and-travel",
-            },
-            flightTicket: {
-                title: "उडान टिकट",
-                description:
-                    "आन्तरिक र अन्तर्राष्ट्रिय यात्राका लागि छिटो र सजिलो टिकट बुकिङ सेवा।",
-                href: "/services/flight-ticket",
-            },
-            bookTransport: {
-                title: "यातायात बुकिङ",
-                description:
-                    "व्यक्तिगत र व्यवसायिक यात्राका लागि भरपर्दो यातायात बुकिङ समाधान।",
-                href: "/services/book-transport",
-            },
-            homeOfficeMoving: {
-                title: "घर तथा कार्यालय सार्ने",
-                description:
-                    "घर, कार्यालय र कार्यस्थल सार्न सुरक्षित र व्यवस्थित सेवा।",
-                href: "/services/home-and-office-moving",
-            },
-            repairInstallation: {
-                title: "मर्मत तथा जडान",
-                description:
-                    "घर तथा कार्यालयका आवश्यक सामग्रीका लागि विशेषज्ञ मर्मत र जडान सेवा।",
-                href: "/services/repair-and-installation",
+                    "रेकर्ड, रिपोर्टिङ र व्यवसायिक सञ्चालनलाई सहज बनाउन व्यावसायिक लेखांकन तथा वित्तीय सहयोग।",
+                href: "/services/accounting-finance",
             },
         },
     },
@@ -156,106 +91,56 @@ const translations = {
     zh: {
         title: "精选服务",
         subtitle:
-            "我们提供完整的商业、旅游和物流服务，一站式满足您的日常需求，让一切更简单。",
+            "我们提供完整的商业、旅游、家居及专业服务，一站式满足您的日常需求，让一切更简单。",
         items: {
+            businessServices: {
+                title: "公司注册与餐饮牌照",
+                description:
+                    "为公司注册和餐饮牌照申请提供完整支持，帮助您顺利开展和发展业务。",
+                href: "/services/business-services",
+            },
+            travelImmigration: {
+                title: "旅游与移民服务",
+                description:
+                    "提供签证与移民、旅游规划、机票预订及交通安排的一站式服务。",
+                href: "/services/travel-immigration",
+            },
+            homeOfficeServices: {
+                title: "家居与办公室服务",
+                description:
+                    "为住宅、办公室和工作空间提供可靠的搬迁、维修与安装服务。",
+                href: "/services/home-office-services",
+            },
             softwareDevelopment: {
                 title: "软件开发",
                 description:
                     "根据您的业务需求定制软件解决方案，从网站到企业系统都可支持。",
                 href: "/services/software-development",
             },
-            accountingDevelopment: {
-                title: "会计系统开发",
+            accountingFinance: {
+                title: "会计与财务",
                 description:
-                    "智能会计系统开发，帮助简化报表、记录和财务运营。",
-                href: "/services/accounting-development",
-            },
-            companyRegister: {
-                title: "公司注册",
-                description:
-                    "便捷的公司注册支持，帮助您顺利开展业务。",
-                href: "/services/company-register",
-            },
-            fnbLicense: {
-                title: "餐饮牌照",
-                description:
-                    "提供餐饮业务牌照申请与审批的专业协助。",
-                href: "/services/f&b-license",
-            },
-            visaImmigration: {
-                title: "签证与移民",
-                description:
-                    "为签证办理、文件准备和移民事务提供可靠支持。",
-                href: "/services/visa-and-immigration",
-            },
-            tourTravel: {
-                title: "旅游服务",
-                description:
-                    "为度假、旅游和商务出行提供便捷的行程规划服务。",
-                href: "/services/tour-and-travel",
-            },
-            flightTicket: {
-                title: "机票预订",
-                description:
-                    "快速便捷的国内及国际航班机票预订服务。",
-                href: "/services/flight-ticket",
-            },
-            bookTransport: {
-                title: "交通预订",
-                description:
-                    "满足个人和商务出行需求的可靠交通预订服务。",
-                href: "/services/book-transport",
-            },
-            homeOfficeMoving: {
-                title: "搬屋与办公室搬迁",
-                description:
-                    "为住宅、办公室和工作空间提供安全有序的搬迁服务。",
-                href: "/services/home-and-office-moving",
-            },
-            repairInstallation: {
-                title: "维修与安装",
-                description:
-                    "为家庭和办公室设备提供专业维修与安装支持。",
-                href: "/services/repair-and-installation",
+                    "提供专业会计与财务支持，帮助简化记录、报表和业务运营。",
+                href: "/services/accounting-finance",
             },
         },
     },
 };
 
 const serviceEmojis = {
+    businessServices: "🏢",
+    travelImmigration: "✈️",
+    homeOfficeServices: "🏠",
     softwareDevelopment: "💻",
-    accountingDevelopment: "📊",
-    companyRegister: "🏢",
-    fnbLicense: "🍽️",
-    visaImmigration: "🛂",
-    tourTravel: "🌍",
-    flightTicket: "✈️",
-    bookTransport: "🚌",
-    homeOfficeMoving: "📦",
-    repairInstallation: "🛠️",
+    accountingFinance: "📊",
 };
 
 const serviceBackgrounds = {
-    softwareDevelopment:
-        "https://picsum.photos/300/200?1",
-    accountingDevelopment:
-        "https://picsum.photos/300/200?2",
-    companyRegister:
-        "https://picsum.photos/300/200?3",
-    fnbLicense:
-        "https://picsum.photos/300/200?4",
-    visaImmigration:
-        "https://picsum.photos/300/200?5",
-    tourTravel:
-        "https://picsum.photos/300/200?6",
-    flightTicket:
-        "https://picsum.photos/300/200?7",
-    bookTransport:
-        "https://picsum.photos/300/200?8",
-    homeOfficeMoving:
-        "https://picsum.photos/300/200?9",
-    repairInstallation:
-        "https://picsum.photos/300/200?10",
+    businessServices: "https://picsum.photos/300/200?1",
+    travelImmigration: "https://picsum.photos/300/200?2",
+    homeOfficeServices: "https://picsum.photos/300/200?3",
+    softwareDevelopment: "https://picsum.photos/300/200?4",
+    accountingFinance: "https://picsum.photos/300/200?5",
 };
 
 export default function PerfectServicesSection({ locale = "en" }) {
@@ -271,7 +156,7 @@ export default function PerfectServicesSection({ locale = "en" }) {
     return (
         <section className="w-full bg-white py-10 md:py-14 lg:py-16">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="mx-auto mb-10 max-w-[600px] text-center">
+                <div className="mx-auto mb-10 max-w-[650px] text-center">
                     <h2 className="text-[32px] font-bold text-neutral-900">
                         {t.title}
                     </h2>

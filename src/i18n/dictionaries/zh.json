@@ -4,16 +4,11 @@
 
     "servicesTitle": "完美服務",
     "services": {
-      "accounting": "會計",
       "software": "軟體開發",
-      "license": "餐飲營業執照",
-      "copmanyReg": "公司註冊",
-      "tourAndTravel": "旅遊服務",
-      "flightTicket": "機票預訂",
-      "bookTransport": "交通預訂",
-      "visaAndImmigration": "簽證與移民",
-      "homeAndOffice": "搬屋與辦公室搬遷",
-      "repairAndInstall": "維修與安裝"
+      "accounting": "會計與財務",
+      "businessServices": "公司註冊與餐飲牌照",
+      "travelImmigration": "旅遊與移民服務",
+      "homeOfficeServices": "家居與辦公室服務"
     },
 
     "searchPlaceholder": "搜尋商品",
@@ -39,55 +34,38 @@
   "footer": {
     "download": {
       "title": "下載應用程式",
-      "previewAlt": "應用預覽",
-      "descLine1": "下載我們的手機應用程式",
-      "descLine2": "隨時隨地管理一切",
-      "descLine3": "更方便快捷。",
+      "desc": "連接香港與加德滿都 — 您值得信賴的跨境商務與服務平台。",
       "googlePlayAlt": "Google Play",
-      "appStoreAlt": "App Store",
-      "appCodeBtn": "應用碼"
+      "appStoreAlt": "App Store"
     },
-    "perfectServices": {
-      "title": "完美服務",
-      "items": [
-        "會計套裝",
-        "公司註冊",
-        "簽證及移民",
-        "旅遊及行程套票",
-        "維修及安裝",
-        "家居/辦公室搬運",
-        "交通預訂",
-        "機票預訂",
-        "全港接送服務"
-      ]
-    },
+
     "customerService": {
       "title": "客戶服務",
       "items": ["追蹤訂單", "追蹤快遞", "運送及處理", "退貨及換貨", "付款"]
     },
+
+    "quickLinks": {
+      "title": "快速連結",
+      "items": ["關於我們", "聯絡我們", "條款及細則", "私隱政策", "常見問題"]
+    },
+
     "payment": {
-      "title": "付款",
-      "razorpayAlt": "Razorpay"
+      "title": "接受的付款方式",
+      "stripeAlt": "Stripe"
     },
-    "aboutUs": {
-      "title": "關於我們",
-      "items": ["關於我們", "聯絡我們", "Mart 品牌", "Mart 分類"]
-    },
+
     "support": {
-      "title": "客戶支援",
-      "emailLabel": "電郵我們：",
-      "email": "support@exechub.com",
-      "emailNote": "我們會在 24 小時內回覆。",
-      "callLabel": "致電我們：",
-      "callNote": "香港時間上午 8 點至下午 5 點提供服務",
-      "phone": "+852-1111-1111"
+      "title": "聯絡我們",
+      "emailLabel": "電郵",
+      "email": "support@hkmandu.com",
+      "emailNote": "我們會在 24 小時內回覆",
+      "callLabel": "電話",
+      "callNote": "星期一至五，上午 8 點至下午 5 點（香港時間）",
+      "phone": "+852-1111-1111",
+      "phoneRaw": "+85211111111"
     },
-    "links": {
-      "terms": "條款及細則",
-      "privacy": "私隱政策",
-      "faqs": "常見問題"
-    },
-    "bottom": "© 2026 HkMandu Private Limited."
+
+    "bottom": "© 2026 HkMandu. 保留所有權利。"
   },
 
   "login": {
@@ -251,7 +229,6 @@
       "otpVerified": "OTP 驗證成功！正在跳轉到登入頁..."
     }
   },
-
 
   "perfectServices": {
     "title": "精选服务",

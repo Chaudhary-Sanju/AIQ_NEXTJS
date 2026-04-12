@@ -40,13 +40,14 @@ const COPY = {
         placeholders: {
             displayName: "Jane Smith",
             email: "jane@example.com",
-            phone: "+977 98XXXXXXXX",
-            address: "123 Main St, Kathmandu, Nepal",
+            phone: "+852 98XXXXXXXX",
+            address: "123 Main St, Kowloon HK ",
             workDesc: "Describe your project, goals, timeline, and any relevant details...",
             budget: "5,000",
             otp: "Enter 6-digit OTP",
         },
         submit: "Send Request",
+        reset: "Send Another Request",
         sending: "Sending...",
         verifyTitle: "Verify your request",
         verifyText:
@@ -86,7 +87,8 @@ const COPY = {
             { value: "card", label: "Card" },
             { value: "cheque", label: "Cheque" },
         ],
-        currencies: ["NPR", "HKD"],
+        currencies: ["HKD", "NPR"],
+
     },
     ne: {
         eyebrow: "हामीसँग काम गर्नुहोस्",
@@ -108,12 +110,13 @@ const COPY = {
             displayName: "जेन स्मिथ",
             email: "jane@example.com",
             phone: "+977 98XXXXXXXX",
-            address: "काठमाडौं, नेपाल",
+            address: "123 Main St, Kowloon HK ",
             workDesc: "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
             budget: "5,000",
             otp: "६ अङ्कको OTP हाल्नुहोस्",
         },
         submit: "अनुरोध पठाउनुहोस्",
+        reset: "फेरि अर्को अनुरोध पठाउनुहोस्",
         sending: "पठाइँदैछ...",
         verifyTitle: "आफ्नो अनुरोध प्रमाणित गर्नुहोस्",
         verifyText:
@@ -172,12 +175,13 @@ const COPY = {
             displayName: "Jane Smith",
             email: "jane@example.com",
             phone: "+852 5XXXXXXX",
-            address: "香港或尼泊尔地址",
+            address: "香港九龙大街123号",
             workDesc: "请描述您的项目、目标、时间安排及其他相关细节...",
             budget: "5,000",
             otp: "输入 6 位验证码",
         },
         submit: "发送需求",
+        reset: "再发送一个需求",
         sending: "发送中...",
         verifyTitle: "验证您的需求",
         verifyText: "我们已把一次性验证码发送到您选择的验证方式，请在下方输入以确认需求。",
@@ -224,7 +228,7 @@ const initialForm = {
     address: "",
     workDesc: "",
     budget: "",
-    currency: "NPR",
+    currency: "HKD",
     projectTime: "",
     paymentMethod: "",
     verificationMethod: "email",
@@ -232,7 +236,12 @@ const initialForm = {
 
 function getErrorText(err) {
     const data = err?.response?.data;
-    const message = data?.message || data?.error || err?.message;
+    const message =
+        data?.message ||
+        data?.error ||
+        data?.success ||
+        (Array.isArray(data?.errors) ? data.errors[0] : null) ||
+        err?.message;
 
     if (typeof message === "string") return message;
 
@@ -273,7 +282,7 @@ export default function ServiceRequestForm({ locale = "en" }) {
 
     const [form, setForm] = useState({
         ...initialForm,
-        currency: t.currencies[0] || "NPR",
+        currency: t.currencies[0] || "HKD",
     });
     const [errors, setErrors] = useState({});
     const [otp, setOtp] = useState("");
@@ -290,7 +299,23 @@ export default function ServiceRequestForm({ locale = "en" }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+
+        setForm((prev) => {
+            let updated = { ...prev, [name]: value };
+
+            // auto switch verification if email becomes empty
+            if (name === "email" && !value.trim() && prev.verificationMethod === "email") {
+                updated.verificationMethod = "phone";
+            }
+
+            // auto switch if phone becomes empty
+            if (name === "phone" && !value.trim() && prev.verificationMethod === "phone") {
+                updated.verificationMethod = "email";
+            }
+
+            return updated;
+        });
+
         setErrors((prev) => ({ ...prev, [name]: "" }));
         setBanner({ type: "", text: "" });
     };
@@ -299,19 +324,37 @@ export default function ServiceRequestForm({ locale = "en" }) {
         const nextErrors = {};
 
         if (!form.displayName.trim()) nextErrors.displayName = t.required;
-        if (!form.email.trim()) nextErrors.email = t.required;
-        else if (!/^\S+@\S+\.\S+$/.test(form.email)) nextErrors.email = t.invalidEmail;
+
+        // email optional
+        if (form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email)) {
+            nextErrors.email = t.invalidEmail;
+        }
 
         if (!form.phone.trim()) nextErrors.phone = t.required;
         else if (!/^[+]?[-()\s\d]{7,20}$/.test(form.phone)) nextErrors.phone = t.invalidPhone;
 
         if (!form.address.trim()) nextErrors.address = t.required;
         if (!form.workDesc.trim()) nextErrors.workDesc = t.required;
-        if (!form.budget.toString().trim()) nextErrors.budget = t.required;
-        else if (Number(String(form.budget).replace(/,/g, "")) <= 0) nextErrors.budget = t.invalidBudget;
+
+        if (form.budget === "" || form.budget === null || form.budget === undefined) {
+            nextErrors.budget = t.required;
+        } else {
+            const budgetValue = Number(form.budget);
+            if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
+                nextErrors.budget = t.invalidBudget;
+            }
+        }
 
         if (!form.projectTime) nextErrors.projectTime = t.required;
         if (!form.paymentMethod) nextErrors.paymentMethod = t.required;
+
+        if (form.verificationMethod === "email" && !form.email.trim()) {
+            nextErrors.email = t.required;
+        }
+
+        if (form.verificationMethod === "phone" && !form.phone.trim()) {
+            nextErrors.phone = t.required;
+        }
 
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
@@ -327,11 +370,11 @@ export default function ServiceRequestForm({ locale = "en" }) {
         try {
             const payload = {
                 displayName: form.displayName.trim(),
-                email: form.email.trim(),
+                email: form.email.trim() || undefined,
                 phone: form.phone.trim(),
                 address: form.address.trim(),
                 workDesc: form.workDesc.trim(),
-                budget: Number(String(form.budget).replace(/,/g, "")),
+                budget: Number(form.budget),
                 currency: form.currency.toLowerCase(),
                 projectTime: form.projectTime,
                 paymentMethod: form.paymentMethod,
@@ -341,12 +384,17 @@ export default function ServiceRequestForm({ locale = "en" }) {
             const res = await http.post("/frontend/serviceForm/submit", payload);
             const data = res?.data || {};
 
-            setRequestMeta({ id: data.id, expiresAt: data.expiresAt });
+            setRequestMeta({
+                id: data.id,
+                expiresAt: data.expiresAt,
+            });
+
             setStep("otp");
             setOtp("");
+            setErrors((prev) => ({ ...prev, otp: "" }));
             setBanner({
                 type: "success",
-                text: data?.message || t.verifyText,
+                text: data?.success || t.verifyText,
             });
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
@@ -375,7 +423,7 @@ export default function ServiceRequestForm({ locale = "en" }) {
             setStep("success");
             setBanner({
                 type: "success",
-                text: res?.data?.message || t.successText,
+                text: res?.data?.success || t.successText,
             });
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
@@ -395,9 +443,14 @@ export default function ServiceRequestForm({ locale = "en" }) {
                 id: requestMeta.id,
             });
 
+            setRequestMeta((prev) => ({
+                ...prev,
+                expiresAt: res?.data?.expiresAt || prev?.expiresAt,
+            }));
+
             setBanner({
                 type: "success",
-                text: res?.data?.message || `${t.resend}.`,
+                text: res?.data?.success || `${t.resend}.`,
             });
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
@@ -407,7 +460,7 @@ export default function ServiceRequestForm({ locale = "en" }) {
     };
 
     const resetAll = () => {
-        setForm({ ...initialForm, currency: t.currencies[0] || "NPR" });
+        setForm({ ...initialForm, currency: t.currencies[0] || "HKD" });
         setErrors({});
         setOtp("");
         setRequestMeta(null);
@@ -466,7 +519,7 @@ export default function ServiceRequestForm({ locale = "en" }) {
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.email} icon={Mail} error={errors.email}>
+                                <Field label={t.email} icon={Mail} error={errors.email} required={false}>
                                     <input
                                         type="email"
                                         name="email"
@@ -512,10 +565,13 @@ export default function ServiceRequestForm({ locale = "en" }) {
                             <Field label={t.budget} icon={BadgeDollarSign} error={errors.budget}>
                                 <div className="grid grid-cols-[1fr_110px] overflow-hidden rounded-2xl">
                                     <input
+                                        type="number"
                                         name="budget"
                                         value={form.budget}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.budget}
+                                        min="0"
+                                        step="0.01"
                                         className={`${inputClass(!!errors.budget)} h-12 rounded-r-none border-r-0`}
                                     />
                                     <select
@@ -634,7 +690,7 @@ export default function ServiceRequestForm({ locale = "en" }) {
                                 />
                             </Field>
 
-                            <div className="grid gap-3 sm:grid-cols-3">
+                            <div className="grid gap-3 sm:grid-cols-2">
                                 <button
                                     type="submit"
                                     disabled={verifyLoading}
@@ -654,13 +710,13 @@ export default function ServiceRequestForm({ locale = "en" }) {
                                     {resendLoading ? t.resending : t.resend}
                                 </button>
 
-                                <button
+                                {/* <button
                                     type="button"
                                     onClick={() => setStep("form")}
                                     className="inline-flex h-12 items-center justify-center rounded-2xl border border-neutral-200 bg-white px-5 text-sm font-semibold text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-50"
                                 >
                                     {t.edit}
-                                </button>
+                                </button> */}
                             </div>
                         </form>
                     ) : null}
@@ -677,7 +733,7 @@ export default function ServiceRequestForm({ locale = "en" }) {
                                 onClick={resetAll}
                                 className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-neutral-900 px-6 text-sm font-semibold text-white transition hover:bg-neutral-800"
                             >
-                                {t.submit}
+                                {t.reset}
                             </button>
                         </div>
                     ) : null}

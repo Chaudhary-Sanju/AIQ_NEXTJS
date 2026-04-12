@@ -32,16 +32,31 @@ const LABELS = { en: "EN", zh: "粵", ne: "NP" };
 const FLAGS = { en: "/flags/gb.jpg", zh: "/flags/hk.jpg", ne: "/flags/np.png" };
 
 const SERVICES = [
-    { key: "accounting", label: "Accouting", href: "/services/" },
-    { key: "software", label: "Software", href: "/services/software" },
-    { key: "license", label: "F&B License", href: "/services/license" },
-    { key: "copmanyReg", label: "Company Register", href: "/services/copmanyReg" },
-    { key: "tourAndTravel", label: "Tour and Travel", href: "/services/tourAndTravel" },
-    { key: "flightTicket", label: "Flight Ticket", href: "/services/flightTicket" },
-    { key: "bookTransport", label: "Book Transport", href: "/services/bookTransport" },
-    { key: "visaAndImmigration", label: "Visa and Immigration", href: "/services/visaAndImmigration" },
-    { key: "homeAndOffice", label: "Home and Office Moving", href: "/services/homeAndOffice" },
-    { key: "repairAndInstall", label: "Repair and Installation", href: "/services/repairAndInstall" },
+    {
+        key: "software",
+        label: "Software Development",
+        href: "/services/software",
+    },
+    {
+        key: "accounting",
+        label: "Accounting & Finance",
+        href: "/services/accounting",
+    },
+    {
+        key: "businessServices",
+        label: "Company Register & F&B License",
+        href: "/services/business-services",
+    },
+    {
+        key: "travelImmigration",
+        label: "Travel & Immigration",
+        href: "/services/travel-immigration",
+    },
+    {
+        key: "homeOfficeServices",
+        label: "Home & Office Services",
+        href: "/services/home-office-services",
+    },
 ];
 
 export default function Navbar({ locale = "en", dict = {} }) {
@@ -187,7 +202,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
             </div>
 
             {/* ── Desktop main nav ── */}
-            <div className="hidden md:block">
+            <div className="hidden md:block bg-blue-50">
                 <div className="mx-auto max-w-7xl px-4 lg:px-6">
                     <div className="grid h-[96px] grid-cols-[96px_minmax(260px,340px)_1fr_auto] items-center gap-5 lg:grid-cols-[104px_minmax(300px,380px)_1fr_auto]">
 
