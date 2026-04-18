@@ -293,7 +293,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <button
                                     type="submit"
                                     aria-label={t("nav.searchAria", "Search")}
-                                    className="absolute right-0 top-0 h-11 w-11 flex items-center justify-center rounded-r-md transition-colors duration-150 hover:bg-[#1a4b8f] hover:text-white"
+                                    className="absolute right-0 top-0 h-11 w-11 flex items-center justify-center rounded-r-md transition-colors duration-150 hover:text-white"
                                     style={{ color: "#1a4b8f", borderRadius: "0 6px 6px 0" }}
                                 >
                                     <Search className="h-4 w-4" />

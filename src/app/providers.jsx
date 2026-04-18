@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
 import { Toaster } from "sonner";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import { makeStore } from "@/store";
 
@@ -18,12 +19,21 @@ export default function Providers({ children }) {
     }
 
     return (
-        <Provider store={storeRef.current}>
-            <PersistGate loading={null} persistor={persistorRef.current}>
-                {children}
-            </PersistGate>
+        <GoogleReCaptchaProvider
+            reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+            scriptProps={{
+                async: true,
+                defer: true,
+                appendTo: "head",
+            }}
+        >
+            <Provider store={storeRef.current}>
+                <PersistGate loading={null} persistor={persistorRef.current}>
+                    {children}
+                </PersistGate>
 
-            <Toaster position="top-right" richColors closeButton />
-        </Provider>
+                <Toaster position="top-right" richColors closeButton />
+            </Provider>
+        </GoogleReCaptchaProvider>
     );
 }

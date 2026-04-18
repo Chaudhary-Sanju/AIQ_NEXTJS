@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
     ArrowRight,
     Box,
@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 
 import http from "@/http";
+
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 const COPY = {
     en: {
@@ -95,6 +97,7 @@ const COPY = {
             { value: "card", label: "Card" },
             { value: "bank deposit", label: "Bank Deposit" },
             { value: "cheque", label: "Cheque" },
+            { value: "bank-transfer", label: "Bank Transfer" },
         ],
         verificationMethods: [
             { value: "email", label: "Email" },
@@ -133,6 +136,7 @@ const COPY = {
         emailRequiredForVerification:
             "Sender email is required when verification method is email.",
         selectPickupDateFirst: "Select pickup date first",
+        captchaRequired: "Please complete reCAPTCHA verification.",
     },
 
     ne: {
@@ -204,6 +208,7 @@ const COPY = {
             { value: "card", label: "कार्ड" },
             { value: "bank deposit", label: "बैंक जम्मा" },
             { value: "cheque", label: "चेक" },
+            { value: "bank-transfer", label: "बैंक ट्रान्सफर" },
         ],
         verificationMethods: [
             { value: "email", label: "इमेल" },
@@ -242,6 +247,7 @@ const COPY = {
         emailRequiredForVerification:
             "प्रमाणीकरण विधि इमेल भएमा पठाउने व्यक्तिको इमेल आवश्यक हुन्छ।",
         selectPickupDateFirst: "पहिले पिकअप मिति छान्नुहोस्",
+        captchaRequired: "कृपया reCAPTCHA प्रमाणिकरण पूरा गर्नुहोस्।",
     },
 
     zh: {
@@ -313,6 +319,7 @@ const COPY = {
             { value: "card", label: "银行卡" },
             { value: "bank deposit", label: "银行入数" },
             { value: "cheque", label: "支票" },
+            { value: "bank-transfer", label: "銀行轉帳" },
         ],
         verificationMethods: [
             { value: "email", label: "邮箱" },
@@ -351,6 +358,7 @@ const COPY = {
         emailRequiredForVerification:
             "当验证方式为邮箱时，寄件人邮箱为必填。",
         selectPickupDateFirst: "请先选择取件日期",
+        captchaRequired: "请先完成 reCAPTCHA 验证。",
     },
 };
 
@@ -484,13 +492,20 @@ export default function AiExpressPickupForm({ locale = "en" }) {
 
     const [form, setForm] = useState(initialForm);
     const [errors, setErrors] = useState({});
-    const [otp, setOtp] = useState("");
+    const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
     const [requestMeta, setRequestMeta] = useState(null);
     const [step, setStep] = useState("form");
     const [submitLoading, setSubmitLoading] = useState(false);
     const [verifyLoading, setVerifyLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
     const [banner, setBanner] = useState({ type: "", text: "" });
+
+    const otpRefs = useMemo(
+        () => Array.from({ length: 6 }, () => ({ current: null })),
+        []
+    );
+
+    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const availableTimeSlots = useMemo(() => {
         return getTimeSlotsForDate(form.pickupDate);
@@ -523,6 +538,78 @@ export default function AiExpressPickupForm({ locale = "en" }) {
 
         setErrors((prev) => ({ ...prev, [name]: "", pickupTimeSlot: "" }));
         setBanner({ type: "", text: "" });
+    };
+
+    const handleOtpChange = (index, value) => {
+        const cleaned = value.replace(/[^a-zA-Z0-9]/g, "").slice(-1).toUpperCase();
+
+        setOtpValues((prev) => {
+            const next = [...prev];
+            next[index] = cleaned;
+            return next;
+        });
+
+        setErrors((prev) => ({ ...prev, otp: "" }));
+
+        if (cleaned && index < 5) {
+            otpRefs[index + 1]?.current?.focus();
+        }
+    };
+
+    const handleOtpPaste = (e) => {
+        e.preventDefault();
+
+        const pasted = e.clipboardData
+            .getData("text")
+            .replace(/[^a-zA-Z0-9]/g, "")
+            .slice(0, 6)
+            .toUpperCase();
+
+        if (!pasted) return;
+
+        const next = ["", "", "", "", "", ""];
+        pasted.split("").forEach((char, i) => {
+            next[i] = char;
+        });
+
+        setOtpValues(next);
+        setErrors((prev) => ({ ...prev, otp: "" }));
+
+        const focusIndex = Math.min(pasted.length, 5);
+        otpRefs[focusIndex]?.current?.focus();
+    };
+
+    const handleOtpKeyDown = (index, e) => {
+        if (e.key === "Backspace") {
+            if (otpValues[index]) {
+                setOtpValues((prev) => {
+                    const next = [...prev];
+                    next[index] = "";
+                    return next;
+                });
+            } else if (index > 0) {
+                otpRefs[index - 1]?.current?.focus();
+                setOtpValues((prev) => {
+                    const next = [...prev];
+                    next[index - 1] = "";
+                    return next;
+                });
+            }
+        }
+
+        if (e.key === "ArrowLeft" && index > 0) {
+            otpRefs[index - 1]?.current?.focus();
+        }
+
+        if (e.key === "ArrowRight" && index < 5) {
+            otpRefs[index + 1]?.current?.focus();
+        }
+    };
+
+    const clearOtp = () => {
+        setOtpValues(["", "", "", "", "", ""]);
+        setErrors((prev) => ({ ...prev, otp: "" }));
+        otpRefs[0]?.current?.focus();
     };
 
     const validate = () => {
@@ -582,10 +669,32 @@ export default function AiExpressPickupForm({ locale = "en" }) {
         e.preventDefault();
         if (!validate()) return;
 
+        if (!executeRecaptcha) {
+            setErrors((prev) => ({
+                ...prev,
+                captcha: t.captchaRequired,
+            }));
+            return;
+        }
+
         setSubmitLoading(true);
         setBanner({ type: "", text: "" });
 
         try {
+            const recaptchaToken = await executeRecaptcha("courier_pickup_submit");
+
+            if (!recaptchaToken || typeof recaptchaToken !== "string") {
+                setErrors((prev) => ({
+                    ...prev,
+                    captcha: t.captchaRequired,
+                }));
+                setBanner({
+                    type: "error",
+                    text: t.captchaRequired,
+                });
+                return;
+            }
+
             const payload = {
                 senderName: form.senderName.trim(),
                 senderPhone: form.senderPhone.trim(),
@@ -607,12 +716,14 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                 specialInstructions: form.specialInstructions.trim() || null,
                 isConfirmed: true,
                 verificationMethod: form.verificationMethod,
+                recaptchaToken,
             };
 
             const res = await http.post(
                 "/frontend/courierPickupForm/submit",
                 payload
             );
+
             const data = res?.data || {};
 
             setRequestMeta({
@@ -621,7 +732,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
             });
 
             setStep("otp");
-            setOtp("");
+            setOtpValues(["", "", "", "", "", ""]);
             setErrors((prev) => ({ ...prev, otp: "" }));
             setBanner({
                 type: "success",
@@ -637,7 +748,9 @@ export default function AiExpressPickupForm({ locale = "en" }) {
     const handleVerify = async (e) => {
         e.preventDefault();
 
-        if (!otp.trim()) {
+        const otp = otpValues.join("").trim();
+
+        if (otp.length !== 6) {
             setErrors((prev) => ({ ...prev, otp: t.invalidOtp }));
             return;
         }
@@ -699,7 +812,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
     const resetAll = () => {
         setForm(initialForm);
         setErrors({});
-        setOtp("");
+        setOtpValues(["", "", "", "", "", ""]);
         setRequestMeta(null);
         setStep("form");
         setBanner({ type: "", text: "" });
@@ -1088,6 +1201,10 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                 </div>
                             </label>
 
+                            {errors.captcha ? (
+                                <p className="text-sm text-red-500">{errors.captcha}</p>
+                            ) : null}
+
                             <button
                                 type="submit"
                                 disabled={submitLoading}
@@ -1124,15 +1241,43 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             </div>
 
                             <Field label={t.otpLabel} icon={ShieldCheck} error={errors.otp}>
-                                <input
-                                    value={otp}
-                                    onChange={(e) => {
-                                        setOtp(e.target.value);
-                                        setErrors((prev) => ({ ...prev, otp: "" }));
-                                    }}
-                                    placeholder={t.placeholders.otp}
-                                    className={`${inputClass(!!errors.otp)} h-12`}
-                                />
+                                <div className="space-y-3">
+                                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                                        {otpValues.map((digit, index) => (
+                                            <input
+                                                key={index}
+                                                ref={(el) => {
+                                                    otpRefs[index].current = el;
+                                                }}
+                                                type="text"
+                                                inputMode="text"
+                                                autoComplete={index === 0 ? "one-time-code" : "off"}
+                                                maxLength={1}
+                                                value={digit}
+                                                onChange={(e) => handleOtpChange(index, e.target.value)}
+                                                onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                                onPaste={handleOtpPaste}
+                                                className={[
+                                                    "h-14 w-12 rounded-2xl border bg-white text-center text-lg font-semibold uppercase outline-none transition sm:h-16 sm:w-14",
+                                                    errors.otp
+                                                        ? "border-red-300 focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                                        : "border-neutral-200 focus:border-[#4b63ff] focus:ring-4 focus:ring-[#4b63ff]/10",
+                                                ].join(" ")}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-neutral-500">{t.placeholders.otp}</span>
+                                        <button
+                                            type="button"
+                                            onClick={clearOtp}
+                                            className="font-medium text-neutral-500 underline underline-offset-2 hover:text-neutral-700"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                </div>
                             </Field>
 
                             <div className="grid gap-3 sm:grid-cols-2">

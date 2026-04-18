@@ -290,13 +290,12 @@ function inputClass(hasError) {
     ].join(" ");
 }
 
-export default function ServiceRequestForm({
+export default function PerfectServiceRequestForm({
     locale = "en",
     serviceType = "software-development",
     title,
 }) {
     const t = COPY[locale] || COPY.en;
-    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const normalizedServiceType = useMemo(() => {
         return ALLOWED_SERVICE_TYPES.includes(serviceType)
@@ -324,6 +323,7 @@ export default function ServiceRequestForm({
     const [resendLoading, setResendLoading] = useState(false);
     const [banner, setBanner] = useState({ type: "", text: "" });
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
+    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const otpRefs = useMemo(
         () => Array.from({ length: 6 }, () => ({ current: null })),
@@ -423,7 +423,7 @@ export default function ServiceRequestForm({
             return updated;
         });
 
-        setErrors((prev) => ({ ...prev, [name]: "", captcha: "" }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
         setBanner({ type: "", text: "" });
     };
 
@@ -507,10 +507,11 @@ export default function ServiceRequestForm({
                 projectTime: form.projectTime,
                 paymentMethod: form.paymentMethod,
                 verificationMethod: form.verificationMethod,
+                serviceType: normalizedServiceType,
                 recaptchaToken,
             };
 
-            const res = await http.post("/frontend/serviceForm/submit", payload);
+            const res = await http.post("/frontend/perfectServiceForm/submit", payload);
 
             const data = res?.data || {};
 
@@ -546,7 +547,7 @@ export default function ServiceRequestForm({
         setBanner({ type: "", text: "" });
 
         try {
-            const res = await http.post("/frontend/serviceForm/verify-otp", {
+            const res = await http.post("/frontend/perfectServiceForm/verify-otp", {
                 id: requestMeta?.id,
                 otp,
             });
@@ -570,7 +571,7 @@ export default function ServiceRequestForm({
         setBanner({ type: "", text: "" });
 
         try {
-            const res = await http.post("/frontend/serviceForm/resend-otp", {
+            const res = await http.post("/frontend/perfectServiceForm/resend-otp", {
                 id: requestMeta.id,
             });
 

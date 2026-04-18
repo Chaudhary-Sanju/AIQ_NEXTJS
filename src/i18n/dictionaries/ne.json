@@ -500,5 +500,43 @@
         "alt": "घर तथा अफिस सेवा चित्र"
       }
     }
+  },
+
+  "perfectServiceForm": {
+    "software-development": {
+      "title": {
+        "line1": "तपाईंको",
+        "highlight": "सफ्टवेयर",
+        "line2": "परियोजना हामीसँग बनाउनुहोस्"
+      }
+    },
+    "accounting-finance": {
+      "title": {
+        "line1": "तपाईंको",
+        "highlight": "लेखा",
+        "line2": "विश्वासका साथ व्यवस्थापन गर्नुहोस्"
+      }
+    },
+    "business-services": {
+      "title": {
+        "line1": "तपाईंको",
+        "highlight": "व्यवसाय",
+        "line2": "विशेषज्ञ सहयोगसहित सुरु र विस्तार गर्नुहोस्"
+      }
+    },
+    "travel-immigration": {
+      "title": {
+        "line1": "तपाईंको",
+        "highlight": "यात्रा",
+        "line2": "र आप्रवासन सजिलै योजना बनाउनुहोस्"
+      }
+    },
+    "home-office-services": {
+      "title": {
+        "line1": "तपाईंको",
+        "highlight": "घर र कार्यालय",
+        "line2": "सेवाहरू हामीसँग स्तरोन्नति गर्नुहोस्"
+      }
+    }
   }
 }

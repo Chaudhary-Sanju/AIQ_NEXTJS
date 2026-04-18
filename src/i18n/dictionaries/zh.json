@@ -485,5 +485,43 @@
         "alt": "家居及辦公服務圖片"
       }
     }
+  },
+
+  "perfectServiceForm": {
+    "software-development": {
+      "title": {
+        "line1": "与我们一起打造您的",
+        "highlight": "软件",
+        "line2": "项目"
+      }
+    },
+    "accounting-finance": {
+      "title": {
+        "line1": "让您的",
+        "highlight": "会计财务",
+        "line2": "管理更安心"
+      }
+    },
+    "business-services": {
+      "title": {
+        "line1": "为您的",
+        "highlight": "企业",
+        "line2": "提供专业成长支持"
+      }
+    },
+    "travel-immigration": {
+      "title": {
+        "line1": "轻松规划您的",
+        "highlight": "旅游",
+        "line2": "与移民服务"
+      }
+    },
+    "home-office-services": {
+      "title": {
+        "line1": "升级您的",
+        "highlight": "家居与办公室",
+        "line2": "服务体验"
+      }
+    }
   }
 }

@@ -65,6 +65,7 @@ export default function RootLayout({ children }) {
                 <title>HkMandu (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform</title>
             </head>
             <body>
+
                 <Providers>
                     <HashScrollHandler />
                     {children}

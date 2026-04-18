@@ -507,5 +507,43 @@
         "alt": "Home and office services hero image"
       }
     }
+  },
+
+  "perfectServiceForm": {
+    "software-development": {
+      "title": {
+        "line1": "Build your",
+        "highlight": "software",
+        "line2": "project with us"
+      }
+    },
+    "accounting-finance": {
+      "title": {
+        "line1": "Manage your",
+        "highlight": "accounting",
+        "line2": "with confidence"
+      }
+    },
+    "business-services": {
+      "title": {
+        "line1": "Start and grow your",
+        "highlight": "business",
+        "line2": "with expert support"
+      }
+    },
+    "travel-immigration": {
+      "title": {
+        "line1": "Plan your",
+        "highlight": "travel",
+        "line2": "and immigration with ease"
+      }
+    },
+    "home-office-services": {
+      "title": {
+        "line1": "Upgrade your",
+        "highlight": "home & office",
+        "line2": "services with us"
+      }
+    }
   }
 }
