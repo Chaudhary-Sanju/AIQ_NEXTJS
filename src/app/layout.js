@@ -1,3 +1,4 @@
+import HashScrollHandler from "@/components/clientComponents/dashboard/HashScrollHandler";
 import "./globals.css";
 import Providers from "./providers";
 
@@ -64,7 +65,10 @@ export default function RootLayout({ children }) {
                 <title>HkMandu (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform</title>
             </head>
             <body>
-                <Providers>{children}</Providers>
+                <Providers>
+                    <HashScrollHandler />
+                    {children}
+                </Providers>
             </body>
         </html>
     );

@@ -35,12 +35,12 @@ const SERVICES = [
     {
         key: "software",
         label: "Software Development",
-        href: "/services/software",
+        href: "/services/software-development",
     },
     {
         key: "accounting",
         label: "Accounting & Finance",
-        href: "/services/accounting",
+        href: "/services/accounting-finance",
     },
     {
         key: "businessServices",
@@ -85,11 +85,46 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
     const l = (path) => `/${locale}${path}`;
 
+    const scrollToPerfectServices = () => {
+        setMobileOpen(false);
+        setServicesOpen(false);
+        setProfileOpen(false);
+
+        const homePath = `/${locale}`;
+
+        if (pathname !== homePath) {
+            router.push(`${homePath}#perfect-services`);
+            return;
+        }
+
+        const el = document.getElementById("perfect-services");
+        if (el) {
+            setTimeout(() => {
+                const header = document.querySelector("header");
+                let headerHeight = 0;
+                if (header) {
+                    const style = getComputedStyle(header);
+                    if (style.position === "sticky" || style.position === "fixed") {
+                        headerHeight = header.getBoundingClientRect().height;
+                    }
+                }
+
+                const originalMargin = el.style.scrollMarginTop;
+                el.style.scrollMarginTop = `${headerHeight + 12}px`;
+                el.scrollIntoView({ behavior: "smooth", block: "start" });
+
+                setTimeout(() => {
+                    el.style.scrollMarginTop = originalMargin;
+                }, 500);
+            }, 50);
+        }
+    };
+
     const mobilePrimaryLinks = useMemo(
         () => [
-            { label: t("nav.organicMart", "Organic Mart"), href: l("/organic-mart"), icon: Package },
-            { label: t("nav.aiExpress", "AI Express"), href: l("/ai-express"), icon: Sparkles },
-            { label: t("nav.servicesTitle", "Perfect Services"), href: l("/services"), icon: Grid3x3 },
+            { label: t("nav.organicMart", "Organic Mart"), href: l("/"), icon: Package, type: "link" },
+            { label: t("nav.aiExpress", "AI Express"), href: l("/ai-express"), icon: Sparkles, type: "link" },
+            { label: t("nav.servicesTitle", "Perfect Services"), icon: Grid3x3, type: "scroll" },
         ],
         [locale, dict]
     );
@@ -118,16 +153,21 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 setProfileOpen(false);
             }
         }
+
         function onPointerDown(e) {
             const inDesktopDropdown = desktopServicesRef.current?.contains(e.target);
             const inMobileDrawer = mobileDrawerRef.current?.contains(e.target);
             const inProfile = profileRef.current?.contains(e.target);
+
             if (inDesktopDropdown || inMobileDrawer || inProfile) return;
+
             setServicesOpen(false);
             setProfileOpen(false);
         }
+
         document.addEventListener("keydown", onKeyDown);
         document.addEventListener("pointerdown", onPointerDown);
+
         return () => {
             document.removeEventListener("keydown", onKeyDown);
             document.removeEventListener("pointerdown", onPointerDown);
@@ -136,6 +176,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
     const switchLocale = (nextLocale) => {
         if (!pathname) return;
+
         const segments = pathname.split("/");
         if (LOCALES.includes(segments[1])) {
             segments[1] = nextLocale;
@@ -143,6 +184,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
         } else {
             router.push(`/${nextLocale}${pathname}`);
         }
+
         setMobileOpen(false);
         setServicesOpen(false);
         setProfileOpen(false);
@@ -159,13 +201,20 @@ export default function Navbar({ locale = "en", dict = {} }) {
     };
 
     return (
-        <header className="w-full bg-white" style={{ boxShadow: "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)" }}>
-
-            {/* ── Top bar ── */}
-            <div className="hidden md:block" style={{ background: "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)" }}>
+        <header
+            className="w-full bg-white"
+            style={{ boxShadow: "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)" }}
+        >
+            {/* Desktop top bar – unchanged */}
+            <div
+                className="hidden md:block"
+                style={{ background: "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)" }}
+            >
                 <div className="mx-auto max-w-7xl px-4 lg:px-6">
-                    <div className="flex h-9 items-center justify-between" style={{ fontSize: "11px", letterSpacing: "0.03em" }}>
-
+                    <div
+                        className="flex h-9 items-center justify-between"
+                        style={{ fontSize: "11px", letterSpacing: "0.03em" }}
+                    >
                         <div className="flex items-center gap-4 text-white/80">
                             <span className="inline-flex items-center gap-1.5">
                                 <Mail className="h-3 w-3 opacity-70" />
@@ -196,17 +245,14 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 </span>
                             ))}
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            {/* ── Desktop main nav ── */}
+            {/* Desktop main navbar – unchanged */}
             <div className="hidden md:block bg-blue-50">
                 <div className="mx-auto max-w-7xl px-4 lg:px-6">
                     <div className="grid h-[96px] grid-cols-[96px_minmax(260px,340px)_1fr_auto] items-center gap-5 lg:grid-cols-[104px_minmax(300px,380px)_1fr_auto]">
-
-                        {/* Logo */}
                         <Link href={l("/")} className="group flex flex-col items-center justify-center leading-none">
                             <Image
                                 src="/logo.png"
@@ -223,7 +269,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </span>
                         </Link>
 
-                        {/* Search */}
                         <form className="w-full">
                             <div className="relative">
                                 <input
@@ -235,11 +280,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         borderColor: "#dde1ea",
                                         boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)",
                                     }}
-                                    onFocus={e => {
+                                    onFocus={(e) => {
                                         e.target.style.borderColor = "#1a4b8f";
-                                        e.target.style.boxShadow = "0 0 0 3px rgba(26,75,143,0.10), inset 0 1px 2px rgba(0,0,0,0.04)";
+                                        e.target.style.boxShadow =
+                                            "0 0 0 3px rgba(26,75,143,0.10), inset 0 1px 2px rgba(0,0,0,0.04)";
                                     }}
-                                    onBlur={e => {
+                                    onBlur={(e) => {
                                         e.target.style.borderColor = "#dde1ea";
                                         e.target.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.04)";
                                     }}
@@ -255,7 +301,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
                         </form>
 
-                        {/* Center nav */}
                         <nav className="flex min-w-0 items-center justify-center gap-1 whitespace-nowrap">
                             {[
                                 { href: l("/ai-express"), label: t("nav.aiExpress", "AI Express") },
@@ -268,32 +313,43 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     style={{ letterSpacing: "0.01em" }}
                                 >
                                     {item.label}
-                                    <span
-                                        className="absolute bottom-0 left-4 right-4 h-[2px] scale-x-0 rounded-full bg-[#1a4b8f] transition-transform duration-200 origin-center group-hover:scale-x-100"
-                                        style={{ transition: "transform 0.2s" }}
-                                    />
                                 </Link>
                             ))}
 
                             <span className="text-neutral-300 px-1 select-none">|</span>
 
-                            {/* Services dropdown */}
                             <div className="relative" ref={desktopServicesRef}>
-                                <button
-                                    type="button"
-                                    onClick={() => { setServicesOpen((v) => !v); setProfileOpen(false); }}
-                                    className="inline-flex items-center gap-1.5 px-4 py-2 text-[14px] font-semibold transition-colors duration-150"
-                                    style={{
-                                        color: servicesOpen ? "#1a4b8f" : "#404040",
-                                        letterSpacing: "0.01em",
-                                    }}
-                                >
-                                    {t("nav.servicesTitle", "Perfect Services")}
-                                    <ChevronDown
-                                        className="h-3.5 w-3.5 transition-transform duration-200"
-                                        style={{ transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-                                    />
-                                </button>
+                                <div className="flex items-center">
+                                    <button
+                                        type="button"
+                                        onClick={scrollToPerfectServices}
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 text-[14px] font-semibold transition-colors duration-150 hover:text-[#1a4b8f]"
+                                        style={{
+                                            color: "#404040",
+                                            letterSpacing: "0.01em",
+                                        }}
+                                    >
+                                        {t("nav.servicesTitle", "Perfect Services")}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setServicesOpen((v) => !v);
+                                            setProfileOpen(false);
+                                        }}
+                                        className="inline-flex items-center px-1 py-2 text-[14px] font-semibold transition-colors duration-150"
+                                        style={{ color: servicesOpen ? "#1a4b8f" : "#404040" }}
+                                        aria-label="Toggle services menu"
+                                    >
+                                        <ChevronDown
+                                            className="h-3.5 w-3.5 transition-transform duration-200"
+                                            style={{
+                                                transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                            }}
+                                        />
+                                    </button>
+                                </div>
 
                                 {servicesOpen && (
                                     <div
@@ -301,7 +357,8 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         style={{
                                             borderRadius: "10px",
                                             border: "1px solid #e8ecf4",
-                                            boxShadow: "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
+                                            boxShadow:
+                                                "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
                                         }}
                                     >
                                         {SERVICES.map((service) => (
@@ -320,10 +377,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
                         </nav>
 
-                        {/* Right actions */}
                         <div className="flex items-center gap-2 whitespace-nowrap">
-
-                            {/* Cart */}
                             <Link
                                 href={l("/cart")}
                                 aria-label={t("nav.cartAria", "Cart")}
@@ -333,14 +387,21 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <span>{t("nav.cart", "Cart")}</span>
                             </Link>
 
-                            {/* Language switcher */}
                             <button
                                 type="button"
-                                onClick={() => switchLocale(locale === "en" ? "zh" : locale === "zh" ? "ne" : "en")}
+                                onClick={() =>
+                                    switchLocale(locale === "en" ? "zh" : locale === "zh" ? "ne" : "en")
+                                }
                                 aria-label={t("nav.changeLanguageAria", "Change language")}
                                 className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-neutral-700 transition-colors duration-150 hover:bg-[#f0f4fb]"
                             >
-                                <span className="relative h-4 w-6 overflow-hidden" style={{ borderRadius: "3px", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }}>
+                                <span
+                                    className="relative h-4 w-6 overflow-hidden"
+                                    style={{
+                                        borderRadius: "3px",
+                                        boxShadow: "0 0 0 1px rgba(0,0,0,0.12)",
+                                    }}
+                                >
                                     <Image
                                         src={FLAGS[locale] || FLAGS.en}
                                         alt={LABELS[locale] || "EN"}
@@ -352,7 +413,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <span>{LABELS[locale] || "EN"}</span>
                             </button>
 
-                            {/* Profile / Login */}
                             {!isLoggedIn ? (
                                 <Link
                                     href={l("/auth/login")}
@@ -371,7 +431,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <div className="relative" ref={profileRef}>
                                     <button
                                         type="button"
-                                        onClick={() => { setProfileOpen((v) => !v); setServicesOpen(false); }}
+                                        onClick={() => {
+                                            setProfileOpen((v) => !v);
+                                            setServicesOpen(false);
+                                        }}
                                         className="inline-flex h-9 items-center gap-2 px-3.5 text-sm font-semibold text-white transition-all duration-150"
                                         style={{
                                             borderRadius: "7px",
@@ -384,7 +447,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <span>{displayName || t("nav.account", "My Account")}</span>
                                         <ChevronDown
                                             className="h-3.5 w-3.5 transition-transform duration-200"
-                                            style={{ transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                            style={{
+                                                transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                            }}
                                         />
                                     </button>
 
@@ -394,11 +459,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             style={{
                                                 borderRadius: "10px",
                                                 border: "1px solid #e8ecf4",
-                                                boxShadow: "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
+                                                boxShadow:
+                                                    "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
                                             }}
                                         >
                                             <Link
-                                                href={l("/secure")}
+                                                href={l("/dashboard")}
                                                 onClick={() => setProfileOpen(false)}
                                                 className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
                                             >
@@ -431,12 +497,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            {/* ── Mobile ── */}
+            {/* Mobile header */}
             <div className="md:hidden">
                 <div className="px-3 pt-3 pb-2.5">
                     <div className="flex items-center gap-2">
-
-                        {/* Logo */}
                         <Link href={l("/")} className="flex w-[58px] shrink-0 flex-col items-center justify-center leading-none">
                             <Image
                                 src="/logo.png"
@@ -453,7 +517,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </span>
                         </Link>
 
-                        {/* Search */}
                         <form className="flex-1">
                             <div className="relative">
                                 <input
@@ -476,7 +539,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
                         </form>
 
-                        {/* Cart */}
                         <Link
                             href={l("/cart")}
                             className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700"
@@ -485,10 +547,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             <ShoppingCart className="h-5 w-5" />
                         </Link>
 
-                        {/* Hamburger */}
                         <button
                             type="button"
-                            onClick={() => { setMobileOpen((v) => !v); setServicesOpen(false); }}
+                            onClick={() => {
+                                setMobileOpen((v) => !v);
+                                setServicesOpen(false);
+                            }}
                             className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700"
                             aria-label={t("nav.openMenuAria", "Open menu")}
                         >
@@ -497,7 +561,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     </div>
                 </div>
 
-                {/* Mobile quick-nav bar */}
+                {/* Mobile 3‑button grid (unchanged) */}
                 <div
                     className="border-t border-b"
                     style={{
@@ -508,6 +572,34 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     <div className="grid grid-cols-3">
                         {mobilePrimaryLinks.map((item, idx) => {
                             const Icon = item.icon;
+
+                            if (item.type === "scroll") {
+                                return (
+                                    <button
+                                        key={item.label}
+                                        type="button"
+                                        onClick={scrollToPerfectServices}
+                                        className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-[#e4eaf5]"
+                                        style={{
+                                            borderRight: idx !== 2 ? "1px solid #dde6f5" : "none",
+                                        }}
+                                    >
+                                        <span
+                                            className="flex h-8 w-8 items-center justify-center rounded-full"
+                                            style={{ background: "rgba(26,75,143,0.09)" }}
+                                        >
+                                            <Icon className="h-4 w-4" style={{ color: "#1a4b8f" }} />
+                                        </span>
+                                        <span
+                                            className="text-[12px] font-semibold"
+                                            style={{ color: "#1a2f5e", letterSpacing: "0.01em" }}
+                                        >
+                                            {item.label}
+                                        </span>
+                                    </button>
+                                );
+                            }
+
                             return (
                                 <Link
                                     key={item.label}
@@ -535,7 +627,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     </div>
                 </div>
 
-                {/* Mobile drawer */}
+                {/* Mobile drawer – Perfect Services dropdown kept, but WITHOUT the scroll button inside */}
                 {mobileOpen && (
                     <div
                         ref={mobileDrawerRef}
@@ -546,8 +638,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                         }}
                     >
                         <div className="space-y-2">
-
-                            {/* Services accordion */}
+                            {/* Perfect Services expandable section (only the service links, no scroll button) */}
                             <div
                                 className="overflow-hidden rounded-xl border"
                                 style={{ borderColor: "#dde6f5", background: "white" }}
@@ -561,17 +652,24 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <span>{t("nav.servicesTitle", "Perfect Services")}</span>
                                     <ChevronDown
                                         className="h-4 w-4 transition-transform duration-200"
-                                        style={{ transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)", color: "#1a4b8f" }}
+                                        style={{
+                                            transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                            color: "#1a4b8f",
+                                        }}
                                     />
                                 </button>
 
                                 {servicesOpen && (
                                     <div className="border-t px-2 pb-2" style={{ borderColor: "#eef1f9" }}>
+                                        {/* The "Perfect Services" scroll button has been REMOVED */}
                                         {SERVICES.map((service) => (
                                             <Link
                                                 key={service.key}
                                                 href={l(service.href)}
-                                                onClick={() => { setServicesOpen(false); setMobileOpen(false); }}
+                                                onClick={() => {
+                                                    setServicesOpen(false);
+                                                    setMobileOpen(false);
+                                                }}
                                                 className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-[#f0f4fb]"
                                                 style={{ color: "#374166", fontWeight: 450 }}
                                             >
@@ -582,7 +680,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* Account section */}
+                            {/* Login / Account section (unchanged) */}
                             <div
                                 className="overflow-hidden rounded-xl border"
                                 style={{ borderColor: "#dde6f5", background: "white" }}
@@ -600,7 +698,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 ) : (
                                     <>
                                         <Link
-                                            href={l("/secure")}
+                                            href={l("/dashboard")}
                                             onClick={() => setMobileOpen(false)}
                                             className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-[#f0f4fb]"
                                             style={{ borderColor: "#eef1f9", color: "#1a2f5e" }}
@@ -630,7 +728,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* Language switcher */}
+                            {/* Language selector (unchanged) */}
                             <div
                                 className="flex items-center justify-between rounded-xl border px-4 py-3.5"
                                 style={{ borderColor: "#dde6f5", background: "white" }}
@@ -645,9 +743,14 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             type="button"
                                             onClick={() => switchLocale(lc)}
                                             className="rounded-md px-2.5 py-1 text-xs font-semibold transition-all duration-150"
-                                            style={lc === locale
-                                                ? { background: "linear-gradient(135deg, #1a4b8f, #0f2a5e)", color: "white", boxShadow: "0 2px 6px rgba(26,75,143,0.3)" }
-                                                : { background: "#eef1f9", color: "#374166" }
+                                            style={
+                                                lc === locale
+                                                    ? {
+                                                        background: "linear-gradient(135deg, #1a4b8f, #0f2a5e)",
+                                                        color: "white",
+                                                        boxShadow: "0 2px 6px rgba(26,75,143,0.3)",
+                                                    }
+                                                    : { background: "#eef1f9", color: "#374166" }
                                             }
                                         >
                                             {LABELS[lc]}
@@ -655,7 +758,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     ))}
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 )}

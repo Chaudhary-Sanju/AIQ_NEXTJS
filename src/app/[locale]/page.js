@@ -15,20 +15,21 @@ export default async function Home({ params }) {
 
   return (
     <>
-
       <MarqueeBar locale={locale} />
 
       <HeroSlider locale={locale} autoPlay interval={4000} />
 
       <ProductTypeSection locale={locale} type="featuredProduct" limit={6} />
 
-      <PerfectServicesSection locale={locale} />
+      <div id="perfect-services">
+        <PerfectServicesSection locale={locale} />
+      </div>
 
       <ProductTypeSection locale={locale} type="trendingProduct" limit={6} />
 
       <ServiceRequestForm locale={locale} />
-      
-      
+
+
       {/* <CategoriesRow locale={locale} limit={4} />
 
       <DeliveryHero

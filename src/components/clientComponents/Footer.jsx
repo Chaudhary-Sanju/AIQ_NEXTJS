@@ -25,7 +25,6 @@ export default function Footer({ locale = "en", dict = {} }) {
         "Track Order",
         "Track Courier",
         "Shipping and Handling",
-        "Return and Exchanges",
         "Payments",
     ]);
 

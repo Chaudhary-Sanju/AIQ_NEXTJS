@@ -45,7 +45,6 @@
         "Track Order",
         "Track Courier",
         "Shipping and Handling",
-        "Return and Exchanges",
         "Payments"
       ]
     },
@@ -78,6 +77,14 @@
     },
 
     "bottom": "© 2026 HkMandu. All rights reserved."
+  },
+
+  "aiFaq": {
+    "title": "Frequently asked questions",
+    "subtitle": "Quick answers to the most common questions.",
+    "seeAll": "See all",
+    "collapseAll": "Collapse all",
+    "empty": "No FAQs available right now."
   },
 
   "login": {
@@ -294,182 +301,12 @@
 
   "deliveryHero": {
     "alt": "Delivery rider",
-    "title": "Delivering at the Speed\nof Your Life",
-    "subtitle": "Real-time tracking, instant pickups,\nand lightning-fast delivery\npowered by HkMandu.",
-    "ctaPrimary": "Get Started",
-    "ctaSecondary": "Track Order"
-  },
-
-  "accountingHero": {
-    "pill": "Made for individuals & growing businesses",
-    "titleLine1": "Manage your",
-    "titleHighlight": "Accounting",
-    "titleLine2": "with ease smart packages built for every business",
-    "subtitle": "Our accounting packages simplify bookkeeping, billing, compliance, and financial reporting. Designed for startups, SMEs, and enterprises all in one place.",
-    "ctaPrimary": "Learn More",
-    "ctaPrimary1": "View Accounting Packages",
-    "ctaPrimaryLink": "/services/software",
-    "ctaPrimaryLink1": "/services/software/listSoftware",
-    "ctaSecondary": "Contact on WhatsApp",
-    "whatsappLink": "https://wa.me/",
-    "alt": "Accounting dashboard"
-  },
-
-  "licenseHero": {
-    "pill": "For restaurants, cafés & food businesses",
-    "title1": "Get your",
-    "titleHighlight": "F&B licensing",
-    "title2": "done with ease fast, compliant solutions for food businesses",
-    "subtitle": "We handle food and beverage licensing, permits, and documentation so you can focus on launching and running your business with confidence.",
-    "ctaPrimary": "View F&B Licensing Services",
-    "ctaSecondary": "Contact on WhatsApp",
-    "badge1": "Monthly & Annual Plans",
-    "badge2": "GST & Tax Ready",
-    "alt": "Licensing",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "dealsHero": {
-    "title": "Enjoying our prices?",
-    "subtitle": "Hop into our deals page and browse all of our exclusive offers!",
-    "cta": "Go To Deals"
-  },
-
-  "companyRegisterHero": {
-    "pill": "For startups & growing businesses",
-
-    "titleLine1": "Register your",
-    "titleLine2": "business",
-    "titleLine3": "with confidence",
-
-    "subtitle": "Streamlined company registration with expert guidance at every step.",
-
-    "benefit1": "Fast & Easy Process",
-    "benefit2": "Legal Compliance",
-    "benefit3": "Expert Support",
-
-    "ctaPrimary": "Start Registration",
-    "ctaSecondary": "Contact on WhatsApp",
-
-    "badge": "100% Legal Compliance",
-    "support": "7-day support",
-
-    "stat1Value": "24h",
-    "stat1": "Fast Setup",
-    "stat2Value": "99%",
-    "stat2": "Success Rate",
-    "stat3Value": "5K+",
-    "stat3": "Companies",
-
-    "alt": "Company registration process",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "travelHero": {
-    "pill": "For leisure & business travelers",
-
-    "title": "Plan your travel with ease carefully crafted\ntour packages for every journey",
-
-    "subtitle": "Explore thoughtfully designed tour packages tailored for relaxation, adventure, and business travel — planned to give you a seamless and memorable experience.",
-
-    "ctaPrimary": "View Tour Packages",
-    "ctaSecondary": "Contact on WhatsApp",
-
-    "alt": "Travel tour packages",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "airportHero": {
-    "pill": "For smooth arrivals & departures",
-
-    "title": "Airport transfers & flight tickets\neverything arranged for your journey",
-
-    "subtitle": "Reliable airport pickup and drop services combined with easy flight ticket booking, ensuring a smooth, comfortable, and well-planned travel experience.",
-
-    "ctaPrimary": "Book Travel Services",
-    "ctaSecondary": "Contact on WhatsApp",
-
-    "alt": "Airport transfers and flight tickets",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "transportHero": {
-    "pill": "For local & long-distance travel",
-
-    "titleLine1": "Book",
-    "titleHighlight": "transport",
-    "titleLine2": "with confidence",
-    "titleLine3": "buses, vans, and private vehicles made easy",
-
-    "subtitle": "Flexible transport booking solutions for individuals, families, and groups. Choose from buses, vans, and private vehicles designed for comfort, safety, and reliable travel across short and long distances.",
-
-    "perfectFor": "Perfect For",
-    "point1": "City travel & intercity routes",
-    "point2": "Group tours & family trips",
-    "point3": "Corporate and business travel",
-
-    "ctaPrimary": "View Transport Service",
-    "ctaSecondary": "Contact on WhatsApp",
-
-    "alt": "Transport booking services",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "visaHero": {
-    "pill": "For all visa & immigration needs",
-
-    "titleBlue1": "Visa",
-    "titleRest1": "and",
-    "titleBlue2": "immigration",
-    "titleRest2": "made simple",
-    "titleLine2": "international applications without stress",
-
-    "subtitle": "Comprehensive visa and immigration solutions for study, work, travel, and business. Get step-by-step support, document verification, and personalized guidance to ensure a smooth and hassle-free application process.",
-
-    "ctaPrimary": "Get Started with Your Visa Application",
-    "ctaSecondary": "Contact on WhatsApp",
-
-    "feature1": "Step-by-step application guidance",
-    "feature2": "Fast and reliable process",
-
-    "alt": "Visa application",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "movingHero": {
-    "pill": "For all home & office relocation needs",
-
-    "titleBlue": "Home & Office Moving",
-    "titleRest1": "made easy",
-    "titleLine2": "Reliable packing, transport, and setup—without the stress.",
-
-    "subtitle": "Professional home and office moving solutions for local and long-distance relocation. Get end-to-end support including packing, loading, transportation, and safe unloading. Our experienced team ensures a smooth, secure, and hassle-free moving experience from start to finish.",
-
-    "ctaPrimary": "Get Started with Your Move",
-    "ctaSecondary": "Contact on WhatsApp",
-
-    "feature1": "Step-by-step guidance",
-    "feature2": "Fast and reliable service",
-
-    "alt": "Home and office moving",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "repairSection": {
-    "title": "Repair & Installation Services",
-    "subtitle": "Fast, reliable repair and professional installation — done right the first time.",
-
-    "card1Title": "Device Repair",
-    "card1Desc": "Quick diagnosis and expert repair for home and office devices. Affordable service with transparent pricing and trusted technicians.",
-
-    "card2Title": "New Installation",
-    "card2Desc": "Professional installation of appliances, electronics, and smart devices. Safe setup, proper testing, and complete guidance included.",
-
-    "card3Title": "Maintenance & Support",
-    "card3Desc": "Regular checkups and long-term maintenance to keep your devices running smoothly and efficiently without interruptions.",
-
-    "ctaPrimary": "Book Service",
-    "ctaSecondary": "Learn More"
+    "title": "Life Moves Fast. So Do We—Delivering\nAcross Nepal and Hong Kong at Your Speed.",
+    "subtitle": "From local deliveries to international shipping between Hong Kong and Nepal—experience real-time tracking, instant pickups, and lightning-fast service with HkMandu.",
+    "ctaWhatsapp": "Contact on WhatsApp",
+    "ctaTrack": "Track Order",
+    "trackOrderLink": "/track-order",
+    "whatsappLink": "https://wa.me/852XXXXXXXX"
   },
 
   "aiCourier": {
@@ -503,200 +340,30 @@
     ]
   },
 
-  "aiCourierAbout": {
+  "aboutUs": {
+    "imageAlt": "Delivery person carrying boxes",
     "title": "About Us",
-    "p1": "YALAKOM is a next-generation AI courier platform built to redefine international deliveries between Hong Kong and Nepal. By combining artificial intelligence, real-time tracking, and logistics automation, we deliver faster, safer, and smarter courier services.",
-    "p2": "Our mission is to eliminate cross-border delivery complexity and replace it with speed, transparency, and trust.",
-    "whyTitle": "Why Choose YALAKOM?",
-    "bullets": [
-      "Fast and Secure International Deliveries",
-      "Transparent and Affordable Pricing",
-      "24/7 Customer Support",
-      "AI-Optimized Logistics Network",
-      "Specialized Hong Kong ↔ Nepal Operations"
-    ],
-    "imageAlt": "Courier delivering packages"
+    "description1": "At HkMandu, we believe delivery should match the speed of life. That’s why we’ve built a logistics platform that powers fast, reliable deliveries across Nepal and connects Nepal with Hong Kong through seamless international shipping—all with precision, reliability, and real-time visibility.",
+    "description2": "From doorstep pickups within cities to nationwide delivery across Nepal and cross-border shipping between Hong Kong and Nepal, every package is handled with care and efficiency. Our commitment is simple: fast, secure, and seamless delivery—anytime, anywhere.",
+    "stats": {
+      "deliveries": {
+        "value": "100K+",
+        "label": "Deliveries"
+      },
+      "collaboration": {
+        "value": "20+",
+        "label": "Collaboration"
+      },
+      "clients": {
+        "value": "1000+",
+        "label": "Clients"
+      }
+    }
   },
 
   "coverage": {
     "title": "Our Coverage",
     "subtitle": "Connecting Hong Kong and Nepal seamlessly with efficient and reliable courier services."
-  },
-
-  "aiFaq": {
-    "title": "Frequently asked questions",
-    "items": [
-      {
-        "q": "How long does delivery take between Hong Kong and Nepal?",
-        "a": "Delivery typically takes 3–5 business days depending on customs clearance and shipment type."
-      },
-      {
-        "q": "Do you provide real-time tracking?",
-        "a": "Yes. All shipments include live tracking updates from pickup to final delivery."
-      },
-      {
-        "q": "Are there any hidden charges?",
-        "a": "No. Our pricing is transparent with no hidden costs."
-      },
-      {
-        "q": "Can I request a pickup online?",
-        "a": "Yes. You can request a pickup directly from our platform within minutes."
-      },
-      {
-        "q": "Do you handle customs clearance?",
-        "a": "Yes. We manage cross-border documentation and customs coordination."
-      }
-    ]
-  },
-
-  "aiCourierPage": {
-    "addTitle": "Add Courier Order",
-    "addSubtitle": "Pickup/Drop dropdown + auto cost estimation + payment fields",
-    "backToList": "Back to courier orders",
-
-    "senderDetails": "Sender Details",
-    "receiverDetails": "Receiver & Drop",
-    "pickupPackage": "Pickup & Package",
-    "payment": "Payment",
-
-    "fields": {
-      "senderName": "Sender Name",
-      "senderEmail": "Sender Email (optional)",
-      "senderContact": "Sender Contact",
-
-      "pickupLocation": "Pickup Location",
-      "pickupLandmark": "Pickup Landmark (optional)",
-      "packageDescription": "Package Description (optional)",
-      "deliveryType": "Delivery Type",
-      "handling": "Handling",
-      "pickupDateTime": "Pickup Time/Date",
-      "packageSize": "Package Size (KG)",
-      "senderInstruction": "Sender Instruction (optional)",
-
-      "receiverName": "Receiver Name",
-      "receiverEmail": "Receiver Email (optional)",
-      "receiverContact": "Receiver Contact",
-      "dropLocation": "Drop Location",
-      "dropLandmark": "Drop Landmark",
-
-      "estimatedCost": "Estimated Cost (NPR)",
-
-      "paymentMethod": "Payment Method",
-      "paymentStatus": "Payment Status",
-      "partialAmount": "Partially Paid Amount (NPR)"
-    },
-
-    "placeholders": {
-      "selectPickup": "Select pickup location",
-      "selectDrop": "Select drop location",
-      "phoneExample": "9800000000 or +977-9800000000",
-      "packageSize": "5",
-      "instruction": "Pack in waterproof bag",
-      "estimatedCost": "Auto-filled, but you can override",
-      "partialAmount": "100"
-    },
-
-    "buttons": {
-      "reset": "Reset",
-      "cancel": "Cancel",
-      "create": "Create Courier Order",
-      "creating": "Creating...",
-      "useAuto": "Use Auto"
-    },
-
-    "status": {
-      "loadingLocations": "Loading pickup/drop locations...",
-      "fetchingRate": "Fetching rate...",
-      "rateLoadedFragile": "Rate loaded (Fragile)",
-      "rateLoadedNonFragile": "Rate loaded (Non-fragile)",
-      "selectForAuto": "Select pickup + drop to auto-calc",
-      "manualOverride": "Manual override enabled. Click “Use Auto” to revert.",
-      "autoEstimate": "Auto estimate"
-    },
-
-    "paymentOptions": {
-      "payOnPickup": "Pay on Pickup",
-      "cashOnDelivery": "Cash on Delivery",
-      "pending": "Pending",
-      "partiallyPaid": "Partially Paid",
-      "paid": "Paid"
-    },
-
-    "deliveryTypes": {
-      "door2door": "Door to Door",
-      "door2branch": "Door to Branch",
-      "branch2door": "Branch to Door",
-      "branch2branch": "Branch to Branch"
-    },
-
-    "handlingTypes": {
-      "fragile": "Fragile",
-      "nonFragile": "Non Fragile"
-    },
-
-    "messages": {
-      "loadFailed": "Failed to load pickup/drop locations.",
-      "costNotFound": "No cost rule found for selected pickup/drop location. Please enter estimated cost manually.",
-      "somethingWrong": "Something went wrong."
-    }
-  },
-
-  "aiCourierCreate": {
-    "title": "Add Courier Order",
-    "subtitle": "Pickup/Drop dropdown + auto cost estimation + payment fields",
-    "sections": {
-      "sender": "Sender Details",
-      "pickup": "Pickup & Package",
-      "receiver": "Receiver & Drop",
-      "payment": "Payment"
-    },
-    "fields": {
-      "senderName": "Sender Name",
-      "senderEmail": "Sender Email (optional)",
-      "senderContact": "Sender Contact",
-
-      "pickUpLocation": "Pickup Location",
-      "pickupLandmark": "Pickup Landmark (optional)",
-      "packageDescription": "Package Description (optional)",
-      "deliveryType": "Delivery Type",
-      "handling": "Handling",
-      "pickUpTimeOrDate": "Pickup Time/Date",
-      "packageSize": "Package Size (KG)",
-      "senderInstruction": "Sender Instruction (optional)",
-
-      "recieverName": "Receiver Name",
-      "recieverEmail": "Receiver Email (optional)",
-      "recieverContact": "Receiver Contact",
-      "dropLocation": "Drop Location",
-      "dropLandmark": "Drop Landmark",
-
-      "estimatedCost": "Estimated Cost",
-      "paymentMethod": "Payment Method"
-    },
-    "placeholders": {
-      "phone": "9800000000 or +977-9800000000",
-      "selectPickup": "Select pickup location",
-      "selectDrop": "Select drop location",
-      "kg": "5",
-      "instruction": "Pack in waterproof bag",
-      "estimatedCost": "This amount is auto-filled and subject to change upon staff confirmation."
-    },
-    "buttons": {
-      "reset": "Reset",
-      "placeOrder": "Place Order"
-    },
-    "status": {
-      "loadingLocations": "Loading pickup/drop locations...",
-      "fetchingRate": "Fetching rate...",
-      "rateLoaded": "Rate loaded",
-      "selectToAuto": "Select pickup + drop to auto-calc",
-      "autoEstimate": "Auto estimate"
-    },
-    "errors": {
-      "loadFailed": "Failed to load pickup/drop locations.",
-      "costNotFound": "No cost rule found for selected pickup/drop location.",
-      "generic": "Something went wrong"
-    }
   },
 
   "dashboard": {
@@ -769,96 +436,76 @@
     "close": "Close"
   },
 
-  "accountingBenefits": {
-    "title": "Discover the Benefits of YALAKOM’s Accounting Packages",
-    "items": [
-      {
-        "title": "Time-Saving Automation",
-        "desc": "Automate repetitive accounting tasks to save time and reduce errors.",
-        "icon": "/accounting-benefits/time-saving.png"
-      },
-      {
-        "title": "Secure Data Protection",
-        "desc": "Enterprise-grade security for financial data.",
-        "icon": "/accounting-benefits/secure-data.png"
-      },
-      {
-        "title": "Comprehensive Reporting",
-        "desc": "Real-time insights for smarter decisions.",
-        "icon": "/accounting-benefits/comprehensive-report.png"
-      },
-      {
-        "title": "Scalable Solutions",
-        "desc": "Accounting that grows with your business.",
-        "icon": "/accounting-benefits/scalable.png"
+  "perfectServicesPage": {
+    "software": {
+      "hero": {
+        "pill": "Made for individuals & growing businesses",
+        "titleLine1": "Build, manage, and grow your business with powerful",
+        "titleHighlight": "software",
+        "titleSuffix": ".",
+        "subtitle": "We create web apps, mobile applications, and custom software solutions designed to fit your unique needs. Simplifying everything from accounting to full business management.",
+        "ctaSecondary": "Contact on WhatsApp",
+        "ctaPrimaryText": "Explore Service",
+        "ctaPrimaryLink": "/services/software",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "Software service hero image"
       }
-    ]
-  },
-
-  "accountingSimplifies": {
-    "title": "How YALAKOM Simplifies Your Accounting?",
-    "alt": "Accounting process illustration",
-    "imageSrc": "/banners/accounting/accounting-simplifies.png",
-    "steps": [
-      {
-        "title": "Choose Your Package",
-        "desc": "Select an accounting package tailored to your business size and requirements."
-      },
-      {
-        "title": "Set Up Quickly",
-        "desc": "Get started with a fast, hassle-free onboarding process handled by our experts."
-      },
-      {
-        "title": "Automate & Manage",
-        "desc": "Let our smart systems handle daily accounting tasks while you focus on growth."
-      },
-      {
-        "title": "Monitor & Improve",
-        "desc": "Access real-time reports and expert insights to improve financial performance."
+    },
+    "accounting": {
+      "hero": {
+        "pill": "Smart accounting for growing businesses",
+        "titleLine1": "Manage with ease using smart packages built for every business",
+        "titleHighlight": "accounting",
+        "titleSuffix": ".",
+        "subtitle": "Our accounting packages simplify bookkeeping, billing,  compliance, and financial reporting. Designed for startups, SMEs, and enterprises  all in one place.",
+        "ctaSecondary": "Contact on WhatsApp",
+        "ctaPrimaryText": "Explore Service",
+        "ctaPrimaryLink": "/services/accounting",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "Accounting service hero image"
       }
-    ]
-  },
-
-  "whyChooseYalakom": {
-    "titleLine1": "Why Businesses Choose",
-    "titleLine2": "YALAKOM",
-    "points": [
-      "Expert accountants with industry experience",
-      "Transparent and affordable pricing",
-      "Smart automation powered by modern technology",
-      "Dedicated customer support when you need it",
-      "Designed for startups, SMEs, and enterprises"
-    ]
-  },
-
-  "softwareFaq": {
-    "title": "Frequently Asked Questions",
-    "subtitle": "Everything you need to know about our software.",
-    "items": [
-      {
-        "q": "What is this software and who is it for?",
-        "a": "It’s an all-in-one platform designed for individuals, startups, SMEs, and growing teams to manage operations efficiently with smart tools and automation."
-      },
-      {
-        "q": "How long does setup take?",
-        "a": "Most businesses can get started within a few minutes. If you need help migrating data or configuring workflows, our team can assist."
-      },
-      {
-        "q": "Is my data secure?",
-        "a": "Yes. We follow best practices for security, access control, and data handling to keep your information protected."
-      },
-      {
-        "q": "Can I use it on mobile and desktop?",
-        "a": "Yes. The software is responsive and works on mobile, tablet, and desktop browsers."
-      },
-      {
-        "q": "Do you offer customer support?",
-        "a": "Yes. We provide support via chat/WhatsApp/email, depending on your plan and business needs."
-      },
-      {
-        "q": "Can I upgrade or change my plan later?",
-        "a": "Absolutely. You can upgrade, downgrade, or change your package anytime based on your requirements."
+    },
+    "businessServices": {
+      "hero": {
+        "pill": "Business support made simple",
+        "titleLine1": "Launch and scale with trusted",
+        "titleHighlight": "business services",
+        "titleSuffix": ".",
+        "subtitle": "Get support for setup, licensing, registration, documentation, and operations so you can focus on growth.",
+        "ctaSecondary": "Contact on WhatsApp",
+        "ctaPrimaryText": "Explore Service",
+        "ctaPrimaryLink": "/services/business-services",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "Business services hero image"
       }
-    ]
+    },
+    "travelImmigration": {
+      "hero": {
+        "pill": "Travel and immigration support",
+        "titleLine1": "Plan your journey with expert",
+        "titleHighlight": "travel & immigration",
+        "titleSuffix": ".",
+        "subtitle": "We help with visas, travel planning, ticketing, and documentation for a smoother international experience.",
+        "ctaSecondary": "Contact on WhatsApp",
+        "ctaPrimaryText": "Explore Service",
+        "ctaPrimaryLink": "/services/travel-immigration",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "Travel and immigration hero image"
+      }
+    },
+    "homeOfficeServices": {
+      "hero": {
+        "pill": "Reliable moving and setup solutions",
+        "titleLine1": "Upgrade your space with dependable",
+        "titleHighlight": "home & office services",
+        "titleSuffix": ".",
+        "subtitle": "From moving and installations to repairs and maintenance, we help keep your home and workplace running smoothly.",
+        "ctaSecondary": "Contact on WhatsApp",
+        "ctaPrimaryText": "Explore Service",
+        "ctaPrimaryLink": "/services/home-office-services",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "Home and office services hero image"
+      }
+    }
   }
 }

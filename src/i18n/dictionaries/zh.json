@@ -41,7 +41,7 @@
 
     "customerService": {
       "title": "客戶服務",
-      "items": ["追蹤訂單", "追蹤快遞", "運送及處理", "退貨及換貨", "付款"]
+      "items": ["追蹤訂單", "追蹤快遞", "運送及處理", "付款"]
     },
 
     "quickLinks": {
@@ -66,6 +66,14 @@
     },
 
     "bottom": "© 2026 HkMandu. 保留所有權利。"
+  },
+
+  "aiFaq": {
+    "title": "常见问题",
+    "subtitle": "常见问题的快速解答。",
+    "seeAll": "查看全部",
+    "collapseAll": "全部收起",
+    "empty": "目前没有可用的常见问题。"
   },
 
   "login": {
@@ -278,183 +286,13 @@
   },
 
   "deliveryHero": {
-    "alt": "送貨騎手",
-    "title": "以你的生活速度\n為你送達",
-    "subtitle": "即時追蹤、即刻取件、\n閃電般快速送貨，\n由 HkMandu 提供支援。",
-    "ctaPrimary": "立即開始",
-    "ctaSecondary": "追蹤訂單"
-  },
-
-  "accountingHero": {
-    "pill": "为个人与成长型企业打造",
-    "titleLine1": "轻松管理你的",
-    "titleHighlight": "会计服务",
-    "titleLine2": "智能套餐，适用于各类企业",
-    "subtitle": "我们的会计套餐简化记账、开票、合规与财务报表。从初创到中小企业与大型企业，一站式搞定。",
-    "ctaPrimary": "了解更多",
-    "ctaPrimary1": "查看会计套餐",
-    "ctaPrimaryLink": "/services/software",
-    "ctaPrimaryLink1": "/services/software/listSoftware",
-    "ctaSecondary": "WhatsApp 联系我们",
-    "whatsappLink": "https://wa.me/",
-    "alt": "会计仪表盘"
-  },
-
-  "licenseHero": {
-    "pill": "适用于餐厅、咖啡馆与食品业务",
-    "title1": "轻松完成您的",
-    "titleHighlight": "餐饮许可",
-    "title2": "快速合规，为食品业务提供可靠解决方案",
-    "subtitle": "我们负责餐饮许可、相关证照与文件准备，让您专注于业务启动与运营。",
-    "ctaPrimary": "查看餐饮许可服务",
-    "ctaSecondary": "通过 WhatsApp 联系我们",
-    "badge1": "月度与年度方案",
-    "badge2": "GST 与税务就绪",
-    "alt": "许可",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "dealsHero": {
-    "title": "鍾意我哋嘅價錢？",
-    "subtitle": "去優惠專頁睇晒我哋所有獨家優惠啦！",
-    "cta": "前往優惠"
-  },
-
-  "companyRegisterHero": {
-    "pill": "適合初創企業及成長中公司",
-
-    "titleLine1": "安心",
-    "titleLine2": "註冊公司",
-    "titleLine3": "由專家為你處理",
-
-    "subtitle": "一站式公司註冊服務，全程由專業顧問協助。",
-
-    "benefit1": "快速簡單流程",
-    "benefit2": "符合法律規定",
-    "benefit3": "專家支援",
-
-    "ctaPrimary": "立即開始註冊",
-    "ctaSecondary": "通过 WhatsApp 联系我们",
-
-    "badge": "100% 合法合規",
-    "support": "7 日支援服務",
-
-    "stat1Value": "24 小時",
-    "stat1": "快速設立",
-    "stat2Value": "99%",
-    "stat2": "成功率",
-    "stat3Value": "5K+",
-    "stat3": "已註冊公司",
-
-    "alt": "公司註冊流程",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "travelHero": {
-    "pill": "適合休閒及商務旅客",
-
-    "title": "輕鬆計劃旅程\n為每段旅途精心設計的旅遊套票",
-
-    "subtitle": "精心策劃的旅遊套票，適合放鬆、冒險及商務出行，為你帶來順暢而難忘的旅遊體驗。",
-
-    "ctaPrimary": "查看旅遊套票",
-    "ctaSecondary": "通过 WhatsApp 联系我们",
-
-    "alt": "旅遊套票",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "airportHero": {
-    "pill": "順暢抵達及離境服務",
-
-    "title": "機場接送及機票預訂\n為你旅程妥善安排一切",
-
-    "subtitle": "可靠嘅機場接送服務配合簡單嘅機票預訂，確保你享受順暢、舒適同周到安排嘅旅遊體驗。",
-
-    "ctaPrimary": "預訂旅遊服務",
-    "ctaSecondary": "通过 WhatsApp 联系我们",
-
-    "alt": "機場接送及機票服務",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "transportHero": {
-    "pill": "適合本地及長途出行",
-
-    "titleLine1": "安心",
-    "titleHighlight": "預訂交通",
-    "titleLine2": "服務",
-    "titleLine3": "巴士、客貨車及私人車輛輕鬆安排",
-
-    "subtitle": "為個人、家庭及團體提供靈活嘅交通預訂方案，提供巴士、客貨車同私人車輛，確保短途及長途旅程舒適、安全同可靠。",
-
-    "perfectFor": "適合用途",
-    "point1": "市內及城際交通",
-    "point2": "團體旅遊及家庭出行",
-    "point3": "企業及商務出行",
-
-    "ctaPrimary": "查看交通服務",
-    "ctaSecondary": "通过 WhatsApp 联系我们",
-
-    "alt": "交通預訂服務",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "visaHero": {
-    "pill": "適合所有簽證及移民需要",
-
-    "titleBlue1": "簽證",
-    "titleRest1": "及",
-    "titleBlue2": "移民",
-    "titleRest2": "服務更簡單",
-    "titleLine2": "海外申請無壓力",
-
-    "subtitle": "提供讀書、工作、旅遊及商務嘅一站式簽證及移民方案。由文件核對到逐步指導，配合個人化建議，令申請流程更順暢、更省心。",
-
-    "ctaPrimary": "立即開始簽證申請",
-    "ctaSecondary": "通过 WhatsApp 联系我们",
-
-    "feature1": "逐步申請指導",
-    "feature2": "快速可靠處理",
-
-    "alt": "簽證申請",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "movingHero": {
-    "pill": "適合所有家居及辦公室搬遷需要",
-
-    "titleBlue": "家居及辦公室搬運",
-    "titleRest1": "更輕鬆",
-    "titleLine2": "可靠包裝、運輸及安置—無需煩惱。",
-
-    "subtitle": "提供本地及長途搬遷一站式服務，包括包裝、搬運、運輸及安全卸貨。專業團隊由頭到尾跟進，確保搬屋過程順暢、安全、零壓力。",
-
-    "ctaPrimary": "立即開始搬遷安排",
-    "ctaSecondary": "通过 WhatsApp 联系我们",
-
-    "feature1": "逐步指導",
-    "feature2": "快速可靠服務",
-
-    "alt": "家居及辦公室搬運服務",
-    "whatsappLink": "https://wa.me/"
-  },
-
-  "repairSection": {
-    "title": "維修及安裝服務",
-    "subtitle": "快速可靠維修及專業安裝—一次做好。",
-
-    "card1Title": "設備維修",
-    "card1Desc": "為家居及辦公室設備提供快速檢查及專業維修。收費透明，技師可靠，服務更安心。",
-
-    "card2Title": "全新安裝",
-    "card2Desc": "專業安裝家電、電子產品及智能設備，包括安全設置、測試及完整使用指導。",
-
-    "card3Title": "保養及支援",
-    "card3Desc": "定期檢查及長期保養，保持設備運作順暢高效，減少中斷。",
-
-    "ctaPrimary": "預約服務",
-    "ctaSecondary": "了解更多"
+    "alt": "送貨員",
+    "title": "生活節奏很快，我們也一樣——\n以您的速度配送至尼泊爾和香港。",
+    "subtitle": "從本地配送到香港與尼泊爾之間的國際運輸，透過 HkMandu 體驗即時追蹤、快速取件和極速配送服務。",
+    "ctaWhatsapp": "WhatsApp 聯絡我們",
+    "ctaTrack": "追蹤訂單",
+    "trackOrderLink": "/track-order",
+    "whatsappLink": "https://wa.me/852XXXXXXXX"
   },
 
   "aiCourier": {
@@ -487,20 +325,16 @@
       }
     ]
   },
-
-  "aiCourierAbout": {
-    "title": "关于我们",
-    "p1": "YALAKOM 是新一代 AI 快递平台，致力于重新定义香港与尼泊尔之间的国际配送。结合人工智能、实时追踪与物流自动化，我们提供更快、更安全、更智能的快递服务。",
-    "p2": "我们的使命是消除跨境配送的复杂性，用速度、透明与信任取而代之。",
-    "whyTitle": "为什么选择 YALAKOM？",
-    "bullets": [
-      "快速且安全的国际配送",
-      "透明且实惠的价格",
-      "7×24 客户支持",
-      "AI 优化的物流网络",
-      "专注香港 ↔ 尼泊尔运营"
-    ],
-    "imageAlt": "快递员正在派送包裹"
+  "aboutUs": {
+    "imageAlt": "搬運包裹的送貨員",
+    "title": "關於我們",
+    "description1": "在 HkMandu，我們相信配送服務應該跟上生活的速度。因此，我們建立了一個物流平台，為尼泊爾各地提供快速可靠的配送服務，並透過無縫的國際運輸把尼泊爾與香港連接起來——同時具備精準、可靠及即時追蹤能力。",
+    "description2": "從城市內的上門取件，到尼泊爾全國配送，以及香港與尼泊爾之間的跨境運輸，每一個包裹都會被細心且高效地處理。我們的承諾很簡單：快速、安全、順暢的配送——隨時隨地。",
+    "stats": {
+      "deliveries": { "value": "100K+", "label": "配送量" },
+      "collaboration": { "value": "20+", "label": "合作夥伴" },
+      "clients": { "value": "1000+", "label": "客戶" }
+    }
   },
 
   "coverage": {
@@ -508,180 +342,148 @@
     "subtitle": "以高效、可靠的快递服务无缝连接香港与尼泊尔。"
   },
 
-  "aiFaq": {
-    "title": "常见问题",
-    "items": [
-      {
-        "q": "香港与尼泊尔之间的配送需要多久？",
-        "a": "通常需要 3–5 个工作日，具体取决于清关情况和货件类型。"
+  "dashboard": {
+    "title": "儀表板",
+    "subtitle": "管理您的個人資料及訂單",
+    "tabs": {
+      "profile": "個人資料",
+      "orders": "訂單",
+      "addresses": "地址",
+      "security": "安全"
+    },
+    "profile": {
+      "title": "個人資料",
+      "save": "儲存變更",
+      "saving": "儲存中...",
+      "name": "全名",
+      "email": "電郵",
+      "phone": "電話"
+    },
+    "orders": {
+      "title": "我的訂單",
+      "search": "按訂單編號 / 地點 / 名稱搜尋",
+      "status": "狀態",
+      "statusAll": "全部",
+      "empty": "未找到任何訂單。",
+      "view": "查看",
+      "refresh": "重新整理",
+      "table": {
+        "order": "訂單",
+        "route": "路線",
+        "cost": "費用",
+        "status": "狀態",
+        "action": "操作"
       },
-      {
-        "q": "是否提供实时追踪？",
-        "a": "是的。所有包裹从揽收到送达都提供实时追踪更新。"
+      "statuses": {
+        "pending": "待處理",
+        "confirmed": "已確認",
+        "picked": "已取件",
+        "in_transit": "運送中",
+        "delivered": "已送達",
+        "cancelled": "已取消"
       },
-      {
-        "q": "会有隐藏费用吗？",
-        "a": "不会。我们的价格透明，不收取隐藏费用。"
-      },
-      {
-        "q": "我可以在线预约取件吗？",
-        "a": "可以。你可以通过平台在几分钟内提交取件请求。"
-      },
-      {
-        "q": "你们是否负责清关？",
-        "a": "是的。我们会处理跨境所需文件并协调清关流程。"
+      "drawer": {
+        "details": "訂單詳情",
+        "track": "追蹤",
+        "done": "完成",
+        "status": "狀態",
+        "created": "建立時間",
+        "pickup": "取件",
+        "drop": "送達",
+        "sender": "寄件人",
+        "receiver": "收件人",
+        "cost": "費用",
+        "weight": "重量",
+        "type": "配送類型",
+        "handling": "處理方式",
+        "pickupTime": "取件時間",
+        "remark": "備註",
+        "payment": "付款方式"
       }
-    ]
-  },
-
-  "aiCourierCreate": {
-    "title": "新增速遞訂單",
-    "subtitle": "取件/派送下拉選單 + 自動費用估算 + 付款欄位",
-    "sections": {
-      "sender": "寄件人資料",
-      "pickup": "取件與包裹",
-      "receiver": "收件人與派送",
-      "payment": "付款"
     },
-    "fields": {
-      "senderName": "寄件人姓名",
-      "senderEmail": "寄件人電郵（可選）",
-      "senderContact": "寄件人聯絡電話",
-
-      "pickUpLocation": "取件地點",
-      "pickupLandmark": "取件地標（可選）",
-      "packageDescription": "包裹描述（可選）",
-      "deliveryType": "配送類型",
-      "handling": "處理方式",
-      "pickUpTimeOrDate": "取件時間/日期",
-      "packageSize": "包裹重量（KG）",
-      "senderInstruction": "寄件人備註（可選）",
-
-      "recieverName": "收件人姓名",
-      "recieverEmail": "收件人電郵（可選）",
-      "recieverContact": "收件人聯絡電話",
-      "dropLocation": "派送地點",
-      "dropLandmark": "派送地標",
-
-      "estimatedCost": "預估費用",
-      "paymentMethod": "付款方式"
+    "addresses": {
+      "coming": "即將推出：已儲存的取件/送達地址。"
     },
-    "placeholders": {
-      "phone": "9800000000 或 +977-9800000000",
-      "selectPickup": "選擇取件地點",
-      "selectDrop": "選擇派送地點",
-      "kg": "5",
-      "instruction": "請用防水袋包裝",
-      "estimatedCost": "此金額為自動計算，最終可能會因工作人員確認而變更。"
-    },
-    "buttons": {
-      "reset": "重設",
-      "placeOrder": "提交訂單"
-    },
-    "status": {
-      "loadingLocations": "正在載入取件/派送地點...",
-      "fetchingRate": "正在取得費率...",
-      "rateLoaded": "已載入費率",
-      "selectToAuto": "請選擇取件 + 派送以自動計算",
-      "autoEstimate": "自動估算"
-    },
-    "errors": {
-      "loadFailed": "無法載入取件/派送地點。",
-      "costNotFound": "找不到所選取件/派送地點的費用規則。",
-      "generic": "發生錯誤"
+    "security": {
+      "coming": "即將推出：更改密碼、管理登入裝置、登出所有裝置。"
     }
   },
-
-  "accountingBenefits": {
-    "title": "探索 YALAKOM 会计套餐的优势",
-    "items": [
-      {
-        "title": "省时自动化",
-        "desc": "自动处理重复的会计工作，节省时间并减少错误。",
-        "icon": "/accounting-benefits/time-saving.png"
-      },
-      {
-        "title": "安全数据保护",
-        "desc": "企业级安全保障，守护你的财务数据。",
-        "icon": "/accounting-benefits/secure-data.png"
-      },
-      {
-        "title": "全面报表分析",
-        "desc": "实时洞察，帮助你做出更明智的决策。",
-        "icon": "/accounting-benefits/comprehensive-report.png"
-      },
-      {
-        "title": "可扩展方案",
-        "desc": "会计服务随业务成长而扩展，灵活适配需求。",
-        "icon": "/accounting-benefits/scalable.png"
-      }
-    ]
+  "common": {
+    "loading": "載入中...",
+    "error": "發生錯誤。",
+    "close": "關閉"
   },
 
-  "accountingSimplifies": {
-    "title": "YALAKOM 如何简化你的会计流程？",
-    "alt": "会计流程插图",
-    "imageSrc": "/banners/accounting/accounting-simplifies.png",
-    "steps": [
-      {
-        "title": "选择你的套餐",
-        "desc": "根据企业规模与需求，选择合适的会计套餐。"
-      },
-      {
-        "title": "快速开始",
-        "desc": "由我们的专家协助完成快速、无忧的入驻流程。"
-      },
-      {
-        "title": "自动化与管理",
-        "desc": "让智能系统处理日常会计工作，你专注于业务增长。"
-      },
-      {
-        "title": "监控与改进",
-        "desc": "查看实时报表与专业建议，持续提升财务表现。"
+  "perfectServicesPage": {
+    "software": {
+      "hero": {
+        "pill": "為個人及成長型企業而設",
+        "titleLine1": "使用強大工具建立、管理並發展您的業務",
+        "titleHighlight": "軟件",
+        "titleSuffix": "。",
+        "subtitle": "我們提供網站、手機應用及客製化軟件方案，滿足您的業務需求，從會計到全面業務管理一站式簡化。",
+        "ctaSecondary": "透過 WhatsApp 聯絡",
+        "ctaPrimaryText": "查看服務",
+        "ctaPrimaryLink": "/services/software",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "軟件服務圖片"
       }
-    ]
-  },
-
-  "whyChooseYalakom": {
-    "titleLine1": "為何企業選擇",
-    "titleLine2": "YALAKOM",
-    "points": [
-      "具備豐富行業經驗的專業會計團隊",
-      "透明合理的收費制度，無隱藏成本",
-      "結合現代科技的智能自動化系統",
-      "即時回應的專屬客戶支援服務",
-      "專為初創企業、中小企及大型企業而設"
-    ]
-  },
-
-  "softwareFaq": {
-    "title": "常見問題",
-    "subtitle": "關於我們的軟件，你需要知道的重點。",
-    "items": [
-      {
-        "q": "這套軟件是什麼？適合誰使用？",
-        "a": "這是一個一站式平台，適合個人、初創企業、中小企及成長型團隊，透過智能工具與自動化提升營運效率。"
-      },
-      {
-        "q": "設定需要多久時間？",
-        "a": "一般可在數分鐘內完成基本設定。如需資料遷移或流程配置，我們的團隊亦可協助。"
-      },
-      {
-        "q": "我的資料安全嗎？",
-        "a": "安全。我們採用業界最佳做法，包括存取控制與資料保護措施，保障你的資訊。"
-      },
-      {
-        "q": "手機及電腦都可以使用嗎？",
-        "a": "可以。系統具備響應式設計，可在手機、平板及桌面瀏覽器順暢使用。"
-      },
-      {
-        "q": "有提供客戶支援嗎？",
-        "a": "有。我們可按你的方案與需要，提供 chat／WhatsApp／電郵支援。"
-      },
-      {
-        "q": "之後可以升級或更改方案嗎？",
-        "a": "當然可以。你可按業務需要隨時升級、降級或更改套餐。"
+    },
+    "accounting": {
+      "hero": {
+        "pill": "為成長型企業提供智能會計",
+        "titleLine1": "透過智能方案輕鬆管理您的業務",
+        "titleHighlight": "會計",
+        "titleSuffix": "。",
+        "subtitle": "我們的會計服務簡化記帳、開單、合規及財務報表，為初創、中小企及企業提供一站式解決方案。",
+        "ctaSecondary": "透過 WhatsApp 聯絡",
+        "ctaPrimaryText": "查看服務",
+        "ctaPrimaryLink": "/services/accounting",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "會計服務圖片"
       }
-    ]
+    },
+    "businessServices": {
+      "hero": {
+        "pill": "簡化您的商業支援",
+        "titleLine1": "透過可靠服務啟動並擴展您的業務",
+        "titleHighlight": "商業服務",
+        "titleSuffix": "。",
+        "subtitle": "我們提供公司設立、牌照申請、註冊及文件處理，助您專注於業務成長。",
+        "ctaSecondary": "透過 WhatsApp 聯絡",
+        "ctaPrimaryText": "查看服務",
+        "ctaPrimaryLink": "/services/business-services",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "商業服務圖片"
+      }
+    },
+    "travelImmigration": {
+      "hero": {
+        "pill": "旅遊及移民支援",
+        "titleLine1": "由專家協助規劃您的旅程",
+        "titleHighlight": "旅遊及移民",
+        "titleSuffix": "。",
+        "subtitle": "我們協助簽證申請、行程規劃、機票預訂及文件處理，讓您的國際旅程更順暢。",
+        "ctaSecondary": "透過 WhatsApp 聯絡",
+        "ctaPrimaryText": "查看服務",
+        "ctaPrimaryLink": "/services/travel-immigration",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "旅遊及移民圖片"
+      }
+    },
+    "homeOfficeServices": {
+      "hero": {
+        "pill": "可靠的搬遷及安裝方案",
+        "titleLine1": "透過專業服務提升您的空間",
+        "titleHighlight": "家居及辦公服務",
+        "titleSuffix": "。",
+        "subtitle": "從搬遷、安裝到維修與保養，我們幫助您保持家居及辦公環境順暢運作。",
+        "ctaSecondary": "透過 WhatsApp 聯絡",
+        "ctaPrimaryText": "查看服務",
+        "ctaPrimaryLink": "/services/home-office-services",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "家居及辦公服務圖片"
+      }
+    }
   }
 }
