@@ -20,6 +20,8 @@ const Glow = () => (
 );
 
 function ErrorAlert({ message }) {
+    if (!message) return null;
+
     return (
         <div className="rounded-xl border border-red-300/60 bg-red-500/15 px-4 py-3 text-sm text-red-100">
             {message}
@@ -27,11 +29,12 @@ function ErrorAlert({ message }) {
     );
 }
 
-function Field({ label, children }) {
+function Field({ label, children, error }) {
     return (
         <div className="space-y-2">
             <div className="text-xs font-medium tracking-wide text-white/80">{label}</div>
             {children}
+            {!!error && <p className="text-xs text-red-200">{error}</p>}
         </div>
     );
 }
@@ -46,6 +49,7 @@ function TextInput({
     placeholder,
     autoComplete,
     required = true,
+    hasError = false,
 }) {
     return (
         <div className="relative">
@@ -62,14 +66,26 @@ function TextInput({
                 onChange={onChange}
                 autoComplete={autoComplete}
                 placeholder={placeholder}
-                className="h-11 w-full rounded-xl border border-white/15 bg-white/5 pl-10 pr-3 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md
-                   focus:border-white/35 focus:ring-2 focus:ring-white/10"
+                className={[
+                    "h-11 w-full rounded-xl border bg-white/5 pl-10 pr-3 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
+                    hasError
+                        ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
+                        : "border-white/15 focus:border-white/35 focus:ring-white/10",
+                ].join(" ")}
             />
         </div>
     );
 }
 
-function PasswordInput({ value, onChange, isVisible, onToggleVisibility, placeholder }) {
+function PasswordInput({
+    value,
+    onChange,
+    isVisible,
+    onToggleVisibility,
+    placeholder,
+    hasError = false,
+    t,
+}) {
     return (
         <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70">
@@ -85,15 +101,23 @@ function PasswordInput({ value, onChange, isVisible, onToggleVisibility, placeho
                 onChange={onChange}
                 autoComplete="current-password"
                 placeholder={placeholder}
-                className="h-11 w-full rounded-xl border border-white/15 bg-white/5 pl-10 pr-10 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md
-                   focus:border-white/35 focus:ring-2 focus:ring-white/10"
+                className={[
+                    "h-11 w-full rounded-xl border bg-white/5 pl-10 pr-10 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
+                    hasError
+                        ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
+                        : "border-white/15 focus:border-white/35 focus:ring-white/10",
+                ].join(" ")}
             />
 
             <button
                 type="button"
                 onClick={onToggleVisibility}
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-white/70 hover:text-white"
-                aria-label={isVisible ? "Hide password" : "Show password"}
+                aria-label={
+                    isVisible
+                        ? t("login.aria.hidePassword", "Hide password")
+                        : t("login.aria.showPassword", "Show password")
+                }
             >
                 {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -106,26 +130,47 @@ function SubmitButton({ loading, labelLoading, label }) {
         <button
             type="submit"
             disabled={loading}
-            className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-[#2b2458] shadow-[0_18px_50px_rgba(0,0,0,0.35)]
-                 transition hover:bg-white/90 active:bg-white/85 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-[#2b2458] shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition hover:bg-white/90 active:bg-white/85 disabled:cursor-not-allowed disabled:opacity-60"
         >
             {loading ? labelLoading : label}
         </button>
     );
 }
 
+function extractFieldErrors(err) {
+    const msg = err?.response?.data?.message;
+    if (msg && typeof msg === "object" && !Array.isArray(msg)) return msg;
+    return null;
+}
+
+function extractErrorText(err, fallback) {
+    const data = err?.response?.data;
+    const msg = data?.message || data?.success || err?.message || fallback;
+
+    if (typeof msg === "string") return msg;
+
+    if (msg && typeof msg === "object") {
+        return Object.values(msg)
+            .flatMap((v) => (Array.isArray(v) ? v : [v]))
+            .filter((v) => typeof v === "string")
+            .join("\n");
+    }
+
+    return fallback;
+}
+
 export default function Login({ locale = "en", dict = {} }) {
-    const [form, setForm] = useState({ email: "", password: "" });
+    const [form, setForm] = useState({ identifier: "", password: "" });
     const [remember, setRemember] = useState(false);
     const [loading, setLoading] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [error, setError] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({});
 
     const dispatch = useDispatch();
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // safe translate helper: t("login.title", "Login")
     const t = (key, fallback) => {
         const parts = key.split(".");
         let cur = dict;
@@ -139,43 +184,92 @@ export default function Login({ locale = "en", dict = {} }) {
         return raw.startsWith("/") ? raw : null;
     }, [searchParams]);
 
+    const validateForm = () => {
+        const errors = {};
+
+        if (!form.identifier?.trim()) {
+            errors.identifier = t(
+                "login.validation.identifierRequired",
+                "Email or phone is required."
+            );
+        }
+
+        if (!form.password?.trim()) {
+            errors.password = t(
+                "login.validation.passwordRequired",
+                "Password is required."
+            );
+        }
+
+        return errors;
+    };
+
     const handleSubmit = async (ev) => {
         ev.preventDefault();
         setLoading(true);
         setError("");
+        setFieldErrors({});
+
+        const clientErrors = validateForm();
+        if (Object.keys(clientErrors).length) {
+            setFieldErrors(clientErrors);
+            setError(t("login.errorFixFields", "Please fix the highlighted fields."));
+            setLoading(false);
+            return;
+        }
 
         try {
-            const { data } = await http.post("frontend/auth/login", form);
+            const payload = {
+                identifier: form.identifier.trim(),
+                password: form.password,
+            };
+
+            const { data } = await http.post("frontend/auth/login", payload);
 
             dispatch(setUser(data.user));
             inStorage("hkmandu", data.token, remember);
 
-            router.replace(safeNext || `/${locale}/secure`);
+            router.replace(safeNext || `/${locale}/dashboard`);
             router.refresh();
         } catch (err) {
-            const msg =
-                err?.response?.data?.message ||
-                err?.message ||
-                t("login.errorDefault", "Login failed. Please try again.");
-            setError(msg);
+            const fe = extractFieldErrors(err);
+            if (fe) {
+                setFieldErrors(fe);
+                setError(t("login.errorFixFields", "Please fix the highlighted fields."));
+            } else {
+                setError(
+                    extractErrorText(
+                        err,
+                        t("login.errorDefault", "Login failed. Please try again.")
+                    )
+                );
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const handleInputChange = (ev) => setInForm(ev, form, setForm);
+    const handleInputChange = (ev) => {
+        setInForm(ev, form, setForm);
+
+        const key = ev.target.name;
+        setFieldErrors((prev) => {
+            if (!prev?.[key]) return prev;
+            const next = { ...prev };
+            delete next[key];
+            return next;
+        });
+
+        if (error) setError("");
+    };
 
     return (
         <section className="w-full z-0">
             <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
                 <Glow />
 
-                <div
-                    className="relative mx-auto flex w-full max-w-7xl items-start justify-center px-4 py-12
-                     lg:min-h-screen lg:items-center lg:py-0"
-                >
+                <div className="relative mx-auto flex w-full max-w-7xl items-start justify-center px-4 py-12 lg:min-h-screen lg:items-center lg:py-0">
                     <div className="mx-auto grid w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl md:grid-cols-2">
-                        {/* Left brand panel */}
                         <div className="relative hidden md:block">
                             <div className="absolute inset-0 bg-gradient-to-br from-[#5f57ff]/35 via-transparent to-[#2a2b68]/40" />
                             <div className="relative flex h-full flex-col justify-between p-10">
@@ -188,6 +282,7 @@ export default function Login({ locale = "en", dict = {} }) {
                                     <h1 className="mt-6 text-4xl font-semibold tracking-wide text-white">
                                         {t("login.welcomeTitle", "Welcome back")}
                                     </h1>
+
                                     <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/75">
                                         {t(
                                             "login.welcomeDesc",
@@ -197,45 +292,62 @@ export default function Login({ locale = "en", dict = {} }) {
                                 </div>
 
                                 <div className="text-xs text-white/65">
-                                    {t("login.tip", "Tip: Use “Remember me” only on your personal device.")}
+                                    {t(
+                                        "login.tip",
+                                        "Tip: Use “Remember me” only on your personal device."
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right form panel */}
                         <div className="p-6 md:p-10">
                             <div className="text-center md:hidden">
                                 <h1 className="text-3xl font-semibold tracking-wide text-white">
                                     {t("login.title", "Login")}
                                 </h1>
                                 <p className="mt-2 text-sm text-white/75">
-                                    {t("login.subtitle", "Enter your email and password to continue")}
+                                    {t(
+                                        "login.subtitle",
+                                        "Enter your email or phone and password to continue"
+                                    )}
                                 </p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="mt-6 space-y-5 md:mt-0">
                                 {error && <ErrorAlert message={error} />}
 
-                                <Field label={t("login.emailLabel", "Email")}>
+                                <Field
+                                    label={t("login.identifierLabel", "Email or Phone")}
+                                    error={fieldErrors?.identifier}
+                                >
                                     <TextInput
                                         icon={User}
-                                        type="email"
-                                        name="email"
-                                        id="email"
-                                        value={form.email}
+                                        type="text"
+                                        name="identifier"
+                                        id="identifier"
+                                        value={form.identifier}
                                         onChange={handleInputChange}
-                                        placeholder={t("login.emailPlaceholder", "you@example.com")}
-                                        autoComplete="email"
+                                        placeholder={t(
+                                            "login.identifierPlaceholder",
+                                            "Enter your email or phone"
+                                        )}
+                                        autoComplete="username"
+                                        hasError={!!fieldErrors?.identifier}
                                     />
                                 </Field>
 
-                                <Field label={t("login.passwordLabel", "Password")}>
+                                <Field
+                                    label={t("login.passwordLabel", "Password")}
+                                    error={fieldErrors?.password}
+                                >
                                     <PasswordInput
                                         value={form.password}
                                         onChange={handleInputChange}
                                         isVisible={passwordVisible}
                                         onToggleVisibility={() => setPasswordVisible((s) => !s)}
                                         placeholder={t("login.passwordPlaceholder", "Enter your password")}
+                                        hasError={!!fieldErrors?.password}
+                                        t={t}
                                     />
 
                                     <div className="mt-2 flex items-center justify-between">
@@ -248,13 +360,15 @@ export default function Login({ locale = "en", dict = {} }) {
                                             />
                                             {t("login.remember", "Remember me")}
                                         </label>
-                                        {/* 
+
+                                        {/*
                                         <Link
                                             href={`/${locale}/auth/forgot-password`}
                                             className="text-xs text-white/75 hover:text-white hover:underline"
                                         >
                                             {t("login.forgot", "Forgot password?")}
-                                        </Link> */}
+                                        </Link>
+                                        */}
                                     </div>
                                 </Field>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,16 +12,15 @@ import {
     Eye,
     EyeOff,
     ShieldCheck,
-    KeyRound,
     RotateCw,
 } from "lucide-react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 import http from "@/http";
 import { setInForm } from "@/lib/index";
 
 /* ---------------------------------- */
-/* Backend Error Handling */
-/* validateBody returns: { message: { field: "msg" } } with 422 */
+/* Helpers */
 /* ---------------------------------- */
 function extractFieldErrors(err) {
     const msg = err?.response?.data?.message;
@@ -31,7 +30,11 @@ function extractFieldErrors(err) {
 
 function extractErrorText(err) {
     const data = err?.response?.data;
-    const msg = data?.message ?? data ?? err?.message ?? "Something went wrong.";
+    const msg =
+        data?.message ||
+        data?.success ||
+        err?.message ||
+        "Something went wrong.";
 
     if (typeof msg === "string") return msg;
 
@@ -45,14 +48,20 @@ function extractErrorText(err) {
     return "Something went wrong.";
 }
 
+function getSuccessText(res, fallback) {
+    return res?.data?.success || res?.data?.message || fallback;
+}
+
 /* ---------------------------------- */
-/* Client-side validation */
+/* Validation */
 /* ---------------------------------- */
 const PASSWORD_REGEX =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 const PHONE_REGEX =
     /^((\+977-?\d{10})|(\d{10})|(\+852-?[569]\d{7})|([569]\d{7}))$/;
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateRegisterForm(form, t) {
     const errors = {};
@@ -61,12 +70,14 @@ function validateRegisterForm(form, t) {
         errors.name = t("signup.validation.nameMin", "Name must be at least 2 characters.");
     }
 
-    if (!form.email) errors.email = t("signup.validation.emailRequired", "Email is required.");
+    if (!form.email || !EMAIL_REGEX.test(form.email)) {
+        errors.email = t("signup.validation.emailRequired", "Invalid email format.");
+    }
 
     if (!form.password || !PASSWORD_REGEX.test(form.password)) {
         errors.password = t(
             "signup.validation.passwordRule",
-            "Password must be 8+ chars and include uppercase, lowercase, number, and special character."
+            "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
         );
     }
 
@@ -93,11 +104,25 @@ function validateRegisterForm(form, t) {
         errors.address = t("signup.validation.addressRequired", "Address is required.");
     }
 
+    if (!form.verificationMethod || !["email", "phone"].includes(form.verificationMethod)) {
+        errors.verificationMethod = t(
+            "signup.validation.verificationMethod",
+            "Please select a verification method."
+        );
+    }
+
+    if (!form.recaptchaToken || typeof form.recaptchaToken !== "string") {
+        errors.captcha = t(
+            "signup.validation.recaptcha",
+            "Please complete reCAPTCHA."
+        );
+    }
+
     return errors;
 }
 
 /* ---------------------------------- */
-/* UI Components */
+/* UI */
 /* ---------------------------------- */
 const Glow = () => (
     <>
@@ -258,27 +283,35 @@ function SecondaryButton({ loading, onClick, loadingText, children }) {
 
 function OtpInput({
     value,
-    onChange, // gets full otp string
+    onChange,
     length = 6,
     disabled = false,
     hasError = false,
     t,
 }) {
-    const digits = useMemo(() => {
-        const v = (value || "").replace(/\D/g, "").slice(0, length);
-        return Array.from({ length }, (_, i) => v[i] || "");
-    }, [value, length]);
+    const refs = useRef([]);
 
-    const refs = useMemo(() => Array.from({ length }, () => null), [length]);
+    const normalized = (value || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, length);
 
-    const commit = (nextDigits, focusIdx) => {
-        onChange(nextDigits.join(""));
-        if (typeof focusIdx === "number") refs[focusIdx]?.focus?.();
+    const chars = Array.from({ length }, (_, i) => normalized[i] || "");
+
+    const commit = (nextChars, focusIdx) => {
+        onChange(nextChars.join(""));
+        if (
+            typeof focusIdx === "number" &&
+            refs.current[focusIdx] &&
+            typeof refs.current[focusIdx].focus === "function"
+        ) {
+            refs.current[focusIdx].focus();
+        }
     };
 
     const setAt = (idx, raw) => {
-        const clean = (raw || "").replace(/\D/g, "");
-        const next = [...digits];
+        const clean = (raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const next = [...chars];
 
         if (!clean) {
             next[idx] = "";
@@ -286,64 +319,61 @@ function OtpInput({
             return;
         }
 
-        // support typing/pasting multiple digits
         const chunk = clean.slice(0, length - idx).split("");
-        for (let i = 0; i < chunk.length; i++) next[idx + i] = chunk[i];
+        for (let i = 0; i < chunk.length; i++) {
+            next[idx + i] = chunk[i];
+        }
 
         const focusTo = Math.min(idx + chunk.length, length - 1);
         commit(next, focusTo);
     };
 
-    const onKeyDown = (idx, e) => {
+    const handleKeyDown = (idx, e) => {
         if (disabled) return;
 
         if (e.key === "Backspace") {
             e.preventDefault();
+            const next = [...chars];
 
-            if (digits[idx]) {
-                const next = [...digits];
+            if (next[idx]) {
                 next[idx] = "";
                 commit(next);
             } else if (idx > 0) {
-                const next = [...digits];
                 next[idx - 1] = "";
                 commit(next, idx - 1);
             }
         }
 
-        if (e.key === "ArrowLeft" && idx > 0) refs[idx - 1]?.focus?.();
-        if (e.key === "ArrowRight" && idx < length - 1) refs[idx + 1]?.focus?.();
-    };
-
-    const onPaste = (idx, e) => {
-        if (disabled) return;
-        e.preventDefault();
-        const text = e.clipboardData.getData("text") || "";
-        setAt(idx, text);
+        if (e.key === "ArrowLeft" && idx > 0) refs.current[idx - 1]?.focus?.();
+        if (e.key === "ArrowRight" && idx < length - 1) refs.current[idx + 1]?.focus?.();
     };
 
     return (
         <div className="space-y-2">
             <div className="grid grid-cols-6 gap-2">
-                {digits.map((d, idx) => (
+                {chars.map((char, idx) => (
                     <input
                         key={idx}
-                        ref={(el) => (refs[idx] = el)}
-                        value={d}
-                        onChange={(e) => {
-                            setAt(idx, e.target.value);
-                            if (e.target.value && idx < length - 1) refs[idx + 1]?.focus?.();
+                        ref={(el) => {
+                            refs.current[idx] = el;
                         }}
-                        onKeyDown={(e) => onKeyDown(idx, e)}
-                        onPaste={(e) => onPaste(idx, e)}
-                        inputMode="numeric"
+                        value={char}
+                        maxLength={1}
+                        onChange={(e) => setAt(idx, e.target.value)}
+                        onPaste={(e) => {
+                            e.preventDefault();
+                            setAt(idx, e.clipboardData.getData("text") || "");
+                        }}
+                        onKeyDown={(e) => handleKeyDown(idx, e)}
                         autoComplete={idx === 0 ? "one-time-code" : "off"}
                         disabled={disabled}
                         aria-label={
-                            t ? t("signup.otp.digitAria", `OTP digit ${idx + 1}`) : `OTP digit ${idx + 1}`
+                            t
+                                ? t("signup.otp.digitAria", `OTP character ${idx + 1}`)
+                                : `OTP character ${idx + 1}`
                         }
                         className={[
-                            "h-11 w-full rounded-xl border bg-white/5 text-center text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
+                            "h-11 w-full rounded-xl border bg-white/5 text-center text-sm font-semibold uppercase text-white outline-none backdrop-blur-md focus:ring-2",
                             hasError
                                 ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
                                 : "border-white/15 focus:border-white/35 focus:ring-white/10",
@@ -354,7 +384,12 @@ function OtpInput({
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-white/55">
-                <span>{t ? t("signup.otp.helper", "Enter the 6-digit code") : "Enter the 6-digit code"}</span>
+                <span>
+                    {t
+                        ? t("signup.otp.helper", "Enter the 6-character code")
+                        : "Enter the 6-character code"}
+                </span>
+
                 <button
                     type="button"
                     disabled={disabled || !value}
@@ -368,13 +403,13 @@ function OtpInput({
     );
 }
 
-
 /* ---------------------------------- */
 /* Page */
 /* ---------------------------------- */
 export default function Signup({ locale = "en", dict = {} }) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const t = (key, fallback) => {
         const parts = key.split(".");
@@ -389,7 +424,7 @@ export default function Signup({ locale = "en", dict = {} }) {
         return raw.startsWith("/") ? raw : null;
     }, [searchParams]);
 
-    const [step, setStep] = useState("register"); // "register" | "otp"
+    const [step, setStep] = useState("register");
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -397,6 +432,8 @@ export default function Signup({ locale = "en", dict = {} }) {
         address: "",
         password: "",
         confirm_password: "",
+        verificationMethod: "",
+        recaptchaToken: "",
     });
     const [otp, setOtp] = useState("");
 
@@ -409,7 +446,6 @@ export default function Signup({ locale = "en", dict = {} }) {
 
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-
     const [fieldErrors, setFieldErrors] = useState({});
 
     const handleInputChange = (e) => {
@@ -426,40 +462,117 @@ export default function Signup({ locale = "en", dict = {} }) {
         if (error) setError("");
     };
 
-    /* ---------- REGISTER ---------- */
+    const handleVerificationMethodChange = (method) => {
+        setForm((prev) => ({
+            ...prev,
+            verificationMethod: method,
+        }));
+
+        setFieldErrors((prev) => {
+            const next = { ...prev };
+            delete next.verificationMethod;
+            return next;
+        });
+
+        if (error) setError("");
+        if (success) setSuccess("");
+    };
+
     const handleRegister = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
         setFieldErrors({});
 
-        const clientErrors = validateRegisterForm(form, t);
+        if (!form.verificationMethod) {
+            setFieldErrors((prev) => ({
+                ...prev,
+                verificationMethod: t(
+                    "signup.validation.verificationMethod",
+                    "Please select a verification method."
+                ),
+            }));
+            setError(t("signup.validation.verificationMethod", "Please select a verification method."));
+            return;
+        }
+
+        if (!executeRecaptcha) {
+            setFieldErrors((prev) => ({
+                ...prev,
+                captcha: t("signup.validation.recaptcha", "Please complete reCAPTCHA."),
+            }));
+            setError(t("signup.validation.recaptcha", "Please complete reCAPTCHA."));
+            return;
+        }
+
+        let recaptchaToken = "";
+
+        try {
+            recaptchaToken = await executeRecaptcha("submit_form");
+
+            if (!recaptchaToken || typeof recaptchaToken !== "string") {
+                setFieldErrors((prev) => ({
+                    ...prev,
+                    captcha: t("signup.validation.recaptcha", "Please complete reCAPTCHA."),
+                }));
+                setError(t("signup.validation.recaptcha", "Please complete reCAPTCHA."));
+                return;
+            }
+        } catch {
+            setFieldErrors((prev) => ({
+                ...prev,
+                captcha: t("signup.validation.recaptcha", "Please complete reCAPTCHA."),
+            }));
+            setError(t("signup.validation.recaptcha", "Please complete reCAPTCHA."));
+            return;
+        }
+
+        const formToValidate = {
+            ...form,
+            recaptchaToken,
+        };
+
+        const clientErrors = validateRegisterForm(formToValidate, t);
+
         if (Object.keys(clientErrors).length) {
             setFieldErrors(clientErrors);
             setError(t("signup.errors.fixFields", "Please fix the highlighted fields."));
             return;
         }
 
+        const payload = {
+            name: form.name.trim(),
+            email: form.email.trim().toLowerCase(),
+            password: form.password,
+            confirm_password: form.confirm_password,
+            phone: form.phone.trim(),
+            address: form.address.trim(),
+            verificationMethod: form.verificationMethod,
+            recaptchaToken,
+        };
+
         setLoadingRegister(true);
 
         try {
-            const res = await http.post("frontend/auth/register-new-user", form);
+            const res = await http.post("frontend/auth/register-new-user", payload);
 
-            if (res?.status === 201) {
-                setSuccess(
-                    res?.data?.message ||
+            setForm((prev) => ({
+                ...prev,
+                recaptchaToken,
+            }));
+
+            setSuccess(
+                getSuccessText(
+                    res,
                     t(
                         "signup.success.register",
-                        "Registration successful! OTP has been sent to your email."
+                        "Thank you for registering. Please verify your account using OTP."
                     )
-                );
-                setStep("otp");
-            } else {
-                setError(
-                    res?.data?.message ||
-                    t("signup.errors.unexpected", "Unexpected response from server. Please try again.")
-                );
-            }
+                )
+            );
+
+            setStep("otp");
+            setOtp("");
         } catch (err) {
             const fe = extractFieldErrors(err);
             if (fe) {
@@ -473,23 +586,55 @@ export default function Signup({ locale = "en", dict = {} }) {
         }
     };
 
-    /* ---------- VERIFY OTP ---------- */
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
         setFieldErrors({});
 
+        const cleanOtp = otp.trim().toUpperCase();
+
+        if (!form.verificationMethod) {
+            setFieldErrors({ verificationMethod: t("signup.validation.verificationMethod", "Please select a verification method.") });
+            setError(t("signup.validation.verificationMethod", "Please select a verification method."));
+            return;
+        }
+
+        if (!cleanOtp || cleanOtp.length !== 6) {
+            setFieldErrors({ otp: t("signup.validation.otpRequired", "Please enter the 6-character OTP.") });
+            setError(t("signup.errors.otpCheck", "Please check the OTP and try again."));
+            return;
+        }
+
+        const payload =
+            form.verificationMethod === "email"
+                ? {
+                    email: form.email.trim().toLowerCase(),
+                    verificationMethod: "email",
+                    otp: cleanOtp,
+                }
+                : {
+                    phone: form.phone.trim(),
+                    verificationMethod: "phone",
+                    otp: cleanOtp,
+                };
+
         setLoadingVerify(true);
 
         try {
-            await http.post("frontend/auth/verify-otp", { email: form.email, otp });
+            const res = await http.post("frontend/auth/verify-otp", payload);
 
-            setSuccess(t("signup.success.otpVerified", "OTP verified successfully! Redirecting to login..."));
+            setSuccess(
+                getSuccessText(
+                    res,
+                    t("signup.success.otpVerified", "OTP verified successfully! Redirecting to login...")
+                )
+            );
+
             setTimeout(() => {
                 router.replace(safeNext || `/${locale}/auth/login`);
                 router.refresh();
-            }, 800);
+            }, 900);
         } catch (err) {
             const fe = extractFieldErrors(err);
             if (fe) {
@@ -503,22 +648,47 @@ export default function Signup({ locale = "en", dict = {} }) {
         }
     };
 
-    /* ---------- RESEND OTP ---------- */
     const handleResendOtp = async () => {
         setError("");
         setSuccess("");
         setFieldErrors({});
 
+        if (!form.verificationMethod) {
+            setFieldErrors((prev) => ({
+                ...prev,
+                verificationMethod: t("signup.validation.verificationMethod", "Please select a verification method."),
+            }));
+            setError(t("signup.validation.verificationMethod", "Please select a verification method."));
+            return;
+        }
+
+        const payload =
+            form.verificationMethod === "email"
+                ? {
+                    email: form.email.trim().toLowerCase(),
+                    verificationMethod: "email",
+                }
+                : {
+                    phone: form.phone.trim(),
+                    verificationMethod: "phone",
+                };
+
         setLoadingResend(true);
 
         try {
-            await http.post("frontend/auth/resend-otp", { email: form.email });
-            setSuccess(t("signup.success.otpResent", "OTP resent successfully. Please check your email."));
+            const res = await http.post("frontend/auth/resend-otp", payload);
+
+            setSuccess(
+                getSuccessText(
+                    res,
+                    t("signup.success.otpResent", "OTP resent successfully.")
+                )
+            );
         } catch (err) {
             const fe = extractFieldErrors(err);
             if (fe) {
                 setFieldErrors(fe);
-                setError(t("signup.errors.otpResendFail", "Unable to resend OTP. Please check your email."));
+                setError(t("signup.errors.otpResendFail", "Unable to resend OTP."));
             } else {
                 setError(extractErrorText(err));
             }
@@ -535,14 +705,16 @@ export default function Signup({ locale = "en", dict = {} }) {
         setStep("register");
     };
 
+    const verificationTarget =
+        form.verificationMethod === "email" ? form.email : form.phone;
+
     return (
-        <section className="w-full z-0">
+        <section className="z-0 w-full">
             <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
                 <Glow />
 
                 <div className="relative mx-auto flex w-full max-w-7xl items-start justify-center px-4 py-12 lg:min-h-screen lg:items-center lg:py-0">
                     <div className="mx-auto grid w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl md:grid-cols-2">
-                        {/* Left brand panel */}
                         <div className="relative hidden md:block">
                             <div className="absolute inset-0 bg-gradient-to-br from-[#5f57ff]/35 via-transparent to-[#2a2b68]/40" />
                             <div className="relative flex h-full flex-col justify-between p-10">
@@ -568,7 +740,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                             )
                                             : t(
                                                 "signup.left.descOtp",
-                                                "Enter the OTP sent to your email to activate your account."
+                                                "Enter the OTP sent to your selected verification method to activate your account."
                                             )}
                                     </p>
 
@@ -578,17 +750,37 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 {t("signup.left.passwordRuleTitle", "Password rule")}
                                             </div>
                                             <div className="mt-1">
-                                                {t("signup.left.passwordRuleText", "8+ chars, uppercase, lowercase, number, special (@$!%*?&).")}
+                                                {t(
+                                                    "signup.left.passwordRuleText",
+                                                    "8+ chars, uppercase, lowercase, number, special (@$!%*?&)."
+                                                )}
                                             </div>
 
                                             <div className="mt-3 font-semibold text-white/85">
                                                 {t("signup.left.phoneRuleTitle", "Phone formats")}
                                             </div>
-                                            <div className="mt-1">
+                                            <div className="mt-1 whitespace-pre-line">
                                                 {t(
                                                     "signup.left.phoneRuleText",
-                                                    "Nepal: +9779876543210 or +977-9876543210 or 9876543210\nHK: +85251234567 or +852-51234567 or 51234567"
+                                                    "Nepal: +9779876543210 or +977-9876543210 \nHK: +85251234567 or +852-51234567"
                                                 )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {step === "otp" && (
+                                        <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
+                                            <div className="text-white/65">
+                                                {t("signup.otp.sentVia", "Verification via")}
+                                            </div>
+                                            <div className="mt-1 font-semibold capitalize text-white">
+                                                {form.verificationMethod}
+                                            </div>
+                                            <div className="mt-3 text-white/65">
+                                                {t("signup.otp.sentTo", "OTP sent to")}
+                                            </div>
+                                            <div className="mt-1 break-all font-semibold text-white">
+                                                {verificationTarget}
                                             </div>
                                         </div>
                                     )}
@@ -602,16 +794,17 @@ export default function Signup({ locale = "en", dict = {} }) {
                             </div>
                         </div>
 
-                        {/* Right panel */}
                         <div className="p-6 md:p-10">
                             <div className="text-center md:hidden">
                                 <h1 className="text-3xl font-semibold tracking-wide text-white">
-                                    {step === "register" ? t("signup.mobile.titleCreate", "Sign up") : t("signup.mobile.titleOtp", "Verify OTP")}
+                                    {step === "register"
+                                        ? t("signup.mobile.titleCreate", "Sign up")
+                                        : t("signup.mobile.titleOtp", "Verify OTP")}
                                 </h1>
                                 <p className="mt-2 text-sm text-white/75">
                                     {step === "register"
                                         ? t("signup.mobile.descCreate", "Fill in your details to create an account")
-                                        : t("signup.mobile.descOtp", "Enter the OTP sent to your email")}
+                                        : t("signup.mobile.descOtp", "Enter the OTP sent to your selected method")}
                                 </p>
                             </div>
 
@@ -621,7 +814,10 @@ export default function Signup({ locale = "en", dict = {} }) {
 
                                 {step === "register" ? (
                                     <form onSubmit={handleRegister} className="space-y-5">
-                                        <Field label={t("signup.form.fullName", "Full name")} error={fieldErrors?.name}>
+                                        <Field
+                                            label={t("signup.form.fullName", "Full name")}
+                                            error={fieldErrors?.name}
+                                        >
                                             <TextInput
                                                 icon={User}
                                                 type="text"
@@ -629,13 +825,16 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 id="name"
                                                 value={form.name}
                                                 onChange={handleInputChange}
-                                                placeholder={t("signup.form.fullNamePlaceholder", "Your full name")}
+                                                placeholder={t("signup.form.fullNamePlaceholder", "Enter your full name")}
                                                 autoComplete="name"
                                                 hasError={!!fieldErrors?.name}
                                             />
                                         </Field>
 
-                                        <Field label={t("signup.form.email", "Email")} error={fieldErrors?.email}>
+                                        <Field
+                                            label={t("signup.form.email", "Email")}
+                                            error={fieldErrors?.email}
+                                        >
                                             <TextInput
                                                 icon={Mail}
                                                 type="email"
@@ -650,7 +849,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                         </Field>
 
                                         <div className="grid gap-5 md:grid-cols-2">
-                                            <Field label={t("signup.form.phone", "Phone")} error={fieldErrors?.phone}>
+                                            <Field
+                                                label={t("signup.form.phone", "Phone")}
+                                                error={fieldErrors?.phone}
+                                            >
                                                 <TextInput
                                                     icon={Phone}
                                                     type="text"
@@ -658,13 +860,16 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     id="phone"
                                                     value={form.phone}
                                                     onChange={handleInputChange}
-                                                    placeholder={t("signup.form.phonePlaceholder", "+9779876543210")}
+                                                    placeholder={t("signup.form.phonePlaceholder", "+9779812345678")}
                                                     autoComplete="tel"
                                                     hasError={!!fieldErrors?.phone}
                                                 />
                                             </Field>
 
-                                            <Field label={t("signup.form.address", "Address")} error={fieldErrors?.address}>
+                                            <Field
+                                                label={t("signup.form.address", "Address")}
+                                                error={fieldErrors?.address}
+                                            >
                                                 <TextInput
                                                     icon={MapPin}
                                                     type="text"
@@ -672,7 +877,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     id="address"
                                                     value={form.address}
                                                     onChange={handleInputChange}
-                                                    placeholder={t("signup.form.addressPlaceholder", "City / Area")}
+                                                    placeholder={t("signup.form.addressPlaceholder", "Kathmandu")}
                                                     autoComplete="street-address"
                                                     hasError={!!fieldErrors?.address}
                                                 />
@@ -680,7 +885,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                         </div>
 
                                         <div className="grid gap-5 md:grid-cols-2">
-                                            <Field label={t("signup.form.password", "Password")} error={fieldErrors?.password}>
+                                            <Field
+                                                label={t("signup.form.password", "Password")}
+                                                error={fieldErrors?.password}
+                                            >
                                                 <PasswordInput
                                                     name="password"
                                                     id="password"
@@ -695,7 +903,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 />
                                             </Field>
 
-                                            <Field label={t("signup.form.confirmPassword", "Confirm password")} error={fieldErrors?.confirm_password}>
+                                            <Field
+                                                label={t("signup.form.confirmPassword", "Confirm password")}
+                                                error={fieldErrors?.confirm_password}
+                                            >
                                                 <PasswordInput
                                                     name="confirm_password"
                                                     id="confirm_password"
@@ -703,13 +914,60 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     onChange={handleInputChange}
                                                     isVisible={confirmVisible}
                                                     onToggleVisibility={() => setConfirmVisible((s) => !s)}
-                                                    placeholder={t("signup.form.confirmPasswordPlaceholder", "Repeat password")}
+                                                    placeholder={t(
+                                                        "signup.form.confirmPasswordPlaceholder",
+                                                        "Repeat password"
+                                                    )}
                                                     autoComplete="new-password"
                                                     hasError={!!fieldErrors?.confirm_password}
                                                     t={t}
                                                 />
                                             </Field>
                                         </div>
+
+                                        <Field
+                                            label={t("signup.form.verificationMethod", "Verification method")}
+                                            error={fieldErrors?.verificationMethod}
+                                        >
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleVerificationMethodChange("email")}
+                                                    className={`h-11 rounded-xl border text-sm font-medium transition ${form.verificationMethod === "email"
+                                                            ? "border-white bg-white text-[#2b2458]"
+                                                            : "border-white/15 bg-white/5 text-white"
+                                                        }`}
+                                                >
+                                                    {t("signup.form.verifyByEmail", "Email")}
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleVerificationMethodChange("phone")}
+                                                    className={`h-11 rounded-xl border text-sm font-medium transition ${form.verificationMethod === "phone"
+                                                            ? "border-white bg-white text-[#2b2458]"
+                                                            : "border-white/15 bg-white/5 text-white"
+                                                        }`}
+                                                >
+                                                    {t("signup.form.verifyByPhone", "Phone")}
+                                                </button>
+                                            </div>
+                                        </Field>
+
+                                        {/* <Field
+                                            label={t("signup.form.securityCheck", "Security check")}
+                                            error={fieldErrors?.captcha}
+                                        >
+                                            <div className="flex min-h-11 items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 text-sm text-white/80">
+                                                <CheckCircle2 size={18} className="text-emerald-300" />
+                                                <span>
+                                                    {t(
+                                                        "signup.form.recaptchaInfo",
+                                                        "reCAPTCHA will run automatically on submit."
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </Field> */}
 
                                         <PrimaryButton
                                             loading={loadingRegister}
@@ -729,7 +987,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                         </div>
 
                                         <div className="text-center text-sm text-white/85">
-                                            {t("signup.links.alreadyRegister", "Already register?")}{" "}
+                                            {t("signup.links.alreadyRegister", "Already registered?")}{" "}
                                             <Link
                                                 href={`/${locale}/auth/verify-account`}
                                                 className="font-semibold text-cyan-200 hover:text-cyan-100 hover:underline"
@@ -753,15 +1011,28 @@ export default function Signup({ locale = "en", dict = {} }) {
                                 ) : (
                                     <form onSubmit={handleVerifyOtp} className="space-y-5">
                                         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
-                                            <div className="text-white/70">{t("signup.otp.sentTo", "OTP sent to")}</div>
-                                            <div className="mt-1 font-semibold text-white">{form.email}</div>
+                                            <div className="text-white/70">
+                                                {t("signup.otp.sentTo", "OTP sent to")}
+                                            </div>
+                                            <div className="mt-1 break-all font-semibold text-white">
+                                                {verificationTarget}
+                                            </div>
+                                            <div className="mt-3 text-white/60">
+                                                {t("signup.otp.method", "Verification method")}:
+                                                <span className="ml-2 capitalize text-white">
+                                                    {form.verificationMethod}
+                                                </span>
+                                            </div>
                                         </div>
 
-                                        <Field label={t("signup.otp.label", "OTP Code")} error={fieldErrors?.otp}>
+                                        <Field
+                                            label={t("signup.otp.label", "OTP Code")}
+                                            error={fieldErrors?.otp}
+                                        >
                                             <OtpInput
                                                 value={otp}
                                                 onChange={(v) => {
-                                                    setOtp(v);
+                                                    setOtp(v.toUpperCase());
                                                     if (fieldErrors?.otp) {
                                                         setFieldErrors((prev) => {
                                                             const next = { ...prev };
@@ -777,7 +1048,6 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 t={t}
                                             />
                                         </Field>
-
 
                                         <PrimaryButton
                                             loading={loadingVerify}

@@ -1,15 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, KeyRound, ShieldCheck, RotateCw } from "lucide-react";
+import { Mail, Phone, ShieldCheck, RotateCw } from "lucide-react";
 
 import http from "@/http";
 
 /* ---------------------------------- */
-/* Backend Error Handling (matches validateBody) */
-/* validateBody returns: { message: { field: "msg" } } with 422 */
+/* Backend Error Handling */
 /* ---------------------------------- */
 function extractFieldErrors(err) {
     const msg = err?.response?.data?.message;
@@ -19,7 +18,11 @@ function extractFieldErrors(err) {
 
 function extractErrorText(err) {
     const data = err?.response?.data;
-    const msg = data?.message ?? data ?? err?.message ?? "Something went wrong.";
+    const msg =
+        data?.message ||
+        data?.success ||
+        err?.message ||
+        "Something went wrong.";
 
     if (typeof msg === "string") return msg;
 
@@ -31,6 +34,10 @@ function extractErrorText(err) {
     }
 
     return "Something went wrong.";
+}
+
+function getSuccessText(res, fallback) {
+    return res?.data?.success || res?.data?.message || fallback;
 }
 
 /* ---------------------------------- */
@@ -74,6 +81,7 @@ function Field({ label, children, error }) {
 
 function TextInput({
     icon: Icon,
+    type = "text",
     name,
     id,
     value,
@@ -92,7 +100,7 @@ function TextInput({
             </span>
 
             <input
-                type="text"
+                type={type}
                 name={name}
                 id={id}
                 value={value}
@@ -142,37 +150,49 @@ function SecondaryButton({ loading, onClick, loadingText, children }) {
 
 function OtpInput({
     value,
-    onChange,       // receives full otp string
+    onChange,
     length = 6,
     disabled = false,
     hasError = false,
+    t,
 }) {
-    const digits = useMemo(() => {
-        const v = (value || "").replace(/\D/g, "").slice(0, length);
-        return Array.from({ length }, (_, i) => v[i] || "");
-    }, [value, length]);
+    const refs = useRef([]);
 
-    const refs = useMemo(() => Array.from({ length }, () => null), [length]);
+    const normalized = (value || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, length);
 
-    const setAt = (idx, char) => {
-        const clean = (char || "").replace(/\D/g, "");
-        const next = [...digits];
+    const chars = Array.from({ length }, (_, i) => normalized[i] || "");
+
+    const commit = (nextChars, focusIdx) => {
+        onChange(nextChars.join(""));
+        if (
+            typeof focusIdx === "number" &&
+            refs.current[focusIdx] &&
+            typeof refs.current[focusIdx].focus === "function"
+        ) {
+            refs.current[focusIdx].focus();
+        }
+    };
+
+    const setAt = (idx, raw) => {
+        const clean = (raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const next = [...chars];
 
         if (!clean) {
             next[idx] = "";
-            onChange(next.join(""));
+            commit(next);
             return;
         }
 
-        // if user pasted multiple digits into one box
         const chunk = clean.slice(0, length - idx).split("");
         for (let i = 0; i < chunk.length; i++) {
             next[idx + i] = chunk[i];
         }
-        onChange(next.join(""));
 
         const focusTo = Math.min(idx + chunk.length, length - 1);
-        refs[focusTo]?.focus?.();
+        commit(next, focusTo);
     };
 
     const handleKeyDown = (idx, e) => {
@@ -180,52 +200,47 @@ function OtpInput({
 
         if (e.key === "Backspace") {
             e.preventDefault();
-            if (digits[idx]) {
-                setAt(idx, "");
+            const next = [...chars];
+
+            if (next[idx]) {
+                next[idx] = "";
+                commit(next);
             } else if (idx > 0) {
-                refs[idx - 1]?.focus?.();
-                // also clear previous for a nice UX
-                const next = [...digits];
                 next[idx - 1] = "";
-                onChange(next.join(""));
+                commit(next, idx - 1);
             }
         }
 
-        if (e.key === "ArrowLeft" && idx > 0) refs[idx - 1]?.focus?.();
-        if (e.key === "ArrowRight" && idx < length - 1) refs[idx + 1]?.focus?.();
-    };
-
-    const handlePaste = (idx, e) => {
-        if (disabled) return;
-        e.preventDefault();
-        const text = e.clipboardData.getData("text") || "";
-        setAt(idx, text);
+        if (e.key === "ArrowLeft" && idx > 0) refs.current[idx - 1]?.focus?.();
+        if (e.key === "ArrowRight" && idx < length - 1) refs.current[idx + 1]?.focus?.();
     };
 
     return (
         <div className="space-y-2">
-            <div
-                className={[
-                    "grid grid-cols-6 gap-2",
-                    length === 6 ? "" : "",
-                ].join(" ")}
-            >
-                {digits.map((d, idx) => (
+            <div className="grid grid-cols-6 gap-2">
+                {chars.map((char, idx) => (
                     <input
                         key={idx}
-                        ref={(el) => (refs[idx] = el)}
-                        value={d}
-                        onChange={(e) => {
-                            setAt(idx, e.target.value);
-                            if (e.target.value && idx < length - 1) refs[idx + 1]?.focus?.();
+                        ref={(el) => {
+                            refs.current[idx] = el;
+                        }}
+                        value={char}
+                        maxLength={1}
+                        onChange={(e) => setAt(idx, e.target.value)}
+                        onPaste={(e) => {
+                            e.preventDefault();
+                            setAt(idx, e.clipboardData.getData("text") || "");
                         }}
                         onKeyDown={(e) => handleKeyDown(idx, e)}
-                        onPaste={(e) => handlePaste(idx, e)}
-                        inputMode="numeric"
                         autoComplete={idx === 0 ? "one-time-code" : "off"}
                         disabled={disabled}
+                        aria-label={
+                            t
+                                ? t("verify.otp.digitAria", `OTP character ${idx + 1}`)
+                                : `OTP character ${idx + 1}`
+                        }
                         className={[
-                            "h-11 w-full rounded-xl border bg-white/5 text-center text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
+                            "h-11 w-full rounded-xl border bg-white/5 text-center text-sm font-semibold uppercase text-white outline-none backdrop-blur-md focus:ring-2",
                             hasError
                                 ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
                                 : "border-white/15 focus:border-white/35 focus:ring-white/10",
@@ -236,20 +251,23 @@ function OtpInput({
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-white/55">
-                <span>Enter the 6-digit code</span>
+                <span>
+                    {t
+                        ? t("verify.otp.helper", "Enter the 6-character code")
+                        : "Enter the 6-character code"}
+                </span>
                 <button
                     type="button"
                     disabled={disabled || !value}
                     onClick={() => onChange("")}
                     className="underline hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    Clear
+                    {t ? t("verify.otp.clear", "Clear") : "Clear"}
                 </button>
             </div>
         </div>
     );
 }
-
 
 /* ---------------------------------- */
 /* Page */
@@ -271,7 +289,9 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
         return raw.startsWith("/") ? raw : null;
     }, [searchParams]);
 
+    const [verificationMethod, setVerificationMethod] = useState("");
     const [email, setEmail] = useState(searchParams?.get("email") || "");
+    const [phone, setPhone] = useState(searchParams?.get("phone") || "");
     const [otp, setOtp] = useState("");
 
     const [loadingVerify, setLoadingVerify] = useState(false);
@@ -280,6 +300,22 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [fieldErrors, setFieldErrors] = useState({});
+
+    const handleVerificationMethodChange = (method) => {
+        setVerificationMethod(method);
+        setSuccess("");
+        setError("");
+        setOtp("");
+
+        setFieldErrors((prev) => {
+            const next = { ...prev };
+            delete next.verificationMethod;
+            delete next.email;
+            delete next.phone;
+            delete next.otp;
+            return next;
+        });
+    };
 
     const onEmailChange = (e) => {
         setEmail(e.target.value);
@@ -293,12 +329,12 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
         if (error) setError("");
     };
 
-    const onOtpChange = (e) => {
-        setOtp(e.target.value);
-        if (fieldErrors?.otp) {
+    const onPhoneChange = (e) => {
+        setPhone(e.target.value);
+        if (fieldErrors?.phone) {
             setFieldErrors((p) => {
                 const n = { ...p };
-                delete n.otp;
+                delete n.phone;
                 return n;
             });
         }
@@ -310,17 +346,48 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
         setSuccess("");
         setFieldErrors({});
 
-        if (!email?.trim()) {
-            setFieldErrors({ email: t("verify.validation.emailRequired", "Email is required.") });
-            setError(t("verify.errors.enterEmail", "Please enter your email."));
+        const local = {};
+
+        if (!verificationMethod) {
+            local.verificationMethod = t(
+                "verify.validation.verificationMethodRequired",
+                "Please select a verification method."
+            );
+        }
+
+        if (verificationMethod === "email" && !email?.trim()) {
+            local.email = t("verify.validation.emailRequired", "Email is required.");
+        }
+
+        if (verificationMethod === "phone" && !phone?.trim()) {
+            local.phone = t("verify.validation.phoneRequired", "Phone is required.");
+        }
+
+        if (Object.keys(local).length) {
+            setFieldErrors(local);
+            setError(t("verify.errors.fixFields", "Please fix the highlighted fields."));
             return;
         }
 
+        const payload =
+            verificationMethod === "email"
+                ? {
+                    email: email.trim().toLowerCase(),
+                    verificationMethod: "email",
+                }
+                : {
+                    phone: phone.trim(),
+                    verificationMethod: "phone",
+                };
+
         setLoadingResend(true);
         try {
-            const res = await http.post("frontend/auth/resend-otp", { email });
+            const res = await http.post("frontend/auth/resend-otp", payload);
             setSuccess(
-                res?.data?.message || t("verify.success.otpResent", "OTP resent successfully. Please check your email.")
+                getSuccessText(
+                    res,
+                    t("verify.success.otpResent", "OTP resent successfully.")
+                )
             );
         } catch (err) {
             const fe = extractFieldErrors(err);
@@ -341,9 +408,29 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
         setSuccess("");
         setFieldErrors({});
 
+        const cleanOtp = otp.trim().toUpperCase();
         const local = {};
-        if (!email?.trim()) local.email = t("verify.validation.emailRequired", "Email is required.");
-        if (!otp?.trim()) local.otp = t("verify.validation.otpRequired", "OTP is required.");
+
+        if (!verificationMethod) {
+            local.verificationMethod = t(
+                "verify.validation.verificationMethodRequired",
+                "Please select a verification method."
+            );
+        }
+
+        if (verificationMethod === "email" && !email?.trim()) {
+            local.email = t("verify.validation.emailRequired", "Email is required.");
+        }
+
+        if (verificationMethod === "phone" && !phone?.trim()) {
+            local.phone = t("verify.validation.phoneRequired", "Phone is required.");
+        }
+
+        if (!cleanOtp) {
+            local.otp = t("verify.validation.otpRequired", "OTP is required.");
+        } else if (cleanOtp.length !== 6) {
+            local.otp = t("verify.validation.otpLength", "OTP must be 6 characters.");
+        }
 
         if (Object.keys(local).length) {
             setFieldErrors(local);
@@ -351,13 +438,30 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
             return;
         }
 
+        const payload =
+            verificationMethod === "email"
+                ? {
+                    email: email.trim().toLowerCase(),
+                    verificationMethod: "email",
+                    otp: cleanOtp,
+                }
+                : {
+                    phone: phone.trim(),
+                    verificationMethod: "phone",
+                    otp: cleanOtp,
+                };
+
         setLoadingVerify(true);
         try {
-            const res = await http.post("frontend/auth/verify-otp", { email, otp });
+            const res = await http.post("frontend/auth/verify-otp", payload);
 
             setSuccess(
-                res?.data?.message || t("verify.success.otpVerified", "OTP verified successfully! Redirecting to login...")
+                getSuccessText(
+                    res,
+                    t("verify.success.otpVerified", "OTP verified successfully! Redirecting to login...")
+                )
             );
+
             setTimeout(() => {
                 router.replace(safeNext || `/${locale}/auth/login`);
                 router.refresh();
@@ -375,6 +479,9 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
         }
     };
 
+    const currentTarget =
+        verificationMethod === "email" ? email : verificationMethod === "phone" ? phone : "";
+
     return (
         <section className="w-full z-0">
             <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
@@ -382,7 +489,6 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
 
                 <div className="relative mx-auto flex w-full max-w-7xl items-start justify-center px-4 py-12 lg:min-h-screen lg:items-center lg:py-0">
                     <div className="mx-auto grid w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl md:grid-cols-2">
-                        {/* Left panel */}
                         <div className="relative hidden md:block">
                             <div className="absolute inset-0 bg-gradient-to-br from-[#5f57ff]/35 via-transparent to-[#2a2b68]/40" />
                             <div className="relative flex h-full flex-col justify-between p-10">
@@ -399,9 +505,29 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                     <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/75">
                                         {t(
                                             "verify.left.desc",
-                                            "If you registered but didn’t verify OTP, your account stays pending. Resend OTP and verify to activate it."
+                                            "Choose email or phone verification, resend OTP, and verify your account."
                                         )}
                                     </p>
+
+                                    <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
+                                        <div className="text-white/65">
+                                            {t("verify.left.method", "Selected method")}
+                                        </div>
+                                        <div className="mt-1 font-semibold capitalize text-white">
+                                            {verificationMethod || t("verify.left.none", "Not selected")}
+                                        </div>
+
+                                        {!!currentTarget && (
+                                            <>
+                                                <div className="mt-3 text-white/65">
+                                                    {t("verify.left.target", "Current target")}
+                                                </div>
+                                                <div className="mt-1 break-all font-semibold text-white">
+                                                    {currentTarget}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="text-xs text-white/65">
@@ -410,14 +536,13 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                             </div>
                         </div>
 
-                        {/* Right form */}
                         <div className="p-6 md:p-10">
                             <div className="text-center md:hidden">
                                 <h1 className="text-3xl font-semibold tracking-wide text-white">
                                     {t("verify.mobile.title", "Verify Account")}
                                 </h1>
                                 <p className="mt-2 text-sm text-white/75">
-                                    {t("verify.mobile.desc", "Resend OTP and verify your account")}
+                                    {t("verify.mobile.desc", "Verify your account with email or phone OTP")}
                                 </p>
                             </div>
 
@@ -426,21 +551,79 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                 <SuccessAlert message={success} />
 
                                 <form onSubmit={verifyOtp} className="space-y-5">
-                                    <Field label={t("verify.form.email", "Email")} error={fieldErrors?.email}>
-                                        <TextInput
-                                            icon={Mail}
-                                            name="email"
-                                            id="email"
-                                            value={email}
-                                            onChange={onEmailChange}
-                                            placeholder={t("verify.form.emailPlaceholder", "you@example.com")}
-                                            autoComplete="email"
-                                            hasError={!!fieldErrors?.email}
-                                            disabled={loadingVerify || loadingResend}
-                                        />
+                                    <Field
+                                        label={t("verify.form.verificationMethod", "Verification method")}
+                                        error={fieldErrors?.verificationMethod}
+                                    >
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleVerificationMethodChange("email")}
+                                                className={`h-11 rounded-xl border text-sm font-medium transition ${verificationMethod === "email"
+                                                        ? "border-white bg-white text-[#2b2458]"
+                                                        : "border-white/15 bg-white/5 text-white"
+                                                    }`}
+                                            >
+                                                {t("verify.form.verifyByEmail", "Email")}
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => handleVerificationMethodChange("phone")}
+                                                className={`h-11 rounded-xl border text-sm font-medium transition ${verificationMethod === "phone"
+                                                        ? "border-white bg-white text-[#2b2458]"
+                                                        : "border-white/15 bg-white/5 text-white"
+                                                    }`}
+                                            >
+                                                {t("verify.form.verifyByPhone", "Phone")}
+                                            </button>
+                                        </div>
                                     </Field>
 
-                                    <Field label={t("verify.form.otp", "OTP Code")} error={fieldErrors?.otp}>
+                                    {verificationMethod === "email" && (
+                                        <Field
+                                            label={t("verify.form.email", "Email")}
+                                            error={fieldErrors?.email}
+                                        >
+                                            <TextInput
+                                                icon={Mail}
+                                                type="email"
+                                                name="email"
+                                                id="email"
+                                                value={email}
+                                                onChange={onEmailChange}
+                                                placeholder={t("verify.form.emailPlaceholder", "you@example.com")}
+                                                autoComplete="email"
+                                                hasError={!!fieldErrors?.email}
+                                                disabled={loadingVerify || loadingResend}
+                                            />
+                                        </Field>
+                                    )}
+
+                                    {verificationMethod === "phone" && (
+                                        <Field
+                                            label={t("verify.form.phone", "Phone")}
+                                            error={fieldErrors?.phone}
+                                        >
+                                            <TextInput
+                                                icon={Phone}
+                                                type="text"
+                                                name="phone"
+                                                id="phone"
+                                                value={phone}
+                                                onChange={onPhoneChange}
+                                                placeholder={t("verify.form.phonePlaceholder", "+9779812345678")}
+                                                autoComplete="tel"
+                                                hasError={!!fieldErrors?.phone}
+                                                disabled={loadingVerify || loadingResend}
+                                            />
+                                        </Field>
+                                    )}
+
+                                    <Field
+                                        label={t("verify.form.otp", "OTP Code")}
+                                        error={fieldErrors?.otp}
+                                    >
                                         <OtpInput
                                             value={otp}
                                             onChange={(v) => {
@@ -457,9 +640,9 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                             length={6}
                                             hasError={!!fieldErrors?.otp}
                                             disabled={loadingVerify || loadingResend}
+                                            t={t}
                                         />
                                     </Field>
-
 
                                     <PrimaryButton
                                         loading={loadingVerify}
