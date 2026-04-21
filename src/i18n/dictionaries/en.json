@@ -207,6 +207,28 @@
     }
   },
 
+  "productView": {
+    "similarProducts": "Similar Products"
+  },
+
+  "productsPage": {
+    "title": "All Products",
+    "subtitle": "Browse and search products",
+    "searchPlaceholder": "Search products...",
+    "sortLabel": "Sort by",
+    "sortDefault": "Default",
+    "latest": "Latest",
+    "oldest": "Oldest",
+    "nameAsc": "Name A-Z",
+    "nameDesc": "Name Z-A",
+    "priceAsc": "Price Low to High",
+    "priceDesc": "Price High to Low",
+    "noProducts": "No products found.",
+    "addToCart": "Add to Cart",
+    "results": "products found",
+    "page": "Page"
+  },
+
   "verify": {
     "left": {
       "tag": "Verify Account",

@@ -193,6 +193,28 @@
     }
   },
 
+  "productView": {
+    "similarProducts": "相似商品"
+  },
+
+  "productsPage": {
+    "title": "全部商品",
+    "subtitle": "浏览并搜索商品",
+    "searchPlaceholder": "搜索商品...",
+    "sortLabel": "排序方式",
+    "sortDefault": "默认",
+    "latest": "最新",
+    "oldest": "最早",
+    "nameAsc": "名称 A-Z",
+    "nameDesc": "名称 Z-A",
+    "priceAsc": "价格从低到高",
+    "priceDesc": "价格从高到低",
+    "noProducts": "未找到商品。",
+    "addToCart": "加入购物车",
+    "results": "件商品",
+    "page": "页"
+  },
+
   "verify": {
     "left": {
       "tag": "驗證帳戶",

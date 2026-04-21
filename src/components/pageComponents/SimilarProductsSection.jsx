@@ -20,15 +20,31 @@ const money = (n) => {
 };
 
 const UI = {
-    featuredProduct: { en: "Featured Products", ne: "विशेष उत्पादनहरू", zh: "精选商品" },
-    trendingProduct: { en: "Trending Products", ne: "ट्रेन्डिङ उत्पादनहरू", zh: "热门趋势" },
-    hotProduct: { en: "Hot Products", ne: "तातो उत्पादनहरू", zh: "热销商品" },
-    mostSearchedProduct: { en: "Most Searched", ne: "धेरै खोजिएका", zh: "搜索最多" },
+    title: {
+        en: "Similar Products",
+        ne: "मिल्दोजुल्दो उत्पादनहरू",
+        zh: "相似商品",
+    },
+    seeAll: {
+        en: "See more products",
+        ne: "थप उत्पादन हेर्नुहोस्",
+        zh: "查看更多商品",
+    },
+    noProducts: {
+        en: "No similar products found.",
+        ne: "मिल्दोजुल्दो उत्पादनहरू फेला परेनन्।",
+        zh: "未找到相似商品。",
+    },
+    addToCart: {
+        en: "Add to Cart",
+        ne: "कार्टमा थप्नुहोस्",
+        zh: "加入购物车",
+    },
 };
 
-export default function ProductTypeSection({
+export default function SimilarProductsSection({
     locale = "en",
-    type = "featuredProduct",
+    slug,
     limit = 6,
     className = "my-8",
     title,
@@ -39,16 +55,16 @@ export default function ProductTypeSection({
 
     const resolvedTitle =
         title ||
-        UI?.[type]?.[locale] ||
-        UI?.[type]?.en ||
-        type;
+        UI?.title?.[locale] ||
+        UI?.title?.en;
 
     const resolvedSeeAll =
-        locale === "ne"
-            ? "थप उत्पादन हेर्नुहोस्"
-            : locale === "zh"
-                ? "查看更多商品"
-                : "See more products";
+        UI?.seeAll?.[locale] ||
+        UI?.seeAll?.en;
+
+    const resolvedEmpty =
+        UI?.noProducts?.[locale] ||
+        UI?.noProducts?.en;
 
     const resolvedSeeAllHref = seeAllHref || `/${locale}/product`;
 
@@ -56,9 +72,16 @@ export default function ProductTypeSection({
         let mounted = true;
 
         async function load() {
+            if (!slug) {
+                setRows([]);
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
+
             try {
-                const res = await http.get(`/frontend/product/type/${type}?limit=${limit}`);
+                const res = await http.get(`/frontend/product/related/${slug}?limit=${limit}`);
                 const data = Array.isArray(res?.data?.data) ? res.data.data : [];
 
                 const mapped = data
@@ -86,14 +109,16 @@ export default function ProductTypeSection({
         return () => {
             mounted = false;
         };
-    }, [type, limit, locale]);
+    }, [slug, limit, locale]);
 
     const products = useMemo(() => rows, [rows]);
+
+    if (!loading && products.length === 0) return null;
 
     return (
         <section className={className}>
             <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-                <div className="rounded-md p-4 md:p-5">
+                <div className="rounded-[28px] p-4 md:p-5 lg:p-6">
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <h2 className="text-xl font-extrabold text-[#1f1f1f] md:text-[30px]">
                             {resolvedTitle}
@@ -111,12 +136,12 @@ export default function ProductTypeSection({
                     {loading ? (
                         <SkeletonGrid count={Math.min(limit, 6)} />
                     ) : products.length === 0 ? (
-                        <div className="rounded-md bg-white p-5 text-sm text-slate-600">
-                            No products found.
+                        <div className="rounded-2xl bg-white p-5 text-sm text-slate-600">
+                            {resolvedEmpty}
                         </div>
                     ) : (
                         <>
-                            <div className="hidden lg:grid lg:grid-cols-6 lg:gap-3">
+                            <div className="hidden lg:grid lg:grid-cols-5 lg:gap-4">
                                 {products.map((p) => (
                                     <ProductCard key={p.id} p={p} locale={locale} />
                                 ))}
@@ -149,18 +174,18 @@ export default function ProductTypeSection({
     );
 }
 
-function SkeletonGrid({ count = 6 }) {
+function SkeletonGrid({ count = 5 }) {
     return (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
             {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="rounded-md bg-white p-2.5 shadow-sm">
-                    <div className="h-[112px] w-full animate-pulse rounded-sm bg-slate-200" />
+                <div key={i} className="rounded-2xl bg-white p-2.5 shadow-sm">
+                    <div className="h-[140px] w-full animate-pulse rounded-xl bg-slate-200" />
                     <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
                     <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-200" />
                     <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-slate-200" />
                     <div className="mt-3 h-3 w-10 animate-pulse rounded bg-slate-200" />
                     <div className="mt-2 h-4 w-16 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-3 h-8 w-full animate-pulse rounded bg-slate-200" />
+                    <div className="mt-3 h-9 w-full animate-pulse rounded-xl bg-slate-200" />
                 </div>
             ))}
         </div>
@@ -169,6 +194,13 @@ function SkeletonGrid({ count = 6 }) {
 
 function ProductCard({ p, locale }) {
     const href = `/${locale}/product/${p.slug}`;
+
+    const addToCartText =
+        locale === "ne"
+            ? "कार्टमा थप्नुहोस्"
+            : locale === "zh"
+                ? "加入购物车"
+                : "Add to Cart";
 
     const hasDiscount =
         p.discounted_price !== null &&
@@ -186,10 +218,10 @@ function ProductCard({ p, locale }) {
     })();
 
     return (
-        <div className="rounded-md bg-white p-2.5 shadow-sm">
+        <div className="rounded-2xl bg-white p-2.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             <Link
                 href={href}
-                className="relative block h-[110px] w-full overflow-hidden rounded-sm border border-[#efefef] bg-white"
+                className="relative block h-[140px] w-full overflow-hidden rounded-xl border border-[#efefef] bg-white"
             >
                 {p.image ? (
                     <Image
@@ -197,7 +229,7 @@ function ProductCard({ p, locale }) {
                         alt={p.name}
                         fill
                         className="object-cover"
-                        sizes="(max-width: 1024px) 168px, 180px"
+                        sizes="(max-width: 1024px) 168px, 220px"
                         unoptimized
                     />
                 ) : null}
@@ -238,10 +270,10 @@ function ProductCard({ p, locale }) {
             <button
                 type="button"
                 onClick={() => console.log("add to cart", p.id)}
-                className="mt-3 flex h-8 w-full items-center justify-center gap-2 rounded-[4px] bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0]"
+                className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0]"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                Add to Cart
+                {addToCartText}
             </button>
         </div>
     );

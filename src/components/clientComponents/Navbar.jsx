@@ -63,6 +63,8 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [servicesOpen, setServicesOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
+    const [desktopSearch, setDesktopSearch] = useState("");
+    const [mobileSearch, setMobileSearch] = useState("");
 
     const desktopServicesRef = useRef(null);
     const mobileDrawerRef = useRef(null);
@@ -200,6 +202,26 @@ export default function Navbar({ locale = "en", dict = {} }) {
         router.refresh();
     };
 
+    const handleSearchSubmit = (e, keyword) => {
+        e.preventDefault();
+
+        const value = keyword.trim();
+
+        setMobileOpen(false);
+        setServicesOpen(false);
+        setProfileOpen(false);
+
+        const query = new URLSearchParams();
+        query.set("page", "1");
+        query.set("limit", "10");
+
+        if (value) {
+            query.set("search", value);
+        }
+
+        router.push(`/${locale}/product?${query.toString()}`);
+    };
+
     return (
         <header
             className="w-full bg-white"
@@ -269,10 +291,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </span>
                         </Link>
 
-                        <form className="w-full">
+                        <form className="w-full" onSubmit={(e) => handleSearchSubmit(e, desktopSearch)}>
                             <div className="relative">
                                 <input
                                     type="text"
+                                    value={desktopSearch}
+                                    onChange={(e) => setDesktopSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
                                     className="h-11 w-full border bg-[#f8f9fc] pl-4 pr-12 text-sm text-neutral-800 outline-none transition-all duration-200 focus:bg-white"
                                     style={{
@@ -293,7 +317,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <button
                                     type="submit"
                                     aria-label={t("nav.searchAria", "Search")}
-                                    className="absolute right-0 top-0 h-11 w-11 flex items-center justify-center rounded-r-md transition-colors duration-150 hover:text-white"
+                                    className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-r-md transition-colors duration-150 hover:text-white"
                                     style={{ color: "#1a4b8f", borderRadius: "0 6px 6px 0" }}
                                 >
                                     <Search className="h-4 w-4" />
@@ -517,10 +541,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </span>
                         </Link>
 
-                        <form className="flex-1">
+                        <form className="flex-1" onSubmit={(e) => handleSearchSubmit(e, mobileSearch)}>
                             <div className="relative">
                                 <input
                                     type="text"
+                                    value={mobileSearch}
+                                    onChange={(e) => setMobileSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
                                     className="h-10 w-full border bg-[#f8f9fc] pl-3.5 pr-10 text-sm text-neutral-800 outline-none"
                                     style={{

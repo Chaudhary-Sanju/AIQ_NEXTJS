@@ -207,6 +207,28 @@
     }
   },
 
+  "productView": {
+    "similarProducts": "मिल्दोजुल्दो उत्पादनहरू"
+  },
+
+  "productsPage": {
+    "title": "सबै उत्पादनहरू",
+    "subtitle": "उत्पादनहरू हेर्नुहोस् र खोज्नुहोस्",
+    "searchPlaceholder": "उत्पादन खोज्नुहोस्...",
+    "sortLabel": "क्रमबद्ध गर्नुहोस्",
+    "sortDefault": "पूर्वनिर्धारित",
+    "latest": "नवीनतम",
+    "oldest": "पुरानो",
+    "nameAsc": "नाम अ-ज्ञ",
+    "nameDesc": "नाम ज्ञ-अ",
+    "priceAsc": "कम मूल्यदेखि बढी",
+    "priceDesc": "बढी मूल्यदेखि कम",
+    "noProducts": "कुनै उत्पादन फेला परेन।",
+    "addToCart": "कार्टमा थप्नुहोस्",
+    "results": "उत्पादन भेटियो",
+    "page": "पृष्ठ"
+  },
+
   "verify": {
     "left": {
       "tag": "खाता पुष्टि",
