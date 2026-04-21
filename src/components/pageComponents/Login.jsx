@@ -361,14 +361,14 @@ export default function Login({ locale = "en", dict = {} }) {
                                             {t("login.remember", "Remember me")}
                                         </label>
 
-                                        {/*
+
                                         <Link
                                             href={`/${locale}/auth/forgot-password`}
                                             className="text-xs text-white/75 hover:text-white hover:underline"
                                         >
                                             {t("login.forgot", "Forgot password?")}
                                         </Link>
-                                        */}
+
                                     </div>
                                 </Field>
 
