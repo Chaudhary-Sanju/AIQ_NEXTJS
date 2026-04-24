@@ -9,6 +9,7 @@ import http from "@/http";
 import { imgUrl } from "@/lib";
 import ProductDetailsSkeleton from "../clientComponents/ProductDetailsSkeleton";
 import SimilarProductsSection from "./SimilarProductsSection";
+import { useCart } from "@/contexts/CartContext";
 
 const pick = (obj, locale = "en") => {
   if (!obj || typeof obj !== "object") return "";
@@ -89,6 +90,7 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart, busy } = useCart();
 
   const t = {
     breadcrumbHome: dict?.productView?.breadcrumbHome || UI.breadcrumbHome[locale] || UI.breadcrumbHome.en,
@@ -174,11 +176,8 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
   };
 
   const handleAddToCart = () => {
-    console.log("add to cart", {
-      productId: product?._id,
-      slug: product?.slug,
-      quantity,
-    });
+    if (!product?._id) return;
+    addToCart(product._id, quantity);
   };
 
   if (loading) {
@@ -341,11 +340,11 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={!inStock}
+                  disabled={!inStock || busy}
                   className="mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#5b4fd4] px-6 text-base font-semibold text-white transition hover:bg-[#4a3fcb] disabled:cursor-not-allowed disabled:opacity-50 md:max-w-[320px]"
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {t.addToCart}
+                  {busy ? "Adding..." : t.addToCart}
                 </button>
               </div>
             </div>

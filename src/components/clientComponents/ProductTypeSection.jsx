@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
@@ -168,7 +169,15 @@ function SkeletonGrid({ count = 6 }) {
 }
 
 function ProductCard({ p, locale }) {
+    const { addToCart, busy } = useCart();
     const href = `/${locale}/product/${p.slug}`;
+
+    const addToCartText =
+        locale === "ne"
+            ? "कार्टमा थप्नुहोस्"
+            : locale === "zh"
+                ? "加入购物车"
+                : "Add to Cart";
 
     const hasDiscount =
         p.discounted_price !== null &&
@@ -237,11 +246,12 @@ function ProductCard({ p, locale }) {
 
             <button
                 type="button"
-                onClick={() => console.log("add to cart", p.id)}
-                className="mt-3 flex h-8 w-full items-center justify-center gap-2 rounded-[4px] bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0]"
+                disabled={busy}
+                onClick={() => addToCart(p.id, 1)}
+                className="mt-3 flex h-8 w-full items-center justify-center gap-2 rounded-[4px] bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                Add to Cart
+                {busy ? addToCartText : addToCartText}
             </button>
         </div>
     );

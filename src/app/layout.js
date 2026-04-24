@@ -1,6 +1,7 @@
 import HashScrollHandler from "@/components/clientComponents/dashboard/HashScrollHandler";
 import "./globals.css";
 import Providers from "./providers";
+import { CartProvider } from "@/contexts/CartContext";
 
 export async function generateMetadata() {
     return {
@@ -67,8 +68,10 @@ export default function RootLayout({ children }) {
             <body>
 
                 <Providers>
-                    <HashScrollHandler />
-                    {children}
+                    <CartProvider>
+                        <HashScrollHandler />
+                        {children}
+                    </CartProvider>
                 </Providers>
             </body>
         </html>

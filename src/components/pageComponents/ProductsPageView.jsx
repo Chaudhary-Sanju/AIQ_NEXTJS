@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ArrowUpRight, Search, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
@@ -367,6 +368,7 @@ function SkeletonGrid({ count = 10 }) {
 }
 
 function ProductCard({ p, locale, addToCartText }) {
+    const { addToCart, busy } = useCart();
     const href = `/${locale}/product/${p.slug}`;
 
     const hasDiscount =
@@ -436,11 +438,12 @@ function ProductCard({ p, locale, addToCartText }) {
 
             <button
                 type="button"
-                onClick={() => console.log("add to cart", p.id)}
-                className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0]"
+                disabled={busy}
+                onClick={() => addToCart(p.id, 1)}
+                className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                {addToCartText}
+                {busy ? addToCartText : addToCartText}
             </button>
         </div>
     );

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
@@ -193,6 +194,7 @@ function SkeletonGrid({ count = 5 }) {
 }
 
 function ProductCard({ p, locale }) {
+    const { addToCart, busy } = useCart();
     const href = `/${locale}/product/${p.slug}`;
 
     const addToCartText =
@@ -253,9 +255,14 @@ function ProductCard({ p, locale }) {
             <div className="mt-1 min-h-[16px] text-[11px]">
                 {hasDiscount ? (
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[#8b5cf6] line-through">{money(p.price)}</span>
+                        <span className="text-[#8b5cf6] line-through">
+                            {money(p.price)}
+                        </span>
+
                         {discountPercent ? (
-                            <span className="font-semibold text-[#ef4444]">-{discountPercent}%</span>
+                            <span className="font-semibold text-[#ef4444]">
+                                -{discountPercent}%
+                            </span>
                         ) : null}
                     </div>
                 ) : (
@@ -269,11 +276,12 @@ function ProductCard({ p, locale }) {
 
             <button
                 type="button"
-                onClick={() => console.log("add to cart", p.id)}
-                className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0]"
+                disabled={busy}
+                onClick={() => addToCart(p.id, 1)}
+                className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                {addToCartText}
+                {busy ? addToCartText : addToCartText}
             </button>
         </div>
     );
