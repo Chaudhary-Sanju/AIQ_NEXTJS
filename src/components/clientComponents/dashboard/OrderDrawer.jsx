@@ -6,7 +6,7 @@ import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { tGet } from "./utils";
 
-const money = (v) => `Rs. ${Number(v || 0).toLocaleString("en-IN")}`;
+const money = (v) => `HK$ ${Number(v || 0).toLocaleString("en-IN")}`;
 
 function formatDateTime(v) {
   if (!v) return "";

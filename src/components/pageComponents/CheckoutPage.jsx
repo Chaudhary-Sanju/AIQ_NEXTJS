@@ -7,16 +7,28 @@ import { useRouter } from "next/navigation";
 import {
     ArrowLeft,
     CheckCircle2,
+    CreditCard,
     Loader2,
     ShieldCheck,
     Tag,
     Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+    Elements,
+    CardElement,
+    useElements,
+    useStripe,
+} from "@stripe/react-stripe-js";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
 import { useCart } from "@/contexts/CartContext";
+
+const stripePromise = loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
 
 const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8}|\d{10})$/;
 
@@ -45,7 +57,8 @@ const UI = {
     free: { en: "FREE", ne: "निःशुल्क", zh: "免費" },
     total: { en: "Total", ne: "जम्मा", zh: "總額" },
     placeOrder: { en: "Place Order", ne: "अर्डर गर्नुहोस्", zh: "提交訂單" },
-    placing: { en: "Placing Order...", ne: "अर्डर हुँदैछ...", zh: "正在提交..." },
+    payNow: { en: "Pay Now", ne: "अहिले भुक्तानी गर्नुहोस्", zh: "立即付款" },
+    placing: { en: "Processing...", ne: "प्रोसेस हुँदैछ...", zh: "處理中..." },
     secure: {
         en: "Your order information is secure and encrypted",
         ne: "तपाईंको अर्डर जानकारी सुरक्षित छ",
@@ -62,6 +75,8 @@ const UI = {
         zh: "選擇城市或地區以查看可用付款方式",
     },
     cod: { en: "Cash on Delivery", ne: "डेलिभरीमा नगद", zh: "貨到付款" },
+    stripe: { en: "Card Payment", ne: "कार्ड भुक्तानी", zh: "信用卡付款" },
+    cardDetails: { en: "Card Details", ne: "कार्ड विवरण", zh: "信用卡資料" },
     emptyCart: { en: "Your cart is empty.", ne: "तपाईंको कार्ट खाली छ।", zh: "購物車是空的。" },
     continueShopping: { en: "Continue Shopping", ne: "किनमेल जारी राख्नुहोस्", zh: "繼續購物" },
 };
@@ -75,7 +90,11 @@ const pick = (obj, locale = "en") => {
 
 const money = (value) => {
     const num = Number(value || 0);
-    return `Rs. ${num.toLocaleString("en-IN")}`;
+
+    return `HK$ ${num.toLocaleString("en-HK", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })}`;
 };
 
 const safeImageUrl = (image) => {
@@ -132,7 +151,17 @@ const getProductImage = (item) => {
 };
 
 export default function CheckoutPage({ locale = "en" }) {
+    return (
+        <Elements stripe={stripePromise}>
+            <CheckoutForm locale={locale} />
+        </Elements>
+    );
+}
+
+function CheckoutForm({ locale = "en" }) {
     const router = useRouter();
+    const stripe = useStripe();
+    const elements = useElements();
     const { clearCart } = useCart();
 
     const [cart, setCart] = useState(null);
@@ -225,21 +254,28 @@ export default function CheckoutPage({ locale = "en" }) {
     const validate = () => {
         const next = {};
 
-        if (!form.name.trim()) next.name = "Required";
-        if (!form.email.trim()) next.email = "Required";
-        if (!form.phoneNumber.trim()) next.phoneNumber = "Required";
+        if (!form.name.trim()) next.name = "Full name is required";
+        if (!form.email.trim()) next.email = "Email is required";
+        if (!form.phoneNumber.trim()) next.phoneNumber = "Phone number is required";
 
         if (form.phoneNumber && !PHONE_REGEX.test(form.phoneNumber)) {
-            next.phoneNumber = "Use 9862200000, +977-9862200000 or +852-12345678";
+            next.phoneNumber = "Invalid phone format";
         }
 
-        if (!form.cityDistrict) next.cityDistrict = "Required";
-        if (!form.address.trim()) next.address = "Required";
+        if (!form.cityDistrict) next.cityDistrict = "City/District is required";
+        if (!form.address.trim()) next.address = "Address is required";
         if (!selectedZone) next.cityDistrict = "Please select delivery zone";
         if (!cartItems.length) next.cart = "Cart is empty";
 
         setErrors(next);
-        return Object.keys(next).length === 0;
+
+        if (Object.keys(next).length > 0) {
+            const firstError = Object.values(next)[0];
+            toast.error(firstError);
+            return false;
+        }
+
+        return true;
     };
 
     const removeItem = async (productId) => {
@@ -290,6 +326,19 @@ export default function CheckoutPage({ locale = "en" }) {
         toast.success("Coupon removed.");
     };
 
+    const resetCartAfterSuccess = async () => {
+        await clearCart({ silent: true });
+
+        setCart({
+            items: [],
+            totalItems: 0,
+            subTotal: 0,
+        });
+
+        setAppliedCoupon(null);
+        setCouponCode("");
+    };
+
     const handleOrder = async (e) => {
         e.preventDefault();
 
@@ -331,18 +380,58 @@ export default function CheckoutPage({ locale = "en" }) {
 
             const res = await http.post("/frontend/order/", payload);
 
-            await clearCart({ silent: true });
+            if (form.paymentMethod === "stripe") {
+                const clientSecret = res?.data?.stripe?.clientSecret;
 
-            setCart({
-                items: [],
-                totalItems: 0,
-                subTotal: 0,
-            });
+                if (!clientSecret) {
+                    toast.error("Stripe payment could not be started.");
+                    return;
+                }
 
-            setAppliedCoupon(null);
-            setCouponCode("");
+                const cardElement = elements.getElement(CardElement);
 
-            toast.success(res?.data?.message || "Order placed successfully.");
+                if (!cardElement) {
+                    toast.error("Card field is not ready.");
+                    return;
+                }
+
+                const paymentResult = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: form.name.trim(),
+                            email: form.email.trim(),
+                            phone: form.phoneNumber.trim(),
+                            address: {
+                                line1: form.address.trim(),
+                                city: form.cityDistrict,
+                            },
+                        },
+                    },
+                });
+
+                if (paymentResult.error) {
+                    toast.error(paymentResult.error.message || "Payment failed.");
+                    return;
+                }
+
+                if (paymentResult.paymentIntent?.status !== "succeeded") {
+                    toast.error("Payment was not completed.");
+                    return;
+                }
+
+                if (paymentResult.paymentIntent?.status === "succeeded") {
+                    await http.post("/frontend/order/confirm-stripe-payment", {
+                        paymentIntentId: paymentResult.paymentIntent.id,
+                    });
+                }
+
+                toast.success("Payment successful. Order placed.");
+            } else {
+                toast.success(res?.data?.message || "Order placed successfully.");
+            }
+
+            await resetCartAfterSuccess();
             router.push(`/${locale}/dashboard?tab=orders`);
         } catch (err) {
             toast.error(err?.response?.data?.message || "Failed to place order.");
@@ -441,7 +530,7 @@ export default function CheckoutPage({ locale = "en" }) {
                                         value={form.phoneNumber}
                                         error={errors.phoneNumber}
                                         onChange={(v) => updateForm("phoneNumber", v)}
-                                        placeholder="+977-9862200000"
+                                        placeholder="+852-12345678"
                                     />
                                 </div>
 
@@ -517,14 +606,14 @@ export default function CheckoutPage({ locale = "en" }) {
                                     value={form.address}
                                     error={errors.address}
                                     onChange={(v) => updateForm("address", v)}
-                                    placeholder="Kathmandu, Tinkune"
+                                    placeholder="Hong Kong"
                                 />
 
                                 <Input
                                     label={t("landmark", locale)}
                                     value={form.landmark}
                                     onChange={(v) => updateForm("landmark", v)}
-                                    placeholder="Near Bhatbhateni Supermarket"
+                                    placeholder="Nearby landmark"
                                 />
                             </div>
                         </Card>
@@ -539,20 +628,72 @@ export default function CheckoutPage({ locale = "en" }) {
                                     {t("paymentInfo", locale)}
                                 </p>
                             ) : (
-                                <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#cfd6df] bg-white p-4">
-                                    <span className="font-medium text-[#07152f]">
-                                        {t("cod", locale)}
-                                    </span>
+                                <div className="space-y-3">
+                                    <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#cfd6df] bg-white p-4">
+                                        <span className="font-medium text-[#07152f]">
+                                            {t("cod", locale)}
+                                        </span>
 
-                                    <input
-                                        type="radio"
-                                        checked={form.paymentMethod === "cod"}
-                                        onChange={() =>
-                                            updateForm("paymentMethod", "cod")
-                                        }
-                                        className="accent-cyan-500"
-                                    />
-                                </label>
+                                        <input
+                                            type="radio"
+                                            checked={form.paymentMethod === "cod"}
+                                            onChange={() =>
+                                                updateForm("paymentMethod", "cod")
+                                            }
+                                            className="accent-cyan-500"
+                                        />
+                                    </label>
+
+                                    <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#cfd6df] bg-white p-4">
+                                        <span className="flex items-center gap-2 font-medium text-[#07152f]">
+                                            <CreditCard className="h-4 w-4" />
+                                            {t("stripe", locale)}
+                                        </span>
+
+                                        <input
+                                            type="radio"
+                                            checked={form.paymentMethod === "stripe"}
+                                            onChange={() =>
+                                                updateForm("paymentMethod", "stripe")
+                                            }
+                                            className="accent-cyan-500"
+                                        />
+                                    </label>
+
+                                    {form.paymentMethod === "stripe" && (
+                                        <div className="rounded-md border border-[#cfd6df] bg-white p-4">
+                                            <label className="mb-3 block text-sm font-medium text-[#07152f]">
+                                                {t("cardDetails", locale)}
+                                            </label>
+
+                                            <div className="rounded-md border border-[#cfd6df] px-4 py-3">
+                                                <CardElement
+                                                    options={{
+                                                        hidePostalCode: true,
+                                                        style: {
+                                                            base: {
+                                                                fontSize: "15px",
+                                                                color: "#07152f",
+                                                                "::placeholder": {
+                                                                    color: "#7b8da1",
+                                                                },
+                                                            },
+                                                            invalid: {
+                                                                color: "#ef4444",
+                                                            },
+                                                        },
+                                                    }}
+                                                />
+                                            </div>
+
+                                            {errors.paymentMethod && (
+                                                <p className="mt-2 text-xs text-red-500">
+                                                    {errors.paymentMethod}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </Card>
                     </div>
@@ -708,7 +849,9 @@ export default function CheckoutPage({ locale = "en" }) {
                             ) : (
                                 <>
                                     <CheckCircle2 className="h-4 w-4" />
-                                    {t("placeOrder", locale)}
+                                    {form.paymentMethod === "stripe"
+                                        ? t("payNow", locale)
+                                        : t("placeOrder", locale)}
                                 </>
                             )}
                         </button>

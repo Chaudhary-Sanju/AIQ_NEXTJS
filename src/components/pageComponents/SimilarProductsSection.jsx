@@ -17,7 +17,7 @@ const pick = (obj, locale = "en") => {
 const money = (n) => {
     const num = Number(n);
     if (Number.isNaN(num)) return "";
-    return `Rs. ${num}`;
+    return `HK$ ${num}`;
 };
 
 const UI = {

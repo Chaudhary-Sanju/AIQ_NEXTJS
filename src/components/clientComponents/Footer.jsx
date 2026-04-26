@@ -132,7 +132,7 @@ export default function Footer({ locale = "en", dict = {} }) {
                                 if (slug === "about-us") href = l("/about");
                                 else if (slug === "contact-us") href = l("/contact");
                                 else if (slug === "terms-and-conditions") href = l("/terms");
-                                else if (slug === "privacy-policy") href = l("/privacy");
+                                else if (slug === "privacy-policy") href = l("/privacy-policy");
 
                                 return (
                                     <li key={item}>
@@ -228,7 +228,7 @@ export default function Footer({ locale = "en", dict = {} }) {
                     </span>
                     <div className="flex gap-5">
                         {[
-                            { label: "Privacy", href: l("/privacy") },
+                            { label: "Privacy", href: l("/privacy-policy") },
                             { label: "Terms", href: l("/terms") },
                             { label: "Cookies", href: l("/cookies") },
                         ].map(({ label, href }) => (

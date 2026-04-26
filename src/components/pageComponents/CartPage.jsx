@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
@@ -14,8 +15,8 @@ const pick = (obj, locale = "en") => {
 
 const money = (n) => {
     const num = Number(n);
-    if (Number.isNaN(num)) return "Rs. 0";
-    return `Rs. ${num}`;
+    if (Number.isNaN(num)) return "HK$ 0";
+    return `HK$ ${num}`;
 };
 
 const t = {
@@ -117,12 +118,32 @@ const normalizeCartItems = (items = [], locale = "en") => {
 
 export default function CartPage({ locale = "en" }) {
     const lang = t[locale] || t.en;
+
     const { cart, loading, busy, updateQty, removeItem, clearCart } = useCart();
 
-    const rawItems = Array.isArray(cart?.items) ? cart.items : [];
-    const products = normalizeCartItems(rawItems, locale);
+    const [updatingItemId, setUpdatingItemId] = useState(null);
 
-    if (loading) {
+    const rawItems = Array.isArray(cart?.items) ? cart.items : [];
+
+    const products = useMemo(() => {
+        return normalizeCartItems(rawItems, locale);
+    }, [rawItems, locale]);
+
+    const handleQtyUpdate = async (id, qty) => {
+        try {
+            setUpdatingItemId(String(id));
+            await updateQty(id, qty);
+        } finally {
+            setUpdatingItemId(null);
+        }
+    };
+
+    /**
+     * IMPORTANT:
+     * Only show full page loading on first load.
+     * Do not show skeleton again when updating quantity.
+     */
+    if (loading && !cart) {
         return (
             <main className="mx-auto max-w-7xl px-4 py-8 md:px-6">
                 <div className="mb-5 h-8 w-48 animate-pulse rounded bg-slate-200" />
@@ -197,6 +218,7 @@ export default function CartPage({ locale = "en" }) {
                     {products.map((p) => {
                         const canIncrease = p.sellOnNoStock || p.quantity < p.stock;
                         const isOutOfStock = !p.sellOnNoStock && p.stock <= 0;
+                        const isUpdating = updatingItemId === String(p.id);
 
                         const productHref = p.slug
                             ? `/${locale}/product/${p.slug}`
@@ -205,7 +227,10 @@ export default function CartPage({ locale = "en" }) {
                         return (
                             <div
                                 key={String(p.id)}
-                                className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4"
+                                className={[
+                                    "rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4",
+                                    isUpdating ? "opacity-70" : "",
+                                ].join(" ")}
                             >
                                 <div className="flex gap-3 md:gap-4">
                                     <Link
@@ -284,21 +309,25 @@ export default function CartPage({ locale = "en" }) {
                                                 <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white">
                                                     <button
                                                         type="button"
-                                                        disabled={busy || p.quantity <= 1}
-                                                        onClick={() => updateQty(p.id, p.quantity - 1)}
+                                                        disabled={isUpdating || p.quantity <= 1}
+                                                        onClick={() =>
+                                                            handleQtyUpdate(p.id, p.quantity - 1)
+                                                        }
                                                         className="flex h-9 w-9 items-center justify-center text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                                                     >
                                                         <Minus className="h-4 w-4" />
                                                     </button>
 
                                                     <span className="min-w-9 text-center text-sm font-bold">
-                                                        {p.quantity}
+                                                        {isUpdating ? "..." : p.quantity}
                                                     </span>
 
                                                     <button
                                                         type="button"
-                                                        disabled={busy || !canIncrease}
-                                                        onClick={() => updateQty(p.id, p.quantity + 1)}
+                                                        disabled={isUpdating || !canIncrease}
+                                                        onClick={() =>
+                                                            handleQtyUpdate(p.id, p.quantity + 1)
+                                                        }
                                                         className="flex h-9 w-9 items-center justify-center text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                                                         title={!canIncrease ? lang.maxStock : ""}
                                                     >
