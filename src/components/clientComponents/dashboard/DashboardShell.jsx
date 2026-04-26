@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
 import SidebarNav from "./SidebarNav";
 import ProfilePanel from "./ProfilePanel";
 import OrdersPanel from "./OrdersPanel";
@@ -9,38 +9,40 @@ import AddressesPanel from "./AddressesPanel";
 import SecurityPanel from "./SecurityPanel";
 import { LOCALES, tGet } from "./utils";
 
-export default function DashboardShell({ dict }) {
+const VALID_TABS = ["profile", "orders", "addresses", "security"];
+
+export default function DashboardShell({ dict, tab }) {
     const params = useParams();
+    const router = useRouter();
+
     const locale = LOCALES.includes(params?.locale) ? params.locale : "en";
+    const active = VALID_TABS.includes(tab) ? tab : "orders";
+
+    const handleChange = (key) => {
+        router.push(`/${locale}/dashboard/${key}`);
+    };
 
     const T = useMemo(
         () => ({
             title: tGet(dict, "dashboard.title", "Dashboard"),
             subtitle: tGet(dict, "dashboard.subtitle", "Manage your profile and orders"),
-            tabs: {
-                profile: tGet(dict, "dashboard.tabs.profile", "Profile"),
-                orders: tGet(dict, "dashboard.tabs.orders", "Orders"),
-                addresses: tGet(dict, "dashboard.tabs.addresses", "Addresses"),
-                security: tGet(dict, "dashboard.tabs.security", "Security"),
-            },
         }),
         [dict]
     );
 
-    const [active, setActive] = useState("orders");
-
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
                 <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{T.title}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                        {T.title}
+                    </h1>
                     <p className="text-gray-600 mt-1">{T.subtitle}</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <aside className="lg:col-span-3">
-                        <SidebarNav dict={dict} active={active} onChange={setActive} />
+                        <SidebarNav dict={dict} active={active} onChange={handleChange} />
                     </aside>
 
                     <main className="lg:col-span-9">

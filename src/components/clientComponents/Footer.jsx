@@ -33,7 +33,6 @@ export default function Footer({ locale = "en", dict = {} }) {
         "Contact Us",
         "Terms & Conditions",
         "Privacy Policy",
-        "FAQs",
     ]);
 
     return (
@@ -134,7 +133,6 @@ export default function Footer({ locale = "en", dict = {} }) {
                                 else if (slug === "contact-us") href = l("/contact");
                                 else if (slug === "terms-and-conditions") href = l("/terms");
                                 else if (slug === "privacy-policy") href = l("/privacy");
-                                else if (slug === "faqs") href = l("/faqs");
 
                                 return (
                                     <li key={item}>

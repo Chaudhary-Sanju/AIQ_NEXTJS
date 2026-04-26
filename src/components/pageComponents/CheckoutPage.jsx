@@ -38,7 +38,9 @@ const UI = {
     selectCity: { en: "Select City/District", ne: "शहर/जिल्ला छान्नुहोस्", zh: "選擇城市/地區" },
     coupon: { en: "Have a coupon code?", ne: "कुपन कोड छ?", zh: "有優惠券代碼？" },
     apply: { en: "Apply", ne: "लागू गर्नुहोस्", zh: "使用" },
+    remove: { en: "Remove", ne: "हटाउनुहोस्", zh: "移除" },
     subTotal: { en: "Sub-total", ne: "उप-योग", zh: "小計" },
+    discount: { en: "Discount", ne: "छुट", zh: "折扣" },
     deliveryCharge: { en: "Delivery Charge", ne: "डेलिभरी शुल्क", zh: "送貨費" },
     free: { en: "FREE", ne: "निःशुल्क", zh: "免費" },
     total: { en: "Total", ne: "जम्मा", zh: "總額" },
@@ -138,7 +140,11 @@ export default function CheckoutPage({ locale = "en" }) {
     const [zones, setZones] = useState([]);
     const [zoneLoading, setZoneLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+
     const [couponCode, setCouponCode] = useState("");
+    const [couponLoading, setCouponLoading] = useState(false);
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+
     const [errors, setErrors] = useState({});
 
     const [form, setForm] = useState({
@@ -175,7 +181,8 @@ export default function CheckoutPage({ locale = "en" }) {
         return Number(selectedZone?.deliveryCharge || 0);
     }, [selectedZone, subTotal]);
 
-    const total = subTotal + deliveryCharge;
+    const discountAmount = Number(appliedCoupon?.discountAmount || 0);
+    const total = Math.max(subTotal + deliveryCharge - discountAmount, 0);
 
     const loadCart = async () => {
         try {
@@ -206,6 +213,10 @@ export default function CheckoutPage({ locale = "en" }) {
         loadZones();
     }, []);
 
+    useEffect(() => {
+        setAppliedCoupon(null);
+    }, [subTotal]);
+
     const updateForm = (field, value) => {
         setForm((prev) => ({ ...prev, [field]: value }));
         setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -235,10 +246,48 @@ export default function CheckoutPage({ locale = "en" }) {
         try {
             await http.delete(`/frontend/cart/remove/${productId}`);
             toast.success("Item removed from cart.");
+            setAppliedCoupon(null);
             loadCart();
         } catch (err) {
             toast.error(err?.response?.data?.message || "Failed to remove item.");
         }
+    };
+
+    const applyCoupon = async () => {
+        try {
+            if (!couponCode.trim()) {
+                return toast.error("Please enter coupon code.");
+            }
+
+            if (!subTotal || subTotal <= 0) {
+                return toast.error("Cart subtotal is invalid.");
+            }
+
+            setCouponLoading(true);
+
+            const res = await http.post("/frontend/coupon/apply", {
+                code: couponCode.trim(),
+                subTotal,
+            });
+
+            const couponData = res?.data?.data;
+
+            setAppliedCoupon(couponData);
+            setCouponCode(couponData?.code || couponCode.trim());
+
+            toast.success(res?.data?.message || "Coupon applied successfully.");
+        } catch (err) {
+            setAppliedCoupon(null);
+            toast.error(err?.response?.data?.message || "Failed to apply coupon.");
+        } finally {
+            setCouponLoading(false);
+        }
+    };
+
+    const removeCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponCode("");
+        toast.success("Coupon removed.");
     };
 
     const handleOrder = async (e) => {
@@ -265,6 +314,17 @@ export default function CheckoutPage({ locale = "en" }) {
                     productID: getProductId(item),
                     qty: getQty(item),
                 })),
+                coupon: appliedCoupon
+                    ? {
+                        couponId: appliedCoupon.couponId,
+                        code: appliedCoupon.code,
+                        discountType: appliedCoupon.discountType,
+                        discountValue: appliedCoupon.discountValue,
+                        discountAmount: appliedCoupon.discountAmount,
+                    }
+                    : null,
+                discountAmount,
+                finalAmount: total,
                 paymentMethod: form.paymentMethod,
                 orderNote: form.orderNote.trim(),
             };
@@ -278,6 +338,9 @@ export default function CheckoutPage({ locale = "en" }) {
                 totalItems: 0,
                 subTotal: 0,
             });
+
+            setAppliedCoupon(null);
+            setCouponCode("");
 
             toast.success(res?.data?.message || "Order placed successfully.");
             router.push(`/${locale}/dashboard?tab=orders`);
@@ -555,23 +618,44 @@ export default function CheckoutPage({ locale = "en" }) {
                             <div className="flex gap-2">
                                 <input
                                     value={couponCode}
-                                    onChange={(e) =>
-                                        setCouponCode(e.target.value)
-                                    }
-                                    placeholder="SUMMER25"
-                                    className="h-10 min-w-0 flex-1 rounded-md border border-[#cfd6df] px-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                    onChange={(e) => {
+                                        setCouponCode(e.target.value);
+                                        setAppliedCoupon(null);
+                                    }}
+                                    placeholder="SAVE20"
+                                    disabled={couponLoading}
+                                    className="h-10 min-w-0 flex-1 rounded-md border border-[#cfd6df] px-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 disabled:bg-neutral-100"
                                 />
 
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        toast.info("Coupon API not connected yet.")
-                                    }
-                                    className="h-10 rounded-md bg-blue-600 px-5 text-sm font-bold text-white transition hover:bg-blue-700"
-                                >
-                                    {t("apply", locale)}
-                                </button>
+                                {appliedCoupon ? (
+                                    <button
+                                        type="button"
+                                        onClick={removeCoupon}
+                                        className="h-10 rounded-md bg-red-600 px-4 text-sm font-bold text-white transition hover:bg-red-700"
+                                    >
+                                        {t("remove", locale)}
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={applyCoupon}
+                                        disabled={couponLoading}
+                                        className="h-10 rounded-md bg-blue-600 px-5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                                    >
+                                        {couponLoading ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            t("apply", locale)
+                                        )}
+                                    </button>
+                                )}
                             </div>
+
+                            {appliedCoupon && (
+                                <p className="mt-2 text-xs font-medium text-green-600">
+                                    Coupon {appliedCoupon.code} applied.
+                                </p>
+                            )}
                         </div>
 
                         <div className="mt-7 space-y-4">
@@ -590,6 +674,13 @@ export default function CheckoutPage({ locale = "en" }) {
                                             : money(deliveryCharge)
                                 }
                             />
+
+                            {appliedCoupon && (
+                                <SummaryRow
+                                    label={`${t("discount", locale)} (${appliedCoupon.code})`}
+                                    value={`- ${money(discountAmount)}`}
+                                />
+                            )}
 
                             <div className="border-t border-[#07152f]" />
 

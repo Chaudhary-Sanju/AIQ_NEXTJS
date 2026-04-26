@@ -290,11 +290,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     fallback: "Privacy Policy",
                                     href: l("/privacy-policy"),
                                 },
-                                {
-                                    key: "nav.faqs",
-                                    fallback: "FAQs",
-                                    href: l("/faqs"),
-                                },
                             ].map((item, i, arr) => (
                                 <span key={item.href} className="inline-flex items-center">
                                     <Link
@@ -569,7 +564,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             </Link>
 
                                             <Link
-                                                href={l("/settings")}
+                                                href={`/${locale}/dashboard/security`}
                                                 onClick={() => setProfileOpen(false)}
                                                 className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
                                             >
@@ -863,7 +858,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         </Link>
 
                                         <Link
-                                            href={l("/settings")}
+                                            href={`/${locale}/dashboard/security`}
                                             onClick={() => setMobileOpen(false)}
                                             className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-[#f0f4fb]"
                                             style={{
