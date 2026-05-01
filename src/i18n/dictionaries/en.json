@@ -393,7 +393,7 @@
     "tabs": {
       "profile": "Profile",
       "orders": "Orders",
-      "addresses": "Addresses",
+      "reviews": "Reviews",
       "security": "Security"
     },
     "profile": {
@@ -446,7 +446,7 @@
         "payment": "Payment Method"
       }
     },
-    "addresses": { "coming": "Coming next: saved pickup/drop addresses." },
+    "reviews": { "coming": "Coming next: saved pickup/drop addresses." },
     "security": {
       "coming": "Coming next: change password, sessions, logout all devices."
     }

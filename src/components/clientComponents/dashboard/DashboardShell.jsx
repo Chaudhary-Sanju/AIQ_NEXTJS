@@ -5,11 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import SidebarNav from "./SidebarNav";
 import ProfilePanel from "./ProfilePanel";
 import OrdersPanel from "./OrdersPanel";
-import AddressesPanel from "./AddressesPanel";
+import ReviewPanel from "./ReviewPanel";
 import SecurityPanel from "./SecurityPanel";
 import { LOCALES, tGet } from "./utils";
 
-const VALID_TABS = ["profile", "orders", "addresses", "security"];
+const VALID_TABS = ["profile", "orders", "reviews", "security"];
 
 export default function DashboardShell({ dict, tab }) {
     const params = useParams();
@@ -48,7 +48,7 @@ export default function DashboardShell({ dict, tab }) {
                     <main className="lg:col-span-9">
                         {active === "profile" && <ProfilePanel dict={dict} locale={locale} />}
                         {active === "orders" && <OrdersPanel dict={dict} locale={locale} />}
-                        {active === "addresses" && <AddressesPanel dict={dict} locale={locale} />}
+                        {active === "reviews" && <ReviewPanel dict={dict} locale={locale} />}
                         {active === "security" && <SecurityPanel dict={dict} locale={locale} />}
                     </main>
                 </div>

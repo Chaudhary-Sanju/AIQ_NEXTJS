@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getDictionary, locales } from "@/i18n/getDictionary";
 import DashboardShell from "@/components/clientComponents/dashboard/DashboardShell";
 
-const VALID_TABS = ["profile", "orders", "addresses", "security"];
+const VALID_TABS = ["profile", "orders", "reviews", "security"];
 
 export default async function DashboardTabPage({ params }) {
     const { locale, tab } = await params;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import http from "@/http";
 import OrderDrawer from "./OrderDrawer";
 import { tGet } from "./utils";
@@ -41,6 +41,248 @@ function money(value) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     })}`;
+}
+
+function parseProductNameString(value) {
+    if (!value || typeof value !== "string") return null;
+
+    const result = {};
+
+    const enMatch = value.match(/en\s*:\s*['"`]([^'"`]*)['"`]/);
+    const neMatch = value.match(/ne\s*:\s*['"`]([^'"`]*)['"`]/);
+    const zhMatch = value.match(/zh\s*:\s*['"`]([^'"`]*)['"`]/);
+
+    if (enMatch?.[1]) result.en = enMatch[1].trim();
+    if (neMatch?.[1]) result.ne = neMatch[1].trim();
+    if (zhMatch?.[1]) result.zh = zhMatch[1].trim();
+
+    return Object.keys(result).length ? result : null;
+}
+
+function productName(product, locale = "en") {
+    if (!product) return "";
+
+    if (typeof product === "string") {
+        const parsed = parseProductNameString(product);
+
+        if (parsed) {
+            return (
+                parsed?.[locale] ||
+                parsed?.en ||
+                parsed?.ne ||
+                parsed?.zh ||
+                "Product"
+            );
+        }
+
+        return product;
+    }
+
+    const name = product?.name;
+
+    if (typeof name === "string") {
+        const parsed = parseProductNameString(name);
+
+        if (parsed) {
+            return (
+                parsed?.[locale] ||
+                parsed?.en ||
+                parsed?.ne ||
+                parsed?.zh ||
+                "Product"
+            );
+        }
+
+        return name;
+    }
+
+    return (
+        name?.[locale] ||
+        name?.en ||
+        name?.ne ||
+        name?.zh ||
+        "Product"
+    );
+}
+
+function ReviewModal({ open, onClose, reviewTarget, onSubmitted }) {
+    const existingReview = reviewTarget?.existingReview || null;
+    const isEdit = !!existingReview?._id;
+
+    const [rating, setRating] = useState(5);
+    const [review, setReview] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [err, setErr] = useState("");
+    const [success, setSuccess] = useState("");
+
+    useEffect(() => {
+        if (open) {
+            setRating(existingReview?.rating || 5);
+            setReview(existingReview?.review || "");
+            setErr("");
+            setSuccess("");
+        }
+    }, [open, existingReview]);
+
+    if (!open) return null;
+
+    const submitReview = async (e) => {
+        e.preventDefault();
+
+        setSubmitting(true);
+        setErr("");
+        setSuccess("");
+
+        try {
+            if (isEdit) {
+                await http.patch(`/frontend/martReview/my/${existingReview._id}`, {
+                    rating,
+                    review,
+                });
+
+                setSuccess("Review updated successfully. Waiting for approval again.");
+            } else {
+                await http.post("/frontend/martReview/", {
+                    product_id: reviewTarget?.productID,
+                    order_id: reviewTarget?.orderId,
+                    rating,
+                    review,
+                });
+
+                setSuccess("Review submitted successfully. Waiting for approval.");
+            }
+
+            await onSubmitted?.();
+
+            setTimeout(() => {
+                onClose();
+            }, 800);
+        } catch (error) {
+            setErr(
+                error?.response?.data?.message ||
+                "Unable to submit review."
+            );
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+                <div className="flex items-start justify-between border-b border-gray-100 px-6 py-4">
+                    <div>
+                        <h3 className="text-lg font-bold text-gray-900">
+                            {isEdit ? "Update Review" : "Add Review"}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                            {reviewTarget?.product || "Product"}
+                        </p>
+
+                        {isEdit && (
+                            <div className="mt-2">
+                                <span
+                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${existingReview?.approved
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-yellow-100 text-yellow-700"
+                                        }`}
+                                >
+                                    {existingReview?.approved
+                                        ? "Approved"
+                                        : "Waiting for approval"}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="rounded-full px-2 py-1 text-xl text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <form onSubmit={submitReview} className="space-y-4 px-6 py-5">
+                    {err && (
+                        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                            {err}
+                        </div>
+                    )}
+
+                    {success && (
+                        <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+                            {success}
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                            Rating
+                        </label>
+
+                        <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => setRating(star)}
+                                    className={`h-10 w-10 rounded-xl border text-lg font-bold ${rating >= star
+                                        ? "border-yellow-300 bg-yellow-50 text-yellow-500"
+                                        : "border-gray-200 bg-white text-gray-300"
+                                        }`}
+                                >
+                                    ★
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                            Review
+                        </label>
+
+                        <textarea
+                            value={review}
+                            onChange={(e) => setReview(e.target.value)}
+                            required
+                            minLength={3}
+                            rows={5}
+                            placeholder="Write your experience about this product..."
+                            className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {submitting
+                                ? isEdit
+                                    ? "Updating..."
+                                    : "Submitting..."
+                                : isEdit
+                                    ? "Update Review"
+                                    : "Submit Review"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
 }
 
 export default function OrdersPanel({ dict, locale = "en" }) {
@@ -95,6 +337,16 @@ export default function OrdersPanel({ dict, locale = "en" }) {
 
     const [selectedOrderId, setSelectedOrderId] = useState(null);
 
+    const [reviewModalOpen, setReviewModalOpen] = useState(false);
+    const [reviewTarget, setReviewTarget] = useState(null);
+
+    const [reviewMap, setReviewMap] = useState({});
+    const [reviewLoadingMap, setReviewLoadingMap] = useState({});
+
+    const getReviewKey = (orderId, productId) => {
+        return `${orderId}_${productId}`;
+    };
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedQ(q.trim());
@@ -103,6 +355,71 @@ export default function OrdersPanel({ dict, locale = "en" }) {
 
         return () => clearTimeout(timer);
     }, [q]);
+
+    const loadOrderProductReviews = async (orderList = []) => {
+        const deliveredOrders = orderList.filter(
+            (order) => lower(order?.status) === "delivered"
+        );
+
+        if (!deliveredOrders.length) {
+            setReviewMap({});
+            setReviewLoadingMap({});
+            return;
+        }
+
+        const loadingMap = {};
+
+        deliveredOrders.forEach((order) => {
+            (order?.items || []).forEach((item) => {
+                const orderId = order?._id;
+                const productId = item?.productID?._id || item?.productID;
+
+                if (!orderId || !productId) return;
+
+                const key = getReviewKey(orderId, productId);
+                loadingMap[key] = true;
+            });
+        });
+
+        setReviewLoadingMap(loadingMap);
+
+        const resultMap = {};
+
+        await Promise.all(
+            deliveredOrders.map(async (order) => {
+                try {
+                    const res = await http.get(
+                        "/frontend/martReview/my/order-reviews",
+                        {
+                            params: {
+                                order_id: order?._id,
+                            },
+                        }
+                    );
+
+                    const reviews = Array.isArray(res?.data?.data)
+                        ? res.data.data
+                        : [];
+
+                    reviews.forEach((review) => {
+                        const productId =
+                            review?.product_id?._id ||
+                            review?.product_id;
+
+                        if (!productId) return;
+
+                        const key = getReviewKey(order?._id, productId);
+                        resultMap[key] = review;
+                    });
+                } catch {
+                    // keep empty result for this order
+                }
+            })
+        );
+
+        setReviewMap(resultMap);
+        setReviewLoadingMap({});
+    };
 
     const loadOrders = async () => {
         setLoading(true);
@@ -125,7 +442,9 @@ export default function OrdersPanel({ dict, locale = "en" }) {
                 params,
             });
 
-            setOrders(Array.isArray(res?.data?.data) ? res.data.data : []);
+            const orderList = Array.isArray(res?.data?.data) ? res.data.data : [];
+
+            setOrders(orderList);
 
             setPagination(
                 res?.data?.pagination || {
@@ -137,6 +456,8 @@ export default function OrdersPanel({ dict, locale = "en" }) {
                     hasPrevPage: false,
                 }
             );
+
+            await loadOrderProductReviews(orderList);
         } catch (error) {
             setErr(error?.response?.data?.message || T.error);
         } finally {
@@ -148,6 +469,27 @@ export default function OrdersPanel({ dict, locale = "en" }) {
         loadOrders();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, limit, debouncedQ, status, sort]);
+
+    const openReviewModal = (order, item) => {
+        const productID = item?.productID?._id || item?.productID;
+        const key = getReviewKey(order?._id, productID);
+        const existingReview = reviewMap[key] || null;
+
+        const translatedProductName =
+            productName(existingReview?.product_id, locale) ||
+            productName(item?.product, locale) ||
+            "Product";
+
+        setReviewTarget({
+            orderId: order?._id,
+            orderNumber: order?.orderNumber,
+            productID,
+            product: translatedProductName,
+            existingReview,
+        });
+
+        setReviewModalOpen(true);
+    };
 
     const statusPill = (sRaw) => {
         const s = lower(sRaw).replaceAll(" ", "_") || "pending";
@@ -172,67 +514,64 @@ export default function OrdersPanel({ dict, locale = "en" }) {
         <>
             <div className="rounded-2xl border border-gray-100 bg-white shadow-md">
                 <div className="border-b border-gray-100 px-6 py-5">
-                    <h2 className="text-xl font-bold tracking-tight text-gray-900 mb-4">
+                    <h2 className="mb-4 text-xl font-bold tracking-tight text-gray-900">
                         {T.title}
                     </h2>
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <input
-                                value={q}
-                                onChange={(e) => setQ(e.target.value)}
-                                placeholder={T.search}
-                                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:w-72"
-                            />
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <input
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            placeholder={T.search}
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:w-72"
+                        />
 
-                            <select
-                                value={status}
-                                onChange={(e) => {
-                                    setStatus(e.target.value);
-                                    setPage(1);
-                                }}
-                                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:w-44"
-                            >
-                                <option value="all">{T.all}</option>
-                                {STATUS.filter((s) => s !== "all").map((s) => (
-                                    <option key={s} value={s}>
-                                        {statusLabel(s)}
-                                    </option>
-                                ))}
-                            </select>
+                        <select
+                            value={status}
+                            onChange={(e) => {
+                                setStatus(e.target.value);
+                                setPage(1);
+                            }}
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:w-44"
+                        >
+                            <option value="all">{T.all}</option>
+                            {STATUS.filter((s) => s !== "all").map((s) => (
+                                <option key={s} value={s}>
+                                    {statusLabel(s)}
+                                </option>
+                            ))}
+                        </select>
 
-                            <select
-                                value={`${sort.sortBy}-${sort.sortOrder}`}
-                                onChange={(e) => {
-                                    const selected = SORT_OPTIONS.find(
-                                        (item) =>
-                                            `${item.sortBy}-${item.sortOrder}` ===
-                                            e.target.value
-                                    );
+                        <select
+                            value={`${sort.sortBy}-${sort.sortOrder}`}
+                            onChange={(e) => {
+                                const selected = SORT_OPTIONS.find(
+                                    (item) =>
+                                        `${item.sortBy}-${item.sortOrder}` === e.target.value
+                                );
 
-                                    setSort(selected || SORT_OPTIONS[0]);
-                                    setPage(1);
-                                }}
-                                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:w-44"
-                            >
-                                {SORT_OPTIONS.map((item) => (
-                                    <option
-                                        key={`${item.sortBy}-${item.sortOrder}`}
-                                        value={`${item.sortBy}-${item.sortOrder}`}
-                                    >
-                                        {item.label}
-                                    </option>
-                                ))}
-                            </select>
+                                setSort(selected || SORT_OPTIONS[0]);
+                                setPage(1);
+                            }}
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 sm:w-44"
+                        >
+                            {SORT_OPTIONS.map((item) => (
+                                <option
+                                    key={`${item.sortBy}-${item.sortOrder}`}
+                                    value={`${item.sortBy}-${item.sortOrder}`}
+                                >
+                                    {item.label}
+                                </option>
+                            ))}
+                        </select>
 
-                            <button
-                                type="button"
-                                onClick={loadOrders}
-                                className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                            >
-                                {T.refresh}
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={loadOrders}
+                            className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                        >
+                            {T.refresh}
+                        </button>
                     </div>
                 </div>
 
@@ -264,87 +603,200 @@ export default function OrdersPanel({ dict, locale = "en" }) {
 
                                 <tbody className="divide-y divide-gray-100">
                                     {orders.map((o) => (
-                                        <tr
-                                            key={getOrderKey(o)}
-                                            className="group text-sm transition-colors hover:bg-gray-50/50"
-                                        >
-                                            <td className="px-6 py-4">
-                                                <div className="font-semibold text-gray-900">
-                                                    {o?.orderNumber || o?._id}
-                                                </div>
+                                        <Fragment key={getOrderKey(o)}>
+                                            <tr className="group text-sm transition-colors hover:bg-gray-50/50">
+                                                <td className="px-6 py-4">
+                                                    <div className="font-semibold text-gray-900">
+                                                        {o?.orderNumber || o?._id}
+                                                    </div>
 
-                                                <div className="mt-0.5 text-xs text-gray-500">
-                                                    {formatDateTime(o?.createdAt || o?.orderDate)}
-                                                </div>
+                                                    <div className="mt-0.5 text-xs text-gray-500">
+                                                        {formatDateTime(o?.createdAt || o?.orderDate)}
+                                                    </div>
 
-                                                <div className="mt-1 text-xs text-gray-500">
-                                                    {o?.items?.length || 0} item(s)
-                                                </div>
-                                            </td>
-
-                                            <td className="px-6 py-4">
-                                                <div className="font-medium text-gray-900">
-                                                    {o?.cityDistrict || o?.deliveryZone?.name || "-"}
-                                                </div>
-
-                                                <div className="mt-0.5 text-xs text-gray-500">
-                                                    {o?.address || "-"}
-                                                </div>
-
-                                                {o?.deliveryZone?.estimatedDeliveryDays && (
                                                     <div className="mt-1 text-xs text-gray-500">
-                                                        Delivery:{" "}
-                                                        {o.deliveryZone.estimatedDeliveryDays.min}-
-                                                        {o.deliveryZone.estimatedDeliveryDays.max} days
+                                                        {o?.items?.length || 0} item(s)
                                                     </div>
-                                                )}
-                                            </td>
+                                                </td>
 
-                                            <td className="px-6 py-4">
-                                                <div className="font-semibold text-gray-900">
-                                                    {money(o?.total)}
-                                                </div>
-
-                                                <div className="mt-0.5 text-xs text-gray-500">
-                                                    Subtotal: {money(o?.subtotal)}
-                                                </div>
-
-                                                <div className="text-xs text-gray-500">
-                                                    Delivery: {money(o?.deliveryCharge)}
-                                                </div>
-
-                                                {Number(o?.discountAmount || 0) > 0 && (
-                                                    <div className="mt-0.5 text-xs font-medium text-green-600">
-                                                        Coupon {o?.appliedCoupon?.code || ""}: -{" "}
-                                                        {money(o?.discountAmount)}
+                                                <td className="px-6 py-4">
+                                                    <div className="font-medium text-gray-900">
+                                                        {o?.cityDistrict || o?.deliveryZone?.name || "-"}
                                                     </div>
-                                                )}
-                                            </td>
 
-                                            <td className="px-6 py-4">
-                                                <span className={statusPill(o?.status)}>
-                                                    {statusLabel(o?.status)}
-                                                </span>
+                                                    <div className="mt-0.5 text-xs text-gray-500">
+                                                        {o?.address || "-"}
+                                                    </div>
 
-                                                <div className="mt-2 text-xs text-gray-500">
-                                                    Payment: {o?.paymentStatus || "-"}
-                                                </div>
+                                                    {o?.deliveryZone?.estimatedDeliveryDays && (
+                                                        <div className="mt-1 text-xs text-gray-500">
+                                                            Delivery:{" "}
+                                                            {o.deliveryZone.estimatedDeliveryDays.min}-
+                                                            {o.deliveryZone.estimatedDeliveryDays.max} days
+                                                        </div>
+                                                    )}
+                                                </td>
 
-                                                <div className="mt-0.5 text-xs text-gray-500 capitalize">
-                                                    Method: {o?.paymentMethod || "-"}
-                                                </div>
-                                            </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-semibold text-gray-900">
+                                                        {money(o?.total)}
+                                                    </div>
 
-                                            <td className="px-6 py-4 text-right">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setSelectedOrderId(o?._id)}
-                                                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm"
-                                                >
-                                                    {T.view}
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                    <div className="mt-0.5 text-xs text-gray-500">
+                                                        Subtotal: {money(o?.subtotal)}
+                                                    </div>
+
+                                                    <div className="text-xs text-gray-500">
+                                                        Delivery: {money(o?.deliveryCharge)}
+                                                    </div>
+
+                                                    {Number(o?.discountAmount || 0) > 0 && (
+                                                        <div className="mt-0.5 text-xs font-medium text-green-600">
+                                                            Coupon {o?.appliedCoupon?.code || ""}: -{" "}
+                                                            {money(o?.discountAmount)}
+                                                        </div>
+                                                    )}
+                                                </td>
+
+                                                <td className="px-6 py-4">
+                                                    <span className={statusPill(o?.status)}>
+                                                        {statusLabel(o?.status)}
+                                                    </span>
+
+                                                    <div className="mt-2 text-xs text-gray-500">
+                                                        Payment: {o?.paymentStatus || "-"}
+                                                    </div>
+
+                                                    <div className="mt-0.5 text-xs text-gray-500 capitalize">
+                                                        Method: {o?.paymentMethod || "-"}
+                                                    </div>
+                                                </td>
+
+                                                <td className="px-6 py-4 text-right">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedOrderId(o?._id)}
+                                                        className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm"
+                                                    >
+                                                        {T.view}
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                            {lower(o?.status) === "delivered" && (
+                                                <tr>
+                                                    <td colSpan={5} className="bg-gray-50/40 px-6 py-4">
+                                                        <hr className="mb-4 border-gray-200" />
+
+                                                        <div className="mb-3 flex items-center justify-between">
+                                                            <p className="text-sm font-bold text-gray-900">
+                                                                Add review of this product
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+                                                            {(o?.items || []).map((item, index) => {
+                                                                const productId = item?.productID?._id || item?.productID;
+
+                                                                const reviewKey = getReviewKey(o?._id, productId);
+                                                                const existingReview = reviewMap[reviewKey];
+                                                                const isReviewLoading = reviewLoadingMap[reviewKey];
+
+                                                                const displayProductName =
+                                                                    productName(existingReview?.product_id, locale) ||
+                                                                    productName(item?.product, locale) ||
+                                                                    "Product";
+
+                                                                return (
+                                                                    <div
+                                                                        key={`${productId || index}-${index}`}
+                                                                        className="border-b border-gray-100 p-4 last:border-b-0"
+                                                                    >
+                                                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                                                            <div className="min-w-0 flex-1">
+                                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                                    <p className="text-sm font-semibold text-gray-900">
+                                                                                        {displayProductName}
+                                                                                    </p>
+
+                                                                                    {existingReview && (
+                                                                                        <span
+                                                                                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${existingReview?.approved
+                                                                                                ? "bg-green-100 text-green-700"
+                                                                                                : "bg-yellow-100 text-yellow-700"
+                                                                                                }`}
+                                                                                        >
+                                                                                            {existingReview?.approved ? "Approved" : "Pending"}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+
+                                                                                <p className="mt-1 text-xs text-gray-500">
+                                                                                    Qty: {item?.qty || 1} · {money(item?.price)}
+                                                                                </p>
+
+                                                                                {isReviewLoading ? (
+                                                                                    <div className="mt-2 text-xs text-gray-400">
+                                                                                        Checking review...
+                                                                                    </div>
+                                                                                ) : existingReview ? (
+                                                                                    <div className="mt-3">
+                                                                                        <div className="flex items-center gap-1 text-sm text-yellow-500">
+                                                                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                                                                <span key={star}>
+                                                                                                    {existingReview?.rating >= star ? "★" : "☆"}
+                                                                                                </span>
+                                                                                            ))}
+                                                                                        </div>
+
+                                                                                        <p className="mt-1 text-sm text-gray-700">
+                                                                                            {existingReview?.review}
+                                                                                        </p>
+
+                                                                                        <p className="mt-1 text-xs text-gray-500">
+                                                                                            Status:{" "}
+                                                                                            <span
+                                                                                                className={
+                                                                                                    existingReview?.approved
+                                                                                                        ? "font-semibold text-green-600"
+                                                                                                        : "font-semibold text-yellow-600"
+                                                                                                }
+                                                                                            >
+                                                                                                {existingReview?.approved
+                                                                                                    ? "Approved by admin"
+                                                                                                    : "Waiting for admin approval"}
+                                                                                            </span>
+                                                                                        </p>
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <p className="mt-2 text-xs text-gray-500">
+                                                                                        You have not reviewed this product yet.
+                                                                                    </p>
+                                                                                )}
+                                                                            </div>
+
+                                                                            <div className="flex shrink-0 justify-start lg:justify-end lg:pt-0">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    disabled={!productId}
+                                                                                    onClick={() => openReviewModal(o, item)}
+                                                                                    className={`rounded-lg px-4 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 ${existingReview
+                                                                                        ? "bg-blue-600 hover:bg-blue-700"
+                                                                                        : "bg-gray-900 hover:bg-gray-800"
+                                                                                        }`}
+                                                                                >
+                                                                                    {existingReview ? "Update Review" : "Add Review"}
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </Fragment>
                                     ))}
                                 </tbody>
                             </table>
@@ -399,6 +851,16 @@ export default function OrdersPanel({ dict, locale = "en" }) {
                 locale={locale}
                 orderId={selectedOrderId}
                 onClose={() => setSelectedOrderId(null)}
+            />
+
+            <ReviewModal
+                open={reviewModalOpen}
+                reviewTarget={reviewTarget}
+                onClose={() => {
+                    setReviewModalOpen(false);
+                    setReviewTarget(null);
+                }}
+                onSubmitted={loadOrders}
             />
         </>
     );

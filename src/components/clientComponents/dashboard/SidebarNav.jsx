@@ -15,6 +15,10 @@ export default function SidebarNav({ dict, active, onChange }) {
                 label: tGet(dict, "dashboard.tabs.orders", "Orders"),
             },
             {
+                key: "reviews",
+                label: tGet(dict, "dashboard.tabs.reviews", "Reviews"),
+            },
+            {
                 key: "security",
                 label: tGet(dict, "dashboard.tabs.security", "Security"),
             },
