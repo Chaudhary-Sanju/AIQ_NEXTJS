@@ -97,6 +97,31 @@ const UI = {
         ne: "पृष्ठ",
         zh: "页",
     },
+    notRatedYet: {
+        en: "Not rated yet",
+        ne: "अहिलेसम्म रेट गरिएको छैन",
+        zh: "暂无评分",
+    },
+    review: {
+        en: "review",
+        ne: "समीक्षा",
+        zh: "评价",
+    },
+    reviews: {
+        en: "reviews",
+        ne: "समीक्षाहरू",
+        zh: "评价",
+    },
+    prev: {
+        en: "Prev",
+        ne: "अघिल्लो",
+        zh: "上一页",
+    },
+    next: {
+        en: "Next",
+        ne: "अर्को",
+        zh: "下一页",
+    },
 };
 
 const SORT_OPTIONS = [
@@ -118,7 +143,9 @@ export default function ProductsPageView({ locale = "en", dict }) {
     const [pagination, setPagination] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
+    const [searchInput, setSearchInput] = useState(
+        searchParams.get("search") || ""
+    );
 
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 10);
@@ -127,23 +154,66 @@ export default function ProductsPageView({ locale = "en", dict }) {
 
     const t = {
         title: dict?.productsPage?.title || UI.title[locale] || UI.title.en,
-        subtitle: dict?.productsPage?.subtitle || UI.subtitle[locale] || UI.subtitle.en,
-        searchPlaceholder: dict?.productsPage?.searchPlaceholder || UI.searchPlaceholder[locale] || UI.searchPlaceholder.en,
-        sortLabel: dict?.productsPage?.sortLabel || UI.sortLabel[locale] || UI.sortLabel.en,
-        noProducts: dict?.productsPage?.noProducts || UI.noProducts[locale] || UI.noProducts.en,
-        addToCart: dict?.productsPage?.addToCart || UI.addToCart[locale] || UI.addToCart.en,
-        results: dict?.productsPage?.results || UI.results[locale] || UI.results.en,
+        subtitle:
+            dict?.productsPage?.subtitle ||
+            UI.subtitle[locale] ||
+            UI.subtitle.en,
+        searchPlaceholder:
+            dict?.productsPage?.searchPlaceholder ||
+            UI.searchPlaceholder[locale] ||
+            UI.searchPlaceholder.en,
+        sortLabel:
+            dict?.productsPage?.sortLabel ||
+            UI.sortLabel[locale] ||
+            UI.sortLabel.en,
+        noProducts:
+            dict?.productsPage?.noProducts ||
+            UI.noProducts[locale] ||
+            UI.noProducts.en,
+        addToCart:
+            dict?.productsPage?.addToCart ||
+            UI.addToCart[locale] ||
+            UI.addToCart.en,
+        results:
+            dict?.productsPage?.results ||
+            UI.results[locale] ||
+            UI.results.en,
         page: dict?.productsPage?.page || UI.page[locale] || UI.page.en,
+        notRatedYet:
+            dict?.productsPage?.notRatedYet ||
+            UI.notRatedYet[locale] ||
+            UI.notRatedYet.en,
+        review:
+            dict?.productsPage?.review || UI.review[locale] || UI.review.en,
+        reviews:
+            dict?.productsPage?.reviews || UI.reviews[locale] || UI.reviews.en,
+        prev: dict?.productsPage?.prev || UI.prev[locale] || UI.prev.en,
+        next: dict?.productsPage?.next || UI.next[locale] || UI.next.en,
     };
 
     const sortLabelMap = {
-        sortDefault: dict?.productsPage?.sortDefault || UI.sortDefault[locale] || UI.sortDefault.en,
-        latest: dict?.productsPage?.latest || UI.latest[locale] || UI.latest.en,
-        oldest: dict?.productsPage?.oldest || UI.oldest[locale] || UI.oldest.en,
-        nameAsc: dict?.productsPage?.nameAsc || UI.nameAsc[locale] || UI.nameAsc.en,
-        nameDesc: dict?.productsPage?.nameDesc || UI.nameDesc[locale] || UI.nameDesc.en,
-        priceAsc: dict?.productsPage?.priceAsc || UI.priceAsc[locale] || UI.priceAsc.en,
-        priceDesc: dict?.productsPage?.priceDesc || UI.priceDesc[locale] || UI.priceDesc.en,
+        sortDefault:
+            dict?.productsPage?.sortDefault ||
+            UI.sortDefault[locale] ||
+            UI.sortDefault.en,
+        latest:
+            dict?.productsPage?.latest || UI.latest[locale] || UI.latest.en,
+        oldest:
+            dict?.productsPage?.oldest || UI.oldest[locale] || UI.oldest.en,
+        nameAsc:
+            dict?.productsPage?.nameAsc || UI.nameAsc[locale] || UI.nameAsc.en,
+        nameDesc:
+            dict?.productsPage?.nameDesc ||
+            UI.nameDesc[locale] ||
+            UI.nameDesc.en,
+        priceAsc:
+            dict?.productsPage?.priceAsc ||
+            UI.priceAsc[locale] ||
+            UI.priceAsc.en,
+        priceDesc:
+            dict?.productsPage?.priceDesc ||
+            UI.priceDesc[locale] ||
+            UI.priceDesc.en,
     };
 
     const updateQuery = (updates = {}) => {
@@ -187,8 +257,14 @@ export default function ProductsPageView({ locale = "en", dict }) {
                     sortBy,
                 });
 
-                const res = await http.get(`/frontend/product?${query.toString()}`);
-                const data = Array.isArray(res?.data?.data) ? res.data.data : [];
+                const res = await http.get(
+                    `/frontend/product?${query.toString()}`
+                );
+
+                const data = Array.isArray(res?.data?.data)
+                    ? res.data.data
+                    : [];
+
                 const pag = res?.data?.pagination || null;
 
                 const mapped = data
@@ -201,6 +277,14 @@ export default function ProductsPageView({ locale = "en", dict }) {
                         price: p?.price,
                         discounted_price: p?.discounted_price,
                         image: Array.isArray(p?.images) ? p.images[0] : null,
+                        reviewSummary: {
+                            averageRating: Number(
+                                p?.reviewSummary?.averageRating || 0
+                            ),
+                            totalReviews: Number(
+                                p?.reviewSummary?.totalReviews || 0
+                            ),
+                        },
                     }));
 
                 if (mounted) {
@@ -235,6 +319,7 @@ export default function ProductsPageView({ locale = "en", dict }) {
                             <h1 className="text-2xl font-extrabold text-[#1f1f1f] md:text-[34px]">
                                 {t.title}
                             </h1>
+
                             <p className="mt-1 text-sm text-slate-600">
                                 {t.subtitle}
                             </p>
@@ -243,10 +328,13 @@ export default function ProductsPageView({ locale = "en", dict }) {
                         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px] lg:w-[720px]">
                             <div className="relative">
                                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
                                 <input
                                     type="text"
                                     value={searchInput}
-                                    onChange={(e) => setSearchInput(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchInput(e.target.value)
+                                    }
                                     placeholder={t.searchPlaceholder}
                                     className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-[#5b4fd4] focus:ring-4 focus:ring-[#5b4fd4]/10"
                                 />
@@ -263,7 +351,10 @@ export default function ProductsPageView({ locale = "en", dict }) {
                                 className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-[#5b4fd4] focus:ring-4 focus:ring-[#5b4fd4]/10"
                             >
                                 {SORT_OPTIONS.map((opt) => (
-                                    <option key={opt.value || "default"} value={opt.value}>
+                                    <option
+                                        key={opt.value || "default"}
+                                        value={opt.value}
+                                    >
                                         {sortLabelMap[opt.key]}
                                     </option>
                                 ))}
@@ -274,12 +365,13 @@ export default function ProductsPageView({ locale = "en", dict }) {
 
                 <div className="mb-4 flex items-center justify-between gap-3">
                     <p className="text-sm text-slate-600">
-                        {(pagination?.totalItems || 0)} {t.results}
+                        {pagination?.totalItems || 0} {t.results}
                     </p>
 
                     {pagination ? (
                         <p className="text-sm text-slate-500">
-                            {t.page} {pagination.currentPage} / {pagination.totalPages}
+                            {t.page} {pagination.currentPage} /{" "}
+                            {pagination.totalPages}
                         </p>
                     ) : null}
                 </div>
@@ -294,7 +386,15 @@ export default function ProductsPageView({ locale = "en", dict }) {
                     <>
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 lg:gap-4">
                             {products.map((p) => (
-                                <ProductCard key={p.id} p={p} locale={locale} addToCartText={t.addToCart} />
+                                <ProductCard
+                                    key={p.id}
+                                    p={p}
+                                    locale={locale}
+                                    addToCartText={t.addToCart}
+                                    notRatedYetText={t.notRatedYet}
+                                    reviewText={t.review}
+                                    reviewsText={t.reviews}
+                                />
                             ))}
                         </div>
 
@@ -303,22 +403,31 @@ export default function ProductsPageView({ locale = "en", dict }) {
                                 <button
                                     type="button"
                                     disabled={!pagination?.hasPrevPage}
-                                    onClick={() => updateQuery({ page: pagination.prevPage || 1 })}
+                                    onClick={() =>
+                                        updateQuery({
+                                            page: pagination.prevPage || 1,
+                                        })
+                                    }
                                     className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-[#5b4fd4] hover:text-[#5b4fd4] disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     <ChevronLeft className="h-4 w-4" />
-                                    Prev
+                                    {t.prev}
                                 </button>
 
-                                {Array.from({ length: pagination.totalPages }).map((_, i) => {
+                                {Array.from({
+                                    length: pagination.totalPages,
+                                }).map((_, i) => {
                                     const pageNum = i + 1;
-                                    const active = pageNum === pagination.currentPage;
+                                    const active =
+                                        pageNum === pagination.currentPage;
 
                                     return (
                                         <button
                                             key={pageNum}
                                             type="button"
-                                            onClick={() => updateQuery({ page: pageNum })}
+                                            onClick={() =>
+                                                updateQuery({ page: pageNum })
+                                            }
                                             className={[
                                                 "h-11 min-w-[44px] rounded-xl px-3 text-sm font-semibold transition",
                                                 active
@@ -334,10 +443,16 @@ export default function ProductsPageView({ locale = "en", dict }) {
                                 <button
                                     type="button"
                                     disabled={!pagination?.hasNextPage}
-                                    onClick={() => updateQuery({ page: pagination.nextPage || pagination.currentPage })}
+                                    onClick={() =>
+                                        updateQuery({
+                                            page:
+                                                pagination.nextPage ||
+                                                pagination.currentPage,
+                                        })
+                                    }
                                     className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-[#5b4fd4] hover:text-[#5b4fd4] disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    Next
+                                    {t.next}
                                     <ChevronRight className="h-4 w-4" />
                                 </button>
                             </div>
@@ -358,7 +473,7 @@ function SkeletonGrid({ count = 10 }) {
                     <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
                     <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-200" />
                     <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-3 h-3 w-10 animate-pulse rounded bg-slate-200" />
+                    <div className="mt-3 h-3 w-20 animate-pulse rounded bg-slate-200" />
                     <div className="mt-2 h-4 w-16 animate-pulse rounded bg-slate-200" />
                     <div className="mt-3 h-9 w-full animate-pulse rounded-xl bg-slate-200" />
                 </div>
@@ -367,9 +482,20 @@ function SkeletonGrid({ count = 10 }) {
     );
 }
 
-function ProductCard({ p, locale, addToCartText }) {
+function ProductCard({
+    p,
+    locale,
+    addToCartText,
+    notRatedYetText,
+    reviewText,
+    reviewsText,
+}) {
     const { addToCart, busy } = useCart();
+
     const href = `/${locale}/product/${p.slug}`;
+
+    const averageRating = Number(p?.reviewSummary?.averageRating || 0);
+    const totalReviews = Number(p?.reviewSummary?.totalReviews || 0);
 
     const hasDiscount =
         p.discounted_price !== null &&
@@ -379,10 +505,14 @@ function ProductCard({ p, locale, addToCartText }) {
 
     const discountPercent = (() => {
         if (!hasDiscount) return null;
+
         const price = Number(p.price);
         const disc = Number(p.discounted_price);
+
         if (!price || Number.isNaN(price) || Number.isNaN(disc)) return null;
+
         const pct = Math.round(((price - disc) / price) * 100);
+
         return pct > 0 ? pct : null;
     })();
 
@@ -395,7 +525,7 @@ function ProductCard({ p, locale, addToCartText }) {
                 {p.image ? (
                     <Image
                         src={imgUrl(p.image)}
-                        alt={p.name}
+                        alt={p.name || "Product"}
                         fill
                         className="object-cover"
                         sizes="(max-width: 1024px) 168px, 220px"
@@ -411,20 +541,42 @@ function ProductCard({ p, locale, addToCartText }) {
             </Link>
 
             <p className="mt-1.5 line-clamp-3 min-h-[42px] text-[10px] leading-[1.45] text-[#666]">
-                {p.summary || "Lorem ipsum dolor sit amet, consectetur adipisicing elit."}
+                {p.summary ||
+                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit."}
             </p>
 
-            <div className="mt-2 flex items-center gap-1 text-[11px]">
-                <span className="text-[#72b843]">★</span>
-                <span className="font-medium text-[#2d2d2d]">4.5</span>
+            <div className="mt-2 flex min-h-[18px] items-center gap-1 text-[11px]">
+                {totalReviews > 0 ? (
+                    <>
+                        <span className="text-[#72b843]">★</span>
+
+                        <span className="font-semibold text-[#2d2d2d]">
+                            {averageRating.toFixed(1)}
+                        </span>
+
+                        <span className="text-slate-500">
+                            ({totalReviews}{" "}
+                            {totalReviews === 1 ? reviewText : reviewsText})
+                        </span>
+                    </>
+                ) : (
+                    <span className="text-slate-400">
+                        {notRatedYetText}
+                    </span>
+                )}
             </div>
 
             <div className="mt-1 min-h-[16px] text-[11px]">
                 {hasDiscount ? (
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[#8b5cf6] line-through">{money(p.price)}</span>
+                        <span className="text-[#8b5cf6] line-through">
+                            {money(p.price)}
+                        </span>
+
                         {discountPercent ? (
-                            <span className="font-semibold text-[#ef4444]">-{discountPercent}%</span>
+                            <span className="font-semibold text-[#ef4444]">
+                                -{discountPercent}%
+                            </span>
                         ) : null}
                     </div>
                 ) : (
@@ -443,7 +595,7 @@ function ProductCard({ p, locale, addToCartText }) {
                 className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                {busy ? addToCartText : addToCartText}
+                {addToCartText}
             </button>
         </div>
     );

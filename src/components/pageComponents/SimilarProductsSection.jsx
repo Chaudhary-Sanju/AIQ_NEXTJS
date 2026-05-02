@@ -41,6 +41,21 @@ const UI = {
         ne: "कार्टमा थप्नुहोस्",
         zh: "加入购物车",
     },
+    noReviewYet: {
+        en: "Not rated yet",
+        ne: "अहिलेसम्म रेट गरिएको छैन",
+        zh: "暂无评分",
+    },
+    review: {
+        en: "review",
+        ne: "समीक्षा",
+        zh: "评价",
+    },
+    reviews: {
+        en: "reviews",
+        ne: "समीक्षाहरू",
+        zh: "评价",
+    },
 };
 
 export default function SimilarProductsSection({
@@ -54,19 +69,9 @@ export default function SimilarProductsSection({
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const resolvedTitle =
-        title ||
-        UI?.title?.[locale] ||
-        UI?.title?.en;
-
-    const resolvedSeeAll =
-        UI?.seeAll?.[locale] ||
-        UI?.seeAll?.en;
-
-    const resolvedEmpty =
-        UI?.noProducts?.[locale] ||
-        UI?.noProducts?.en;
-
+    const resolvedTitle = title || UI?.title?.[locale] || UI?.title?.en;
+    const resolvedSeeAll = UI?.seeAll?.[locale] || UI?.seeAll?.en;
+    const resolvedEmpty = UI?.noProducts?.[locale] || UI?.noProducts?.en;
     const resolvedSeeAllHref = seeAllHref || `/${locale}/product`;
 
     useEffect(() => {
@@ -82,8 +87,13 @@ export default function SimilarProductsSection({
             setLoading(true);
 
             try {
-                const res = await http.get(`/frontend/product/related/${slug}?limit=${limit}`);
-                const data = Array.isArray(res?.data?.data) ? res.data.data : [];
+                const res = await http.get(
+                    `/frontend/product/related/${slug}?limit=${limit}`
+                );
+
+                const data = Array.isArray(res?.data?.data)
+                    ? res.data.data
+                    : [];
 
                 const mapped = data
                     .filter((p) => p?.status === true)
@@ -95,6 +105,14 @@ export default function SimilarProductsSection({
                         price: p?.price,
                         discounted_price: p?.discounted_price,
                         image: Array.isArray(p?.images) ? p.images[0] : null,
+                        reviewSummary: {
+                            averageRating: Number(
+                                p?.reviewSummary?.averageRating || 0
+                            ),
+                            totalReviews: Number(
+                                p?.reviewSummary?.totalReviews || 0
+                            ),
+                        },
                     }));
 
                 if (mounted) setRows(mapped);
@@ -144,15 +162,25 @@ export default function SimilarProductsSection({
                         <>
                             <div className="hidden lg:grid lg:grid-cols-5 lg:gap-4">
                                 {products.map((p) => (
-                                    <ProductCard key={p.id} p={p} locale={locale} />
+                                    <ProductCard
+                                        key={p.id}
+                                        p={p}
+                                        locale={locale}
+                                    />
                                 ))}
                             </div>
 
                             <div className="lg:hidden">
                                 <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
                                     {products.map((p) => (
-                                        <div key={p.id} className="w-[168px] shrink-0">
-                                            <ProductCard p={p} locale={locale} />
+                                        <div
+                                            key={p.id}
+                                            className="w-[168px] shrink-0"
+                                        >
+                                            <ProductCard
+                                                p={p}
+                                                locale={locale}
+                                            />
                                         </div>
                                     ))}
                                 </div>
@@ -161,6 +189,7 @@ export default function SimilarProductsSection({
                                     .no-scrollbar::-webkit-scrollbar {
                                         display: none;
                                     }
+
                                     .no-scrollbar {
                                         -ms-overflow-style: none;
                                         scrollbar-width: none;
@@ -184,7 +213,7 @@ function SkeletonGrid({ count = 5 }) {
                     <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
                     <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-200" />
                     <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-3 h-3 w-10 animate-pulse rounded bg-slate-200" />
+                    <div className="mt-3 h-3 w-20 animate-pulse rounded bg-slate-200" />
                     <div className="mt-2 h-4 w-16 animate-pulse rounded bg-slate-200" />
                     <div className="mt-3 h-9 w-full animate-pulse rounded-xl bg-slate-200" />
                 </div>
@@ -195,6 +224,7 @@ function SkeletonGrid({ count = 5 }) {
 
 function ProductCard({ p, locale }) {
     const { addToCart, busy } = useCart();
+
     const href = `/${locale}/product/${p.slug}`;
 
     const addToCartText =
@@ -204,6 +234,18 @@ function ProductCard({ p, locale }) {
                 ? "加入购物车"
                 : "Add to Cart";
 
+    const noReviewYetText =
+        UI.noReviewYet?.[locale] || UI.noReviewYet.en;
+
+    const reviewText =
+        UI.review?.[locale] || UI.review.en;
+
+    const reviewsText =
+        UI.reviews?.[locale] || UI.reviews.en;
+
+    const averageRating = Number(p?.reviewSummary?.averageRating || 0);
+    const totalReviews = Number(p?.reviewSummary?.totalReviews || 0);
+
     const hasDiscount =
         p.discounted_price !== null &&
         p.discounted_price !== undefined &&
@@ -212,10 +254,14 @@ function ProductCard({ p, locale }) {
 
     const discountPercent = (() => {
         if (!hasDiscount) return null;
+
         const price = Number(p.price);
         const disc = Number(p.discounted_price);
+
         if (!price || Number.isNaN(price) || Number.isNaN(disc)) return null;
+
         const pct = Math.round(((price - disc) / price) * 100);
+
         return pct > 0 ? pct : null;
     })();
 
@@ -228,7 +274,7 @@ function ProductCard({ p, locale }) {
                 {p.image ? (
                     <Image
                         src={imgUrl(p.image)}
-                        alt={p.name}
+                        alt={p.name || "Product"}
                         fill
                         className="object-cover"
                         sizes="(max-width: 1024px) 168px, 220px"
@@ -244,12 +290,29 @@ function ProductCard({ p, locale }) {
             </Link>
 
             <p className="mt-1.5 line-clamp-3 min-h-[42px] text-[10px] leading-[1.45] text-[#666]">
-                {p.summary || "Lorem ipsum dolor sit amet, consectetur adipisicing elit."}
+                {p.summary ||
+                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit."}
             </p>
 
-            <div className="mt-2 flex items-center gap-1 text-[11px]">
-                <span className="text-[#72b843]">★</span>
-                <span className="font-medium text-[#2d2d2d]">4.5</span>
+            <div className="mt-2 flex min-h-[18px] items-center gap-1 text-[11px]">
+                {totalReviews > 0 ? (
+                    <>
+                        <span className="text-[#72b843]">★</span>
+
+                        <span className="font-semibold text-[#2d2d2d]">
+                            {averageRating.toFixed(1)}
+                        </span>
+
+                        <span className="text-slate-500">
+                            ({totalReviews}{" "}
+                            {totalReviews === 1 ? reviewText : reviewsText})
+                        </span>
+                    </>
+                ) : (
+                    <span className="text-slate-400">
+                        {noReviewYetText}
+                    </span>
+                )}
             </div>
 
             <div className="mt-1 min-h-[16px] text-[11px]">
@@ -281,7 +344,7 @@ function ProductCard({ p, locale }) {
                 className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                {busy ? addToCartText : addToCartText}
+                {addToCartText}
             </button>
         </div>
     );

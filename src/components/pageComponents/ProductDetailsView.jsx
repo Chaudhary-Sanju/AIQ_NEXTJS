@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, ShoppingCart, ChevronRight } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  ShoppingCart,
+  ChevronRight,
+  Star,
+  StarHalf,
+} from "lucide-react";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
@@ -20,6 +27,16 @@ const money = (n) => {
   const num = Number(n);
   if (Number.isNaN(num)) return "";
   return `HK$ ${num}`;
+};
+
+const formatDate = (date) => {
+  if (!date) return "";
+
+  try {
+    return new Date(date).toLocaleDateString();
+  } catch {
+    return "";
+  }
 };
 
 const UI = {
@@ -83,28 +100,172 @@ const UI = {
     ne: "उत्पादन लोड हुँदैछ...",
     zh: "正在加载商品...",
   },
+  customerReviews: {
+    en: "Customer Reviews",
+    ne: "ग्राहक समीक्षा",
+    zh: "客户评价",
+  },
+  outOfFive: {
+    en: "out of 5 based on",
+    ne: "मध्ये 5 बाट आधारित",
+    zh: "满分 5 分，基于",
+  },
+  review: {
+    en: "review",
+    ne: "समीक्षा",
+    zh: "评价",
+  },
+  reviews: {
+    en: "reviews",
+    ne: "समीक्षाहरू",
+    zh: "评价",
+  },
+  noReviews: {
+    en: "No reviews yet.",
+    ne: "अहिलेसम्म कुनै समीक्षा छैन।",
+    zh: "暂无评价。",
+  },
+  verifiedOrder: {
+    en: "Verified order",
+    ne: "प्रमाणित अर्डर",
+    zh: "已验证订单",
+  },
+  adding: {
+    en: "Adding...",
+    ne: "थपिँदै...",
+    zh: "正在添加...",
+  },
 };
 
-export default function ProductDetailsView({ locale = "en", slug, dict }) {
-  const [loading, setLoading] = useState(true);
-  const [product, setProduct] = useState(null);
+function RatingStars({ value = 0, size = "sm" }) {
+  const rating = Number(value || 0);
+  const fullStars = Math.floor(rating);
+  const hasHalf = rating - fullStars >= 0.5;
+
+  const iconClass = size === "lg" ? "h-5 w-5" : "h-4 w-4";
+
+  return (
+    <div className="flex items-center gap-0.5 text-yellow-500">
+      {Array.from({ length: 5 }).map((_, index) => {
+        if (index < fullStars) {
+          return (
+            <Star
+              key={index}
+              className={`${iconClass} fill-current`}
+            />
+          );
+        }
+
+        if (index === fullStars && hasHalf) {
+          return (
+            <StarHalf
+              key={index}
+              className={`${iconClass} fill-current`}
+            />
+          );
+        }
+
+        return (
+          <Star
+            key={index}
+            className={`${iconClass} text-slate-300`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+export default function ProductDetailsView({
+  locale = "en",
+  slug,
+  dict,
+  initialProduct = null,
+}) {
+  const [loading, setLoading] = useState(!initialProduct);
+  const [product, setProduct] = useState(initialProduct);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+
   const { addToCart, busy } = useCart();
 
   const t = {
-    breadcrumbHome: dict?.productView?.breadcrumbHome || UI.breadcrumbHome[locale] || UI.breadcrumbHome.en,
-    breadcrumbProducts: dict?.productView?.breadcrumbProducts || UI.breadcrumbProducts[locale] || UI.breadcrumbProducts.en,
-    aboutItem: dict?.productView?.aboutItem || UI.aboutItem[locale] || UI.aboutItem.en,
-    quantity: dict?.productView?.quantity || UI.quantity[locale] || UI.quantity.en,
-    addToCart: dict?.productView?.addToCart || UI.addToCart[locale] || UI.addToCart.en,
-    category: dict?.productView?.category || UI.category[locale] || UI.category.en,
-    brand: dict?.productView?.brand || UI.brand[locale] || UI.brand.en,
-    outOfStock: dict?.productView?.outOfStock || UI.outOfStock[locale] || UI.outOfStock.en,
-    inStock: dict?.productView?.inStock || UI.inStock[locale] || UI.inStock.en,
-    allTaxes: dict?.productView?.allTaxes || UI.allTaxes[locale] || UI.allTaxes.en,
-    noProduct: dict?.productView?.noProduct || UI.noProduct[locale] || UI.noProduct.en,
-    loading: dict?.productView?.loading || UI.loading[locale] || UI.loading.en,
+    breadcrumbHome:
+      dict?.productView?.breadcrumbHome ||
+      UI.breadcrumbHome[locale] ||
+      UI.breadcrumbHome.en,
+    breadcrumbProducts:
+      dict?.productView?.breadcrumbProducts ||
+      UI.breadcrumbProducts[locale] ||
+      UI.breadcrumbProducts.en,
+    aboutItem:
+      dict?.productView?.aboutItem ||
+      UI.aboutItem[locale] ||
+      UI.aboutItem.en,
+    quantity:
+      dict?.productView?.quantity ||
+      UI.quantity[locale] ||
+      UI.quantity.en,
+    addToCart:
+      dict?.productView?.addToCart ||
+      UI.addToCart[locale] ||
+      UI.addToCart.en,
+    category:
+      dict?.productView?.category ||
+      UI.category[locale] ||
+      UI.category.en,
+    brand:
+      dict?.productView?.brand ||
+      UI.brand[locale] ||
+      UI.brand.en,
+    outOfStock:
+      dict?.productView?.outOfStock ||
+      UI.outOfStock[locale] ||
+      UI.outOfStock.en,
+    inStock:
+      dict?.productView?.inStock ||
+      UI.inStock[locale] ||
+      UI.inStock.en,
+    allTaxes:
+      dict?.productView?.allTaxes ||
+      UI.allTaxes[locale] ||
+      UI.allTaxes.en,
+    noProduct:
+      dict?.productView?.noProduct ||
+      UI.noProduct[locale] ||
+      UI.noProduct.en,
+    loading:
+      dict?.productView?.loading ||
+      UI.loading[locale] ||
+      UI.loading.en,
+    customerReviews:
+      dict?.productView?.customerReviews ||
+      UI.customerReviews[locale] ||
+      UI.customerReviews.en,
+    outOfFive:
+      dict?.productView?.outOfFive ||
+      UI.outOfFive[locale] ||
+      UI.outOfFive.en,
+    review:
+      dict?.productView?.review ||
+      UI.review[locale] ||
+      UI.review.en,
+    reviews:
+      dict?.productView?.reviews ||
+      UI.reviews[locale] ||
+      UI.reviews.en,
+    noReviews:
+      dict?.productView?.noReviews ||
+      UI.noReviews[locale] ||
+      UI.noReviews.en,
+    verifiedOrder:
+      dict?.productView?.verifiedOrder ||
+      UI.verifiedOrder[locale] ||
+      UI.verifiedOrder.en,
+    adding:
+      dict?.productView?.adding ||
+      UI.adding[locale] ||
+      UI.adding.en,
   };
 
   useEffect(() => {
@@ -112,6 +273,7 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
 
     async function loadProduct() {
       setLoading(true);
+
       try {
         const res = await http.get(`/frontend/product/${slug}`);
         const data = res?.data?.data || null;
@@ -130,19 +292,34 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
       }
     }
 
-    if (slug) loadProduct();
+    if (slug && !initialProduct) {
+      loadProduct();
+    }
 
     return () => {
       mounted = false;
     };
-  }, [slug]);
+  }, [slug, initialProduct]);
 
   const name = useMemo(() => pick(product?.name, locale), [product, locale]);
-  const summary = useMemo(() => pick(product?.summary, locale), [product, locale]);
+
+  const summary = useMemo(
+    () => pick(product?.summary, locale),
+    [product, locale]
+  );
 
   const images = useMemo(() => {
     return Array.isArray(product?.images) ? product.images : [];
   }, [product]);
+
+  const reviews = useMemo(() => {
+    return Array.isArray(product?.reviews) ? product.reviews : [];
+  }, [product]);
+
+  const reviewSummary = product?.reviewSummary || {};
+  const averageRating = Number(reviewSummary?.averageRating || 0);
+  const totalReviews = Number(reviewSummary?.totalReviews || 0);
+  const ratingBreakdown = reviewSummary?.ratingBreakdown || {};
 
   const hasDiscount =
     product?.discounted_price !== null &&
@@ -152,15 +329,23 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
 
   const discountPercent = (() => {
     if (!hasDiscount) return null;
+
     const price = Number(product?.price);
     const disc = Number(product?.discounted_price);
+
     if (!price || Number.isNaN(price) || Number.isNaN(disc)) return null;
+
     const pct = Math.round(((price - disc) / price) * 100);
+
     return pct > 0 ? pct : null;
   })();
 
-  const displayPrice = hasDiscount ? product?.discounted_price : product?.price;
+  const displayPrice = hasDiscount
+    ? product?.discounted_price
+    : product?.price;
+
   const maxQty = Number(product?.qty) > 0 ? Number(product?.qty) : 1;
+
   const inStock = Number(product?.qty) > 0 || product?.sellOnNoStock;
 
   const increaseQty = () => {
@@ -168,6 +353,7 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
       setQuantity((prev) => prev + 1);
       return;
     }
+
     setQuantity((prev) => Math.min(prev + 1, maxQty));
   };
 
@@ -201,15 +387,27 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
       <section className="py-8 md:py-12">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-slate-500">
-            <Link href={`/${locale}`} className="hover:text-[#5b4fd4]">
+            <Link
+              href={`/${locale}`}
+              className="hover:text-[#5b4fd4]"
+            >
               {t.breadcrumbHome}
             </Link>
+
             <ChevronRight className="h-4 w-4" />
-            <Link href={`/${locale}/product`} className="hover:text-[#5b4fd4]">
+
+            <Link
+              href={`/${locale}/product`}
+              className="hover:text-[#5b4fd4]"
+            >
               {t.breadcrumbProducts}
             </Link>
+
             <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-slate-800">{name}</span>
+
+            <span className="font-medium text-slate-800">
+              {name}
+            </span>
           </div>
 
           <div className="rounded-[28px] p-4 md:p-6 lg:p-8">
@@ -217,12 +415,16 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
               <div className="grid gap-4 md:grid-cols-[96px_minmax(0,1fr)]">
                 <div className="order-2 flex gap-3 overflow-x-auto md:order-1 md:flex-col md:overflow-visible">
                   {images.map((img, index) => {
-                    const active = selectedImage === index;
+                    const active =
+                      selectedImage === index;
+
                     return (
                       <button
                         key={`${img}-${index}`}
                         type="button"
-                        onClick={() => setSelectedImage(index)}
+                        onClick={() =>
+                          setSelectedImage(index)
+                        }
                         className={[
                           "relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border bg-white transition",
                           active
@@ -232,7 +434,8 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
                       >
                         <Image
                           src={imgUrl(img)}
-                          alt={`${name} ${index + 1}`}
+                          alt={`${name} ${index + 1
+                            }`}
                           fill
                           className="object-cover"
                           unoptimized
@@ -243,17 +446,23 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
                 </div>
 
                 <div className="order-1 md:order-2">
-                  <div className="relative aspect-square overflow-hidden rounded-[28px]">
+                  <div className="relative aspect-square overflow-hidden rounded-[28px] bg-white">
                     {images[selectedImage] ? (
                       <Image
-                        src={imgUrl(images[selectedImage])}
+                        src={imgUrl(
+                          images[selectedImage]
+                        )}
                         alt={name}
                         fill
                         className="object-contain p-6 md:p-10"
                         unoptimized
                         priority
                       />
-                    ) : null}
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
+                        No image
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -262,6 +471,27 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
                 <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#161616] md:text-4xl">
                   {name}
                 </h1>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                  <RatingStars
+                    value={averageRating}
+                    size="lg"
+                  />
+
+                  <span className="font-semibold text-slate-800">
+                    {averageRating
+                      ? averageRating.toFixed(1)
+                      : "0.0"}
+                  </span>
+
+                  <span className="text-slate-500">
+                    ({totalReviews}{" "}
+                    {totalReviews === 1
+                      ? t.review
+                      : t.reviews}
+                    )
+                  </span>
+                </div>
 
                 <div className="mt-4 flex items-end gap-3">
                   <div className="text-3xl font-bold text-[#161616]">
@@ -273,6 +503,7 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
                       <span className="text-sm text-slate-400 line-through">
                         {money(product?.price)}
                       </span>
+
                       {discountPercent ? (
                         <span className="text-sm font-semibold text-red-500">
                           -{discountPercent}%
@@ -282,7 +513,9 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
                   ) : null}
                 </div>
 
-                <p className="mt-1 text-sm text-slate-500">{t.allTaxes}</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  {t.allTaxes}
+                </p>
 
                 {summary ? (
                   <p className="mt-6 max-w-xl text-[15px] leading-7 text-slate-700">
@@ -292,17 +525,36 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
 
                 <div className="mt-6 grid gap-2 text-sm text-slate-700">
                   <div>
-                    <span className="font-semibold">{t.category}:</span>{" "}
-                    {pick(product?.categoryId?.name, locale)}
+                    <span className="font-semibold">
+                      {t.category}:
+                    </span>{" "}
+                    {pick(
+                      product?.categoryId?.name,
+                      locale
+                    ) || "-"}
                   </div>
+
                   <div>
-                    <span className="font-semibold">{t.brand}:</span>{" "}
+                    <span className="font-semibold">
+                      {t.brand}:
+                    </span>{" "}
                     {product?.brandId?.name || "-"}
                   </div>
+
                   <div>
-                    <span className="font-semibold">Status:</span>{" "}
-                    <span className={inStock ? "text-green-600" : "text-red-500"}>
-                      {inStock ? t.inStock : t.outOfStock}
+                    <span className="font-semibold">
+                      Status:
+                    </span>{" "}
+                    <span
+                      className={
+                        inStock
+                          ? "text-green-600"
+                          : "text-red-500"
+                      }
+                    >
+                      {inStock
+                        ? t.inStock
+                        : t.outOfStock}
                     </span>
                   </div>
                 </div>
@@ -344,20 +596,151 @@ export default function ProductDetailsView({ locale = "en", slug, dict }) {
                   className="mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#5b4fd4] px-6 text-base font-semibold text-white transition hover:bg-[#4a3fcb] disabled:cursor-not-allowed disabled:opacity-50 md:max-w-[320px]"
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {busy ? "Adding..." : t.addToCart}
+                  {busy ? t.adding : t.addToCart}
                 </button>
               </div>
             </div>
 
             <div className="mt-10 rounded-[24px] bg-white p-5 md:p-7">
-              <h2 className="text-2xl font-bold text-[#161616]">{t.aboutItem}</h2>
+              <h2 className="text-2xl font-bold text-[#161616]">
+                {t.aboutItem}
+              </h2>
 
               <div
                 className="mt-3 text-[15px] leading-7 text-slate-700 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-semibold [&_a]:text-[#5b4fd4] [&_a]:underline"
                 dangerouslySetInnerHTML={{
-                  __html: product?.description || `<p>${summary || ""}</p>`,
+                  __html:
+                    product?.description ||
+                    `<p>${summary || ""}</p>`,
                 }}
               />
+            </div>
+
+            <div className="mt-8 rounded-[24px] bg-white p-5 md:p-7">
+              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-[#161616]">
+                    {t.customerReviews}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    {averageRating
+                      ? averageRating.toFixed(1)
+                      : "0.0"}{" "}
+                    {t.outOfFive} {totalReviews}{" "}
+                    {totalReviews === 1
+                      ? t.review
+                      : t.reviews}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <RatingStars
+                    value={averageRating}
+                    size="lg"
+                  />
+
+                  <div className="text-3xl font-extrabold text-[#161616]">
+                    {averageRating
+                      ? averageRating.toFixed(1)
+                      : "0.0"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const count = Number(
+                    ratingBreakdown?.[star] || 0
+                  );
+
+                  const percent = totalReviews
+                    ? Math.round(
+                      (count / totalReviews) * 100
+                    )
+                    : 0;
+
+                  return (
+                    <div
+                      key={star}
+                      className="flex items-center gap-3 text-sm"
+                    >
+                      <div className="w-12 shrink-0 font-medium text-slate-700">
+                        {star} ★
+                      </div>
+
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                        <div
+                          className="h-full rounded-full bg-yellow-400"
+                          style={{
+                            width: `${percent}%`,
+                          }}
+                        />
+                      </div>
+
+                      <div className="w-12 text-right text-slate-500">
+                        {count}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-8 grid gap-4">
+                {reviews.length > 0 ? (
+                  reviews.map((item) => (
+                    <div
+                      key={item._id}
+                      className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-slate-900">
+                            {item?.user_id?.name ||
+                              "Customer"}
+                          </p>
+
+                          <div className="mt-1 flex items-center gap-2">
+                            <RatingStars
+                              value={
+                                item?.rating ||
+                                0
+                              }
+                            />
+
+                            {item?.order_id
+                              ?.orderNumber ? (
+                              <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+                                {
+                                  t.verifiedOrder
+                                }
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {item?.createdAt ? (
+                          <p className="text-xs text-slate-500">
+                            {formatDate(
+                              item.createdAt
+                            )}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      {item?.review ? (
+                        <p className="mt-3 text-sm leading-6 text-slate-700">
+                          {item.review}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 p-5 text-sm text-slate-500">
+                    {t.noReviews}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
