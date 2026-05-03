@@ -200,7 +200,7 @@ export default function TrackCourierPage({ locale = "en" }) {
 function money(n) {
     const num = Number(n);
     if (Number.isNaN(num)) return "-";
-    return `Rs. ${num}`;
+    return `HK$ ${num}`;
 }
 
 function dateFormat(date) {
