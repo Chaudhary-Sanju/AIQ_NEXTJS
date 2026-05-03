@@ -22,8 +22,11 @@ import {
     useStripe,
 } from "@stripe/react-stripe-js";
 
+import { useSelector, useDispatch } from "react-redux";
+import { setUser, clearUser } from "@/store/userSlice";
+
 import http from "@/http";
-import { imgUrl } from "@/lib";
+import { imgUrl, fromStorage, clearStorage } from "@/lib";
 import { useCart } from "@/contexts/CartContext";
 
 const stripePromise = loadStripe(
@@ -34,20 +37,40 @@ const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8}|\d{10})$/;
 
 const UI = {
     checkout: { en: "Checkout", ne: "चेकआउट", zh: "結帳" },
-    generalInfo: { en: "1. General Information", ne: "१. सामान्य जानकारी", zh: "1. 基本資料" },
-    deliveryAddress: { en: "2. Delivery Address", ne: "२. डेलिभरी ठेगाना", zh: "2. 送貨地址" },
-    paymentMethods: { en: "3. Payment Methods", ne: "३. भुक्तानी विधि", zh: "3. 付款方式" },
+    generalInfo: {
+        en: "1. General Information",
+        ne: "१. सामान्य जानकारी",
+        zh: "1. 基本資料",
+    },
+    deliveryAddress: {
+        en: "2. Delivery Address",
+        ne: "२. डेलिभरी ठेगाना",
+        zh: "2. 送貨地址",
+    },
+    paymentMethods: {
+        en: "3. Payment Methods",
+        ne: "३. भुक्तानी विधि",
+        zh: "3. 付款方式",
+    },
     orderSummary: { en: "Order Summary", ne: "अर्डर सारांश", zh: "訂單摘要" },
 
     fullName: { en: "Full Name", ne: "पूरा नाम", zh: "全名" },
     email: { en: "Email", ne: "इमेल", zh: "電郵" },
     phone: { en: "Phone Number", ne: "फोन नम्बर", zh: "電話號碼" },
-    note: { en: "Order Note (Optional)", ne: "अर्डर नोट (वैकल्पिक)", zh: "訂單備註（可選）" },
+    note: {
+        en: "Order Note (Optional)",
+        ne: "अर्डर नोट (वैकल्पिक)",
+        zh: "訂單備註（可選）",
+    },
     city: { en: "City/District", ne: "शहर/जिल्ला", zh: "城市/地區" },
     address: { en: "Address", ne: "ठेगाना", zh: "地址" },
     landmark: { en: "Landmark", ne: "नजिकको स्थान", zh: "地標" },
 
-    selectCity: { en: "Select City/District", ne: "शहर/जिल्ला छान्नुहोस्", zh: "選擇城市/地區" },
+    selectCity: {
+        en: "Select City/District",
+        ne: "शहर/जिल्ला छान्नुहोस्",
+        zh: "選擇城市/地區",
+    },
     coupon: { en: "Have a coupon code?", ne: "कुपन कोड छ?", zh: "有優惠券代碼？" },
     apply: { en: "Apply", ne: "लागू गर्नुहोस्", zh: "使用" },
     remove: { en: "Remove", ne: "हटाउनुहोस्", zh: "移除" },
@@ -78,7 +101,11 @@ const UI = {
     stripe: { en: "Card Payment", ne: "कार्ड भुक्तानी", zh: "信用卡付款" },
     cardDetails: { en: "Card Details", ne: "कार्ड विवरण", zh: "信用卡資料" },
     emptyCart: { en: "Your cart is empty.", ne: "तपाईंको कार्ट खाली छ।", zh: "購物車是空的。" },
-    continueShopping: { en: "Continue Shopping", ne: "किनमेल जारी राख्नुहोस्", zh: "繼續購物" },
+    continueShopping: {
+        en: "Continue Shopping",
+        ne: "किनमेल जारी राख्नुहोस्",
+        zh: "繼續購物",
+    },
 };
 
 const t = (key, locale = "en") => UI[key]?.[locale] || UI[key]?.en || key;
@@ -164,6 +191,10 @@ function CheckoutForm({ locale = "en" }) {
     const elements = useElements();
     const { clearCart } = useCart();
 
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.user.value);
+    const isLoggedIn = user && Object.keys(user).length > 0;
+
     const [cart, setCart] = useState(null);
     const [cartLoading, setCartLoading] = useState(true);
     const [zones, setZones] = useState([]);
@@ -213,6 +244,22 @@ function CheckoutForm({ locale = "en" }) {
     const discountAmount = Number(appliedCoupon?.discountAmount || 0);
     const total = Math.max(subTotal + deliveryCharge - discountAmount, 0);
 
+    const fillUserInfo = (u) => {
+        if (!u) return;
+
+        setForm((prev) => ({
+            ...prev,
+            name: prev.name || u?.name || u?.displayName || "",
+            email: prev.email || u?.email || "",
+            phoneNumber:
+                prev.phoneNumber ||
+                u?.phoneNumber ||
+                u?.phone ||
+                u?.mobile ||
+                "",
+        }));
+    };
+
     const loadCart = async () => {
         try {
             setCartLoading(true);
@@ -240,7 +287,38 @@ function CheckoutForm({ locale = "en" }) {
     useEffect(() => {
         loadCart();
         loadZones();
-    }, []);
+
+        const token = fromStorage("hkmandu");
+
+        if (isLoggedIn) {
+            fillUserInfo(user);
+            return;
+        }
+
+        if (token) {
+            http.get("frontend/auth/details")
+                .then((res) => {
+                    const u = res.data?.user ?? res.data;
+
+                    if (u) {
+                        dispatch(setUser(u));
+                        fillUserInfo(u);
+                    }
+                })
+                .catch(() => {
+                    clearStorage("hkmandu");
+                    dispatch(clearUser());
+                });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            fillUserInfo(user);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoggedIn, user]);
 
     useEffect(() => {
         setAppliedCoupon(null);
@@ -388,6 +466,11 @@ function CheckoutForm({ locale = "en" }) {
                     return;
                 }
 
+                if (!stripe || !elements) {
+                    toast.error("Stripe is not ready yet.");
+                    return;
+                }
+
                 const cardElement = elements.getElement(CardElement);
 
                 if (!cardElement) {
@@ -511,6 +594,7 @@ function CheckoutForm({ locale = "en" }) {
                                     error={errors.name}
                                     onChange={(v) => updateForm("name", v)}
                                     placeholder="John Doe"
+                                    disabled={isLoggedIn}
                                 />
 
                                 <Input
@@ -521,6 +605,7 @@ function CheckoutForm({ locale = "en" }) {
                                     error={errors.email}
                                     onChange={(v) => updateForm("email", v)}
                                     placeholder="john.doe@example.com"
+                                    disabled={isLoggedIn}
                                 />
 
                                 <div className="md:col-span-2">
@@ -531,6 +616,7 @@ function CheckoutForm({ locale = "en" }) {
                                         error={errors.phoneNumber}
                                         onChange={(v) => updateForm("phoneNumber", v)}
                                         placeholder="+852-12345678"
+                                        disabled={isLoggedIn}
                                     />
                                 </div>
 
@@ -889,6 +975,7 @@ function Input({
     placeholder,
     type = "text",
     required = false,
+    disabled = false,
 }) {
     return (
         <div>
@@ -899,10 +986,11 @@ function Input({
             <input
                 type={type}
                 value={value}
+                disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 className={[
-                    "h-13 w-full rounded-md border bg-white px-4 text-sm text-[#07152f] outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20",
+                    "h-13 w-full rounded-md border bg-white px-4 text-sm text-[#07152f] outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500",
                     error ? "border-red-400" : "border-[#cfd6df]",
                 ].join(" ")}
             />

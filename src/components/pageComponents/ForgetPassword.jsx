@@ -663,7 +663,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                                     </p>
 
                                     <Link
-                                        href={`/${locale}/login`}
+                                        href={`/${locale}/auth/login`}
                                         className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-blue-600 px-6 text-sm font-semibold text-white transition hover:bg-blue-700"
                                     >
                                         {t.goToLogin || "Go to login"}

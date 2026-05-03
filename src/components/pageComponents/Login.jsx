@@ -220,7 +220,7 @@ export default function Login({ locale = "en", dict = {} }) {
 
         try {
             const payload = {
-                identifier: form.identifier.trim(),
+                identifier: form.identifier.trim().toLowerCase(),
                 password: form.password,
             };
 
