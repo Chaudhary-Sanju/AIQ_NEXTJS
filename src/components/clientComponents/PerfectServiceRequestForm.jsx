@@ -28,6 +28,8 @@ const ALLOWED_SERVICE_TYPES = [
     "home-office-services",
 ];
 
+const PHONE_REGEX = /^(\+977[- ]?\d{10}|\+852[- ]?\d{8})$/;
+
 const COPY = {
     en: {
         eyebrow: "WORK WITH US",
@@ -48,7 +50,7 @@ const COPY = {
         placeholders: {
             displayName: "Alex Lee",
             email: "alex@example.com",
-            phone: "+852 51234567",
+            phone: "+85251234567",
             address: "Kowloon, Hong Kong",
             workDesc: "Describe your project, goals, timeline, and any relevant details...",
             budget: "5000",
@@ -75,7 +77,8 @@ const COPY = {
         phoneMethod: "Phone",
         required: "This field is required.",
         invalidEmail: "Please enter a valid email address.",
-        invalidPhone: "Please enter a valid phone number.",
+        invalidPhone:
+            "Phone must be a valid Nepal (+977XXXXXXXXXX) or Hong Kong (+852XXXXXXXX) number.",
         invalidBudget: "Please enter a valid budget amount.",
         invalidOtp: "Please enter the OTP code.",
         invalidServiceType: "Invalid service type.",
@@ -88,13 +91,17 @@ const COPY = {
             { value: "flexible", label: "Flexible" },
         ],
         payments: [
-            { value: "cod", label: "Cash" },
-            { value: "bank-transfer", label: "Bank Transfer" },
-            { value: "bank deposit", label: "Bank Deposit" },
-            { value: "card", label: "Card" },
-            { value: "cheque", label: "Cheque" },
+            { value: "card / cheque", label: "Card / Cheque" },
+            {
+                value: "bank deposit / transfer",
+                label: "Bank Deposit / Transfer",
+            },
+            {
+                value: "online transfer / credit card",
+                label: "Online Transfer / Credit Card",
+            },
         ],
-        currencies: ["HKD", "NPR"],
+        currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
         captchaRequired: "Please complete reCAPTCHA verification.",
     },
 
@@ -119,7 +126,8 @@ const COPY = {
             email: "alex@example.com",
             phone: "+9779812345678",
             address: "काठमाडौं, नेपाल",
-            workDesc: "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
+            workDesc:
+                "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
             budget: "5000",
             otp: "६ अङ्कको OTP हाल्नुहोस्",
         },
@@ -144,7 +152,8 @@ const COPY = {
         phoneMethod: "फोन",
         required: "यो फिल्ड आवश्यक छ।",
         invalidEmail: "कृपया मान्य इमेल लेख्नुहोस्।",
-        invalidPhone: "कृपया मान्य फोन नम्बर लेख्नुहोस्।",
+        invalidPhone:
+            "फोन नम्बर +977XXXXXXXXXX वा +852XXXXXXXX ढाँचामा हुनुपर्छ।",
         invalidBudget: "कृपया मान्य बजेट लेख्नुहोस्।",
         invalidOtp: "कृपया OTP कोड लेख्नुहोस्।",
         invalidServiceType: "अवैध सेवा प्रकार।",
@@ -157,13 +166,17 @@ const COPY = {
             { value: "flexible", label: "लचिलो" },
         ],
         payments: [
-            { value: "cod", label: "क्यास" },
-            { value: "bank-transfer", label: "बैंक ट्रान्सफर" },
-            { value: "bank deposit", label: "बैंक जम्मा" },
-            { value: "card", label: "कार्ड" },
-            { value: "cheque", label: "चेक" },
+            { value: "card / cheque", label: "कार्ड / चेक" },
+            {
+                value: "bank deposit / transfer",
+                label: "बैंक जम्मा / ट्रान्सफर",
+            },
+            {
+                value: "online transfer / credit card",
+                label: "अनलाइन ट्रान्सफर / क्रेडिट कार्ड",
+            },
         ],
-        currencies: ["NPR", "HKD"],
+        currencies: ["NPR", "HKD", "USD", "YUAN", "YEN"],
         captchaRequired: "कृपया reCAPTCHA प्रमाणिकरण पूरा गर्नुहोस्।",
     },
 
@@ -195,7 +208,8 @@ const COPY = {
         reset: "再发送一个需求",
         sending: "发送中...",
         verifyTitle: "验证您的需求",
-        verifyText: "我们已把一次性验证码发送到您选择的验证方式，请在下方输入以确认需求。",
+        verifyText:
+            "我们已把一次性验证码发送到您选择的验证方式，请在下方输入以确认需求。",
         otpLabel: "验证码",
         verify: "验证 OTP",
         verifying: "验证中...",
@@ -210,7 +224,7 @@ const COPY = {
         phoneMethod: "电话",
         required: "此栏位为必填。",
         invalidEmail: "请输入有效的电邮地址。",
-        invalidPhone: "请输入有效的电话号码。",
+        invalidPhone: "电话必须是有效的尼泊尔或香港号码。",
         invalidBudget: "请输入有效的预算金额。",
         invalidOtp: "请输入验证码。",
         invalidServiceType: "服务类型无效。",
@@ -223,13 +237,17 @@ const COPY = {
             { value: "flexible", label: "可灵活安排" },
         ],
         payments: [
-            { value: "cod", label: "现金" },
-            { value: "bank-transfer", label: "银行转账" },
-            { value: "bank deposit", label: "银行存款" },
-            { value: "card", label: "银行卡" },
-            { value: "cheque", label: "支票" },
+            { value: "card / cheque", label: "银行卡 / 支票" },
+            {
+                value: "bank deposit / transfer",
+                label: "银行存款 / 转账",
+            },
+            {
+                value: "online transfer / credit card",
+                label: "网上转账 / 信用卡",
+            },
         ],
-        currencies: ["HKD", "NPR"],
+        currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
         captchaRequired: "请先完成 reCAPTCHA 验证。",
     },
 };
@@ -296,6 +314,7 @@ export default function PerfectServiceRequestForm({
     title,
 }) {
     const t = COPY[locale] || COPY.en;
+    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const normalizedServiceType = useMemo(() => {
         return ALLOWED_SERVICE_TYPES.includes(serviceType)
@@ -315,6 +334,7 @@ export default function PerfectServiceRequestForm({
         ...initialForm,
         currency: t.currencies[0] || "HKD",
     });
+
     const [errors, setErrors] = useState({});
     const [requestMeta, setRequestMeta] = useState(null);
     const [step, setStep] = useState("form");
@@ -323,7 +343,6 @@ export default function PerfectServiceRequestForm({
     const [resendLoading, setResendLoading] = useState(false);
     const [banner, setBanner] = useState({ type: "", text: "" });
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
-    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const otpRefs = useMemo(
         () => Array.from({ length: 6 }, () => ({ current: null })),
@@ -335,7 +354,10 @@ export default function PerfectServiceRequestForm({
     }, [form.verificationMethod, form.phone, form.email]);
 
     const handleOtpChange = (index, value) => {
-        const cleaned = value.replace(/[^a-zA-Z0-9]/g, "").slice(-1).toUpperCase();
+        const cleaned = value
+            .replace(/[^a-zA-Z0-9]/g, "")
+            .slice(-1)
+            .toUpperCase();
 
         setOtpValues((prev) => {
             const next = [...prev];
@@ -362,6 +384,7 @@ export default function PerfectServiceRequestForm({
         if (!pasted) return;
 
         const next = ["", "", "", "", "", ""];
+
         pasted.split("").forEach((char, i) => {
             next[i] = char;
         });
@@ -383,6 +406,7 @@ export default function PerfectServiceRequestForm({
                 });
             } else if (index > 0) {
                 otpRefs[index - 1]?.current?.focus();
+
                 setOtpValues((prev) => {
                     const next = [...prev];
                     next[index - 1] = "";
@@ -410,52 +434,68 @@ export default function PerfectServiceRequestForm({
         const { name, value } = e.target;
 
         setForm((prev) => {
-            let updated = { ...prev, [name]: value };
+            const updated = { ...prev, [name]: value };
 
-            if (name === "email" && !value.trim() && prev.verificationMethod === "email") {
-                updated.verificationMethod = "phone";
-            }
-
-            if (name === "phone" && !value.trim() && prev.verificationMethod === "phone") {
+            if (
+                name === "phone" &&
+                !value.trim() &&
+                prev.verificationMethod === "phone"
+            ) {
                 updated.verificationMethod = "email";
             }
 
             return updated;
         });
 
-        setErrors((prev) => ({ ...prev, [name]: "" }));
+        setErrors((prev) => ({ ...prev, [name]: "", captcha: "" }));
         setBanner({ type: "", text: "" });
     };
 
     const validate = () => {
         const nextErrors = {};
 
-        if (!form.displayName.trim()) nextErrors.displayName = t.required;
+        if (!form.displayName.trim()) {
+            nextErrors.displayName = t.required;
+        }
 
-        if (form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email)) {
+        if (!form.email.trim()) {
+            nextErrors.email = t.required;
+        } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
             nextErrors.email = t.invalidEmail;
         }
 
-        if (!form.phone.trim()) nextErrors.phone = t.required;
-        else if (!/^[+]?[-()\s\d]{7,20}$/.test(form.phone)) nextErrors.phone = t.invalidPhone;
+        if (form.phone.trim() && !PHONE_REGEX.test(form.phone.trim())) {
+            nextErrors.phone = t.invalidPhone;
+        }
 
-        if (!form.address.trim()) nextErrors.address = t.required;
-        if (!form.workDesc.trim()) nextErrors.workDesc = t.required;
+        if (!form.address.trim()) {
+            nextErrors.address = t.required;
+        }
 
-        if (form.budget === "" || form.budget === null || form.budget === undefined) {
+        if (!form.workDesc.trim()) {
+            nextErrors.workDesc = t.required;
+        }
+
+        if (
+            form.budget === "" ||
+            form.budget === null ||
+            form.budget === undefined
+        ) {
             nextErrors.budget = t.required;
         } else {
             const budgetValue = Number(form.budget);
+
             if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
                 nextErrors.budget = t.invalidBudget;
             }
         }
 
-        if (!form.projectTime) nextErrors.projectTime = t.required;
-        if (!form.paymentMethod) nextErrors.paymentMethod = t.required;
+        if (!form.projectTime) {
+            nextErrors.projectTime = t.required;
+        }
 
-        if (form.verificationMethod === "email" && !form.email.trim()) {
-            nextErrors.email = t.required;
+        if (!form.paymentMethod) {
+            nextErrors.paymentMethod = t.required;
         }
 
         if (form.verificationMethod === "phone" && !form.phone.trim()) {
@@ -468,6 +508,7 @@ export default function PerfectServiceRequestForm({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!validate()) return;
 
         if (!executeRecaptcha) {
@@ -489,16 +530,18 @@ export default function PerfectServiceRequestForm({
                     ...prev,
                     captcha: t.captchaRequired,
                 }));
+
                 setBanner({
                     type: "error",
                     text: t.captchaRequired,
                 });
+
                 return;
             }
 
             const payload = {
                 displayName: form.displayName.trim(),
-                email: form.email.trim() || undefined,
+                email: form.email.trim().toLowerCase(),
                 phone: form.phone.trim(),
                 address: form.address.trim(),
                 workDesc: form.workDesc.trim(),
@@ -511,7 +554,10 @@ export default function PerfectServiceRequestForm({
                 recaptchaToken,
             };
 
-            const res = await http.post("/frontend/perfectServiceForm/submit", payload);
+            const res = await http.post(
+                "/frontend/perfectServiceForm/submit",
+                payload
+            );
 
             const data = res?.data || {};
 
@@ -522,6 +568,7 @@ export default function PerfectServiceRequestForm({
 
             setStep("otp");
             setOtpValues(["", "", "", "", "", ""]);
+
             setBanner({
                 type: "success",
                 text: data?.success || t.verifyText,
@@ -547,12 +594,16 @@ export default function PerfectServiceRequestForm({
         setBanner({ type: "", text: "" });
 
         try {
-            const res = await http.post("/frontend/perfectServiceForm/verify-otp", {
-                id: requestMeta?.id,
-                otp,
-            });
+            const res = await http.post(
+                "/frontend/perfectServiceForm/verify-otp",
+                {
+                    id: requestMeta?.id,
+                    otp,
+                }
+            );
 
             setStep("success");
+
             setBanner({
                 type: "success",
                 text: res?.data?.success || t.successText,
@@ -571,9 +622,12 @@ export default function PerfectServiceRequestForm({
         setBanner({ type: "", text: "" });
 
         try {
-            const res = await http.post("/frontend/perfectServiceForm/resend-otp", {
-                id: requestMeta.id,
-            });
+            const res = await http.post(
+                "/frontend/perfectServiceForm/resend-otp",
+                {
+                    id: requestMeta.id,
+                }
+            );
 
             setRequestMeta((prev) => ({
                 ...prev,
@@ -643,61 +697,97 @@ export default function PerfectServiceRequestForm({
 
                     {step === "form" ? (
                         <form onSubmit={handleSubmit} className="space-y-5">
-                            <Field label={t.displayName} icon={User} error={errors.displayName}>
+                            <Field
+                                label={t.displayName}
+                                icon={User}
+                                error={errors.displayName}
+                            >
                                 <input
                                     name="displayName"
                                     value={form.displayName}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.displayName}
-                                    className={`${inputClass(!!errors.displayName)} h-12`}
+                                    className={`${inputClass(
+                                        !!errors.displayName
+                                    )} h-12`}
                                 />
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.email} icon={Mail} error={errors.email} required={false}>
+                                <Field
+                                    label={t.email}
+                                    icon={Mail}
+                                    error={errors.email}
+                                >
                                     <input
                                         type="email"
                                         name="email"
                                         value={form.email}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.email}
-                                        className={`${inputClass(!!errors.email)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.email
+                                        )} h-12`}
                                     />
                                 </Field>
 
-                                <Field label={t.phone} icon={Phone} error={errors.phone}>
+                                <Field
+                                    label={t.phone}
+                                    icon={Phone}
+                                    error={errors.phone}
+                                    required={false}
+                                >
                                     <input
                                         name="phone"
                                         value={form.phone}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.phone}
-                                        className={`${inputClass(!!errors.phone)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.phone
+                                        )} h-12`}
                                     />
                                 </Field>
                             </div>
 
-                            <Field label={t.address} icon={MapPin} error={errors.address}>
+                            <Field
+                                label={t.address}
+                                icon={MapPin}
+                                error={errors.address}
+                            >
                                 <input
                                     name="address"
                                     value={form.address}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.address}
-                                    className={`${inputClass(!!errors.address)} h-12`}
+                                    className={`${inputClass(
+                                        !!errors.address
+                                    )} h-12`}
                                 />
                             </Field>
 
-                            <Field label={t.workDesc} icon={BriefcaseBusiness} error={errors.workDesc}>
+                            <Field
+                                label={t.workDesc}
+                                icon={BriefcaseBusiness}
+                                error={errors.workDesc}
+                            >
                                 <textarea
                                     name="workDesc"
                                     value={form.workDesc}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.workDesc}
-                                    rows={5}
-                                    className={`${inputClass(!!errors.workDesc)} min-h-[130px] py-3 resize-none`}
+                                    rows={3}
+                                    maxLength={500}
+                                    className={`${inputClass(
+                                        !!errors.workDesc
+                                    )} min-h-[130px] resize-none py-3`}
                                 />
                             </Field>
 
-                            <Field label={t.budget} icon={BadgeDollarSign} error={errors.budget}>
+                            <Field
+                                label={t.budget}
+                                icon={BadgeDollarSign}
+                                error={errors.budget}
+                            >
                                 <div className="grid grid-cols-[1fr_110px] overflow-hidden rounded-2xl">
                                     <input
                                         type="number"
@@ -707,13 +797,18 @@ export default function PerfectServiceRequestForm({
                                         placeholder={t.placeholders.budget}
                                         min="0"
                                         step="0.01"
-                                        className={`${inputClass(!!errors.budget)} h-12 rounded-r-none border-r-0`}
+                                        className={`${inputClass(
+                                            !!errors.budget
+                                        )} h-12 rounded-r-none border-r-0`}
                                     />
+
                                     <select
                                         name="currency"
                                         value={form.currency}
                                         onChange={handleChange}
-                                        className={`${inputClass(false)} h-12 rounded-l-none bg-[#fafbff] font-semibold uppercase text-[#4b63ff]`}
+                                        className={`${inputClass(
+                                            false
+                                        )} h-12 rounded-l-none bg-[#fafbff] font-semibold uppercase text-[#4b63ff]`}
                                     >
                                         {t.currencies.map((currency) => (
                                             <option key={currency} value={currency}>
@@ -725,32 +820,52 @@ export default function PerfectServiceRequestForm({
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.projectTime} icon={Clock3} error={errors.projectTime}>
+                                <Field
+                                    label={t.projectTime}
+                                    icon={Clock3}
+                                    error={errors.projectTime}
+                                >
                                     <select
                                         name="projectTime"
                                         value={form.projectTime}
                                         onChange={handleChange}
-                                        className={`${inputClass(!!errors.projectTime)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.projectTime
+                                        )} h-12`}
                                     >
                                         <option value="">{t.chooseTimeline}</option>
+
                                         {t.timelines.map((item) => (
-                                            <option key={item.value} value={item.value}>
+                                            <option
+                                                key={item.value}
+                                                value={item.value}
+                                            >
                                                 {item.label}
                                             </option>
                                         ))}
                                     </select>
                                 </Field>
 
-                                <Field label={t.paymentMethod} icon={CreditCard} error={errors.paymentMethod}>
+                                <Field
+                                    label={t.paymentMethod}
+                                    icon={CreditCard}
+                                    error={errors.paymentMethod}
+                                >
                                     <select
                                         name="paymentMethod"
                                         value={form.paymentMethod}
                                         onChange={handleChange}
-                                        className={`${inputClass(!!errors.paymentMethod)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.paymentMethod
+                                        )} h-12`}
                                     >
                                         <option value="">{t.choosePayment}</option>
+
                                         {t.payments.map((item) => (
-                                            <option key={item.value} value={item.value}>
+                                            <option
+                                                key={item.value}
+                                                value={item.value}
+                                            >
                                                 {item.label}
                                             </option>
                                         ))}
@@ -758,39 +873,62 @@ export default function PerfectServiceRequestForm({
                                 </Field>
                             </div>
 
-                            <Field label={t.verificationMethod} icon={ShieldCheck} required={false}>
+                            <Field
+                                label={t.verificationMethod}
+                                icon={ShieldCheck}
+                                required={false}
+                            >
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     {[
                                         {
                                             value: "email",
                                             label: t.emailMethod,
                                             disabled: !form.email.trim(),
-                                            helper: form.email.trim() || t.placeholders.email,
+                                            helper:
+                                                form.email.trim() ||
+                                                t.placeholders.email,
                                         },
                                         {
                                             value: "phone",
                                             label: t.phoneMethod,
                                             disabled: !form.phone.trim(),
-                                            helper: form.phone.trim() || t.placeholders.phone,
+                                            helper:
+                                                form.phone.trim() ||
+                                                t.placeholders.phone,
                                         },
                                     ].map((item) => {
-                                        const active = form.verificationMethod === item.value;
+                                        const active =
+                                            form.verificationMethod === item.value;
+
                                         return (
                                             <button
                                                 key={item.value}
                                                 type="button"
                                                 disabled={item.disabled}
-                                                onClick={() => setForm((prev) => ({ ...prev, verificationMethod: item.value }))}
+                                                onClick={() =>
+                                                    setForm((prev) => ({
+                                                        ...prev,
+                                                        verificationMethod:
+                                                            item.value,
+                                                    }))
+                                                }
                                                 className={[
                                                     "rounded-2xl border px-4 py-3 text-left transition",
                                                     active
                                                         ? "border-[#4b63ff] bg-[#eef1ff] shadow-[0_10px_25px_rgba(75,99,255,0.12)]"
                                                         : "border-neutral-200 bg-white hover:border-neutral-300",
-                                                    item.disabled ? "cursor-not-allowed opacity-50" : "",
+                                                    item.disabled
+                                                        ? "cursor-not-allowed opacity-50"
+                                                        : "",
                                                 ].join(" ")}
                                             >
-                                                <div className="text-sm font-semibold text-neutral-900">{item.label}</div>
-                                                <div className="mt-1 text-xs text-neutral-500">{item.helper}</div>
+                                                <div className="text-sm font-semibold text-neutral-900">
+                                                    {item.label}
+                                                </div>
+
+                                                <div className="mt-1 text-xs text-neutral-500">
+                                                    {item.helper}
+                                                </div>
                                             </button>
                                         );
                                     })}
@@ -798,7 +936,9 @@ export default function PerfectServiceRequestForm({
                             </Field>
 
                             {errors.captcha ? (
-                                <p className="text-sm text-red-500">{errors.captcha}</p>
+                                <p className="text-sm text-red-500">
+                                    {errors.captcha}
+                                </p>
                             ) : null}
 
                             <button
@@ -806,9 +946,15 @@ export default function PerfectServiceRequestForm({
                                 disabled={submitLoading}
                                 className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#5b6ff8_0%,#4357e8_45%,#3e4fd4_100%)] px-6 text-sm font-semibold uppercase tracking-[0.26em] text-white shadow-[0_18px_40px_rgba(75,99,255,0.35)] transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                                {submitLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                {submitLoading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : null}
+
                                 {submitLoading ? t.sending : t.submit}
-                                {!submitLoading ? <ArrowRight className="h-4 w-4" /> : null}
+
+                                {!submitLoading ? (
+                                    <ArrowRight className="h-4 w-4" />
+                                ) : null}
                             </button>
                         </form>
                     ) : null}
@@ -819,15 +965,34 @@ export default function PerfectServiceRequestForm({
                                 <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#4b63ff] shadow-sm">
                                     <Lock className="h-5 w-5" />
                                 </div>
-                                <h2 className="text-2xl font-semibold text-neutral-900">{t.verifyTitle}</h2>
-                                <p className="mt-2 text-sm leading-7 text-neutral-500">{t.verifyText}</p>
-                                <p className="mt-3 text-sm font-medium text-neutral-700">{verificationValue}</p>
+
+                                <h2 className="text-2xl font-semibold text-neutral-900">
+                                    {t.verifyTitle}
+                                </h2>
+
+                                <p className="mt-2 text-sm leading-7 text-neutral-500">
+                                    {t.verifyText}
+                                </p>
+
+                                <p className="mt-3 text-sm font-medium text-neutral-700">
+                                    {verificationValue}
+                                </p>
+
                                 {requestMeta?.expiresAt ? (
-                                    <p className="mt-1 text-xs text-neutral-500">Expires at: {new Date(requestMeta.expiresAt).toLocaleString()}</p>
+                                    <p className="mt-1 text-xs text-neutral-500">
+                                        Expires at:{" "}
+                                        {new Date(
+                                            requestMeta.expiresAt
+                                        ).toLocaleString()}
+                                    </p>
                                 ) : null}
                             </div>
 
-                            <Field label={t.otpLabel} icon={ShieldCheck} error={errors.otp}>
+                            <Field
+                                label={t.otpLabel}
+                                icon={ShieldCheck}
+                                error={errors.otp}
+                            >
                                 <div className="space-y-3">
                                     <div className="flex flex-wrap gap-2 sm:gap-3">
                                         {otpValues.map((digit, index) => (
@@ -838,11 +1003,22 @@ export default function PerfectServiceRequestForm({
                                                 }}
                                                 type="text"
                                                 inputMode="text"
-                                                autoComplete={index === 0 ? "one-time-code" : "off"}
+                                                autoComplete={
+                                                    index === 0
+                                                        ? "one-time-code"
+                                                        : "off"
+                                                }
                                                 maxLength={1}
                                                 value={digit}
-                                                onChange={(e) => handleOtpChange(index, e.target.value)}
-                                                onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                                onChange={(e) =>
+                                                    handleOtpChange(
+                                                        index,
+                                                        e.target.value
+                                                    )
+                                                }
+                                                onKeyDown={(e) =>
+                                                    handleOtpKeyDown(index, e)
+                                                }
                                                 onPaste={handleOtpPaste}
                                                 className={[
                                                     "h-14 w-12 rounded-2xl border bg-white text-center text-lg font-semibold uppercase outline-none transition sm:h-16 sm:w-14",
@@ -855,7 +1031,10 @@ export default function PerfectServiceRequestForm({
                                     </div>
 
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="text-neutral-500">{t.placeholders.otp}</span>
+                                        <span className="text-neutral-500">
+                                            {t.placeholders.otp}
+                                        </span>
+
                                         <button
                                             type="button"
                                             onClick={clearOtp}
@@ -873,7 +1052,10 @@ export default function PerfectServiceRequestForm({
                                     disabled={verifyLoading}
                                     className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#5b6ff8_0%,#4357e8_45%,#3e4fd4_100%)] px-5 text-sm font-semibold text-white shadow-[0_15px_35px_rgba(75,99,255,0.28)] disabled:cursor-not-allowed disabled:opacity-70"
                                 >
-                                    {verifyLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                    {verifyLoading ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : null}
+
                                     {verifyLoading ? t.verifying : t.verify}
                                 </button>
 
@@ -883,7 +1065,12 @@ export default function PerfectServiceRequestForm({
                                     disabled={resendLoading}
                                     className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white px-5 text-sm font-semibold text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-70"
                                 >
-                                    {resendLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
+                                    {resendLoading ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <RefreshCcw className="h-4 w-4" />
+                                    )}
+
                                     {resendLoading ? t.resending : t.resend}
                                 </button>
                             </div>
@@ -895,8 +1082,15 @@ export default function PerfectServiceRequestForm({
                             <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm">
                                 <CheckCircle2 className="h-8 w-8" />
                             </div>
-                            <h2 className="text-2xl font-semibold text-neutral-900">{t.successTitle}</h2>
-                            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-600">{t.successText}</p>
+
+                            <h2 className="text-2xl font-semibold text-neutral-900">
+                                {t.successTitle}
+                            </h2>
+
+                            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-600">
+                                {t.successText}
+                            </p>
+
                             <button
                                 type="button"
                                 onClick={resetAll}

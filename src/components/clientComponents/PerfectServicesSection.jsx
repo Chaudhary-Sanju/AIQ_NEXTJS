@@ -154,7 +154,7 @@ export default function PerfectServicesSection({ locale = "en" }) {
     }, [lang]);
 
     return (
-        <section className="w-full bg-white py-10 md:py-14 lg:py-16">
+        <section className="w-full bg-white py-2 md:py-4 lg:py-6 ">
             <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto mb-10 max-w-[650px] text-center">
                     <h2 className="text-[32px] font-bold text-neutral-900">

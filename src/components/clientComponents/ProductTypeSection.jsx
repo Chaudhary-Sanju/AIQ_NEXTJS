@@ -77,7 +77,7 @@ export default function ProductTypeSection({
     locale = "en",
     type = "featuredProduct",
     limit = 6,
-    className = "my-8",
+    className = "my-2",
     title,
     seeAllHref,
 }) {
