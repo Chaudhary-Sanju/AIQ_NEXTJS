@@ -84,7 +84,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const t = (key, fallback) => {
         const parts = key.split(".");
         let cur = dict;
+
         for (const p of parts) cur = cur?.[p];
+
         return cur ?? fallback;
     };
 
@@ -115,6 +117,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                 if (header) {
                     const style = getComputedStyle(header);
+
                     if (style.position === "sticky" || style.position === "fixed") {
                         headerHeight = header.getBoundingClientRect().height;
                     }
@@ -252,8 +255,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)",
             }}
         >
+            {/* Top contact bar: desktop only */}
             <div
-                className="hidden md:block"
+                className="hidden xl:block"
                 style={{
                     background:
                         "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)",
@@ -310,9 +314,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            <div className="hidden bg-blue-50 md:block">
+            {/* Main desktop navbar */}
+            <div className="hidden bg-blue-50 xl:block">
                 <div className="mx-auto max-w-7xl px-4 lg:px-6">
-                    <div className="grid h-[96px] grid-cols-[96px_minmax(260px,340px)_1fr_auto] items-center gap-5 lg:grid-cols-[104px_minmax(300px,380px)_1fr_auto]">
+                    <div className="grid h-[96px] grid-cols-[105px_minmax(280px,430px)_minmax(360px,1fr)_auto] items-center gap-4">
                         <Link
                             href={l("/")}
                             className="group flex flex-col items-center justify-center leading-none"
@@ -382,7 +387,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <Link
                                     key={item.href}
                                     href={item.href}
-                                    className="relative px-4 py-2 text-[14px] font-semibold text-neutral-700 transition-colors duration-150 hover:text-[#1a4b8f]"
+                                    className="relative px-3 py-2 text-[14px] font-semibold text-neutral-700 transition-colors duration-150 hover:text-[#1a4b8f]"
                                     style={{ letterSpacing: "0.01em" }}
                                 >
                                     {item.label}
@@ -396,7 +401,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <button
                                         type="button"
                                         onClick={scrollToPerfectServices}
-                                        className="inline-flex items-center gap-1.5 px-4 py-2 text-[14px] font-semibold transition-colors duration-150 hover:text-[#1a4b8f]"
+                                        className="inline-flex items-center gap-1 px-3 py-2 text-[14px] font-semibold transition-colors duration-150 hover:text-[#1a4b8f]"
                                         style={{
                                             color: "#404040",
                                             letterSpacing: "0.01em",
@@ -454,7 +459,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
                         </nav>
 
-                        <div className="flex items-center gap-2 whitespace-nowrap">
+                        <div className="flex min-w-max items-center gap-2 whitespace-nowrap">
                             <Link
                                 href={l("/cart")}
                                 aria-label={t("nav.cartAria", "Cart")}
@@ -532,7 +537,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         }}
                                     >
                                         <User className="h-3.5 w-3.5" />
-                                        <span>{displayName || t("nav.account", "My Account")}</span>
+                                        <span className="max-w-[120px] truncate">
+                                            {displayName || t("nav.account", "My Account")}
+                                        </span>
 
                                         <ChevronDown
                                             className="h-3.5 w-3.5 transition-transform duration-200"
@@ -591,7 +598,8 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            <div className="md:hidden">
+            {/* Mobile + tablet navbar */}
+            <div className="xl:hidden">
                 <div className="px-3 pb-2.5 pt-3">
                     <div className="flex items-center gap-2">
                         <Link
@@ -619,7 +627,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                         </Link>
 
                         <form
-                            className="flex-1"
+                            className="min-w-0 flex-1"
                             onSubmit={(e) => handleSearchSubmit(e, mobileSearch)}
                         >
                             <div className="relative">
@@ -931,6 +939,8 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     </div>
                 )}
             </div>
+
+            <div className="h-1 bg-[#c21f85]" />
         </header>
     );
 }
