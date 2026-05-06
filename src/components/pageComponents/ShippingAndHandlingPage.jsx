@@ -1,9 +1,33 @@
 "use client";
 
+import {
+    Truck,
+    MapPin,
+    Clock,
+    PackageCheck,
+    Ban,
+    Landmark,
+    Box,
+    AlertTriangle,
+    ShoppingBag,
+    Mail,
+    CheckCircle2,
+} from "lucide-react";
+
 const content = {
     en: {
         title: "Shipping & Handling",
         updated: "Last updated: 2026",
+        badge: "Shipping Policy",
+        subtitle:
+            "This policy explains how HKMandu handles shipping, delivery, courier, packaging, and product-order logistics between Hong Kong and Nepal.",
+
+        highlights: [
+            "Delivery time may vary by route and logistics conditions",
+            "Customers must provide accurate parcel information",
+            "International shipments may involve customs or duties",
+        ],
+
         sections: [
             {
                 title: "1. Overview",
@@ -51,6 +75,16 @@ const content = {
     ne: {
         title: "शिपिङ तथा ह्यान्डलिङ",
         updated: "अन्तिम अपडेट: 2026",
+        badge: "शिपिङ नीति",
+        subtitle:
+            "यो नीतिले HKMandu ले Hong Kong र Nepal बीच शिपिङ, डेलिभरी, कुरियर, प्याकेजिङ र उत्पादन अर्डर logistics कसरी व्यवस्थापन गर्छ भन्ने जानकारी दिन्छ।",
+
+        highlights: [
+            "डेलिभरी समय रुट र logistics अवस्थाअनुसार फरक हुन सक्छ",
+            "ग्राहकले सही पार्सल जानकारी उपलब्ध गराउनुपर्छ",
+            "अन्तर्राष्ट्रिय शिपमेन्टमा भन्सार वा शुल्क लाग्न सक्छ",
+        ],
+
         sections: [
             {
                 title: "1. परिचय",
@@ -98,6 +132,16 @@ const content = {
     zh: {
         title: "运输与处理政策",
         updated: "最后更新：2026",
+        badge: "运输政策",
+        subtitle:
+            "本政策说明 HKMandu 如何处理香港与尼泊尔之间的运输、配送、快递、包装和商品订单物流。",
+
+        highlights: [
+            "配送时间可能因路线和物流情况而变化",
+            "客户必须提供准确的包裹信息",
+            "国际运输可能涉及海关或税费",
+        ],
+
         sections: [
             {
                 title: "1. 概述",
@@ -143,30 +187,99 @@ const content = {
     },
 };
 
+const sectionIcons = [
+    Truck,
+    MapPin,
+    Clock,
+    PackageCheck,
+    Ban,
+    Landmark,
+    Box,
+    AlertTriangle,
+    ShoppingBag,
+    Mail,
+];
+
 export default function ShippingAndHandlingPage({ locale = "en" }) {
     const t = content[locale] || content.en;
 
     return (
         <main className="bg-white">
-            <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-                <h1 className="text-4xl font-black text-neutral-950">{t.title}</h1>
+            <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+                <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+                <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
 
-                <p className="mt-3 text-sm text-neutral-500">{t.updated}</p>
-
-                <div className="mt-10 space-y-8">
-                    {t.sections.map((section) => (
-                        <div key={section.title}>
-                            <h2 className="text-xl font-bold text-neutral-900">
-                                {section.title}
-                            </h2>
-
-                            <p className="mt-2 text-sm leading-7 text-neutral-600">
-                                {section.body}
-                            </p>
+                <div className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6 md:py-16 lg:px-8 lg:py-20">
+                    <div className="mx-auto max-w-3xl text-center">
+                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#1a4b8f] shadow-sm">
+                            <Truck className="h-4 w-4" />
+                            {t.badge}
                         </div>
-                    ))}
+
+                        <h1 className="text-[34px] font-bold leading-tight tracking-tight text-neutral-950 sm:text-5xl lg:text-[56px]">
+                            {t.title}
+                        </h1>
+
+                        <p className="mt-4 text-sm font-semibold text-orange-600">
+                            {t.updated}
+                        </p>
+
+                        <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-8 text-neutral-600 sm:text-base">
+                            {t.subtitle}
+                        </p>
+                    </div>
+
+                    <div className="mx-auto mt-9 grid max-w-4xl gap-3 sm:grid-cols-3">
+                        {t.highlights.map((item) => (
+                            <div
+                                key={item}
+                                className="rounded-2xl border border-orange-100 bg-white/90 p-4 text-center shadow-sm backdrop-blur"
+                            >
+                                <div className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f]">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                </div>
+
+                                <p className="text-sm font-semibold leading-6 text-neutral-700">
+                                    {item}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <section className="bg-white py-12 sm:py-16">
+                <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+                    <div className="space-y-4">
+                        {t.sections.map((section, index) => {
+                            const Icon = sectionIcons[index] || Truck;
+
+                            return (
+                                <article
+                                    key={section.title}
+                                    className="group rounded-[26px] border border-orange-100 bg-gradient-to-br from-white to-orange-50/40 p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-[0_18px_45px_rgba(15,42,94,0.08)] sm:p-6"
+                                >
+                                    <div className="flex gap-4">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#1a4b8f]/10 text-[#1a4b8f] transition group-hover:bg-[#1a4b8f] group-hover:text-white">
+                                            <Icon className="h-5 w-5" />
+                                        </div>
+
+                                        <div>
+                                            <h2 className="text-lg font-bold text-neutral-950 sm:text-xl">
+                                                {section.title}
+                                            </h2>
+
+                                            <p className="mt-2 text-sm leading-7 text-neutral-600 sm:text-[15px]">
+                                                {section.body}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }

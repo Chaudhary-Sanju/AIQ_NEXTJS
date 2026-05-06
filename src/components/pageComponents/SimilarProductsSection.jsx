@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, ShoppingCart } from "lucide-react";
+import {
+    ArrowUpRight,
+    ShoppingCart,
+    Star,
+    Tag,
+    PackageCheck,
+} from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 import http from "@/http";
@@ -72,7 +78,8 @@ export default function SimilarProductsSection({
     const resolvedTitle = title || UI?.title?.[locale] || UI?.title?.en;
     const resolvedSeeAll = UI?.seeAll?.[locale] || UI?.seeAll?.en;
     const resolvedEmpty = UI?.noProducts?.[locale] || UI?.noProducts?.en;
-    const resolvedSeeAllHref = seeAllHref || `/${locale}/product`;
+    const resolvedSeeAllHref =
+        seeAllHref || `/${locale}/product?page=1&limit=10`;
 
     useEffect(() => {
         let mounted = true;
@@ -104,7 +111,11 @@ export default function SimilarProductsSection({
                         summary: pick(p?.summary, locale),
                         price: p?.price,
                         discounted_price: p?.discounted_price,
-                        image: Array.isArray(p?.images) ? p.images[0] : null,
+                        image: Array.isArray(p?.images)
+                            ? p.images[0]
+                            : Array.isArray(p?.image)
+                                ? p.image[0]
+                                : null,
                         reviewSummary: {
                             averageRating: Number(
                                 p?.reviewSummary?.averageRating || 0
@@ -116,7 +127,7 @@ export default function SimilarProductsSection({
                     }));
 
                 if (mounted) setRows(mapped);
-            } catch (e) {
+            } catch {
                 if (mounted) setRows([]);
             } finally {
                 if (mounted) setLoading(false);
@@ -136,26 +147,34 @@ export default function SimilarProductsSection({
 
     return (
         <section className={className}>
-            <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-                <div className="rounded-[28px] p-4 md:p-5 lg:p-6">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                        <h2 className="text-xl font-extrabold text-[#1f1f1f] md:text-[30px]">
-                            {resolvedTitle}
-                        </h2>
+            <div className="mx-auto w-full max-w-7xl px-4 md:px-6 pt-10">
+                <div className="rounded-[32px] border border-orange-100 bg-white/95 p-4 shadow-[0_18px_45px_rgba(15,42,94,0.08)] backdrop-blur md:p-5 lg:p-6">
+                    <div className="mb-5 flex items-center justify-between gap-3">
+                        <div>
+                            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#1a4b8f]">
+                                <PackageCheck className="h-4 w-4" />
+                                Products
+                            </div>
+
+                            <h2 className="text-xl font-bold text-neutral-950 md:text-[30px]">
+                                {resolvedTitle}
+                            </h2>
+                        </div>
 
                         <Link
                             href={resolvedSeeAllHref}
-                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1f1f1f] hover:text-[#5b4fd4]"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white px-4 py-2 text-xs font-bold text-[#1a4b8f] transition hover:bg-orange-50 md:text-sm"
                         >
                             <ArrowUpRight className="h-4 w-4" />
-                            <span>{resolvedSeeAll}</span>
+                            <span className="hidden sm:inline">{resolvedSeeAll}</span>
+                            <span className="sm:hidden">More</span>
                         </Link>
                     </div>
 
                     {loading ? (
                         <SkeletonGrid count={Math.min(limit, 6)} />
                     ) : products.length === 0 ? (
-                        <div className="rounded-2xl bg-white p-5 text-sm text-slate-600">
+                        <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-5 text-sm text-neutral-500">
                             {resolvedEmpty}
                         </div>
                     ) : (
@@ -171,11 +190,11 @@ export default function SimilarProductsSection({
                             </div>
 
                             <div className="lg:hidden">
-                                <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+                                <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
                                     {products.map((p) => (
                                         <div
                                             key={p.id}
-                                            className="w-[168px] shrink-0"
+                                            className="w-[178px] shrink-0"
                                         >
                                             <ProductCard
                                                 p={p}
@@ -208,14 +227,17 @@ function SkeletonGrid({ count = 5 }) {
     return (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
             {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="rounded-2xl bg-white p-2.5 shadow-sm">
-                    <div className="h-[140px] w-full animate-pulse rounded-xl bg-slate-200" />
-                    <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-200" />
-                    <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-3 h-3 w-20 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-2 h-4 w-16 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-3 h-9 w-full animate-pulse rounded-xl bg-slate-200" />
+                <div
+                    key={i}
+                    className="rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm"
+                >
+                    <div className="h-[150px] w-full animate-pulse rounded-2xl bg-orange-100/70" />
+                    <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-neutral-200" />
+                    <div className="mt-2 h-3 w-full animate-pulse rounded bg-neutral-100" />
+                    <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-neutral-100" />
+                    <div className="mt-3 h-3 w-20 animate-pulse rounded bg-neutral-100" />
+                    <div className="mt-2 h-5 w-16 animate-pulse rounded bg-neutral-200" />
+                    <div className="mt-3 h-10 w-full animate-pulse rounded-2xl bg-orange-100" />
                 </div>
             ))}
         </div>
@@ -228,20 +250,13 @@ function ProductCard({ p, locale }) {
     const href = `/${locale}/product/${p.slug}`;
 
     const addToCartText =
-        locale === "ne"
-            ? "कार्टमा थप्नुहोस्"
-            : locale === "zh"
-                ? "加入购物车"
-                : "Add to Cart";
+        UI.addToCart?.[locale] || UI.addToCart.en;
 
     const noReviewYetText =
         UI.noReviewYet?.[locale] || UI.noReviewYet.en;
 
-    const reviewText =
-        UI.review?.[locale] || UI.review.en;
-
-    const reviewsText =
-        UI.reviews?.[locale] || UI.reviews.en;
+    const reviewText = UI.review?.[locale] || UI.review.en;
+    const reviewsText = UI.reviews?.[locale] || UI.reviews.en;
 
     const averageRating = Number(p?.reviewSummary?.averageRating || 0);
     const totalReviews = Number(p?.reviewSummary?.totalReviews || 0);
@@ -266,64 +281,74 @@ function ProductCard({ p, locale }) {
     })();
 
     return (
-        <div className="rounded-2xl bg-white p-2.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+        <div className="group rounded-[24px]  border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
             <Link
                 href={href}
-                className="relative block h-[140px] w-full overflow-hidden rounded-xl border border-[#efefef] bg-white"
+                className="relative block h-[150px] w-full overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50"
             >
+                {discountPercent ? (
+                    <span className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
+                        <Tag className="h-3 w-3" />
+                        -{discountPercent}%
+                    </span>
+                ) : null}
+
                 {p.image ? (
                     <Image
                         src={imgUrl(p.image)}
                         alt={p.name || "Product"}
                         fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 168px, 220px"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                        sizes="(max-width: 1024px) 178px, 220px"
                         unoptimized
                     />
-                ) : null}
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-neutral-400">
+                        No Image
+                    </div>
+                )}
             </Link>
 
-            <Link href={href} className="mt-2.5 block">
-                <h3 className="line-clamp-1 text-[13px] font-bold text-[#202020]">
+            <Link href={href} className="mt-3 block">
+                <h3 className="line-clamp-1 text-[13px] font-bold text-neutral-950 transition group-hover:text-[#1a4b8f]">
                     {p.name}
                 </h3>
             </Link>
 
-            <p className="mt-1.5 line-clamp-3 min-h-[42px] text-[10px] leading-[1.45] text-[#666]">
-                {p.summary ||
-                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit."}
+            <p className="mt-1.5 line-clamp-2 min-h-[38px] text-[11px] leading-[1.7] text-neutral-500">
+                {p.summary || ""}
             </p>
 
-            <div className="mt-2 flex min-h-[18px] items-center gap-1 text-[11px]">
+            <div className="mt-2 flex min-h-[20px] items-center gap-1 text-[11px]">
                 {totalReviews > 0 ? (
                     <>
-                        <span className="text-[#72b843]">★</span>
+                        <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
 
-                        <span className="font-semibold text-[#2d2d2d]">
+                        <span className="font-bold text-neutral-900">
                             {averageRating.toFixed(1)}
                         </span>
 
-                        <span className="text-slate-500">
+                        <span className="text-neutral-500">
                             ({totalReviews}{" "}
                             {totalReviews === 1 ? reviewText : reviewsText})
                         </span>
                     </>
                 ) : (
-                    <span className="text-slate-400">
+                    <span className="text-neutral-400">
                         {noReviewYetText}
                     </span>
                 )}
             </div>
 
-            <div className="mt-1 min-h-[16px] text-[11px]">
+            <div className="mt-1 min-h-[18px] text-[11px]">
                 {hasDiscount ? (
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[#8b5cf6] line-through">
+                        <span className="text-neutral-400 line-through">
                             {money(p.price)}
                         </span>
 
                         {discountPercent ? (
-                            <span className="font-semibold text-[#ef4444]">
+                            <span className="font-bold text-red-500">
                                 -{discountPercent}%
                             </span>
                         ) : null}
@@ -333,7 +358,7 @@ function ProductCard({ p, locale }) {
                 )}
             </div>
 
-            <div className="text-[15px] font-extrabold leading-none text-[#5b4fd4]">
+            <div className="text-[16px] font-bold leading-none text-[#1a4b8f]">
                 {money(hasDiscount ? p.discounted_price : p.price)}
             </div>
 
@@ -341,7 +366,7 @@ function ProductCard({ p, locale }) {
                 type="button"
                 disabled={busy}
                 onClick={() => addToCart(p.id, 1)}
-                className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
                 {addToCartText}

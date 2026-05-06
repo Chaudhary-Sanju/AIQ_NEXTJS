@@ -13,6 +13,7 @@ import {
     ArrowLeft,
     RefreshCcw,
     CheckCircle2,
+    Sparkles,
 } from "lucide-react";
 import http from "@/http";
 
@@ -56,7 +57,6 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
 
     const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
 
-    // At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
     const PASSWORD_REGEX =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
@@ -75,7 +75,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
             } else if (!PHONE_REGEX.test(form.phone.trim())) {
                 nextErrors.phone =
                     t.validation?.phoneInvalid ||
-                    "Phone must be a valid Nepal (+977XXXXXXXXXX) or Hong Kong (+852XXXXXXXX) number.";
+                    "Phone must be a valid Nepal (+977-XXXXXXXXXX) or Hong Kong (+852-XXXXXXXX) number.";
             }
         }
 
@@ -138,12 +138,12 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
         if (!validateStep1()) return;
 
         setLoading(true);
+
         try {
             await http.post("/frontend/auth/forgetPassword", buildContactPayload());
 
             toast.success(
-                t.toast?.otpSent ||
-                "If an account exists, an OTP has been sent."
+                t.toast?.otpSent || "If an account exists, an OTP has been sent."
             );
 
             setStep(2);
@@ -152,6 +152,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                 error?.response?.data?.message ||
                 t.toast?.sendOtpFailed ||
                 "Failed to send OTP.";
+
             toast.error(message);
             setErrors((prev) => ({ ...prev, submit: message }));
         } finally {
@@ -165,15 +166,14 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
         if (!validateStep2()) return;
 
         setLoading(true);
+
         try {
             await http.post("/frontend/auth/verifyResetOtp", {
                 ...buildContactPayload(),
                 otp: form.otp.trim(),
             });
 
-            toast.success(
-                t.toast?.otpVerified || "OTP verified successfully."
-            );
+            toast.success(t.toast?.otpVerified || "OTP verified successfully.");
 
             setStep(3);
         } catch (error) {
@@ -181,6 +181,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                 error?.response?.data?.message ||
                 t.toast?.otpVerifyFailed ||
                 "Invalid or expired OTP.";
+
             toast.error(message);
             setErrors((prev) => ({ ...prev, submit: message }));
         } finally {
@@ -194,6 +195,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
         if (!validateStep3()) return;
 
         setLoading(true);
+
         try {
             await http.put("/frontend/auth/resetPassword", {
                 ...buildContactPayload(),
@@ -212,6 +214,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                 error?.response?.data?.message ||
                 t.toast?.passwordResetFailed ||
                 "Failed to reset password.";
+
             toast.error(message);
             setErrors((prev) => ({ ...prev, submit: message }));
         } finally {
@@ -223,17 +226,17 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
         if (!validateStep1()) return;
 
         setResending(true);
+
         try {
             await http.post("/frontend/auth/forgetPassword", buildContactPayload());
 
-            toast.success(
-                t.toast?.otpResent || "OTP has been sent again."
-            );
+            toast.success(t.toast?.otpResent || "OTP has been sent again.");
         } catch (error) {
             const message =
                 error?.response?.data?.message ||
                 t.toast?.resendFailed ||
                 "Failed to resend OTP.";
+
             toast.error(message);
         } finally {
             setResending(false);
@@ -246,16 +249,21 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
         "Reset your password securely using email or phone verification.";
 
     return (
-        <section className="min-h-screen bg-gradient-to-br bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
-            <div className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-10 sm:px-6 lg:px-8">
-                <div className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_20px_80px_rgba(15,23,42,0.08)] lg:grid-cols-2">
+        <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+            <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+            <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
+
+            <div className="relative mx-auto flex min-h-screen max-w-7xl items-center px-4 py-10 sm:px-6 lg:px-8">
+                <div className="grid w-full overflow-hidden rounded-[32px] border border-orange-100 bg-white/95 shadow-[0_24px_70px_rgba(15,42,94,0.14)] backdrop-blur lg:grid-cols-[0.95fr_1.05fr]">
                     {/* Left Side */}
-                    <div className="relative hidden overflow-hidden bg-[#0f172a] p-10 text-white lg:block">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.35),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.25),transparent_25%)]" />
+                    <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#1a4b8f] via-[#0f2a5e] to-[#13295b] p-10 text-white lg:block">
+                        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                        <div className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl" />
 
                         <div className="relative z-10 flex h-full flex-col justify-between">
                             <div>
-                                <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-blue-100">
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-100 backdrop-blur">
+                                    <Sparkles className="h-4 w-4" />
                                     {t.badge || "Account recovery"}
                                 </span>
 
@@ -263,38 +271,32 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                                     {t.sideTitle || "Recover access to your account"}
                                 </h1>
 
-                                <p className="mt-4 max-w-md text-sm leading-7 text-slate-300">
+                                <p className="mt-4 max-w-md text-sm leading-7 text-white/75">
                                     {t.sideDescription ||
                                         "Use your email address or phone number to receive a one-time password and create a new secure password."}
                                 </p>
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <ShieldCheck className="mt-0.5 h-5 w-5 text-emerald-300" />
-                                    <div>
-                                        <p className="font-semibold">
-                                            {t.points?.secureTitle || "Secure verification"}
-                                        </p>
-                                        <p className="text-sm text-slate-300">
-                                            {t.points?.secureText ||
-                                                "OTP verification helps protect your account from unauthorized access."}
-                                        </p>
-                                    </div>
-                                </div>
+                                <InfoPoint
+                                    icon={<ShieldCheck className="h-5 w-5" />}
+                                    title={t.points?.secureTitle || "Secure verification"}
+                                    text={
+                                        t.points?.secureText ||
+                                        "OTP verification helps protect your account from unauthorized access."
+                                    }
+                                />
 
-                                <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <Lock className="mt-0.5 h-5 w-5 text-blue-300" />
-                                    <div>
-                                        <p className="font-semibold">
-                                            {t.points?.passwordTitle || "Choose a strong password"}
-                                        </p>
-                                        <p className="text-sm text-slate-300">
-                                            {t.points?.passwordText ||
-                                                "Use at least 8 characters with a mix of letters, numbers, and symbols."}
-                                        </p>
-                                    </div>
-                                </div>
+                                <InfoPoint
+                                    icon={<Lock className="h-5 w-5" />}
+                                    title={
+                                        t.points?.passwordTitle || "Choose a strong password"
+                                    }
+                                    text={
+                                        t.points?.passwordText ||
+                                        "Use at least 8 characters with a mix of letters, numbers, and symbols."
+                                    }
+                                />
                             </div>
                         </div>
                     </div>
@@ -304,17 +306,23 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                         <div className="mx-auto w-full max-w-md">
                             <Link
                                 href={`/${locale}/auth/login`}
-                                className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+                                className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-semibold text-[#1a4b8f] shadow-sm transition hover:bg-orange-50"
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 {t.backToLogin || "Back to login"}
                             </Link>
 
                             <div className="mb-8">
-                                <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#1a4b8f]">
+                                    <ShieldCheck className="h-4 w-4" />
+                                    {t.badge || "Account recovery"}
+                                </div>
+
+                                <h2 className="text-3xl font-bold tracking-tight text-neutral-950">
                                     {authTitle}
                                 </h2>
-                                <p className="mt-2 text-sm leading-6 text-slate-500">
+
+                                <p className="mt-2 text-sm leading-6 text-neutral-500">
                                     {authSubtitle}
                                 </p>
                             </div>
@@ -329,19 +337,30 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                                         <div key={item} className="flex items-center gap-3">
                                             <div
                                                 className={[
-                                                    "flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition",
+                                                    "flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold transition",
                                                     done
-                                                        ? "border-emerald-500 bg-emerald-500 text-white"
+                                                        ? "border-green-500 bg-green-500 text-white"
                                                         : active
-                                                            ? "border-blue-600 bg-blue-600 text-white"
-                                                            : "border-slate-200 bg-white text-slate-500",
+                                                            ? "border-[#1a4b8f] bg-[#1a4b8f] text-white"
+                                                            : "border-orange-100 bg-orange-50 text-neutral-500",
                                                 ].join(" ")}
                                             >
-                                                {done ? <CheckCircle2 className="h-5 w-5" /> : item}
+                                                {done ? (
+                                                    <CheckCircle2 className="h-5 w-5" />
+                                                ) : (
+                                                    item
+                                                )}
                                             </div>
 
                                             {item !== 3 && (
-                                                <div className="h-[2px] w-8 rounded-full bg-slate-200" />
+                                                <div
+                                                    className={[
+                                                        "h-[2px] w-8 rounded-full",
+                                                        step > item
+                                                            ? "bg-green-500"
+                                                            : "bg-orange-100",
+                                                    ].join(" ")}
+                                                />
                                             )}
                                         </div>
                                     );
@@ -351,111 +370,65 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                             {step === 1 && (
                                 <form onSubmit={handleSendOtp} className="space-y-5">
                                     <div>
-                                        <label className="mb-2 block text-sm font-semibold text-slate-800">
+                                        <label className="mb-2 block text-sm font-semibold text-neutral-800">
                                             {t.chooseMethod || "Choose verification method"}
                                         </label>
 
                                         <div className="grid grid-cols-2 gap-3">
-                                            <button
-                                                type="button"
+                                            <MethodButton
+                                                active={verificationMethod === "email"}
+                                                icon={<Mail className="h-4 w-4" />}
+                                                label={t.emailTab || "Email"}
                                                 onClick={() => {
                                                     setVerificationMethod("email");
                                                     setErrors({});
                                                 }}
-                                                className={[
-                                                    "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium transition",
-                                                    verificationMethod === "email"
-                                                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                                                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
-                                                ].join(" ")}
-                                            >
-                                                <Mail className="h-4 w-4" />
-                                                {t.emailTab || "Email"}
-                                            </button>
+                                            />
 
-                                            <button
-                                                type="button"
+                                            <MethodButton
+                                                active={verificationMethod === "phone"}
+                                                icon={<Phone className="h-4 w-4" />}
+                                                label={t.phoneTab || "Phone"}
                                                 onClick={() => {
                                                     setVerificationMethod("phone");
                                                     setErrors({});
                                                 }}
-                                                className={[
-                                                    "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium transition",
-                                                    verificationMethod === "phone"
-                                                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                                                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
-                                                ].join(" ")}
-                                            >
-                                                <Phone className="h-4 w-4" />
-                                                {t.phoneTab || "Phone"}
-                                            </button>
+                                            />
                                         </div>
                                     </div>
 
                                     {verificationMethod === "email" ? (
-                                        <div>
-                                            <label className="mb-2 block text-sm font-semibold text-slate-800">
-                                                {t.emailLabel || "Email address"}
-                                            </label>
-                                            <div className="relative">
-                                                <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                                                <input
-                                                    type="email"
-                                                    value={form.email}
-                                                    onChange={(e) => handleChange("email", e.target.value)}
-                                                    placeholder={
-                                                        t.emailPlaceholder || "Enter your email address"
-                                                    }
-                                                    className={[
-                                                        "h-13 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm outline-none transition",
-                                                        errors.email
-                                                            ? "border-red-300 focus:border-red-400"
-                                                            : "border-slate-200 focus:border-blue-600",
-                                                    ].join(" ")}
-                                                />
-                                            </div>
-                                            {errors.email && (
-                                                <p className="mt-2 text-sm text-red-500">{errors.email}</p>
-                                            )}
-                                        </div>
+                                        <Field
+                                            label={t.emailLabel || "Email address"}
+                                            icon={<Mail className="h-5 w-5" />}
+                                            type="email"
+                                            value={form.email}
+                                            onChange={(value) => handleChange("email", value)}
+                                            placeholder={
+                                                t.emailPlaceholder || "Enter your email address"
+                                            }
+                                            error={errors.email}
+                                        />
                                     ) : (
-                                        <div>
-                                            <label className="mb-2 block text-sm font-semibold text-slate-800">
-                                                {t.phoneLabel || "Phone number"}
-                                            </label>
-                                            <div className="relative">
-                                                <Phone className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                                                <input
-                                                    type="text"
-                                                    value={form.phone}
-                                                    onChange={(e) => handleChange("phone", e.target.value)}
-                                                    placeholder={
-                                                        t.phonePlaceholder || "e.g. +9779812345678 or +85291234567"
-                                                    }
-                                                    className={[
-                                                        "h-13 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm outline-none transition",
-                                                        errors.phone
-                                                            ? "border-red-300 focus:border-red-400"
-                                                            : "border-slate-200 focus:border-blue-600",
-                                                    ].join(" ")}
-                                                />
-                                            </div>
-                                            {errors.phone && (
-                                                <p className="mt-2 text-sm text-red-500">{errors.phone}</p>
-                                            )}
-                                        </div>
+                                        <Field
+                                            label={t.phoneLabel || "Phone number"}
+                                            icon={<Phone className="h-5 w-5" />}
+                                            value={form.phone}
+                                            onChange={(value) => handleChange("phone", value)}
+                                            placeholder={
+                                                t.phonePlaceholder ||
+                                                "e.g. +977-9812345678 or +852-91234567"
+                                            }
+                                            error={errors.phone}
+                                        />
                                     )}
 
-                                    {errors.submit && (
-                                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                                            {errors.submit}
-                                        </div>
-                                    )}
+                                    <SubmitError error={errors.submit} />
 
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="inline-flex h-13 w-full items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="inline-flex h-13 w-full items-center justify-center rounded-2xl bg-[#1a4b8f] px-5 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {loading
                                             ? t.sendingOtp || "Sending OTP..."
@@ -466,47 +439,31 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
 
                             {step === 2 && (
                                 <form onSubmit={handleVerifyOtp} className="space-y-5">
-                                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
+                                    <div className="rounded-2xl border border-orange-100 bg-orange-50 p-4 text-sm text-neutral-700">
                                         {t.otpSentInfo || "We sent an OTP to"}{" "}
-                                        <span className="font-semibold">{contactValue}</span>
+                                        <span className="font-bold text-[#1a4b8f]">
+                                            {contactValue}
+                                        </span>
                                     </div>
 
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-slate-800">
-                                            {t.otpLabel || "Enter OTP"}
-                                        </label>
-                                        <div className="relative">
-                                            <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                                            <input
-                                                type="text"
-                                                value={form.otp}
-                                                onChange={(e) =>
-                                                    handleChange("otp", e.target.value.toUpperCase())
-                                                }
-                                                placeholder={t.otpPlaceholder || "Enter the OTP"}
-                                                className={[
-                                                    "h-13 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm uppercase tracking-[0.3em] outline-none transition",
-                                                    errors.otp
-                                                        ? "border-red-300 focus:border-red-400"
-                                                        : "border-slate-200 focus:border-blue-600",
-                                                ].join(" ")}
-                                            />
-                                        </div>
-                                        {errors.otp && (
-                                            <p className="mt-2 text-sm text-red-500">{errors.otp}</p>
-                                        )}
-                                    </div>
+                                    <Field
+                                        label={t.otpLabel || "Enter OTP"}
+                                        icon={<ShieldCheck className="h-5 w-5" />}
+                                        value={form.otp}
+                                        onChange={(value) =>
+                                            handleChange("otp", value.toUpperCase())
+                                        }
+                                        placeholder={t.otpPlaceholder || "Enter the OTP"}
+                                        error={errors.otp}
+                                        inputClassName="uppercase tracking-[0.3em]"
+                                    />
 
-                                    {errors.submit && (
-                                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                                            {errors.submit}
-                                        </div>
-                                    )}
+                                    <SubmitError error={errors.submit} />
 
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="inline-flex h-13 w-full items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="inline-flex h-13 w-full items-center justify-center rounded-2xl bg-[#1a4b8f] px-5 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {loading
                                             ? t.verifyingOtp || "Verifying OTP..."
@@ -517,7 +474,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                                         <button
                                             type="button"
                                             onClick={() => setStep(1)}
-                                            className="inline-flex h-12 flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-300"
+                                            className="inline-flex h-12 flex-1 items-center justify-center rounded-2xl border border-orange-200 bg-white px-4 text-sm font-semibold text-neutral-700 transition hover:bg-orange-50"
                                         >
                                             {t.changeContact || "Change email/phone"}
                                         </button>
@@ -526,7 +483,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                                             type="button"
                                             onClick={handleResendOtp}
                                             disabled={resending}
-                                            className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-white px-4 text-sm font-semibold text-neutral-700 transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             <RefreshCcw className="h-4 w-4" />
                                             {resending
@@ -538,99 +495,46 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                             )}
 
                             {step === 3 && (
-                                <form onSubmit={handleResetPassword} className="space-y-5">
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-slate-800">
-                                            {t.newPasswordLabel || "New password"}
-                                        </label>
-                                        <div className="relative">
-                                            <Lock className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                                            <input
-                                                type={showNewPassword ? "text" : "password"}
-                                                value={form.newPassword}
-                                                onChange={(e) =>
-                                                    handleChange("newPassword", e.target.value)
-                                                }
-                                                placeholder={
-                                                    t.newPasswordPlaceholder || "Enter new password"
-                                                }
-                                                className={[
-                                                    "h-13 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm outline-none transition",
-                                                    errors.newPassword
-                                                        ? "border-red-300 focus:border-red-400"
-                                                        : "border-slate-200 focus:border-blue-600",
-                                                ].join(" ")}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowNewPassword((prev) => !prev)}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"
-                                            >
-                                                {showNewPassword ? (
-                                                    <EyeOff className="h-5 w-5" />
-                                                ) : (
-                                                    <Eye className="h-5 w-5" />
-                                                )}
-                                            </button>
-                                        </div>
-                                        {errors.newPassword && (
-                                            <p className="mt-2 text-sm text-red-500">
-                                                {errors.newPassword}
-                                            </p>
-                                        )}
-                                    </div>
+                                <form
+                                    onSubmit={handleResetPassword}
+                                    className="space-y-5"
+                                >
+                                    <PasswordField
+                                        label={t.newPasswordLabel || "New password"}
+                                        value={form.newPassword}
+                                        onChange={(value) =>
+                                            handleChange("newPassword", value)
+                                        }
+                                        placeholder={
+                                            t.newPasswordPlaceholder ||
+                                            "Enter new password"
+                                        }
+                                        error={errors.newPassword}
+                                        show={showNewPassword}
+                                        setShow={setShowNewPassword}
+                                    />
 
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-slate-800">
-                                            {t.confirmPasswordLabel || "Confirm password"}
-                                        </label>
-                                        <div className="relative">
-                                            <Lock className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                                            <input
-                                                type={showConfirmPassword ? "text" : "password"}
-                                                value={form.confirmPassword}
-                                                onChange={(e) =>
-                                                    handleChange("confirmPassword", e.target.value)
-                                                }
-                                                placeholder={
-                                                    t.confirmPasswordPlaceholder ||
-                                                    "Confirm new password"
-                                                }
-                                                className={[
-                                                    "h-13 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm outline-none transition",
-                                                    errors.confirmPassword
-                                                        ? "border-red-300 focus:border-red-400"
-                                                        : "border-slate-200 focus:border-blue-600",
-                                                ].join(" ")}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setShowConfirmPassword((prev) => !prev)
-                                                }
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"
-                                            >
-                                                {showConfirmPassword ? (
-                                                    <EyeOff className="h-5 w-5" />
-                                                ) : (
-                                                    <Eye className="h-5 w-5" />
-                                                )}
-                                            </button>
-                                        </div>
-                                        {errors.confirmPassword && (
-                                            <p className="mt-2 text-sm text-red-500">
-                                                {errors.confirmPassword}
-                                            </p>
-                                        )}
-                                    </div>
+                                    <PasswordField
+                                        label={
+                                            t.confirmPasswordLabel ||
+                                            "Confirm password"
+                                        }
+                                        value={form.confirmPassword}
+                                        onChange={(value) =>
+                                            handleChange("confirmPassword", value)
+                                        }
+                                        placeholder={
+                                            t.confirmPasswordPlaceholder ||
+                                            "Confirm new password"
+                                        }
+                                        error={errors.confirmPassword}
+                                        show={showConfirmPassword}
+                                        setShow={setShowConfirmPassword}
+                                    />
 
-                                    {errors.submit && (
-                                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                                            {errors.submit}
-                                        </div>
-                                    )}
+                                    <SubmitError error={errors.submit} />
 
-                                    <p className="mt-2 text-xs text-slate-500">
+                                    <p className="rounded-2xl bg-orange-50 px-4 py-3 text-xs leading-5 text-neutral-500">
                                         {t.passwordHint ||
                                             "Use at least 8 characters with uppercase, lowercase, number, and special character."}
                                     </p>
@@ -638,33 +542,34 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="inline-flex h-13 w-full items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="inline-flex h-13 w-full items-center justify-center rounded-2xl bg-[#1a4b8f] px-5 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {loading
-                                            ? t.resettingPassword || "Resetting password..."
+                                            ? t.resettingPassword ||
+                                            "Resetting password..."
                                             : t.resetPassword || "Reset password"}
                                     </button>
                                 </form>
                             )}
 
                             {step === 4 && (
-                                <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-                                        <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                                <div className="rounded-[28px] border border-green-200 bg-green-50 p-6 text-center">
+                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                                        <CheckCircle2 className="h-8 w-8 text-green-600" />
                                     </div>
 
-                                    <h3 className="text-xl font-bold text-slate-900">
+                                    <h3 className="text-xl font-bold text-neutral-950">
                                         {t.successTitle || "Password updated"}
                                     </h3>
 
-                                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                                    <p className="mt-2 text-sm leading-6 text-neutral-600">
                                         {t.successDescription ||
                                             "Your password has been reset successfully. You can now log in with your new password."}
                                     </p>
 
                                     <Link
                                         href={`/${locale}/auth/login`}
-                                        className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-blue-600 px-6 text-sm font-semibold text-white transition hover:bg-blue-700"
+                                        className="mt-6 inline-flex h-12 items-center justify-center rounded-2xl bg-[#1a4b8f] px-6 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e]"
                                     >
                                         {t.goToLogin || "Go to login"}
                                     </Link>
@@ -677,3 +582,126 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
         </section>
     );
 };
+
+function InfoPoint({ icon, title, text }) {
+    return (
+        <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+            <div className="mt-0.5 text-orange-200">{icon}</div>
+
+            <div>
+                <p className="font-semibold text-white">{title}</p>
+                <p className="mt-1 text-sm leading-6 text-white/70">{text}</p>
+            </div>
+        </div>
+    );
+}
+
+function MethodButton({ active, icon, label, onClick }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={[
+                "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition",
+                active
+                    ? "border-[#1a4b8f] bg-blue-50 text-[#1a4b8f]"
+                    : "border-orange-100 bg-white text-neutral-700 hover:border-orange-200 hover:bg-orange-50",
+            ].join(" ")}
+        >
+            {icon}
+            {label}
+        </button>
+    );
+}
+
+function Field({
+    label,
+    icon,
+    value,
+    onChange,
+    placeholder,
+    error,
+    type = "text",
+    inputClassName = "",
+}) {
+    return (
+        <div>
+            <label className="mb-2 block text-sm font-semibold text-neutral-800">
+                {label}
+            </label>
+
+            <div className="relative">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+                    {icon}
+                </span>
+
+                <input
+                    type={type}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className={[
+                        "h-13 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                        error ? "border-red-300" : "border-orange-100",
+                        inputClassName,
+                    ].join(" ")}
+                />
+            </div>
+
+            {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+        </div>
+    );
+}
+
+function PasswordField({
+    label,
+    value,
+    onChange,
+    placeholder,
+    error,
+    show,
+    setShow,
+}) {
+    return (
+        <div>
+            <label className="mb-2 block text-sm font-semibold text-neutral-800">
+                {label}
+            </label>
+
+            <div className="relative">
+                <Lock className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
+
+                <input
+                    type={show ? "text" : "password"}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className={[
+                        "h-13 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                        error ? "border-red-300" : "border-orange-100",
+                    ].join(" ")}
+                />
+
+                <button
+                    type="button"
+                    onClick={() => setShow((prev) => !prev)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 transition hover:text-[#1a4b8f]"
+                >
+                    {show ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+            </div>
+
+            {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+        </div>
+    );
+}
+
+function SubmitError({ error }) {
+    if (!error) return null;
+
+    return (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+        </div>
+    );
+}

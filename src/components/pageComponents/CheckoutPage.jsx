@@ -6,12 +6,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
     ArrowLeft,
+    ArrowRight,
     CheckCircle2,
     CreditCard,
     Loader2,
+    MapPin,
+    PackageCheck,
     ShieldCheck,
     Tag,
     Trash2,
+    Truck,
+    UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { loadStripe } from "@stripe/stripe-js";
@@ -38,19 +43,19 @@ const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8}|\d{10})$/;
 const UI = {
     checkout: { en: "Checkout", ne: "चेकआउट", zh: "結帳" },
     generalInfo: {
-        en: "1. General Information",
-        ne: "१. सामान्य जानकारी",
-        zh: "1. 基本資料",
+        en: "General Information",
+        ne: "सामान्य जानकारी",
+        zh: "基本資料",
     },
     deliveryAddress: {
-        en: "2. Delivery Address",
-        ne: "२. डेलिभरी ठेगाना",
-        zh: "2. 送貨地址",
+        en: "Delivery Address",
+        ne: "डेलिभरी ठेगाना",
+        zh: "送貨地址",
     },
     paymentMethods: {
-        en: "3. Payment Methods",
-        ne: "३. भुक्तानी विधि",
-        zh: "3. 付款方式",
+        en: "Payment Methods",
+        ne: "भुक्तानी विधि",
+        zh: "付款方式",
     },
     orderSummary: { en: "Order Summary", ne: "अर्डर सारांश", zh: "訂單摘要" },
 
@@ -101,6 +106,11 @@ const UI = {
     stripe: { en: "Card Payment", ne: "कार्ड भुक्तानी", zh: "信用卡付款" },
     cardDetails: { en: "Card Details", ne: "कार्ड विवरण", zh: "信用卡資料" },
     emptyCart: { en: "Your cart is empty.", ne: "तपाईंको कार्ट खाली छ।", zh: "購物車是空的。" },
+    emptyCartDesc: {
+        en: "Add some products to your cart before checkout.",
+        ne: "चेकआउट गर्नु अघि केही उत्पादनहरू कार्टमा थप्नुहोस्।",
+        zh: "請先將商品加入購物車再結帳。",
+    },
     continueShopping: {
         en: "Continue Shopping",
         ne: "किनमेल जारी राख्नुहोस्",
@@ -166,11 +176,13 @@ const getProductImage = (item) => {
     const image =
         product?.featuredImage ||
         product?.thumbnail ||
+        product?.image?.[0] ||
         product?.image ||
         product?.images?.[0] ||
         product?.gallery?.[0] ||
         item?.featuredImage ||
         item?.thumbnail ||
+        item?.image?.[0] ||
         item?.image ||
         item?.images?.[0];
 
@@ -218,6 +230,7 @@ function CheckoutForm({ locale = "en" }) {
         paymentMethod: "cod",
     });
 
+    const productListHref = `/${locale}/product?page=1&limit=10`;
     const cartItems = cart?.items || [];
 
     const selectedZone = useMemo(() => {
@@ -278,7 +291,9 @@ function CheckoutForm({ locale = "en" }) {
             const res = await http.get("/frontend/martDelivery/");
             setZones(res?.data?.data || []);
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Failed to load delivery zones.");
+            toast.error(
+                err?.response?.data?.message || "Failed to load delivery zones."
+            );
         } finally {
             setZoneLoading(false);
         }
@@ -525,17 +540,18 @@ function CheckoutForm({ locale = "en" }) {
 
     if (cartLoading) {
         return (
-            <section className="min-h-screen bg-[#f6f6f6] px-4 py-10">
+            <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-10">
                 <div className="mx-auto max-w-6xl">
-                    <div className="h-8 w-52 animate-pulse rounded bg-neutral-200" />
+                    <div className="h-9 w-52 animate-pulse rounded-xl bg-orange-100" />
 
-                    <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_386px]">
-                        <div className="space-y-8">
-                            <div className="h-72 animate-pulse rounded-lg bg-white" />
-                            <div className="h-56 animate-pulse rounded-lg bg-white" />
+                    <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px]">
+                        <div className="space-y-6">
+                            <div className="h-72 animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
+                            <div className="h-56 animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
+                            <div className="h-48 animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
                         </div>
 
-                        <div className="h-96 animate-pulse rounded-lg bg-white" />
+                        <div className="h-[520px] animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
                     </div>
                 </div>
             </section>
@@ -544,17 +560,29 @@ function CheckoutForm({ locale = "en" }) {
 
     if (!cartItems.length) {
         return (
-            <section className="min-h-screen bg-[#f6f6f6] px-4 py-14">
-                <div className="mx-auto max-w-xl rounded-lg border border-neutral-200 bg-white p-8 text-center shadow-sm">
-                    <h1 className="text-2xl font-bold text-[#07152f]">
+            <section className="relative min-h-[70vh] overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-16">
+                <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+                <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
+
+                <div className="relative mx-auto max-w-md rounded-[32px] border border-orange-100 bg-white/90 p-8 text-center shadow-[0_24px_70px_rgba(15,42,94,0.12)] backdrop-blur">
+                    <div className="mx-auto mb-5 flex h-18 w-18 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f] ring-8 ring-orange-100/60">
+                        <PackageCheck className="h-9 w-9" />
+                    </div>
+
+                    <h1 className="text-2xl font-bold text-neutral-950">
                         {t("emptyCart", locale)}
                     </h1>
 
+                    <p className="mt-2 text-sm leading-6 text-neutral-500">
+                        {t("emptyCartDesc", locale)}
+                    </p>
+
                     <Link
-                        href={`/${locale}/products`}
-                        className="mt-6 inline-flex rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        href={productListHref}
+                        className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] px-6 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e]"
                     >
                         {t("continueShopping", locale)}
+                        <ArrowRight className="h-4 w-4" />
                     </Link>
                 </div>
             </section>
@@ -562,31 +590,42 @@ function CheckoutForm({ locale = "en" }) {
     }
 
     return (
-        <section className="min-h-screen bg-[#f6f6f6] px-4 py-8 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-6xl">
+        <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-8 sm:px-6 lg:px-8">
+            <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+            <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
+
+            <div className="relative mx-auto max-w-6xl">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="mb-8 flex items-center gap-3 text-[#07152f]"
+                    className="mb-6 inline-flex items-center gap-3 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-[#1a4b8f] shadow-sm transition hover:bg-orange-50"
                 >
-                    <ArrowLeft className="h-5 w-5" />
-
-                    <span className="text-3xl font-bold tracking-tight">
-                        {t("checkout", locale)}
-                    </span>
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
                 </button>
+
+                <div className="mb-7">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1a4b8f] shadow-sm">
+                        <ShieldCheck className="h-4 w-4" />
+                        Secure checkout
+                    </div>
+
+                    <h1 className="mt-3 text-[32px] font-bold tracking-tight text-neutral-950 md:text-4xl">
+                        {t("checkout", locale)}
+                    </h1>
+                </div>
 
                 <form
                     onSubmit={handleOrder}
-                    className="grid gap-8 lg:grid-cols-[1fr_386px] lg:items-start"
+                    className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start"
                 >
-                    <div className="space-y-8">
-                        <Card>
-                            <h2 className="mb-7 text-xl font-bold text-[#07152f]">
-                                {t("generalInfo", locale)}
-                            </h2>
-
-                            <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-6">
+                        <Card
+                            icon={<UserRound className="h-5 w-5" />}
+                            title={t("generalInfo", locale)}
+                            index="01"
+                        >
+                            <div className="grid gap-5 md:grid-cols-2">
                                 <Input
                                     label={t("fullName", locale)}
                                     required
@@ -621,7 +660,7 @@ function CheckoutForm({ locale = "en" }) {
                                 </div>
 
                                 <div className="md:col-span-2">
-                                    <label className="mb-2 block text-sm text-[#07152f]">
+                                    <label className="mb-2 block text-sm font-semibold text-neutral-800">
                                         {t("note", locale)}
                                     </label>
 
@@ -632,20 +671,20 @@ function CheckoutForm({ locale = "en" }) {
                                         }
                                         placeholder="Leave a note, e.g. Call before delivery"
                                         rows={4}
-                                        className="w-full rounded-md border border-[#cfd6df] bg-white px-4 py-3 text-sm text-[#07152f] outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                                        className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
                                     />
                                 </div>
                             </div>
                         </Card>
 
-                        <Card>
-                            <h2 className="mb-7 text-xl font-bold text-[#07152f]">
-                                {t("deliveryAddress", locale)}
-                            </h2>
-
-                            <div className="grid gap-6 md:grid-cols-2">
+                        <Card
+                            icon={<MapPin className="h-5 w-5" />}
+                            title={t("deliveryAddress", locale)}
+                            index="02"
+                        >
+                            <div className="grid gap-5 md:grid-cols-2">
                                 <div className="md:col-span-2">
-                                    <label className="mb-2 block text-sm text-[#07152f]">
+                                    <label className="mb-2 block text-sm font-semibold text-neutral-800">
                                         {t("city", locale)}{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
@@ -657,10 +696,10 @@ function CheckoutForm({ locale = "en" }) {
                                             updateForm("cityDistrict", e.target.value)
                                         }
                                         className={[
-                                            "h-13 w-full rounded-md border bg-white px-4 text-sm text-[#07152f] outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20",
+                                            "h-12 w-full rounded-2xl border bg-white px-4 text-sm text-neutral-900 outline-none transition focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100",
                                             errors.cityDistrict
                                                 ? "border-red-400"
-                                                : "border-[#cfd6df]",
+                                                : "border-orange-100",
                                         ].join(" ")}
                                     >
                                         <option value="">
@@ -704,64 +743,49 @@ function CheckoutForm({ locale = "en" }) {
                             </div>
                         </Card>
 
-                        <Card>
-                            <h2 className="mb-7 text-xl font-bold text-[#07152f]">
-                                {t("paymentMethods", locale)}
-                            </h2>
-
+                        <Card
+                            icon={<CreditCard className="h-5 w-5" />}
+                            title={t("paymentMethods", locale)}
+                            index="03"
+                        >
                             {!selectedZone ? (
-                                <p className="text-sm text-[#07152f]">
+                                <div className="rounded-2xl bg-orange-50 p-4 text-sm font-medium text-neutral-600">
                                     {t("paymentInfo", locale)}
-                                </p>
+                                </div>
                             ) : (
                                 <div className="space-y-3">
-                                    <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#cfd6df] bg-white p-4">
-                                        <span className="font-medium text-[#07152f]">
-                                            {t("cod", locale)}
-                                        </span>
+                                    <PaymentOption
+                                        checked={form.paymentMethod === "cod"}
+                                        label={t("cod", locale)}
+                                        icon={<Truck className="h-4 w-4" />}
+                                        onChange={() => updateForm("paymentMethod", "cod")}
+                                    />
 
-                                        <input
-                                            type="radio"
-                                            checked={form.paymentMethod === "cod"}
-                                            onChange={() =>
-                                                updateForm("paymentMethod", "cod")
-                                            }
-                                            className="accent-cyan-500"
-                                        />
-                                    </label>
-
-                                    <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#cfd6df] bg-white p-4">
-                                        <span className="flex items-center gap-2 font-medium text-[#07152f]">
-                                            <CreditCard className="h-4 w-4" />
-                                            {t("stripe", locale)}
-                                        </span>
-
-                                        <input
-                                            type="radio"
-                                            checked={form.paymentMethod === "stripe"}
-                                            onChange={() =>
-                                                updateForm("paymentMethod", "stripe")
-                                            }
-                                            className="accent-cyan-500"
-                                        />
-                                    </label>
+                                    <PaymentOption
+                                        checked={form.paymentMethod === "stripe"}
+                                        label={t("stripe", locale)}
+                                        icon={<CreditCard className="h-4 w-4" />}
+                                        onChange={() =>
+                                            updateForm("paymentMethod", "stripe")
+                                        }
+                                    />
 
                                     {form.paymentMethod === "stripe" && (
-                                        <div className="rounded-md border border-[#cfd6df] bg-white p-4">
-                                            <label className="mb-3 block text-sm font-medium text-[#07152f]">
+                                        <div className="rounded-2xl border border-orange-100 bg-white p-4">
+                                            <label className="mb-3 block text-sm font-semibold text-neutral-800">
                                                 {t("cardDetails", locale)}
                                             </label>
 
-                                            <div className="rounded-md border border-[#cfd6df] px-4 py-3">
+                                            <div className="rounded-xl border border-orange-100 px-4 py-3">
                                                 <CardElement
                                                     options={{
                                                         hidePostalCode: true,
                                                         style: {
                                                             base: {
                                                                 fontSize: "15px",
-                                                                color: "#07152f",
+                                                                color: "#111827",
                                                                 "::placeholder": {
-                                                                    color: "#7b8da1",
+                                                                    color: "#9ca3af",
                                                                 },
                                                             },
                                                             invalid: {
@@ -784,12 +808,12 @@ function CheckoutForm({ locale = "en" }) {
                         </Card>
                     </div>
 
-                    <aside className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm lg:sticky lg:top-24">
-                        <h2 className="mb-7 text-xl font-bold text-[#07152f]">
+                    <aside className="h-fit rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,42,94,0.08)] backdrop-blur lg:sticky lg:top-24">
+                        <h2 className="mb-6 text-lg font-bold text-neutral-950">
                             {t("orderSummary", locale)}
                         </h2>
 
-                        <div className="space-y-4">
+                        <div className="max-h-[300px] space-y-4 overflow-y-auto pr-1">
                             {cartItems.map((item) => {
                                 const productId = getProductId(item);
                                 const qty = getQty(item);
@@ -797,28 +821,28 @@ function CheckoutForm({ locale = "en" }) {
 
                                 return (
                                     <div key={productId} className="flex gap-3">
-                                        <div className="relative h-12 w-12 shrink-0 overflow-visible rounded-md bg-neutral-100">
+                                        <div className="relative h-14 w-14 shrink-0 overflow-visible rounded-2xl bg-orange-50">
                                             <Image
                                                 src={getProductImage(item)}
                                                 alt={getProductName(item, locale)}
                                                 fill
-                                                sizes="48px"
-                                                className="rounded-md object-cover"
+                                                sizes="56px"
+                                                className="rounded-2xl object-cover"
                                                 unoptimized
                                             />
 
-                                            <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-500 px-1 text-xs font-bold text-white">
+                                            <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#1a4b8f] px-1 text-[11px] font-bold text-white">
                                                 {qty}
                                             </span>
                                         </div>
 
                                         <div className="min-w-0 flex-1">
-                                            <p className="line-clamp-1 text-sm text-[#07152f]">
+                                            <p className="line-clamp-1 text-sm font-semibold text-neutral-900">
                                                 {getProductName(item, locale)}
                                             </p>
 
-                                            <p className="text-sm font-bold text-cyan-600">
-                                                {money(price)} x {qty}
+                                            <p className="mt-0.5 text-sm font-bold text-[#1a4b8f]">
+                                                {money(price)} × {qty}
                                             </p>
                                         </div>
 
@@ -826,6 +850,7 @@ function CheckoutForm({ locale = "en" }) {
                                             type="button"
                                             onClick={() => removeItem(productId)}
                                             className="text-neutral-400 transition hover:text-red-500"
+                                            aria-label="Remove item"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </button>
@@ -834,10 +859,10 @@ function CheckoutForm({ locale = "en" }) {
                             })}
                         </div>
 
-                        <div className="my-6 border-t border-[#07152f]" />
+                        <div className="my-6 h-px bg-orange-100" />
 
                         <div>
-                            <div className="mb-3 flex items-center gap-2 text-sm text-[#07152f]">
+                            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-800">
                                 <Tag className="h-4 w-4 text-orange-600" />
                                 <span>{t("coupon", locale)}</span>
                             </div>
@@ -851,14 +876,14 @@ function CheckoutForm({ locale = "en" }) {
                                     }}
                                     placeholder="SAVE20"
                                     disabled={couponLoading}
-                                    className="h-10 min-w-0 flex-1 rounded-md border border-[#cfd6df] px-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 disabled:bg-neutral-100"
+                                    className="h-11 min-w-0 flex-1 rounded-xl border border-orange-100 px-3 text-sm outline-none transition focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:bg-neutral-100"
                                 />
 
                                 {appliedCoupon ? (
                                     <button
                                         type="button"
                                         onClick={removeCoupon}
-                                        className="h-10 rounded-md bg-red-600 px-4 text-sm font-bold text-white transition hover:bg-red-700"
+                                        className="h-11 rounded-xl bg-red-600 px-4 text-sm font-bold text-white transition hover:bg-red-700"
                                     >
                                         {t("remove", locale)}
                                     </button>
@@ -867,7 +892,7 @@ function CheckoutForm({ locale = "en" }) {
                                         type="button"
                                         onClick={applyCoupon}
                                         disabled={couponLoading}
-                                        className="h-10 rounded-md bg-blue-600 px-5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                                        className="h-11 rounded-xl bg-[#1a4b8f] px-5 text-sm font-bold text-white transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-70"
                                     >
                                         {couponLoading ? (
                                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -906,17 +931,18 @@ function CheckoutForm({ locale = "en" }) {
                                 <SummaryRow
                                     label={`${t("discount", locale)} (${appliedCoupon.code})`}
                                     value={`- ${money(discountAmount)}`}
+                                    danger
                                 />
                             )}
 
-                            <div className="border-t border-[#07152f]" />
+                            <div className="h-px bg-orange-100" />
 
                             <div className="flex items-center justify-between">
-                                <span className="text-lg font-bold text-[#07152f]">
+                                <span className="text-lg font-bold text-neutral-950">
                                     {t("total", locale)}
                                 </span>
 
-                                <span className="text-lg font-bold text-cyan-600">
+                                <span className="text-xl font-bold text-[#1a4b8f]">
                                     {money(total)}
                                 </span>
                             </div>
@@ -925,7 +951,7 @@ function CheckoutForm({ locale = "en" }) {
                         <button
                             type="submit"
                             disabled={submitting || !selectedZone}
-                            className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-md bg-blue-600 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                            className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-70"
                         >
                             {submitting ? (
                                 <>
@@ -943,15 +969,17 @@ function CheckoutForm({ locale = "en" }) {
                         </button>
 
                         {!selectedZone && (
-                            <p className="mt-3 text-center text-xs text-[#45607a]">
+                            <p className="mt-3 text-center text-xs text-neutral-500">
                                 {t("selectZoneInfo", locale)}
                             </p>
                         )}
 
-                        <p className="mt-5 flex items-center justify-center gap-2 text-center text-xs text-[#45607a]">
-                            <ShieldCheck className="h-4 w-4" />
-                            {t("secure", locale)}
-                        </p>
+                        <div className="mt-5 rounded-2xl bg-orange-50/70 p-4">
+                            <p className="flex items-center justify-center gap-2 text-center text-xs font-medium text-neutral-600">
+                                <ShieldCheck className="h-4 w-4 text-[#1a4b8f]" />
+                                {t("secure", locale)}
+                            </p>
+                        </div>
                     </aside>
                 </form>
             </div>
@@ -959,9 +987,25 @@ function CheckoutForm({ locale = "en" }) {
     );
 }
 
-function Card({ children }) {
+function Card({ children, title, icon, index }) {
     return (
-        <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-sm backdrop-blur sm:p-6">
+            <div className="mb-6 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-[#1a4b8f]">
+                        {icon}
+                    </div>
+
+                    <h2 className="text-lg font-bold text-neutral-950 sm:text-xl">
+                        {title}
+                    </h2>
+                </div>
+
+                <span className="hidden text-xs font-bold uppercase tracking-[0.18em] text-orange-300 sm:block">
+                    {index}
+                </span>
+            </div>
+
             {children}
         </div>
     );
@@ -979,7 +1023,7 @@ function Input({
 }) {
     return (
         <div>
-            <label className="mb-2 block text-sm text-[#07152f]">
+            <label className="mb-2 block text-sm font-semibold text-neutral-800">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
 
@@ -990,8 +1034,8 @@ function Input({
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 className={[
-                    "h-13 w-full rounded-md border bg-white px-4 text-sm text-[#07152f] outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500",
-                    error ? "border-red-400" : "border-[#cfd6df]",
+                    "h-12 w-full rounded-2xl border bg-white px-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500",
+                    error ? "border-red-400" : "border-orange-100",
                 ].join(" ")}
             />
 
@@ -1000,11 +1044,52 @@ function Input({
     );
 }
 
-function SummaryRow({ label, value }) {
+function PaymentOption({ checked, label, icon, onChange }) {
     return (
-        <div className="flex items-center justify-between text-[#07152f]">
+        <label
+            className={[
+                "flex cursor-pointer items-center justify-between rounded-2xl border bg-white p-4 transition",
+                checked
+                    ? "border-[#1a4b8f] bg-blue-50/40"
+                    : "border-orange-100 hover:border-orange-200 hover:bg-orange-50/40",
+            ].join(" ")}
+        >
+            <span className="flex items-center gap-2.5 font-semibold text-neutral-900">
+                <span
+                    className={[
+                        "flex h-8 w-8 items-center justify-center rounded-full",
+                        checked
+                            ? "bg-[#1a4b8f] text-white"
+                            : "bg-orange-50 text-[#1a4b8f]",
+                    ].join(" ")}
+                >
+                    {icon}
+                </span>
+                {label}
+            </span>
+
+            <input
+                type="radio"
+                checked={checked}
+                onChange={onChange}
+                className="accent-[#1a4b8f]"
+            />
+        </label>
+    );
+}
+
+function SummaryRow({ label, value, danger = false }) {
+    return (
+        <div className="flex items-center justify-between text-sm text-neutral-600">
             <span>{label}</span>
-            <span className="font-bold">{value}</span>
+            <span
+                className={[
+                    "font-bold",
+                    danger ? "text-red-500" : "text-neutral-900",
+                ].join(" ")}
+            >
+                {value}
+            </span>
         </div>
     );
 }

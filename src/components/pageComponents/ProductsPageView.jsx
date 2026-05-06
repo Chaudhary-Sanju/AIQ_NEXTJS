@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+    Search,
+    ShoppingCart,
+    ChevronLeft,
+    ChevronRight,
+    PackageCheck,
+    Star,
+    Tag,
+    SlidersHorizontal,
+} from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 import http from "@/http";
@@ -140,6 +149,7 @@ export default function ProductsPageView({ locale = "en", dict }) {
     const searchParams = useSearchParams();
 
     const [rows, setRows] = useState([]);
+    const [categoryInfo, setCategoryInfo] = useState(null);
     const [pagination, setPagination] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -151,6 +161,7 @@ export default function ProductsPageView({ locale = "en", dict }) {
     const limit = Number(searchParams.get("limit") || 10);
     const search = searchParams.get("search") || "";
     const sortBy = searchParams.get("sortBy") || "";
+    const category = searchParams.get("category") || "";
 
     const t = {
         title: dict?.productsPage?.title || UI.title[locale] || UI.title.en,
@@ -219,6 +230,9 @@ export default function ProductsPageView({ locale = "en", dict }) {
     const updateQuery = (updates = {}) => {
         const params = new URLSearchParams(searchParams.toString());
 
+        if (!params.get("page")) params.set("page", "1");
+        if (!params.get("limit")) params.set("limit", "10");
+
         Object.entries(updates).forEach(([key, value]) => {
             if (value === undefined || value === null || value === "") {
                 params.delete(key);
@@ -236,12 +250,18 @@ export default function ProductsPageView({ locale = "en", dict }) {
                 updateQuery({
                     search: searchInput || "",
                     page: 1,
+                    limit,
                 });
             }
         }, 450);
 
         return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchInput]);
+
+    useEffect(() => {
+        setSearchInput(search);
+    }, [search]);
 
     useEffect(() => {
         let mounted = true;
@@ -253,19 +273,34 @@ export default function ProductsPageView({ locale = "en", dict }) {
                 const query = new URLSearchParams({
                     page: String(page),
                     limit: String(limit),
-                    search,
-                    sortBy,
                 });
 
-                const res = await http.get(
-                    `/frontend/product?${query.toString()}`
-                );
+                if (search) {
+                    query.set("search", search);
+                    query.set("q", search);
+                }
+
+                if (sortBy) {
+                    query.set("sortBy", sortBy);
+                    query.set("sort", sortBy);
+                }
+
+                const apiUrl = category
+                    ? `/frontend/category/${category}/products?${query.toString()}`
+                    : `/frontend/product?${query.toString()}`;
+
+                const res = await http.get(apiUrl);
 
                 const data = Array.isArray(res?.data?.data)
                     ? res.data.data
                     : [];
 
-                const pag = res?.data?.pagination || null;
+                const apiCategory = res?.data?.category || null;
+
+                const pag =
+                    res?.data?.pagination ||
+                    normalizeMetaToPagination(res?.data?.meta) ||
+                    null;
 
                 const mapped = data
                     .filter((p) => p?.status === true)
@@ -276,24 +311,36 @@ export default function ProductsPageView({ locale = "en", dict }) {
                         summary: pick(p?.summary, locale),
                         price: p?.price,
                         discounted_price: p?.discounted_price,
-                        image: Array.isArray(p?.images) ? p.images[0] : null,
+                        image: Array.isArray(p?.images)
+                            ? p.images[0]
+                            : Array.isArray(p?.image)
+                                ? p.image[0]
+                                : null,
                         reviewSummary: {
                             averageRating: Number(
-                                p?.reviewSummary?.averageRating || 0
+                                p?.reviewSummary?.averageRating ??
+                                p?.rating?.average ??
+                                0
                             ),
                             totalReviews: Number(
-                                p?.reviewSummary?.totalReviews || 0
+                                p?.reviewSummary?.totalReviews ??
+                                p?.rating?.totalReviews ??
+                                0
                             ),
                         },
                     }));
 
                 if (mounted) {
                     setRows(mapped);
+                    setCategoryInfo(apiCategory);
                     setPagination(pag);
                 }
             } catch (e) {
+                console.error("Products fetch error:", e);
+
                 if (mounted) {
                     setRows([]);
+                    setCategoryInfo(null);
                     setPagination(null);
                 }
             } finally {
@@ -306,28 +353,40 @@ export default function ProductsPageView({ locale = "en", dict }) {
         return () => {
             mounted = false;
         };
-    }, [locale, page, limit, search, sortBy]);
+    }, [locale, page, limit, search, sortBy, category]);
 
     const products = useMemo(() => rows, [rows]);
 
+    const pageTitle = category
+        ? pick(categoryInfo?.name, locale) || category
+        : t.title;
+
     return (
-        <section className="py-8 md:py-12">
-            <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-                <div className="mb-6 p-5 md:p-6">
+        <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 py-8 md:py-12">
+            <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+            <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
+
+            <div className="relative mx-auto w-full max-w-7xl px-4 md:px-6">
+                <div className="mb-6 rounded-[32px] border border-orange-100 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,42,94,0.08)] backdrop-blur md:p-6">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div>
-                            <h1 className="text-2xl font-extrabold text-[#1f1f1f] md:text-[34px]">
-                                {t.title}
+                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#1a4b8f]">
+                                <PackageCheck className="h-4 w-4" />
+                                A Grocery
+                            </div>
+
+                            <h1 className="text-2xl font-bold tracking-tight text-neutral-950 md:text-[36px]">
+                                {pageTitle}
                             </h1>
 
-                            <p className="mt-1 text-sm text-slate-600">
+                            <p className="mt-1 text-sm leading-6 text-neutral-500">
                                 {t.subtitle}
                             </p>
                         </div>
 
                         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px] lg:w-[720px]">
                             <div className="relative">
-                                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
 
                                 <input
                                     type="text"
@@ -336,42 +395,53 @@ export default function ProductsPageView({ locale = "en", dict }) {
                                         setSearchInput(e.target.value)
                                     }
                                     placeholder={t.searchPlaceholder}
-                                    className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-[#5b4fd4] focus:ring-4 focus:ring-[#5b4fd4]/10"
+                                    className="h-12 w-full rounded-2xl border border-orange-100 bg-white pl-11 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
                                 />
                             </div>
 
-                            <select
-                                value={sortBy}
-                                onChange={(e) =>
-                                    updateQuery({
-                                        sortBy: e.target.value,
-                                        page: 1,
-                                    })
-                                }
-                                className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-[#5b4fd4] focus:ring-4 focus:ring-[#5b4fd4]/10"
-                            >
-                                {SORT_OPTIONS.map((opt) => (
-                                    <option
-                                        key={opt.value || "default"}
-                                        value={opt.value}
-                                    >
-                                        {sortLabelMap[opt.key]}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <SlidersHorizontal className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) =>
+                                        updateQuery({
+                                            sortBy: e.target.value,
+                                            page: 1,
+                                            limit,
+                                        })
+                                    }
+                                    className="h-12 w-full appearance-none rounded-2xl border border-orange-100 bg-white px-4 pl-11 text-sm text-neutral-900 outline-none transition focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
+                                >
+                                    {SORT_OPTIONS.map((opt) => (
+                                        <option
+                                            key={opt.value || "default"}
+                                            value={opt.value}
+                                        >
+                                            {sortLabelMap[opt.key]}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mb-4 flex items-center justify-between gap-3">
-                    <p className="text-sm text-slate-600">
-                        {pagination?.totalItems || 0} {t.results}
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-white/80 px-4 py-3 shadow-sm backdrop-blur">
+                    <p className="text-sm font-semibold text-neutral-600">
+                        <span className="font-bold text-[#1a4b8f]">
+                            {pagination?.totalItems || 0}
+                        </span>{" "}
+                        {t.results}
                     </p>
 
                     {pagination ? (
-                        <p className="text-sm text-slate-500">
-                            {t.page} {pagination.currentPage} /{" "}
-                            {pagination.totalPages}
+                        <p className="text-sm font-semibold text-neutral-500">
+                            {t.page}{" "}
+                            <span className="text-neutral-900">
+                                {pagination.currentPage}
+                            </span>{" "}
+                            / {pagination.totalPages}
                         </p>
                     ) : null}
                 </div>
@@ -379,7 +449,7 @@ export default function ProductsPageView({ locale = "en", dict }) {
                 {loading ? (
                     <SkeletonGrid count={Math.min(limit, 10)} />
                 ) : products.length === 0 ? (
-                    <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-600 shadow-sm">
+                    <div className="rounded-[28px] border border-dashed border-orange-200 bg-white/90 p-8 text-center text-sm font-semibold text-neutral-500 shadow-sm">
                         {t.noProducts}
                     </div>
                 ) : (
@@ -399,63 +469,12 @@ export default function ProductsPageView({ locale = "en", dict }) {
                         </div>
 
                         {pagination?.totalPages > 1 ? (
-                            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-                                <button
-                                    type="button"
-                                    disabled={!pagination?.hasPrevPage}
-                                    onClick={() =>
-                                        updateQuery({
-                                            page: pagination.prevPage || 1,
-                                        })
-                                    }
-                                    className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-[#5b4fd4] hover:text-[#5b4fd4] disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                    {t.prev}
-                                </button>
-
-                                {Array.from({
-                                    length: pagination.totalPages,
-                                }).map((_, i) => {
-                                    const pageNum = i + 1;
-                                    const active =
-                                        pageNum === pagination.currentPage;
-
-                                    return (
-                                        <button
-                                            key={pageNum}
-                                            type="button"
-                                            onClick={() =>
-                                                updateQuery({ page: pageNum })
-                                            }
-                                            className={[
-                                                "h-11 min-w-[44px] rounded-xl px-3 text-sm font-semibold transition",
-                                                active
-                                                    ? "bg-[#5b4fd4] text-white"
-                                                    : "border border-slate-200 bg-white text-slate-700 hover:border-[#5b4fd4] hover:text-[#5b4fd4]",
-                                            ].join(" ")}
-                                        >
-                                            {pageNum}
-                                        </button>
-                                    );
-                                })}
-
-                                <button
-                                    type="button"
-                                    disabled={!pagination?.hasNextPage}
-                                    onClick={() =>
-                                        updateQuery({
-                                            page:
-                                                pagination.nextPage ||
-                                                pagination.currentPage,
-                                        })
-                                    }
-                                    className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-[#5b4fd4] hover:text-[#5b4fd4] disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    {t.next}
-                                    <ChevronRight className="h-4 w-4" />
-                                </button>
-                            </div>
+                            <Pagination
+                                pagination={pagination}
+                                updateQuery={updateQuery}
+                                t={t}
+                                limit={limit}
+                            />
                         ) : null}
                     </>
                 )}
@@ -464,22 +483,146 @@ export default function ProductsPageView({ locale = "en", dict }) {
     );
 }
 
+function normalizeMetaToPagination(meta) {
+    if (!meta) return null;
+
+    const currentPage = Number(meta.page || 1);
+    const totalPages = Number(meta.totalPages || 1);
+
+    return {
+        currentPage,
+        totalPages,
+        totalItems: Number(meta.total || 0),
+        hasPrevPage: Boolean(meta.hasPrev),
+        hasNextPage: Boolean(meta.hasNext),
+        prevPage: currentPage > 1 ? currentPage - 1 : null,
+        nextPage: currentPage < totalPages ? currentPage + 1 : null,
+    };
+}
+
 function SkeletonGrid({ count = 10 }) {
     return (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 lg:gap-4">
             {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="rounded-2xl bg-white p-2.5 shadow-sm">
-                    <div className="h-[140px] w-full animate-pulse rounded-xl bg-slate-200" />
-                    <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-200" />
-                    <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-3 h-3 w-20 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-2 h-4 w-16 animate-pulse rounded bg-slate-200" />
-                    <div className="mt-3 h-9 w-full animate-pulse rounded-xl bg-slate-200" />
+                <div
+                    key={i}
+                    className="rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm"
+                >
+                    <div className="h-[150px] w-full animate-pulse rounded-2xl bg-orange-100/70" />
+                    <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-neutral-200" />
+                    <div className="mt-2 h-3 w-full animate-pulse rounded bg-neutral-100" />
+                    <div className="mt-1 h-3 w-5/6 animate-pulse rounded bg-neutral-100" />
+                    <div className="mt-3 h-3 w-20 animate-pulse rounded bg-neutral-100" />
+                    <div className="mt-2 h-5 w-16 animate-pulse rounded bg-neutral-200" />
+                    <div className="mt-3 h-10 w-full animate-pulse rounded-2xl bg-orange-100" />
                 </div>
             ))}
         </div>
     );
+}
+
+function Pagination({ pagination, updateQuery, t, limit }) {
+    const pages = getVisiblePages(
+        pagination.currentPage,
+        pagination.totalPages
+    );
+
+    return (
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            <button
+                type="button"
+                disabled={!pagination?.hasPrevPage}
+                onClick={() =>
+                    updateQuery({
+                        page: pagination.prevPage || 1,
+                        limit,
+                    })
+                }
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 text-sm font-bold text-neutral-700 transition hover:border-[#1a4b8f] hover:text-[#1a4b8f] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <ChevronLeft className="h-4 w-4" />
+                {t.prev}
+            </button>
+
+            {pages.map((pageNum, index) => {
+                if (pageNum === "...") {
+                    return (
+                        <span
+                            key={`dots-${index}`}
+                            className="flex h-11 min-w-[44px] items-center justify-center rounded-xl border border-orange-100 bg-white px-3 text-sm font-bold text-neutral-400"
+                        >
+                            ...
+                        </span>
+                    );
+                }
+
+                const active = pageNum === pagination.currentPage;
+
+                return (
+                    <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() =>
+                            updateQuery({
+                                page: pageNum,
+                                limit,
+                            })
+                        }
+                        className={[
+                            "h-11 min-w-[44px] rounded-xl px-3 text-sm font-bold transition",
+                            active
+                                ? "bg-[#1a4b8f] text-white shadow-lg shadow-[#1a4b8f]/20"
+                                : "border border-orange-200 bg-white text-neutral-700 hover:border-[#1a4b8f] hover:text-[#1a4b8f]",
+                        ].join(" ")}
+                    >
+                        {pageNum}
+                    </button>
+                );
+            })}
+
+            <button
+                type="button"
+                disabled={!pagination?.hasNextPage}
+                onClick={() =>
+                    updateQuery({
+                        page: pagination.nextPage || pagination.currentPage,
+                        limit,
+                    })
+                }
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 text-sm font-bold text-neutral-700 transition hover:border-[#1a4b8f] hover:text-[#1a4b8f] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                {t.next}
+                <ChevronRight className="h-4 w-4" />
+            </button>
+        </div>
+    );
+}
+
+function getVisiblePages(currentPage, totalPages) {
+    if (totalPages <= 7) {
+        return Array.from({ length: totalPages }).map((_, i) => i + 1);
+    }
+
+    const pages = [1];
+
+    if (currentPage > 4) {
+        pages.push("...");
+    }
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) {
+        pages.push(i);
+    }
+
+    if (currentPage < totalPages - 3) {
+        pages.push("...");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
 }
 
 function ProductCard({
@@ -517,64 +660,74 @@ function ProductCard({
     })();
 
     return (
-        <div className="rounded-2xl bg-white p-2.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+        <div className="group rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
             <Link
                 href={href}
-                className="relative block h-[140px] w-full overflow-hidden rounded-xl border border-[#efefef] bg-white"
+                className="relative block h-[150px] w-full overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50"
             >
+                {discountPercent ? (
+                    <span className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
+                        <Tag className="h-3 w-3" />
+                        -{discountPercent}%
+                    </span>
+                ) : null}
+
                 {p.image ? (
                     <Image
                         src={imgUrl(p.image)}
                         alt={p.name || "Product"}
                         fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 168px, 220px"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                        sizes="(max-width: 1024px) 178px, 220px"
                         unoptimized
                     />
-                ) : null}
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-neutral-400">
+                        No Image
+                    </div>
+                )}
             </Link>
 
-            <Link href={href} className="mt-2.5 block">
-                <h3 className="line-clamp-1 text-[13px] font-bold text-[#202020]">
+            <Link href={href} className="mt-3 block">
+                <h3 className="line-clamp-1 text-[13px] font-bold text-neutral-950 transition group-hover:text-[#1a4b8f]">
                     {p.name}
                 </h3>
             </Link>
 
-            <p className="mt-1.5 line-clamp-3 min-h-[42px] text-[10px] leading-[1.45] text-[#666]">
-                {p.summary ||
-                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit."}
+            <p className="mt-1.5 line-clamp-2 min-h-[38px] text-[11px] leading-[1.7] text-neutral-500">
+                {p.summary || ""}
             </p>
 
-            <div className="mt-2 flex min-h-[18px] items-center gap-1 text-[11px]">
+            <div className="mt-2 flex min-h-[20px] items-center gap-1 text-[11px]">
                 {totalReviews > 0 ? (
                     <>
-                        <span className="text-[#72b843]">★</span>
+                        <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
 
-                        <span className="font-semibold text-[#2d2d2d]">
+                        <span className="font-bold text-neutral-900">
                             {averageRating.toFixed(1)}
                         </span>
 
-                        <span className="text-slate-500">
+                        <span className="text-neutral-500">
                             ({totalReviews}{" "}
                             {totalReviews === 1 ? reviewText : reviewsText})
                         </span>
                     </>
                 ) : (
-                    <span className="text-slate-400">
+                    <span className="text-neutral-400">
                         {notRatedYetText}
                     </span>
                 )}
             </div>
 
-            <div className="mt-1 min-h-[16px] text-[11px]">
+            <div className="mt-1 min-h-[18px] text-[11px]">
                 {hasDiscount ? (
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[#8b5cf6] line-through">
+                        <span className="text-neutral-400 line-through">
                             {money(p.price)}
                         </span>
 
                         {discountPercent ? (
-                            <span className="font-semibold text-[#ef4444]">
+                            <span className="font-bold text-red-500">
                                 -{discountPercent}%
                             </span>
                         ) : null}
@@ -584,7 +737,7 @@ function ProductCard({
                 )}
             </div>
 
-            <div className="text-[15px] font-extrabold leading-none text-[#5b4fd4]">
+            <div className="text-[16px] font-bold leading-none text-[#1a4b8f]">
                 {money(hasDiscount ? p.discounted_price : p.price)}
             </div>
 
@@ -592,7 +745,7 @@ function ProductCard({
                 type="button"
                 disabled={busy}
                 onClick={() => addToCart(p.id, 1)}
-                className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#5b4fd4] px-2 text-[11px] font-medium text-white transition hover:bg-[#4b3fd0] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
                 {addToCartText}

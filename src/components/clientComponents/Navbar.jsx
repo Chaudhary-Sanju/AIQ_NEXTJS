@@ -60,14 +60,23 @@ const SERVICES = [
     },
 ];
 
+const pickLang = (obj, locale = "en") => {
+    if (!obj || typeof obj !== "object") return "";
+    return obj?.[locale] || obj?.en || obj?.ne || obj?.zh || "";
+};
+
 export default function Navbar({ locale = "en", dict = {} }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [servicesOpen, setServicesOpen] = useState(false);
+    const [groceryOpen, setGroceryOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
     const [desktopSearch, setDesktopSearch] = useState("");
     const [mobileSearch, setMobileSearch] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [categoryLoading, setCategoryLoading] = useState(false);
 
     const desktopServicesRef = useRef(null);
+    const desktopGroceryRef = useRef(null);
     const mobileDrawerRef = useRef(null);
     const profileRef = useRef(null);
 
@@ -95,7 +104,25 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const closeMenus = () => {
         setMobileOpen(false);
         setServicesOpen(false);
+        setGroceryOpen(false);
         setProfileOpen(false);
+    };
+
+    const groceryMainHref = () => {
+        const query = new URLSearchParams();
+        query.set("page", "1");
+        query.set("limit", "10");
+
+        return `/${locale}/product?${query.toString()}`;
+    };
+
+    const groceryHref = (slug) => {
+        const query = new URLSearchParams();
+        query.set("page", "1");
+        query.set("limit", "10");
+        query.set("category", slug);
+
+        return `/${locale}/product?${query.toString()}`;
     };
 
     const scrollToPerfectServices = () => {
@@ -141,25 +168,52 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const mobilePrimaryLinks = useMemo(
         () => [
             {
-                label: t("nav.organicMart", "Organic Mart"),
-                href: l("/"),
+                label: t("nav.organicMart", "A Grocery"),
+                href: groceryMainHref(),
                 icon: Package,
-                type: "link",
+                type: "grocery",
             },
             {
-                label: t("nav.aiExpress", "AI Express"),
+                label: t("nav.aiExpress", "A Express"),
                 href: l("/ai-express"),
                 icon: Sparkles,
                 type: "link",
             },
             {
-                label: t("nav.servicesTitle", "Perfect Services"),
+                label: t("nav.servicesTitle", "R Services"),
                 icon: Grid3x3,
                 type: "scroll",
             },
         ],
         [locale, dict]
     );
+
+    useEffect(() => {
+        let mounted = true;
+
+        const fetchCategories = async () => {
+            try {
+                setCategoryLoading(true);
+
+                const res = await http.get("/frontend/category");
+                const list = Array.isArray(res?.data?.data) ? res.data.data : [];
+
+                if (mounted) {
+                    setCategories(list.filter((item) => item?.status));
+                }
+            } catch {
+                if (mounted) setCategories([]);
+            } finally {
+                if (mounted) setCategoryLoading(false);
+            }
+        };
+
+        fetchCategories();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     useEffect(() => {
         const token = fromStorage("hkmandu");
@@ -189,13 +243,17 @@ export default function Navbar({ locale = "en", dict = {} }) {
         }
 
         function onPointerDown(e) {
-            const inDesktopDropdown = desktopServicesRef.current?.contains(e.target);
+            const inDesktopServices = desktopServicesRef.current?.contains(e.target);
+            const inDesktopGrocery = desktopGroceryRef.current?.contains(e.target);
             const inMobileDrawer = mobileDrawerRef.current?.contains(e.target);
             const inProfile = profileRef.current?.contains(e.target);
 
-            if (inDesktopDropdown || inMobileDrawer || inProfile) return;
+            if (inDesktopServices || inDesktopGrocery || inMobileDrawer || inProfile) {
+                return;
+            }
 
             setServicesOpen(false);
+            setGroceryOpen(false);
             setProfileOpen(false);
         }
 
@@ -249,15 +307,15 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
     return (
         <header
-            className="w-full bg-white"
+            className="w-full bg-orange-50"
             style={{
                 boxShadow:
                     "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)",
             }}
         >
-            {/* Top contact bar: desktop only */}
+            {/* Top Bar - Desktop from 1024px */}
             <div
-                className="hidden xl:block"
+                className="hidden lg:block"
                 style={{
                     background:
                         "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)",
@@ -314,10 +372,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            {/* Main desktop navbar */}
-            <div className="hidden bg-blue-50 xl:block">
-                <div className="mx-auto max-w-7xl px-4 lg:px-6">
-                    <div className="grid h-[96px] grid-cols-[105px_minmax(280px,430px)_minmax(360px,1fr)_auto] items-center gap-4">
+            {/* Main Desktop Navbar - From 1024px */}
+            <div className="hidden bg-orange-50 lg:block">
+                <div className="mx-auto max-w-7xl px-3 lg:px-4 xl:px-6">
+                    <div className="grid h-[80px] grid-cols-[78px_minmax(200px,1fr)_auto_auto] items-center gap-2 xl:grid-cols-[105px_minmax(280px,430px)_minmax(360px,1fr)_auto] xl:gap-4">
                         <Link
                             href={l("/")}
                             className="group flex flex-col items-center justify-center leading-none"
@@ -327,14 +385,14 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 alt={t("nav.logo", "HkMandu")}
                                 width={48}
                                 height={48}
-                                className="h-11 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                                className="h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105 xl:h-11"
                             />
 
                             <span
-                                className="mt-1 text-[12px] font-bold uppercase tracking-widest"
+                                className="mt-1 text-[10px] font-bold uppercase tracking-widest xl:text-[12px]"
                                 style={{
                                     color: "#1a4b8f",
-                                    letterSpacing: "0.16em",
+                                    letterSpacing: "0.14em",
                                 }}
                             >
                                 HkMandu
@@ -351,10 +409,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     value={desktopSearch}
                                     onChange={(e) => setDesktopSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
-                                    className="h-11 w-full border bg-[#f8f9fc] pl-4 pr-12 text-sm text-neutral-800 outline-none transition-all duration-200 focus:bg-white"
+                                    className="h-10 w-full border bg-orange-50 pl-3 pr-10 text-sm text-neutral-800 outline-none transition-all duration-200 focus:bg-orange-50 xl:h-11 xl:pl-4 xl:pr-12"
                                     style={{
                                         borderRadius: "6px",
-                                        borderColor: "#dde1ea",
+                                        borderColor: "#fed7aa",
                                         boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)",
                                     }}
                                 />
@@ -362,7 +420,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <button
                                     type="submit"
                                     aria-label={t("nav.searchAria", "Search")}
-                                    className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-r-md transition-colors duration-150 hover:text-white"
+                                    className="absolute right-0 top-0 flex h-10 w-10 items-center justify-center rounded-r-md transition-colors duration-150 hover:text-white xl:h-11 xl:w-11"
                                     style={{
                                         color: "#1a4b8f",
                                         borderRadius: "0 6px 6px 0",
@@ -373,26 +431,94 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
                         </form>
 
-                        <nav className="flex min-w-0 items-center justify-center gap-1 whitespace-nowrap">
-                            {[
-                                {
-                                    href: l("/ai-express"),
-                                    label: t("nav.aiExpress", "AI Express"),
-                                },
-                                {
-                                    href: l("/"),
-                                    label: t("nav.organicMart", "Organic Mart"),
-                                },
-                            ].map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className="relative px-3 py-2 text-[14px] font-semibold text-neutral-700 transition-colors duration-150 hover:text-[#1a4b8f]"
-                                    style={{ letterSpacing: "0.01em" }}
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
+                        <nav className="flex min-w-0 items-center justify-center gap-0 whitespace-nowrap xl:gap-1">
+                            <Link
+                                href={l("/ai-express")}
+                                className="relative px-2 py-2 text-[13px] font-semibold text-neutral-700 transition-colors duration-150 hover:text-[#1a4b8f] xl:px-3 xl:text-[14px]"
+                                style={{ letterSpacing: "0.01em" }}
+                            >
+                                {t("nav.aiExpress", "A Express")}
+                            </Link>
+
+                            <div className="relative" ref={desktopGroceryRef}>
+                                <div className="flex items-center">
+                                    <Link
+                                        href={groceryMainHref()}
+                                        onClick={() => setGroceryOpen(false)}
+                                        className="relative px-2 py-2 text-[13px] font-semibold text-neutral-700 transition-colors duration-150 hover:text-[#1a4b8f] xl:px-3 xl:text-[14px]"
+                                        style={{ letterSpacing: "0.01em" }}
+                                    >
+                                        {t("nav.organicMart", "A Grocery")}
+                                    </Link>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setGroceryOpen((v) => !v);
+                                            setServicesOpen(false);
+                                            setProfileOpen(false);
+                                        }}
+                                        className="inline-flex items-center px-0.5 py-2 text-[13px] font-semibold transition-colors duration-150 xl:px-1 xl:text-[14px]"
+                                        style={{
+                                            color: groceryOpen ? "#1a4b8f" : "#404040",
+                                        }}
+                                        aria-label="Toggle grocery menu"
+                                    >
+                                        <ChevronDown
+                                            className="h-3.5 w-3.5 transition-transform duration-200"
+                                            style={{
+                                                transform: groceryOpen
+                                                    ? "rotate(180deg)"
+                                                    : "rotate(0deg)",
+                                            }}
+                                        />
+                                    </button>
+                                </div>
+
+                                {groceryOpen && (
+                                    <div
+                                        className="absolute left-1/2 top-full z-30 mt-3 w-64 -translate-x-1/2 bg-orange-50 p-1.5"
+                                        style={{
+                                            borderRadius: "10px",
+                                            border: "1px solid #fed7aa",
+                                            boxShadow:
+                                                "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
+                                        }}
+                                    >
+                                        <Link
+                                            href={groceryMainHref()}
+                                            onClick={() => setGroceryOpen(false)}
+                                            className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-orange-100 hover:text-[#1a4b8f]"
+                                        >
+                                            {t("nav.allProducts", "All Products")}
+                                        </Link>
+
+                                        <div className="my-1 border-t border-orange-200" />
+
+                                        {categoryLoading ? (
+                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
+                                                {t("nav.loading", "Loading...")}
+                                            </div>
+                                        ) : categories.length > 0 ? (
+                                            categories.map((category) => (
+                                                <Link
+                                                    key={category._id}
+                                                    href={groceryHref(category.slug)}
+                                                    onClick={() => setGroceryOpen(false)}
+                                                    className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-orange-100 hover:text-[#1a4b8f]"
+                                                    style={{ fontWeight: 450 }}
+                                                >
+                                                    {pickLang(category.name, locale)}
+                                                </Link>
+                                            ))
+                                        ) : (
+                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
+                                                {t("nav.noCategory", "No categories found")}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
 
                             <span className="select-none px-1 text-neutral-300">|</span>
 
@@ -401,22 +527,23 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     <button
                                         type="button"
                                         onClick={scrollToPerfectServices}
-                                        className="inline-flex items-center gap-1 px-3 py-2 text-[14px] font-semibold transition-colors duration-150 hover:text-[#1a4b8f]"
+                                        className="inline-flex items-center gap-1 px-2 py-2 text-[13px] font-semibold transition-colors duration-150 hover:text-[#1a4b8f] xl:px-3 xl:text-[14px]"
                                         style={{
                                             color: "#404040",
                                             letterSpacing: "0.01em",
                                         }}
                                     >
-                                        {t("nav.servicesTitle", "Perfect Services")}
+                                        {t("nav.servicesTitle", "R Services")}
                                     </button>
 
                                     <button
                                         type="button"
                                         onClick={() => {
                                             setServicesOpen((v) => !v);
+                                            setGroceryOpen(false);
                                             setProfileOpen(false);
                                         }}
-                                        className="inline-flex items-center px-1 py-2 text-[14px] font-semibold transition-colors duration-150"
+                                        className="inline-flex items-center px-0.5 py-2 text-[13px] font-semibold transition-colors duration-150 xl:px-1 xl:text-[14px]"
                                         style={{
                                             color: servicesOpen ? "#1a4b8f" : "#404040",
                                         }}
@@ -435,10 +562,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                                 {servicesOpen && (
                                     <div
-                                        className="absolute left-1/2 top-full z-30 mt-3 w-72 -translate-x-1/2 bg-white p-1.5"
+                                        className="absolute left-1/2 top-full z-30 mt-3 w-72 -translate-x-1/2 bg-orange-50 p-1.5"
                                         style={{
                                             borderRadius: "10px",
-                                            border: "1px solid #e8ecf4",
+                                            border: "1px solid #fed7aa",
                                             boxShadow:
                                                 "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
                                         }}
@@ -448,7 +575,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                                 key={service.key}
                                                 href={l(service.href)}
                                                 onClick={() => setServicesOpen(false)}
-                                                className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                                                className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-orange-100 hover:text-[#1a4b8f]"
                                                 style={{ fontWeight: 450 }}
                                             >
                                                 {t(`nav.services.${service.key}`, service.label)}
@@ -459,11 +586,11 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
                         </nav>
 
-                        <div className="flex min-w-max items-center gap-2 whitespace-nowrap">
+                        <div className="flex min-w-max items-center gap-1 whitespace-nowrap xl:gap-2">
                             <Link
                                 href={l("/cart")}
                                 aria-label={t("nav.cartAria", "Cart")}
-                                className="relative inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-neutral-700 transition-colors duration-150 hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                                className="relative inline-flex items-center gap-1 rounded-md px-2 py-2 text-[13px] font-medium text-neutral-700 transition-colors duration-150 hover:bg-orange-100 hover:text-[#1a4b8f] xl:gap-1.5 xl:px-3 xl:text-sm"
                             >
                                 <ShoppingCart className="h-4 w-4" />
                                 <span>{t("nav.cart", "Cart")}</span>
@@ -483,7 +610,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     )
                                 }
                                 aria-label={t("nav.changeLanguageAria", "Change language")}
-                                className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-neutral-700 transition-colors duration-150 hover:bg-[#f0f4fb]"
+                                className="inline-flex items-center gap-1 rounded-md px-2 py-2 text-[13px] font-medium text-neutral-700 transition-colors duration-150 hover:bg-orange-100 xl:gap-1.5 xl:px-3 xl:text-sm"
                             >
                                 <span
                                     className="relative h-4 w-6 overflow-hidden"
@@ -507,7 +634,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             {!isLoggedIn ? (
                                 <Link
                                     href={l("/auth/login")}
-                                    className="inline-flex h-9 items-center gap-2 px-3.5 text-sm font-semibold text-white transition-all duration-150"
+                                    className="inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-semibold text-white transition-all duration-150 xl:gap-2 xl:px-3.5 xl:text-sm"
                                     style={{
                                         borderRadius: "7px",
                                         background:
@@ -526,8 +653,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         onClick={() => {
                                             setProfileOpen((v) => !v);
                                             setServicesOpen(false);
+                                            setGroceryOpen(false);
                                         }}
-                                        className="inline-flex h-9 items-center gap-2 px-3.5 text-sm font-semibold text-white transition-all duration-150"
+                                        className="inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-semibold text-white transition-all duration-150 xl:gap-2 xl:px-3.5 xl:text-sm"
                                         style={{
                                             borderRadius: "7px",
                                             background:
@@ -537,7 +665,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         }}
                                     >
                                         <User className="h-3.5 w-3.5" />
-                                        <span className="max-w-[120px] truncate">
+                                        <span className="max-w-[90px] truncate xl:max-w-[120px]">
                                             {displayName || t("nav.account", "My Account")}
                                         </span>
 
@@ -553,10 +681,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                                     {profileOpen && (
                                         <div
-                                            className="absolute right-0 z-40 mt-3 w-52 bg-white p-1.5"
+                                            className="absolute right-0 z-40 mt-3 w-52 bg-orange-50 p-1.5"
                                             style={{
                                                 borderRadius: "10px",
-                                                border: "1px solid #e8ecf4",
+                                                border: "1px solid #fed7aa",
                                                 boxShadow:
                                                     "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
                                             }}
@@ -564,7 +692,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             <Link
                                                 href={l("/dashboard")}
                                                 onClick={() => setProfileOpen(false)}
-                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-orange-100 hover:text-[#1a4b8f]"
                                             >
                                                 <LayoutDashboard className="h-4 w-4" />
                                                 {t("nav.dashboard", "Dashboard")}
@@ -573,13 +701,13 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             <Link
                                                 href={`/${locale}/dashboard/security`}
                                                 onClick={() => setProfileOpen(false)}
-                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#f0f4fb] hover:text-[#1a4b8f]"
+                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-orange-100 hover:text-[#1a4b8f]"
                                             >
                                                 <Settings className="h-4 w-4" />
                                                 {t("nav.settings", "Settings")}
                                             </Link>
 
-                                            <div className="my-1 border-t border-neutral-100" />
+                                            <div className="my-1 border-t border-orange-200" />
 
                                             <button
                                                 type="button"
@@ -598,8 +726,8 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            {/* Mobile + tablet navbar */}
-            <div className="xl:hidden">
+            {/* Mobile + Tablet Navbar - Below 1024px */}
+            <div className="bg-orange-50 lg:hidden">
                 <div className="px-3 pb-2.5 pt-3">
                     <div className="flex items-center gap-2">
                         <Link
@@ -636,10 +764,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     value={mobileSearch}
                                     onChange={(e) => setMobileSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
-                                    className="h-10 w-full border bg-[#f8f9fc] pl-3.5 pr-10 text-sm text-neutral-800 outline-none"
+                                    className="h-10 w-full border bg-orange-50 pl-3.5 pr-10 text-sm text-neutral-800 outline-none focus:bg-orange-50"
                                     style={{
                                         borderRadius: "6px",
-                                        borderColor: "#dde1ea",
+                                        borderColor: "#fed7aa",
                                     }}
                                 />
 
@@ -673,6 +801,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             onClick={() => {
                                 setMobileOpen((v) => !v);
                                 setServicesOpen(false);
+                                setGroceryOpen(false);
                             }}
                             className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700"
                             aria-label={t("nav.openMenuAria", "Open menu")}
@@ -687,11 +816,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
 
                 <div
-                    className="border-y"
+                    className="border-y bg-orange-50"
                     style={{
-                        background:
-                            "linear-gradient(90deg, #f0f4fb 0%, #f8f9fc 100%)",
-                        borderColor: "#e4eaf5",
+                        borderColor: "#fed7aa",
                     }}
                 >
                     <div className="grid grid-cols-3">
@@ -704,10 +831,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         key={item.label}
                                         type="button"
                                         onClick={scrollToPerfectServices}
-                                        className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-[#e4eaf5]"
+                                        className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-orange-100"
                                         style={{
                                             borderRight:
-                                                idx !== 2 ? "1px solid #dde6f5" : "none",
+                                                idx !== 2 ? "1px solid #fed7aa" : "none",
                                         }}
                                     >
                                         <span
@@ -733,14 +860,49 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 );
                             }
 
+                            if (item.type === "grocery") {
+                                return (
+                                    <Link
+                                        key={item.label}
+                                        href={item.href}
+                                        onClick={() => closeMenus()}
+                                        className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-orange-100"
+                                        style={{
+                                            borderRight:
+                                                idx !== 2 ? "1px solid #fed7aa" : "none",
+                                        }}
+                                    >
+                                        <span
+                                            className="flex h-8 w-8 items-center justify-center rounded-full"
+                                            style={{ background: "rgba(26,75,143,0.09)" }}
+                                        >
+                                            <Icon
+                                                className="h-4 w-4"
+                                                style={{ color: "#1a4b8f" }}
+                                            />
+                                        </span>
+
+                                        <span
+                                            className="text-[12px] font-semibold"
+                                            style={{
+                                                color: "#1a2f5e",
+                                                letterSpacing: "0.01em",
+                                            }}
+                                        >
+                                            {item.label}
+                                        </span>
+                                    </Link>
+                                );
+                            }
+
                             return (
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-[#e4eaf5]"
+                                    className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-orange-100"
                                     style={{
                                         borderRight:
-                                            idx !== 2 ? "1px solid #dde6f5" : "none",
+                                            idx !== 2 ? "1px solid #fed7aa" : "none",
                                     }}
                                 >
                                     <span
@@ -771,27 +933,120 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 {mobileOpen && (
                     <div
                         ref={mobileDrawerRef}
-                        className="border-b px-3 py-4"
+                        className="border-b bg-orange-50 px-3 py-4"
                         style={{
-                            background: "#f8f9fc",
-                            borderColor: "#e4eaf5",
+                            borderColor: "#fed7aa",
                         }}
                     >
                         <div className="space-y-2">
                             <div
-                                className="overflow-hidden rounded-xl border"
+                                className="overflow-hidden rounded-xl border bg-orange-50"
                                 style={{
-                                    borderColor: "#dde6f5",
-                                    background: "white",
+                                    borderColor: "#fed7aa",
+                                }}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <Link
+                                        href={groceryMainHref()}
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            setGroceryOpen(false);
+                                        }}
+                                        className="flex-1 px-4 py-3.5 text-sm font-semibold"
+                                        style={{ color: "#1a2f5e" }}
+                                    >
+                                        {t("nav.organicMart", "A Grocery")}
+                                    </Link>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setGroceryOpen((v) => !v);
+                                            setServicesOpen(false);
+                                        }}
+                                        className="px-4 py-3.5"
+                                        aria-label="Toggle grocery menu"
+                                    >
+                                        <ChevronDown
+                                            className="h-4 w-4 transition-transform duration-200"
+                                            style={{
+                                                transform: groceryOpen
+                                                    ? "rotate(180deg)"
+                                                    : "rotate(0deg)",
+                                                color: "#1a4b8f",
+                                            }}
+                                        />
+                                    </button>
+                                </div>
+
+                                {groceryOpen && (
+                                    <div
+                                        className="border-t px-2 pb-2"
+                                        style={{ borderColor: "#fed7aa" }}
+                                    >
+                                        <Link
+                                            href={groceryMainHref()}
+                                            onClick={() => {
+                                                setGroceryOpen(false);
+                                                setMobileOpen(false);
+                                            }}
+                                            className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
+                                            style={{
+                                                color: "#374166",
+                                            }}
+                                        >
+                                            {t("nav.allProducts", "All Products")}
+                                        </Link>
+
+                                        <div className="my-1 border-t border-orange-200" />
+
+                                        {categoryLoading ? (
+                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
+                                                {t("nav.loading", "Loading...")}
+                                            </div>
+                                        ) : categories.length > 0 ? (
+                                            categories.map((category) => (
+                                                <Link
+                                                    key={category._id}
+                                                    href={groceryHref(category.slug)}
+                                                    onClick={() => {
+                                                        setGroceryOpen(false);
+                                                        setMobileOpen(false);
+                                                    }}
+                                                    className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-orange-100"
+                                                    style={{
+                                                        color: "#374166",
+                                                        fontWeight: 450,
+                                                    }}
+                                                >
+                                                    {pickLang(category.name, locale)}
+                                                </Link>
+                                            ))
+                                        ) : (
+                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
+                                                {t("nav.noCategory", "No categories found")}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div
+                                className="overflow-hidden rounded-xl border bg-orange-50"
+                                style={{
+                                    borderColor: "#fed7aa",
                                 }}
                             >
                                 <button
                                     type="button"
-                                    onClick={() => setServicesOpen((v) => !v)}
+                                    onClick={() => {
+                                        setServicesOpen((v) => !v);
+                                        setGroceryOpen(false);
+                                    }}
                                     className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-semibold"
                                     style={{ color: "#1a2f5e" }}
                                 >
-                                    <span>{t("nav.servicesTitle", "Perfect Services")}</span>
+                                    <span>{t("nav.servicesTitle", "R Services")}</span>
 
                                     <ChevronDown
                                         className="h-4 w-4 transition-transform duration-200"
@@ -807,7 +1062,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 {servicesOpen && (
                                     <div
                                         className="border-t px-2 pb-2"
-                                        style={{ borderColor: "#eef1f9" }}
+                                        style={{ borderColor: "#fed7aa" }}
                                     >
                                         {SERVICES.map((service) => (
                                             <Link
@@ -817,7 +1072,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                                     setServicesOpen(false);
                                                     setMobileOpen(false);
                                                 }}
-                                                className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-[#f0f4fb]"
+                                                className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-orange-100"
                                                 style={{
                                                     color: "#374166",
                                                     fontWeight: 450,
@@ -831,17 +1086,16 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
 
                             <div
-                                className="overflow-hidden rounded-xl border"
+                                className="overflow-hidden rounded-xl border bg-orange-50"
                                 style={{
-                                    borderColor: "#dde6f5",
-                                    background: "white",
+                                    borderColor: "#fed7aa",
                                 }}
                             >
                                 {!isLoggedIn ? (
                                     <Link
                                         href={l("/auth/login")}
                                         onClick={() => setMobileOpen(false)}
-                                        className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold"
+                                        className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold transition-colors hover:bg-orange-100"
                                         style={{ color: "#1a4b8f" }}
                                     >
                                         <LogIn className="h-4 w-4" />
@@ -852,9 +1106,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <Link
                                             href={l("/dashboard")}
                                             onClick={() => setMobileOpen(false)}
-                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-[#f0f4fb]"
+                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-orange-100"
                                             style={{
-                                                borderColor: "#eef1f9",
+                                                borderColor: "#fed7aa",
                                                 color: "#1a2f5e",
                                             }}
                                         >
@@ -868,9 +1122,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <Link
                                             href={`/${locale}/dashboard/security`}
                                             onClick={() => setMobileOpen(false)}
-                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-[#f0f4fb]"
+                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-orange-100"
                                             style={{
-                                                borderColor: "#eef1f9",
+                                                borderColor: "#fed7aa",
                                                 color: "#1a2f5e",
                                             }}
                                         >
@@ -895,10 +1149,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
 
                             <div
-                                className="flex items-center justify-between rounded-xl border px-4 py-3.5"
+                                className="flex items-center justify-between rounded-xl border bg-orange-50 px-4 py-3.5"
                                 style={{
-                                    borderColor: "#dde6f5",
-                                    background: "white",
+                                    borderColor: "#fed7aa",
                                 }}
                             >
                                 <span
@@ -925,7 +1178,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                                             "0 2px 6px rgba(26,75,143,0.3)",
                                                     }
                                                     : {
-                                                        background: "#eef1f9",
+                                                        background: "#ffedd5",
                                                         color: "#374166",
                                                     }
                                             }
@@ -939,8 +1192,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     </div>
                 )}
             </div>
-
-            <div className="h-1 bg-[#c21f85]" />
         </header>
     );
 }

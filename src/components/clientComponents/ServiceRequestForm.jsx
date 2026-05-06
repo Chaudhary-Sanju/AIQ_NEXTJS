@@ -669,8 +669,7 @@ export default function ServiceRequestForm({
                         {heading.line1}{" "}
                         <span className="font-serif italic text-[#4b63ff]">
                             {heading.highlight}
-                        </span>
-                        <br />
+                        </span> &thinsp;
                         {heading.line2}
                     </h1>
 

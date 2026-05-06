@@ -2,7 +2,7 @@
   "nav": {
     "logo": "HkMandu",
 
-    "servicesTitle": "उत्कृष्ट सेवाहरू",
+    "servicesTitle": "R Services",
     "services": {
       "software": "सफ्टवेयर विकास",
       "accounting": "लेखांकन तथा वित्त",
@@ -19,6 +19,7 @@
     "login": "लगइन",
     "logout": "लगआउट",
 
+    "cart": "कार्ट",
     "cartAria": "कार्ट",
 
     "language": "भाषा",
@@ -27,8 +28,15 @@
 
     "openMenuAria": "मेनु खोल्नुहोस्",
 
-    "organicMart": "अर्गानिक मार्ट",
-    "aiExpress": "एआई एक्सप्रेस"
+    "organicMart": "A Grocery",
+    "aiExpress": "A Express",
+
+    "loading": "लोड हुँदैछ...",
+    "noCategory": "कुनै श्रेणी भेटिएन",
+    "dashboard": "ड्यासबोर्ड",
+    "settings": "सेटिङ्स",
+    "terms": "नियम तथा सर्तहरू",
+    "privacy": "गोपनीयता नीति"
   },
 
   "footer": {
@@ -274,7 +282,7 @@
   },
 
   "perfectServices": {
-    "title": "उत्तम सेवाहरू",
+    "title": "R सेवाहरू",
     "subtitle": "हामी व्यवसाय, यात्रा र ढुवानीसम्बन्धी सम्पूर्ण सेवाहरू एकै ठाउँमा उपलब्ध गराउँछौं, जसले तपाईंको दैनिक आवश्यकतालाई सरल बनाउँछ।",
     "items": {
       "software": {

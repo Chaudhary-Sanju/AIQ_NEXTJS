@@ -13,42 +13,45 @@ import {
     Sparkles,
     Store,
     Users,
+    ShoppingBag,
+    Truck,
+    Languages,
 } from "lucide-react";
 
 const content = {
     en: {
         badge: "About HKMandu",
-        title: "Connecting Hong Kong and Nepal through trusted services.",
-        desc: "HKMandu is built to make daily life easier for Nepali communities in Hong Kong and Nepal by bringing products, services, courier support, business help, travel guidance, and digital solutions into one simple platform.",
+        title: "Connecting Hong Kong and Nepal through trusted everyday services.",
+        desc: "HKMandu brings products, courier support, business services, travel guidance, home and office help, and digital solutions into one simple platform for Nepali communities in Hong Kong and Nepal.",
         primaryCta: "Explore Services",
         secondaryCta: "Shop Products",
 
         stats: [
             { value: "HK ↔ NP", label: "Cross-border focus" },
             { value: "24/7", label: "Online access" },
-            { value: "Multi", label: "Services in one place" },
+            { value: "3", label: "Languages" },
         ],
 
         sectionBadge: "Who we are",
-        sectionTitle: "A practical platform for real everyday needs.",
+        sectionTitle: "One platform for real everyday needs.",
         sectionDesc:
-            "From sending parcels to requesting software, accounting, immigration, home, office, or business support, HKMandu helps users connect with reliable solutions faster.",
+            "From sending parcels to buying products or requesting software, accounting, immigration, home, office, and business support, HKMandu helps users find reliable solutions faster.",
 
         cards: [
             {
                 icon: PackageCheck,
                 title: "Courier & Delivery",
-                desc: "Support for parcel, pickup, tracking, and delivery between Hong Kong and Nepal.",
+                desc: "Parcel pickup, tracking, delivery, and cross-border support between Hong Kong and Nepal.",
             },
             {
                 icon: Store,
                 title: "Products & Marketplace",
-                desc: "Browse useful products with multilingual product information and simple checkout.",
+                desc: "Browse useful products with multilingual information and a simple checkout experience.",
             },
             {
                 icon: Handshake,
                 title: "Professional Services",
-                desc: "Request help for software, finance, business, travel, immigration, home, and office needs.",
+                desc: "Request support for software, finance, business, travel, immigration, home, and office needs.",
             },
         ],
 
@@ -70,7 +73,7 @@ const content = {
 
         whyTitle: "Why HKMandu?",
         whyDesc:
-            "Instead of using many separate contacts and platforms, HKMandu gives users one place to access services, products, and support designed around the Hong Kong and Nepal connection.",
+            "Instead of using many separate contacts and platforms, HKMandu gives users one place to access products, courier, services, and support designed around the Hong Kong and Nepal connection.",
 
         whyItems: [
             "Built for Hong Kong and Nepal communities",
@@ -87,21 +90,21 @@ const content = {
 
     ne: {
         badge: "HKMandu बारे",
-        title: "Hong Kong र Nepal लाई विश्वसनीय सेवाबाट जोड्दै।",
-        desc: "HKMandu Hong Kong र Nepal मा रहेका नेपाली समुदायको दैनिक जीवन सजिलो बनाउन बनाइएको प्लेटफर्म हो। यहाँ उत्पादन, सेवा, कुरियर, व्यवसाय सहयोग, यात्रा मार्गदर्शन र डिजिटल समाधान एउटै ठाउँमा पाउन सकिन्छ।",
+        title: "Hong Kong र Nepal लाई दैनिक विश्वसनीय सेवाबाट जोड्दै।",
+        desc: "HKMandu Hong Kong र Nepal मा रहेका नेपाली समुदायका लागि बनाइएको सरल प्लेटफर्म हो। यहाँ उत्पादन, कुरियर, व्यवसाय सेवा, यात्रा मार्गदर्शन, घर तथा अफिस सहयोग र डिजिटल समाधान एउटै ठाउँमा पाउन सकिन्छ।",
         primaryCta: "सेवाहरू हेर्नुहोस्",
         secondaryCta: "उत्पादनहरू हेर्नुहोस्",
 
         stats: [
             { value: "HK ↔ NP", label: "सीमापार सेवा" },
             { value: "24/7", label: "अनलाइन पहुँच" },
-            { value: "Multi", label: "धेरै सेवा एउटै ठाउँमा" },
+            { value: "3", label: "भाषा समर्थन" },
         ],
 
         sectionBadge: "हामी को हौं",
-        sectionTitle: "दैनिक आवश्यकताका लागि व्यावहारिक प्लेटफर्म।",
+        sectionTitle: "दैनिक आवश्यकताका लागि एउटै प्लेटफर्म।",
         sectionDesc:
-            "पार्सल पठाउनेदेखि सफ्टवेयर, लेखा, व्यवसाय, यात्रा, अध्यागमन, घर तथा अफिस सेवासम्म HKMandu ले प्रयोगकर्तालाई छिटो र भरपर्दो समाधानसँग जोड्छ।",
+            "पार्सल पठाउनेदेखि उत्पादन किन्न, सफ्टवेयर, लेखा, व्यवसाय, यात्रा, अध्यागमन, घर तथा अफिस सेवासम्म HKMandu ले प्रयोगकर्तालाई भरपर्दो समाधानसँग जोड्छ।",
 
         cards: [
             {
@@ -156,21 +159,21 @@ const content = {
 
     zh: {
         badge: "关于 HKMandu",
-        title: "通过可信赖的服务连接香港与尼泊尔。",
-        desc: "HKMandu 是一个为香港和尼泊尔社区打造的平台，将商品、服务、快递、商务支持、旅游咨询和数字解决方案整合到一个简单的平台中。",
+        title: "通过可信赖的日常服务连接香港与尼泊尔。",
+        desc: "HKMandu 是一个为香港和尼泊尔社区打造的简单平台，将商品、快递、商务服务、旅游咨询、家居办公室支持和数字解决方案整合到一个地方。",
         primaryCta: "探索服务",
         secondaryCta: "浏览商品",
 
         stats: [
             { value: "HK ↔ NP", label: "跨境服务" },
             { value: "24/7", label: "在线访问" },
-            { value: "Multi", label: "多种服务" },
+            { value: "3", label: "语言支持" },
         ],
 
         sectionBadge: "我们是谁",
-        sectionTitle: "为日常需求打造的实用平台。",
+        sectionTitle: "为日常需求打造的一站式平台。",
         sectionDesc:
-            "从包裹递送到软件、会计、商务、旅游、移民、家庭和办公室服务，HKMandu 帮助用户更快获得可靠支持。",
+            "从包裹递送、商品购买到软件、会计、商务、旅游、移民、家庭和办公室服务，HKMandu 帮助用户更快获得可靠支持。",
 
         cards: [
             {
@@ -227,75 +230,113 @@ export default function AboutUsPage({ locale = "en" }) {
     const t = content[locale] || content.en;
 
     return (
-        <main className="bg-[#f8f8fb]">
-            <section className="relative overflow-hidden bg-white">
-                <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-[#4b63ff]/10 blur-3xl" />
-                <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[#ff7a1a]/10 blur-3xl" />
+        <main className="bg-white">
+            {/* Hero */}
+            <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+                <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+                <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
 
-                <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+                <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
                     <div className="flex flex-col justify-center">
-                        <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-[#4b63ff]/20 bg-[#4b63ff]/5 px-4 py-2 text-sm font-semibold text-[#4b63ff]">
+                        <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#1a4b8f] shadow-sm">
                             <Sparkles className="h-4 w-4" />
                             {t.badge}
                         </div>
 
-                        <h1 className="max-w-3xl text-4xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-6xl">
+                        <h1 className="max-w-3xl text-[34px] font-bold leading-[1.08] tracking-tight text-neutral-950 sm:text-5xl lg:text-[58px]">
                             {t.title}
                         </h1>
 
-                        <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600 sm:text-lg">
+                        <p className="mt-5 max-w-2xl text-[15px] leading-8 text-neutral-600 sm:text-base lg:text-[17px]">
                             {t.desc}
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link
                                 href={`/${locale}/#perfect-services`}
-                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4b63ff] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#4b63ff]/20 transition hover:bg-[#394feb]"
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e]"
                             >
                                 {t.primaryCta}
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
 
                             <Link
-                                href={`/${locale}/product`}
-                                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white px-6 py-3 text-sm font-bold text-neutral-900 transition hover:border-neutral-300 hover:bg-neutral-50"
+                                href={`/${locale}/product?page=1&limit=10`}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-orange-200 bg-white px-6 py-3 text-sm font-bold text-neutral-900 transition hover:bg-orange-50"
                             >
                                 {t.secondaryCta}
                             </Link>
                         </div>
+
+                        <div className="mt-8 grid max-w-2xl grid-cols-3 overflow-hidden rounded-3xl bg-white shadow-[0_18px_45px_rgba(15,42,94,0.10)] ring-1 ring-black/5">
+                            {t.stats.map((item, index) => (
+                                <div
+                                    key={item.label}
+                                    className={[
+                                        "px-3 py-5 text-center",
+                                        index !== t.stats.length - 1
+                                            ? "border-r border-orange-100"
+                                            : "",
+                                    ].join(" ")}
+                                >
+                                    <div className="text-lg font-bold text-[#1a4b8f] sm:text-2xl">
+                                        {item.value}
+                                    </div>
+                                    <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 sm:text-xs">
+                                        {item.label}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="relative">
-                        <div className="rounded-[2rem] border border-neutral-200 bg-white p-4 shadow-2xl shadow-neutral-200/70">
-                            <div className="rounded-[1.5rem] bg-gradient-to-br from-[#4b63ff] to-[#26348f] p-6 text-white sm:p-8">
-                                <Globe2 className="mb-10 h-12 w-12" />
+                        <div className="absolute -left-4 -top-4 hidden h-28 w-28 rounded-3xl bg-[#1a4b8f]/10 sm:block" />
+                        <div className="absolute -bottom-4 -right-4 hidden h-32 w-32 rounded-3xl bg-orange-300/30 sm:block" />
 
-                                <h2 className="text-3xl font-black sm:text-4xl">
-                                    Hong Kong ↔ Nepal
-                                </h2>
+                        <div className="relative overflow-hidden rounded-[32px] bg-white p-2 shadow-[0_24px_70px_rgba(15,42,94,0.16)] ring-1 ring-black/5">
+                            <div className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#1a4b8f] via-[#0f2a5e] to-[#13295b] p-6 text-white sm:p-8">
+                                <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10 blur-2xl" />
+                                <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-orange-300/20 blur-2xl" />
 
-                                <p className="mt-4 text-sm leading-7 text-white/80">
-                                    Products, courier, professional services, travel support,
-                                    business help, and digital solutions in one platform.
-                                </p>
+                                <div className="relative">
+                                    <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+                                        <Globe2 className="h-8 w-8" />
+                                    </div>
 
-                                <div className="mt-10 grid gap-3 sm:grid-cols-3">
-                                    {t.stats.map((item) => (
-                                        <div
-                                            key={item.label}
-                                            className="rounded-2xl bg-white/10 p-4 backdrop-blur"
-                                        >
-                                            <div className="text-xl font-black">{item.value}</div>
-                                            <div className="mt-1 text-xs text-white/75">
-                                                {item.label}
-                                            </div>
-                                        </div>
-                                    ))}
+                                    <h2 className="text-3xl font-bold sm:text-4xl">
+                                        Hong Kong ↔ Nepal
+                                    </h2>
+
+                                    <p className="mt-4 max-w-md text-sm leading-7 text-white/75">
+                                        Products, courier, professional services, travel support,
+                                        business help, and digital solutions in one connected
+                                        platform.
+                                    </p>
+
+                                    <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                                        <MiniFeature
+                                            icon={<Truck className="h-5 w-5" />}
+                                            title="Courier"
+                                        />
+                                        <MiniFeature
+                                            icon={<ShoppingBag className="h-5 w-5" />}
+                                            title="Marketplace"
+                                        />
+                                        <MiniFeature
+                                            icon={<Handshake className="h-5 w-5" />}
+                                            title="Services"
+                                        />
+                                        <MiniFeature
+                                            icon={<Languages className="h-5 w-5" />}
+                                            title="Multilingual"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="absolute -bottom-5 -left-3 hidden rounded-2xl bg-white p-4 shadow-xl sm:block">
+                        <div className="absolute -bottom-5 left-4 hidden rounded-2xl bg-white p-4 shadow-xl ring-1 ring-black/5 sm:block">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600">
                                     <ShieldCheck className="h-6 w-6" />
@@ -314,107 +355,110 @@ export default function AboutUsPage({ locale = "en" }) {
                 </div>
             </section>
 
-            <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-3xl text-center">
-                    <div className="mb-4 inline-flex rounded-full bg-[#ff7a1a]/10 px-4 py-2 text-sm font-bold text-[#ff7a1a]">
-                        {t.sectionBadge}
+            {/* What we do */}
+            <section className="relative overflow-hidden bg-white py-14 sm:py-16 lg:py-20">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-3xl text-center">
+                        <div className="mb-4 inline-flex rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#1a4b8f]">
+                            {t.sectionBadge}
+                        </div>
+
+                        <h2 className="text-[30px] font-bold leading-tight tracking-tight text-neutral-950 sm:text-4xl">
+                            {t.sectionTitle}
+                        </h2>
+
+                        <p className="mt-4 text-[15px] leading-7 text-neutral-600 sm:text-base">
+                            {t.sectionDesc}
+                        </p>
                     </div>
 
-                    <h2 className="text-3xl font-black text-neutral-950 sm:text-4xl">
-                        {t.sectionTitle}
-                    </h2>
+                    <div className="mt-10 grid gap-5 md:grid-cols-3">
+                        {t.cards.map((card) => {
+                            const Icon = card.icon;
 
-                    <p className="mt-4 text-base leading-7 text-neutral-600">
-                        {t.sectionDesc}
-                    </p>
-                </div>
+                            return (
+                                <div
+                                    key={card.title}
+                                    className="group rounded-[28px] border border-orange-100 bg-gradient-to-br from-white to-orange-50/50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_45px_rgba(15,42,94,0.10)]"
+                                >
+                                    <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-2xl bg-[#1a4b8f]/10 text-[#1a4b8f] transition group-hover:scale-110 group-hover:bg-[#1a4b8f] group-hover:text-white">
+                                        <Icon className="h-7 w-7" />
+                                    </div>
 
-                <div className="mt-10 grid gap-5 md:grid-cols-3">
-                    {t.cards.map((card) => {
-                        const Icon = card.icon;
+                                    <h3 className="text-xl font-bold text-neutral-950">
+                                        {card.title}
+                                    </h3>
 
-                        return (
-                            <div
-                                key={card.title}
-                                className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-                            >
-                                <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-2xl bg-[#4b63ff]/10 text-[#4b63ff]">
-                                    <Icon className="h-7 w-7" />
+                                    <p className="mt-3 text-sm leading-7 text-neutral-600">
+                                        {card.desc}
+                                    </p>
                                 </div>
-
-                                <h3 className="text-xl font-black text-neutral-950">
-                                    {card.title}
-                                </h3>
-
-                                <p className="mt-3 text-sm leading-7 text-neutral-600">
-                                    {card.desc}
-                                </p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </section>
-
-            <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-14 sm:px-6 lg:grid-cols-2 lg:px-8">
-                <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#4b63ff]/10 text-[#4b63ff]">
-                        <HeartHandshake className="h-7 w-7" />
-                    </div>
-
-                    <h3 className="text-2xl font-black text-neutral-950">
-                        {t.missionTitle}
-                    </h3>
-
-                    <p className="mt-4 text-sm leading-7 text-neutral-600">
-                        {t.mission}
-                    </p>
-                </div>
-
-                <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff7a1a]/10 text-[#ff7a1a]">
-                        <Plane className="h-7 w-7" />
-                    </div>
-
-                    <h3 className="text-2xl font-black text-neutral-950">
-                        {t.visionTitle}
-                    </h3>
-
-                    <p className="mt-4 text-sm leading-7 text-neutral-600">
-                        {t.vision}
-                    </p>
-                </div>
-            </section>
-
-            <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-                <div className="rounded-3xl bg-neutral-950 p-6 text-white sm:p-8">
-                    <Users className="mb-8 h-10 w-10 text-[#ff7a1a]" />
-
-                    <h2 className="text-3xl font-black">{t.whyTitle}</h2>
-
-                    <p className="mt-4 text-sm leading-7 text-white/70">{t.whyDesc}</p>
-                </div>
-
-                <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
-                    <h3 className="text-2xl font-black text-neutral-950">
-                        {t.valuesTitle}
-                    </h3>
-
-                    <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                        {[...t.values, ...t.whyItems].map((item) => (
-                            <div key={item} className="flex gap-3">
-                                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                                <p className="text-sm font-medium leading-6 text-neutral-700">
-                                    {item}
-                                </p>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
 
-            <section className="px-4 pb-16 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#4b63ff] to-[#26348f] p-8 text-center text-white sm:p-12">
-                    <h2 className="text-3xl font-black sm:text-4xl">{t.ctaTitle}</h2>
+            {/* Mission / Vision */}
+            <section className="bg-gradient-to-br from-orange-50 via-white to-blue-50 py-14 sm:py-16">
+                <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+                    <InfoPanel
+                        icon={<HeartHandshake className="h-7 w-7" />}
+                        title={t.missionTitle}
+                        text={t.mission}
+                        tone="blue"
+                    />
+
+                    <InfoPanel
+                        icon={<Plane className="h-7 w-7" />}
+                        title={t.visionTitle}
+                        text={t.vision}
+                        tone="orange"
+                    />
+                </div>
+            </section>
+
+            {/* Why + Values */}
+            <section className="bg-white py-14 sm:py-16 lg:py-20">
+                <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+                    <div className="relative overflow-hidden rounded-[30px] bg-neutral-950 p-6 text-white shadow-[0_20px_60px_rgba(0,0,0,0.16)] sm:p-8">
+                        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-orange-400/20 blur-3xl" />
+
+                        <Users className="mb-8 h-10 w-10 text-orange-300" />
+
+                        <h2 className="text-3xl font-bold">{t.whyTitle}</h2>
+
+                        <p className="mt-4 text-sm leading-7 text-white/70">
+                            {t.whyDesc}
+                        </p>
+                    </div>
+
+                    <div className="rounded-[30px] border border-orange-100 bg-white p-6 shadow-sm sm:p-8">
+                        <h3 className="text-2xl font-bold text-neutral-950">
+                            {t.valuesTitle}
+                        </h3>
+
+                        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                            {[...t.values, ...t.whyItems].map((item) => (
+                                <div
+                                    key={item}
+                                    className="flex gap-3 rounded-2xl bg-orange-50/60 p-4"
+                                >
+                                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#1a4b8f]" />
+                                    <p className="text-sm font-medium leading-6 text-neutral-700">
+                                        {item}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA */}
+            <section className="bg-white px-4 pb-16 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-gradient-to-br from-[#1a4b8f] via-[#0f2a5e] to-[#13295b] p-8 text-center text-white shadow-[0_24px_70px_rgba(15,42,94,0.20)] sm:p-12">
+                    <h2 className="text-3xl font-bold sm:text-4xl">{t.ctaTitle}</h2>
 
                     <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/75">
                         {t.ctaDesc}
@@ -422,7 +466,7 @@ export default function AboutUsPage({ locale = "en" }) {
 
                     <Link
                         href={`/${locale}/#perfect-services`}
-                        className="mt-8 inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3 text-sm font-black text-[#4b63ff] transition hover:bg-neutral-100"
+                        className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-[#1a4b8f] transition hover:bg-orange-50"
                     >
                         {t.ctaButton}
                         <ArrowRight className="h-4 w-4" />
@@ -430,5 +474,39 @@ export default function AboutUsPage({ locale = "en" }) {
                 </div>
             </section>
         </main>
+    );
+}
+
+function MiniFeature({ icon, title }) {
+    return (
+        <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-4 backdrop-blur">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-orange-200">
+                {icon}
+            </div>
+            <span className="text-sm font-semibold text-white">{title}</span>
+        </div>
+    );
+}
+
+function InfoPanel({ icon, title, text, tone = "blue" }) {
+    const isBlue = tone === "blue";
+
+    return (
+        <div className="rounded-[30px] border border-orange-100 bg-white p-6 shadow-sm sm:p-8">
+            <div
+                className={[
+                    "mb-5 flex h-12 w-12 items-center justify-center rounded-2xl",
+                    isBlue
+                        ? "bg-[#1a4b8f]/10 text-[#1a4b8f]"
+                        : "bg-orange-100 text-orange-600",
+                ].join(" ")}
+            >
+                {icon}
+            </div>
+
+            <h3 className="text-2xl font-bold text-neutral-950">{title}</h3>
+
+            <p className="mt-4 text-sm leading-7 text-neutral-600">{text}</p>
+        </div>
     );
 }

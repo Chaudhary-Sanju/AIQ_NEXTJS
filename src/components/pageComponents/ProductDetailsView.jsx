@@ -10,6 +10,11 @@ import {
   ChevronRight,
   Star,
   StarHalf,
+  PackageCheck,
+  ShieldCheck,
+  BadgeCheck,
+  Truck,
+  Tag,
 } from "lucide-react";
 
 import http from "@/http";
@@ -135,6 +140,21 @@ const UI = {
     ne: "थपिँदै...",
     zh: "正在添加...",
   },
+  trusted: {
+    en: "Trusted product",
+    ne: "भरपर्दो उत्पादन",
+    zh: "可信商品",
+  },
+  delivery: {
+    en: "Delivery support",
+    ne: "डेलिभरी सहयोग",
+    zh: "配送支持",
+  },
+  secure: {
+    en: "Secure checkout",
+    ne: "सुरक्षित चेकआउट",
+    zh: "安全结账",
+  },
 };
 
 function RatingStars({ value = 0, size = "sm" }) {
@@ -168,7 +188,7 @@ function RatingStars({ value = 0, size = "sm" }) {
         return (
           <Star
             key={index}
-            className={`${iconClass} text-slate-300`}
+            className={`${iconClass} text-neutral-300`}
           />
         );
       })}
@@ -215,17 +235,13 @@ export default function ProductDetailsView({
       UI.category[locale] ||
       UI.category.en,
     brand:
-      dict?.productView?.brand ||
-      UI.brand[locale] ||
-      UI.brand.en,
+      dict?.productView?.brand || UI.brand[locale] || UI.brand.en,
     outOfStock:
       dict?.productView?.outOfStock ||
       UI.outOfStock[locale] ||
       UI.outOfStock.en,
     inStock:
-      dict?.productView?.inStock ||
-      UI.inStock[locale] ||
-      UI.inStock.en,
+      dict?.productView?.inStock || UI.inStock[locale] || UI.inStock.en,
     allTaxes:
       dict?.productView?.allTaxes ||
       UI.allTaxes[locale] ||
@@ -235,9 +251,7 @@ export default function ProductDetailsView({
       UI.noProduct[locale] ||
       UI.noProduct.en,
     loading:
-      dict?.productView?.loading ||
-      UI.loading[locale] ||
-      UI.loading.en,
+      dict?.productView?.loading || UI.loading[locale] || UI.loading.en,
     customerReviews:
       dict?.productView?.customerReviews ||
       UI.customerReviews[locale] ||
@@ -246,14 +260,9 @@ export default function ProductDetailsView({
       dict?.productView?.outOfFive ||
       UI.outOfFive[locale] ||
       UI.outOfFive.en,
-    review:
-      dict?.productView?.review ||
-      UI.review[locale] ||
-      UI.review.en,
+    review: dict?.productView?.review || UI.review[locale] || UI.review.en,
     reviews:
-      dict?.productView?.reviews ||
-      UI.reviews[locale] ||
-      UI.reviews.en,
+      dict?.productView?.reviews || UI.reviews[locale] || UI.reviews.en,
     noReviews:
       dict?.productView?.noReviews ||
       UI.noReviews[locale] ||
@@ -262,10 +271,14 @@ export default function ProductDetailsView({
       dict?.productView?.verifiedOrder ||
       UI.verifiedOrder[locale] ||
       UI.verifiedOrder.en,
-    adding:
-      dict?.productView?.adding ||
-      UI.adding[locale] ||
-      UI.adding.en,
+    adding: dict?.productView?.adding || UI.adding[locale] || UI.adding.en,
+    trusted:
+      dict?.productView?.trusted || UI.trusted[locale] || UI.trusted.en,
+    delivery:
+      dict?.productView?.delivery ||
+      UI.delivery[locale] ||
+      UI.delivery.en,
+    secure: dict?.productView?.secure || UI.secure[locale] || UI.secure.en,
   };
 
   useEffect(() => {
@@ -283,7 +296,7 @@ export default function ProductDetailsView({
           setSelectedImage(0);
           setQuantity(1);
         }
-      } catch (error) {
+      } catch {
         if (mounted) {
           setProduct(null);
         }
@@ -309,7 +322,9 @@ export default function ProductDetailsView({
   );
 
   const images = useMemo(() => {
-    return Array.isArray(product?.images) ? product.images : [];
+    if (Array.isArray(product?.images)) return product.images;
+    if (Array.isArray(product?.image)) return product.image;
+    return [];
   }, [product]);
 
   const reviews = useMemo(() => {
@@ -340,9 +355,7 @@ export default function ProductDetailsView({
     return pct > 0 ? pct : null;
   })();
 
-  const displayPrice = hasDiscount
-    ? product?.discounted_price
-    : product?.price;
+  const displayPrice = hasDiscount ? product?.discounted_price : product?.price;
 
   const maxQty = Number(product?.qty) > 0 ? Number(product?.qty) : 1;
 
@@ -372,10 +385,12 @@ export default function ProductDetailsView({
 
   if (!product) {
     return (
-      <section className="py-10 md:py-14">
+      <section className="relative min-h-[60vh] overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 py-10 md:py-14">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="rounded-3xl bg-white p-6 shadow-sm md:p-8">
-            <p className="text-sm text-red-500">{t.noProduct}</p>
+          <div className="rounded-[28px] border border-orange-100 bg-white/90 p-6 text-center shadow-sm md:p-8">
+            <p className="text-sm font-semibold text-red-500">
+              {t.noProduct}
+            </p>
           </div>
         </div>
       </section>
@@ -384,12 +399,15 @@ export default function ProductDetailsView({
 
   return (
     <>
-      <section className="py-8 md:py-12">
-        <div className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 py-8 md:py-12">
+        <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+          <div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-neutral-500">
             <Link
               href={`/${locale}`}
-              className="hover:text-[#5b4fd4]"
+              className="font-medium transition hover:text-[#1a4b8f]"
             >
               {t.breadcrumbHome}
             </Link>
@@ -397,26 +415,26 @@ export default function ProductDetailsView({
             <ChevronRight className="h-4 w-4" />
 
             <Link
-              href={`/${locale}/product`}
-              className="hover:text-[#5b4fd4]"
+              href={`/${locale}/product?page=1&limit=10`}
+              className="font-medium transition hover:text-[#1a4b8f]"
             >
               {t.breadcrumbProducts}
             </Link>
 
             <ChevronRight className="h-4 w-4" />
 
-            <span className="font-medium text-slate-800">
+            <span className="line-clamp-1 font-semibold text-neutral-900">
               {name}
             </span>
           </div>
 
-          <div className="rounded-[28px] p-4 md:p-6 lg:p-8">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="rounded-[32px] border border-orange-100 bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,42,94,0.10)] backdrop-blur md:p-6 lg:p-8">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+              {/* Gallery */}
               <div className="grid gap-4 md:grid-cols-[96px_minmax(0,1fr)]">
                 <div className="order-2 flex gap-3 overflow-x-auto md:order-1 md:flex-col md:overflow-visible">
                   {images.map((img, index) => {
-                    const active =
-                      selectedImage === index;
+                    const active = selectedImage === index;
 
                     return (
                       <button
@@ -428,14 +446,13 @@ export default function ProductDetailsView({
                         className={[
                           "relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border bg-white transition",
                           active
-                            ? "border-[#5b4fd4] ring-2 ring-[#5b4fd4]/15"
-                            : "border-slate-200 hover:border-slate-300",
+                            ? "border-[#1a4b8f] ring-4 ring-[#1a4b8f]/10"
+                            : "border-orange-100 hover:border-orange-200",
                         ].join(" ")}
                       >
                         <Image
                           src={imgUrl(img)}
-                          alt={`${name} ${index + 1
-                            }`}
+                          alt={`${name} ${index + 1}`}
                           fill
                           className="object-cover"
                           unoptimized
@@ -446,20 +463,25 @@ export default function ProductDetailsView({
                 </div>
 
                 <div className="order-1 md:order-2">
-                  <div className="relative aspect-square overflow-hidden rounded-[28px] bg-white">
+                  <div className="relative aspect-square overflow-hidden rounded-[30px] border border-orange-100 bg-gradient-to-br from-white to-orange-50/50">
+                    {discountPercent ? (
+                      <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1 rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                        <Tag className="h-3.5 w-3.5" />
+                        -{discountPercent}%
+                      </span>
+                    ) : null}
+
                     {images[selectedImage] ? (
                       <Image
-                        src={imgUrl(
-                          images[selectedImage]
-                        )}
+                        src={imgUrl(images[selectedImage])}
                         alt={name}
                         fill
-                        className="object-contain p-6 md:p-10"
+                        className="object-contain p-6 transition duration-500 hover:scale-105 md:p-10"
                         unoptimized
                         priority
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
+                      <div className="flex h-full w-full items-center justify-center text-sm text-neutral-400">
                         No image
                       </div>
                     )}
@@ -467,24 +489,28 @@ export default function ProductDetailsView({
                 </div>
               </div>
 
+              {/* Product Info */}
               <div className="flex flex-col">
-                <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#161616] md:text-4xl">
+                <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#1a4b8f]">
+                  <PackageCheck className="h-4 w-4" />
+                  {pick(product?.categoryId?.name, locale) ||
+                    t.breadcrumbProducts}
+                </div>
+
+                <h1 className="text-2xl font-bold tracking-tight text-neutral-950 md:text-4xl">
                   {name}
                 </h1>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-                  <RatingStars
-                    value={averageRating}
-                    size="lg"
-                  />
+                  <RatingStars value={averageRating} size="lg" />
 
-                  <span className="font-semibold text-slate-800">
+                  <span className="font-bold text-neutral-900">
                     {averageRating
                       ? averageRating.toFixed(1)
                       : "0.0"}
                   </span>
 
-                  <span className="text-slate-500">
+                  <span className="text-neutral-500">
                     ({totalReviews}{" "}
                     {totalReviews === 1
                       ? t.review
@@ -493,19 +519,19 @@ export default function ProductDetailsView({
                   </span>
                 </div>
 
-                <div className="mt-4 flex items-end gap-3">
-                  <div className="text-3xl font-bold text-[#161616]">
+                <div className="mt-5 flex flex-wrap items-end gap-3">
+                  <div className="text-3xl font-bold text-[#1a4b8f]">
                     {money(displayPrice)}
                   </div>
 
                   {hasDiscount ? (
                     <div className="flex items-center gap-2 pb-1">
-                      <span className="text-sm text-slate-400 line-through">
+                      <span className="text-sm text-neutral-400 line-through">
                         {money(product?.price)}
                       </span>
 
                       {discountPercent ? (
-                        <span className="text-sm font-semibold text-red-500">
+                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-bold text-red-500">
                           -{discountPercent}%
                         </span>
                       ) : null}
@@ -513,75 +539,86 @@ export default function ProductDetailsView({
                   ) : null}
                 </div>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-neutral-500">
                   {t.allTaxes}
                 </p>
 
                 {summary ? (
-                  <p className="mt-6 max-w-xl text-[15px] leading-7 text-slate-700">
+                  <p className="mt-6 max-w-xl text-[15px] leading-7 text-neutral-600">
                     {summary}
                   </p>
                 ) : null}
 
-                <div className="mt-6 grid gap-2 text-sm text-slate-700">
-                  <div>
-                    <span className="font-semibold">
-                      {t.category}:
-                    </span>{" "}
-                    {pick(
-                      product?.categoryId?.name,
-                      locale
-                    ) || "-"}
-                  </div>
+                <div className="mt-6 grid gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 p-4 text-sm text-neutral-700 sm:grid-cols-2">
+                  <MetaItem
+                    label={t.category}
+                    value={
+                      pick(product?.categoryId?.name, locale) ||
+                      "-"
+                    }
+                  />
 
-                  <div>
-                    <span className="font-semibold">
-                      {t.brand}:
-                    </span>{" "}
-                    {product?.brandId?.name || "-"}
-                  </div>
+                  <MetaItem
+                    label={t.brand}
+                    value={product?.brandId?.name || "-"}
+                  />
 
-                  <div>
-                    <span className="font-semibold">
+                  <div className="sm:col-span-2">
+                    <span className="font-semibold text-neutral-900">
                       Status:
                     </span>{" "}
                     <span
-                      className={
+                      className={[
+                        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold",
                         inStock
-                          ? "text-green-600"
-                          : "text-red-500"
-                      }
+                          ? "bg-green-50 text-green-600"
+                          : "bg-red-50 text-red-500",
+                      ].join(" ")}
                     >
-                      {inStock
-                        ? t.inStock
-                        : t.outOfStock}
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      {inStock ? t.inStock : t.outOfStock}
                     </span>
                   </div>
                 </div>
 
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <TrustBadge
+                    icon={<ShieldCheck className="h-4 w-4" />}
+                    text={t.secure}
+                  />
+                  <TrustBadge
+                    icon={<Truck className="h-4 w-4" />}
+                    text={t.delivery}
+                  />
+                  <TrustBadge
+                    icon={<PackageCheck className="h-4 w-4" />}
+                    text={t.trusted}
+                  />
+                </div>
+
                 <div className="mt-8">
-                  <p className="mb-3 text-base font-semibold text-[#161616]">
+                  <p className="mb-3 text-base font-bold text-neutral-950">
                     {t.quantity}
                   </p>
 
                   <div className="flex items-center gap-4">
-                    <div className="inline-flex items-center overflow-hidden rounded-xl border border-slate-200 bg-white">
+                    <div className="inline-flex items-center overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm">
                       <button
                         type="button"
                         onClick={decreaseQty}
-                        className="flex h-12 w-12 items-center justify-center text-slate-700 transition hover:bg-slate-50"
+                        className="flex h-12 w-12 items-center justify-center text-neutral-700 transition hover:bg-orange-50"
                       >
                         <Minus className="h-4 w-4" />
                       </button>
 
-                      <div className="flex h-12 min-w-[56px] items-center justify-center border-x border-slate-200 px-4 text-base font-semibold text-slate-900">
+                      <div className="flex h-12 min-w-[56px] items-center justify-center border-x border-orange-100 px-4 text-base font-bold text-neutral-950">
                         {quantity}
                       </div>
 
                       <button
                         type="button"
                         onClick={increaseQty}
-                        className="flex h-12 w-12 items-center justify-center text-slate-700 transition hover:bg-slate-50"
+                        className="flex h-12 w-12 items-center justify-center text-neutral-700 transition hover:bg-orange-50"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
@@ -593,7 +630,7 @@ export default function ProductDetailsView({
                   type="button"
                   onClick={handleAddToCart}
                   disabled={!inStock || busy}
-                  className="mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#5b4fd4] px-6 text-base font-semibold text-white transition hover:bg-[#4a3fcb] disabled:cursor-not-allowed disabled:opacity-50 md:max-w-[320px]"
+                  className="mt-8 inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-6 text-base font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-50 md:max-w-[320px]"
                 >
                   <ShoppingCart className="h-5 w-5" />
                   {busy ? t.adding : t.addToCart}
@@ -601,13 +638,14 @@ export default function ProductDetailsView({
               </div>
             </div>
 
-            <div className="mt-10 rounded-[24px] bg-white p-5 md:p-7">
-              <h2 className="text-2xl font-bold text-[#161616]">
+            {/* Description */}
+            <div className="mt-10 rounded-[26px] border border-orange-100 bg-gradient-to-br from-white to-orange-50/40 p-5 md:p-7">
+              <h2 className="text-2xl font-bold text-neutral-950">
                 {t.aboutItem}
               </h2>
 
               <div
-                className="mt-3 text-[15px] leading-7 text-slate-700 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-semibold [&_a]:text-[#5b4fd4] [&_a]:underline"
+                className="mt-3 text-[15px] leading-7 text-neutral-600 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-semibold [&_a]:text-[#1a4b8f] [&_a]:underline"
                 dangerouslySetInnerHTML={{
                   __html:
                     product?.description ||
@@ -616,14 +654,15 @@ export default function ProductDetailsView({
               />
             </div>
 
-            <div className="mt-8 rounded-[24px] bg-white p-5 md:p-7">
+            {/* Reviews */}
+            <div className="mt-8 rounded-[26px] border border-orange-100 bg-white p-5 md:p-7">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-[#161616]">
+                  <h2 className="text-2xl font-bold text-neutral-950">
                     {t.customerReviews}
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-neutral-500">
                     {averageRating
                       ? averageRating.toFixed(1)
                       : "0.0"}{" "}
@@ -635,12 +674,9 @@ export default function ProductDetailsView({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <RatingStars
-                    value={averageRating}
-                    size="lg"
-                  />
+                  <RatingStars value={averageRating} size="lg" />
 
-                  <div className="text-3xl font-extrabold text-[#161616]">
+                  <div className="text-3xl font-bold text-neutral-950">
                     {averageRating
                       ? averageRating.toFixed(1)
                       : "0.0"}
@@ -655,9 +691,7 @@ export default function ProductDetailsView({
                   );
 
                   const percent = totalReviews
-                    ? Math.round(
-                      (count / totalReviews) * 100
-                    )
+                    ? Math.round((count / totalReviews) * 100)
                     : 0;
 
                   return (
@@ -665,11 +699,11 @@ export default function ProductDetailsView({
                       key={star}
                       className="flex items-center gap-3 text-sm"
                     >
-                      <div className="w-12 shrink-0 font-medium text-slate-700">
+                      <div className="w-12 shrink-0 font-semibold text-neutral-700">
                         {star} ★
                       </div>
 
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-orange-50">
                         <div
                           className="h-full rounded-full bg-yellow-400"
                           style={{
@@ -678,7 +712,7 @@ export default function ProductDetailsView({
                         />
                       </div>
 
-                      <div className="w-12 text-right text-slate-500">
+                      <div className="w-12 text-right text-neutral-500">
                         {count}
                       </div>
                     </div>
@@ -691,52 +725,45 @@ export default function ProductDetailsView({
                   reviews.map((item) => (
                     <div
                       key={item._id}
-                      className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
+                      className="rounded-2xl border border-orange-100 bg-orange-50/50 p-4"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="font-semibold text-slate-900">
+                          <p className="font-bold text-neutral-950">
                             {item?.user_id?.name ||
                               "Customer"}
                           </p>
 
                           <div className="mt-1 flex items-center gap-2">
                             <RatingStars
-                              value={
-                                item?.rating ||
-                                0
-                              }
+                              value={item?.rating || 0}
                             />
 
                             {item?.order_id
                               ?.orderNumber ? (
-                              <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
-                                {
-                                  t.verifiedOrder
-                                }
+                              <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-bold text-green-700">
+                                {t.verifiedOrder}
                               </span>
                             ) : null}
                           </div>
                         </div>
 
                         {item?.createdAt ? (
-                          <p className="text-xs text-slate-500">
-                            {formatDate(
-                              item.createdAt
-                            )}
+                          <p className="text-xs text-neutral-500">
+                            {formatDate(item.createdAt)}
                           </p>
                         ) : null}
                       </div>
 
                       {item?.review ? (
-                        <p className="mt-3 text-sm leading-6 text-slate-700">
+                        <p className="mt-3 text-sm leading-6 text-neutral-600">
                           {item.review}
                         </p>
                       ) : null}
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-200 p-5 text-sm text-slate-500">
+                  <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-5 text-sm text-neutral-500">
                     {t.noReviews}
                   </div>
                 )}
@@ -750,8 +777,28 @@ export default function ProductDetailsView({
         locale={locale}
         slug={slug}
         limit={6}
-        className="pb-10 md:pb-14"
+        className="bg-white pb-10 md:pb-14"
       />
     </>
+  );
+}
+
+function MetaItem({ label, value }) {
+  return (
+    <div>
+      <span className="font-semibold text-neutral-900">{label}:</span>{" "}
+      <span>{value}</span>
+    </div>
+  );
+}
+
+function TrustBadge({ icon, text }) {
+  return (
+    <div className="flex items-center gap-2 rounded-2xl border border-orange-100 bg-white px-3 py-3 text-xs font-bold text-neutral-700 shadow-sm">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f]">
+        {icon}
+      </span>
+      <span>{text}</span>
+    </div>
   );
 }

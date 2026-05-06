@@ -1,9 +1,33 @@
 "use client";
 
+import {
+    CreditCard,
+    Wallet,
+    CheckCircle2,
+    BadgeDollarSign,
+    Landmark,
+    AlertCircle,
+    ReceiptText,
+    RefreshCw,
+    ShieldCheck,
+    Mail,
+    PackageCheck,
+} from "lucide-react";
+
 const content = {
     en: {
         title: "Payments Policy",
         updated: "Last updated: 2026",
+        badge: "Payments & Billing",
+        subtitle:
+            "This policy explains how HKMandu handles payments for product orders, courier requests, delivery services, and professional service bookings.",
+
+        highlights: [
+            "Payment methods are shown during checkout or confirmation",
+            "Orders may be processed after payment is verified",
+            "Refund eligibility depends on product or service status",
+        ],
+
         sections: [
             {
                 title: "1. Overview",
@@ -51,6 +75,16 @@ const content = {
     ne: {
         title: "भुक्तानी नीति",
         updated: "अन्तिम अपडेट: 2026",
+        badge: "भुक्तानी र बिलिङ",
+        subtitle:
+            "यो नीतिले HKMandu ले उत्पादन अर्डर, कुरियर अनुरोध, डेलिभरी सेवा र व्यावसायिक सेवा बुकिङका भुक्तानी कसरी व्यवस्थापन गर्छ भन्ने जानकारी दिन्छ।",
+
+        highlights: [
+            "भुक्तानी विकल्प checkout वा पुष्टि समयमा देखाइन्छ",
+            "भुक्तानी प्रमाणित भएपछि अर्डर प्रक्रिया हुन सक्छ",
+            "Refund योग्यता उत्पादन वा सेवाको स्थितिमा निर्भर हुन्छ",
+        ],
+
         sections: [
             {
                 title: "1. परिचय",
@@ -98,6 +132,16 @@ const content = {
     zh: {
         title: "付款政策",
         updated: "最后更新：2026",
+        badge: "付款与账单",
+        subtitle:
+            "本政策说明 HKMandu 如何处理商品订单、快递请求、配送服务和专业服务预约的付款。",
+
+        highlights: [
+            "付款方式会在结账或确认时显示",
+            "付款验证后订单可能才会处理",
+            "退款资格取决于商品或服务状态",
+        ],
+
         sections: [
             {
                 title: "1. 概述",
@@ -143,30 +187,99 @@ const content = {
     },
 };
 
+const sectionIcons = [
+    CreditCard,
+    Wallet,
+    CheckCircle2,
+    BadgeDollarSign,
+    Landmark,
+    AlertCircle,
+    ReceiptText,
+    RefreshCw,
+    ShieldCheck,
+    Mail,
+];
+
 export default function PaymentsPage({ locale = "en" }) {
     const t = content[locale] || content.en;
 
     return (
         <main className="bg-white">
-            <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-                <h1 className="text-4xl font-black text-neutral-950">{t.title}</h1>
+            <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+                <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+                <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
 
-                <p className="mt-3 text-sm text-neutral-500">{t.updated}</p>
-
-                <div className="mt-10 space-y-8">
-                    {t.sections.map((section) => (
-                        <div key={section.title}>
-                            <h2 className="text-xl font-bold text-neutral-900">
-                                {section.title}
-                            </h2>
-
-                            <p className="mt-2 text-sm leading-7 text-neutral-600">
-                                {section.body}
-                            </p>
+                <div className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6 md:py-16 lg:px-8 lg:py-20">
+                    <div className="mx-auto max-w-3xl text-center">
+                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#1a4b8f] shadow-sm">
+                            <CreditCard className="h-4 w-4" />
+                            {t.badge}
                         </div>
-                    ))}
+
+                        <h1 className="text-[34px] font-bold leading-tight tracking-tight text-neutral-950 sm:text-5xl lg:text-[56px]">
+                            {t.title}
+                        </h1>
+
+                        <p className="mt-4 text-sm font-semibold text-orange-600">
+                            {t.updated}
+                        </p>
+
+                        <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-8 text-neutral-600 sm:text-base">
+                            {t.subtitle}
+                        </p>
+                    </div>
+
+                    <div className="mx-auto mt-9 grid max-w-4xl gap-3 sm:grid-cols-3">
+                        {t.highlights.map((item) => (
+                            <div
+                                key={item}
+                                className="rounded-2xl border border-orange-100 bg-white/90 p-4 text-center shadow-sm backdrop-blur"
+                            >
+                                <div className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f]">
+                                    <PackageCheck className="h-4 w-4" />
+                                </div>
+
+                                <p className="text-sm font-semibold leading-6 text-neutral-700">
+                                    {item}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <section className="bg-white py-12 sm:py-16">
+                <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+                    <div className="space-y-4">
+                        {t.sections.map((section, index) => {
+                            const Icon = sectionIcons[index] || CreditCard;
+
+                            return (
+                                <article
+                                    key={section.title}
+                                    className="group rounded-[26px] border border-orange-100 bg-gradient-to-br from-white to-orange-50/40 p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-[0_18px_45px_rgba(15,42,94,0.08)] sm:p-6"
+                                >
+                                    <div className="flex gap-4">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#1a4b8f]/10 text-[#1a4b8f] transition group-hover:bg-[#1a4b8f] group-hover:text-white">
+                                            <Icon className="h-5 w-5" />
+                                        </div>
+
+                                        <div>
+                                            <h2 className="text-lg font-bold text-neutral-950 sm:text-xl">
+                                                {section.title}
+                                            </h2>
+
+                                            <p className="mt-2 text-sm leading-7 text-neutral-600 sm:text-[15px]">
+                                                {section.body}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }

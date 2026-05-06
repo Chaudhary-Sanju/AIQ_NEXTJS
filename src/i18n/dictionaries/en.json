@@ -2,7 +2,7 @@
   "nav": {
     "logo": "HkMandu",
 
-    "servicesTitle": "Perfect Services",
+    "servicesTitle": "R Services",
     "services": {
       "software": "Software Development",
       "accounting": "Accounting & Finance",
@@ -19,6 +19,7 @@
     "login": "Login",
     "logout": "Logout",
 
+    "cart": "Cart",
     "cartAria": "Cart",
 
     "language": "Language",
@@ -27,8 +28,15 @@
 
     "openMenuAria": "Open menu",
 
-    "organicMart": "Organic Mart",
-    "aiExpress": "AI Express"
+    "organicMart": "A Grocery",
+    "aiExpress": "A Express",
+
+    "loading": "Loading...",
+    "noCategory": "No categories found",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy"
   },
 
   "footer": {
@@ -274,7 +282,7 @@
   },
 
   "perfectServices": {
-    "title": "Perfect Services",
+    "title": "R Services",
     "subtitle": "We provide a complete range of business, travel, and logistics services designed to simplify your everyday needs — all in one place.",
     "items": {
       "software": {

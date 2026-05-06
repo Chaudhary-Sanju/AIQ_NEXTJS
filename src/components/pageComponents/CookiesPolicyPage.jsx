@@ -1,9 +1,28 @@
 "use client";
 
+import {
+    Cookie,
+    ShieldCheck,
+    Settings,
+    BarChart3,
+    RefreshCw,
+    Mail,
+    CheckCircle2,
+} from "lucide-react";
+
 const content = {
     en: {
         title: "Cookies Policy",
         updated: "Last updated: 2026",
+        badge: "Privacy & Cookies",
+        subtitle:
+            "This policy explains how HKMandu uses cookies to improve your browsing experience, remember preferences, and keep the platform running smoothly.",
+
+        highlights: [
+            "Used to improve website functionality",
+            "Helps remember your preferences",
+            "Can be managed from your browser settings",
+        ],
 
         sections: [
             {
@@ -40,6 +59,15 @@ const content = {
     ne: {
         title: "कुकीज नीति",
         updated: "अन्तिम अपडेट: 2026",
+        badge: "गोपनीयता र कुकीज",
+        subtitle:
+            "यो नीतिले HKMandu ले तपाईंको ब्राउजिङ अनुभव सुधार गर्न, प्राथमिकता सम्झन, र प्लेटफर्म सहज रूपमा चलाउन कुकीज कसरी प्रयोग गर्छ भन्ने जानकारी दिन्छ।",
+
+        highlights: [
+            "वेबसाइटको कार्यक्षमता सुधार गर्न प्रयोग हुन्छ",
+            "तपाईंका प्राथमिकता सम्झन सहयोग गर्छ",
+            "ब्राउजर सेटिङबाट व्यवस्थापन गर्न सकिन्छ",
+        ],
 
         sections: [
             {
@@ -76,6 +104,15 @@ const content = {
     zh: {
         title: "Cookies 政策",
         updated: "最后更新：2026",
+        badge: "隐私与 Cookies",
+        subtitle:
+            "本政策说明 HKMandu 如何使用 Cookies 来改善浏览体验、记住偏好设置，并确保平台顺畅运行。",
+
+        highlights: [
+            "用于改善网站功能",
+            "帮助记住您的偏好",
+            "可通过浏览器设置管理",
+        ],
 
         sections: [
             {
@@ -110,32 +147,88 @@ const content = {
     },
 };
 
+const sectionIcons = [Cookie, Settings, BarChart3, ShieldCheck, Settings, RefreshCw, Mail];
+
 export default function CookiesPolicyPage({ locale = "en" }) {
     const t = content[locale] || content.en;
 
     return (
         <main className="bg-white">
-            <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-                <h1 className="text-4xl font-black text-neutral-950">
-                    {t.title}
-                </h1>
+            <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+                <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+                <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
 
-                <p className="mt-3 text-sm text-neutral-500">{t.updated}</p>
-
-                <div className="mt-10 space-y-8">
-                    {t.sections.map((section) => (
-                        <div key={section.title}>
-                            <h2 className="text-xl font-bold text-neutral-900">
-                                {section.title}
-                            </h2>
-
-                            <p className="mt-2 text-sm leading-7 text-neutral-600">
-                                {section.body}
-                            </p>
+                <div className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6 md:py-16 lg:px-8 lg:py-20">
+                    <div className="mx-auto max-w-3xl text-center">
+                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#1a4b8f] shadow-sm">
+                            <Cookie className="h-4 w-4" />
+                            {t.badge}
                         </div>
-                    ))}
+
+                        <h1 className="text-[34px] font-bold leading-tight tracking-tight text-neutral-950 sm:text-5xl lg:text-[56px]">
+                            {t.title}
+                        </h1>
+
+                        <p className="mt-4 text-sm font-semibold text-orange-600">
+                            {t.updated}
+                        </p>
+
+                        <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-8 text-neutral-600 sm:text-base">
+                            {t.subtitle}
+                        </p>
+                    </div>
+
+                    <div className="mx-auto mt-9 grid max-w-4xl gap-3 sm:grid-cols-3">
+                        {t.highlights.map((item) => (
+                            <div
+                                key={item}
+                                className="rounded-2xl border border-orange-100 bg-white/90 p-4 text-center shadow-sm backdrop-blur"
+                            >
+                                <div className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f]">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                </div>
+
+                                <p className="text-sm font-semibold leading-6 text-neutral-700">
+                                    {item}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <section className="bg-white py-12 sm:py-16">
+                <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+                    <div className="space-y-4">
+                        {t.sections.map((section, index) => {
+                            const Icon = sectionIcons[index] || Cookie;
+
+                            return (
+                                <article
+                                    key={section.title}
+                                    className="group rounded-[26px] border border-orange-100 bg-gradient-to-br from-white to-orange-50/40 p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-[0_18px_45px_rgba(15,42,94,0.08)] sm:p-6"
+                                >
+                                    <div className="flex gap-4">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#1a4b8f]/10 text-[#1a4b8f] transition group-hover:bg-[#1a4b8f] group-hover:text-white">
+                                            <Icon className="h-5 w-5" />
+                                        </div>
+
+                                        <div>
+                                            <h2 className="text-lg font-bold text-neutral-950 sm:text-xl">
+                                                {section.title}
+                                            </h2>
+
+                                            <p className="mt-2 text-sm leading-7 text-neutral-600 sm:text-[15px]">
+                                                {section.body}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }

@@ -1,8 +1,8 @@
 {
   "nav": {
-    "logo": "YALAKOM",
+    "logo": "HkMandu",
 
-    "servicesTitle": "完美服務",
+    "servicesTitle": "R Services",
     "services": {
       "software": "軟體開發",
       "accounting": "會計與財務",
@@ -19,6 +19,7 @@
     "login": "登入",
     "logout": "登出",
 
+    "cart": "購物車",
     "cartAria": "購物車",
 
     "language": "語言",
@@ -27,8 +28,15 @@
 
     "openMenuAria": "開啟選單",
 
-    "organicMart": "有機市集",
-    "aiExpress": "AI Express"
+    "organicMart": "A Grocery",
+    "aiExpress": "A Express",
+
+    "loading": "載入中...",
+    "noCategory": "找不到分類",
+    "dashboard": "控制台",
+    "settings": "設定",
+    "terms": "條款及細則",
+    "privacy": "私隱政策"
   },
 
   "footer": {
@@ -261,7 +269,7 @@
   },
 
   "perfectServices": {
-    "title": "精选服务",
+    "title": "R 服务",
     "subtitle": "我们提供完整的商业、旅游和物流服务，一站式满足您的日常需求，让一切更简单。",
     "items": {
       "software": {

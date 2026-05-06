@@ -77,7 +77,7 @@ export default async function Page({ params }) {
                 dict={dict}
                 links={{
                     whatsapp: "https://wa.me/852XXXXXXXX",
-                    trackOrder: "/track-order",
+                    trackOrder: "/support/track-courier",
                 }}
             />
 

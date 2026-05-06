@@ -4,7 +4,15 @@ import { useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { User, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import {
+    User,
+    Lock,
+    Eye,
+    EyeOff,
+    ShieldCheck,
+    Sparkles,
+    CheckCircle2,
+} from "lucide-react";
 
 import { setUser } from "@/store/userSlice";
 import http from "@/http";
@@ -13,9 +21,8 @@ import { setInForm } from "@/lib/index";
 
 const Glow = () => (
     <>
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[#5f57ff]/25 blur-[90px]" />
-        <div className="pointer-events-none absolute bottom-[-260px] right-[-220px] h-[520px] w-[520px] rounded-full bg-[#2a2b68]/40 blur-[90px]" />
-        <div className="pointer-events-none absolute bottom-[-260px] left-[-220px] h-[520px] w-[520px] rounded-full bg-[#2b2458]/40 blur-[90px]" />
+        <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
     </>
 );
 
@@ -23,7 +30,7 @@ function ErrorAlert({ message }) {
     if (!message) return null;
 
     return (
-        <div className="rounded-xl border border-red-300/60 bg-red-500/15 px-4 py-3 text-sm text-red-100">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
             {message}
         </div>
     );
@@ -32,9 +39,9 @@ function ErrorAlert({ message }) {
 function Field({ label, children, error }) {
     return (
         <div className="space-y-2">
-            <div className="text-xs font-medium tracking-wide text-white/80">{label}</div>
+            <div className="text-sm font-semibold text-neutral-800">{label}</div>
             {children}
-            {!!error && <p className="text-xs text-red-200">{error}</p>}
+            {!!error && <p className="text-xs font-medium text-red-500">{error}</p>}
         </div>
     );
 }
@@ -53,7 +60,7 @@ function TextInput({
 }) {
     return (
         <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
                 <Icon size={18} />
             </span>
 
@@ -67,10 +74,8 @@ function TextInput({
                 autoComplete={autoComplete}
                 placeholder={placeholder}
                 className={[
-                    "h-11 w-full rounded-xl border bg-white/5 pl-10 pr-3 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
-                    hasError
-                        ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
-                        : "border-white/15 focus:border-white/35 focus:ring-white/10",
+                    "h-12 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                    hasError ? "border-red-300" : "border-orange-100",
                 ].join(" ")}
             />
         </div>
@@ -88,7 +93,7 @@ function PasswordInput({
 }) {
     return (
         <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
                 <Lock size={18} />
             </span>
 
@@ -102,17 +107,15 @@ function PasswordInput({
                 autoComplete="current-password"
                 placeholder={placeholder}
                 className={[
-                    "h-11 w-full rounded-xl border bg-white/5 pl-10 pr-10 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
-                    hasError
-                        ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
-                        : "border-white/15 focus:border-white/35 focus:ring-white/10",
+                    "h-12 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                    hasError ? "border-red-300" : "border-orange-100",
                 ].join(" ")}
             />
 
             <button
                 type="button"
                 onClick={onToggleVisibility}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-white/70 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-neutral-500 transition hover:bg-orange-50 hover:text-[#1a4b8f]"
                 aria-label={
                     isVisible
                         ? t("login.aria.hidePassword", "Hide password")
@@ -130,7 +133,7 @@ function SubmitButton({ loading, labelLoading, label }) {
         <button
             type="submit"
             disabled={loading}
-            className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-[#2b2458] shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition hover:bg-white/90 active:bg-white/85 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-12 w-full rounded-2xl bg-[#1a4b8f] text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] active:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
         >
             {loading ? labelLoading : label}
         </button>
@@ -206,11 +209,13 @@ export default function Login({ locale = "en", dict = {} }) {
 
     const handleSubmit = async (ev) => {
         ev.preventDefault();
+
         setLoading(true);
         setError("");
         setFieldErrors({});
 
         const clientErrors = validateForm();
+
         if (Object.keys(clientErrors).length) {
             setFieldErrors(clientErrors);
             setError(t("login.errorFixFields", "Please fix the highlighted fields."));
@@ -233,6 +238,7 @@ export default function Login({ locale = "en", dict = {} }) {
             router.refresh();
         } catch (err) {
             const fe = extractFieldErrors(err);
+
             if (fe) {
                 setFieldErrors(fe);
                 setError(t("login.errorFixFields", "Please fix the highlighted fields."));
@@ -253,8 +259,10 @@ export default function Login({ locale = "en", dict = {} }) {
         setInForm(ev, form, setForm);
 
         const key = ev.target.name;
+
         setFieldErrors((prev) => {
             if (!prev?.[key]) return prev;
+
             const next = { ...prev };
             delete next[key];
             return next;
@@ -264,56 +272,79 @@ export default function Login({ locale = "en", dict = {} }) {
     };
 
     return (
-        <section className="w-full z-0">
-            <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
-                <Glow />
+        <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+            <Glow />
 
-                <div className="relative mx-auto flex w-full max-w-7xl items-start justify-center px-4 py-12 lg:min-h-screen lg:items-center lg:py-0">
-                    <div className="mx-auto grid w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl md:grid-cols-2">
-                        <div className="relative hidden md:block">
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#5f57ff]/35 via-transparent to-[#2a2b68]/40" />
-                            <div className="relative flex h-full flex-col justify-between p-10">
-                                <div>
-                                    <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
-                                        <ShieldCheck size={16} />
-                                        {t("login.secureTag", "Secure Login")}
-                                    </div>
+            <div className="relative mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+                <div className="grid w-full max-w-5xl overflow-hidden rounded-[32px] border border-orange-100 bg-white/95 shadow-[0_24px_70px_rgba(15,42,94,0.14)] backdrop-blur lg:grid-cols-[0.95fr_1.05fr]">
+                    {/* Left Side */}
+                    <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#1a4b8f] via-[#0f2a5e] to-[#13295b] p-10 text-white lg:block">
+                        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                        <div className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl" />
 
-                                    <h1 className="mt-6 text-4xl font-semibold tracking-wide text-white">
-                                        {t("login.welcomeTitle", "Welcome back")}
-                                    </h1>
+                        <div className="relative z-10 flex h-full flex-col justify-between">
+                            <div>
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-100 backdrop-blur">
+                                    <ShieldCheck size={16} />
+                                    {t("login.secureTag", "Secure Login")}
+                                </span>
 
-                                    <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/75">
-                                        {t(
-                                            "login.welcomeDesc",
-                                            "Sign in to access your account, manage orders, and explore Perfect Services."
-                                        )}
-                                    </p>
-                                </div>
-
-                                <div className="text-xs text-white/65">
-                                    {t(
-                                        "login.tip",
-                                        "Tip: Use “Remember me” only on your personal device."
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="p-6 md:p-10">
-                            <div className="text-center md:hidden">
-                                <h1 className="text-3xl font-semibold tracking-wide text-white">
-                                    {t("login.title", "Login")}
+                                <h1 className="mt-6 text-4xl font-bold leading-tight">
+                                    {t("login.welcomeTitle", "Welcome back")}
                                 </h1>
-                                <p className="mt-2 text-sm text-white/75">
+
+                                <p className="mt-4 max-w-md text-sm leading-7 text-white/75">
                                     {t(
-                                        "login.subtitle",
-                                        "Enter your email or phone and password to continue"
+                                        "login.welcomeDesc",
+                                        "Sign in to access your account, manage orders, and explore R Services."
                                     )}
                                 </p>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="mt-6 space-y-5 md:mt-0">
+                            <div className="space-y-4">
+                                <InfoPoint
+                                    icon={<CheckCircle2 className="h-5 w-5" />}
+                                    title={t("login.point1Title", "Manage your orders")}
+                                    text={t(
+                                        "login.point1Text",
+                                        "Track your product orders and courier requests from your dashboard."
+                                    )}
+                                />
+
+                                <InfoPoint
+                                    icon={<Sparkles className="h-5 w-5" />}
+                                    title={t("login.point2Title", "Access HkMandu services")}
+                                    text={t(
+                                        "login.point2Text",
+                                        "Shop products, request services, and manage your profile in one place."
+                                    )}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Side */}
+                    <div className="p-5 sm:p-8 lg:p-10">
+                        <div className="mx-auto w-full max-w-md">
+                            <div className="mb-8">
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#1a4b8f]">
+                                    <ShieldCheck className="h-4 w-4" />
+                                    {t("login.secureTag", "Secure Login")}
+                                </div>
+
+                                <h1 className="text-3xl font-bold tracking-tight text-neutral-950">
+                                    {t("login.title", "Login")}
+                                </h1>
+
+                                <p className="mt-2 text-sm leading-6 text-neutral-500">
+                                    {t(
+                                        "login.subtitle",
+                                        "Enter your email or phone and password to continue."
+                                    )}
+                                </p>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-5">
                                 {error && <ErrorAlert message={error} />}
 
                                 <Field
@@ -344,31 +375,34 @@ export default function Login({ locale = "en", dict = {} }) {
                                         value={form.password}
                                         onChange={handleInputChange}
                                         isVisible={passwordVisible}
-                                        onToggleVisibility={() => setPasswordVisible((s) => !s)}
-                                        placeholder={t("login.passwordPlaceholder", "Enter your password")}
+                                        onToggleVisibility={() =>
+                                            setPasswordVisible((s) => !s)
+                                        }
+                                        placeholder={t(
+                                            "login.passwordPlaceholder",
+                                            "Enter your password"
+                                        )}
                                         hasError={!!fieldErrors?.password}
                                         t={t}
                                     />
 
-                                    <div className="mt-2 flex items-center justify-between">
-                                        <label className="flex items-center gap-2 text-xs text-white/80">
+                                    <div className="mt-3 flex items-center justify-between gap-3">
+                                        <label className="flex items-center gap-2 text-xs font-medium text-neutral-600">
                                             <input
                                                 type="checkbox"
                                                 checked={remember}
                                                 onChange={(e) => setRemember(e.target.checked)}
-                                                className="h-4 w-4 rounded border-white/40 bg-transparent"
+                                                className="h-4 w-4 rounded border-orange-200 accent-[#1a4b8f]"
                                             />
                                             {t("login.remember", "Remember me")}
                                         </label>
 
-
                                         <Link
                                             href={`/${locale}/auth/forgot-password`}
-                                            className="text-xs text-white/75 hover:text-white hover:underline"
+                                            className="text-xs font-semibold text-[#1a4b8f] hover:underline"
                                         >
                                             {t("login.forgot", "Forgot password?")}
                                         </Link>
-
                                     </div>
                                 </Field>
 
@@ -378,23 +412,29 @@ export default function Login({ locale = "en", dict = {} }) {
                                     labelLoading={t("login.loading", "Signing in...")}
                                 />
 
-                                <div className="text-center text-sm text-white/85">
+                                <div className="rounded-2xl bg-orange-50 px-4 py-4 text-center text-sm text-neutral-600">
                                     {t("login.noAccount", "Don't have an account?")}{" "}
                                     <Link
                                         href={`/${locale}/auth/signup`}
-                                        className="font-semibold text-cyan-200 hover:text-cyan-100 hover:underline"
+                                        className="font-bold text-[#1a4b8f] hover:underline"
                                     >
                                         {t("login.register", "Register")}
                                     </Link>
                                 </div>
 
-                                <div className="pt-2 text-center text-[11px] text-white/55">
+                                <div className="pt-1 text-center text-[11px] leading-5 text-neutral-500">
                                     {t("login.agreePrefix", "By signing in, you agree to our")}{" "}
-                                    <Link href={`/${locale}/terms`} className="underline hover:text-white">
+                                    <Link
+                                        href={`/${locale}/terms`}
+                                        className="font-semibold text-[#1a4b8f] underline"
+                                    >
                                         {t("login.terms", "Terms")}
                                     </Link>{" "}
                                     {t("login.and", "and")}{" "}
-                                    <Link href={`/${locale}/privacy`} className="underline hover:text-white">
+                                    <Link
+                                        href={`/${locale}/privacy-policy`}
+                                        className="font-semibold text-[#1a4b8f] underline"
+                                    >
                                         {t("login.privacy", "Privacy Policy")}
                                     </Link>
                                     .
@@ -405,5 +445,18 @@ export default function Login({ locale = "en", dict = {} }) {
                 </div>
             </div>
         </section>
+    );
+}
+
+function InfoPoint({ icon, title, text }) {
+    return (
+        <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+            <div className="mt-0.5 text-orange-200">{icon}</div>
+
+            <div>
+                <p className="font-semibold text-white">{title}</p>
+                <p className="mt-1 text-sm leading-6 text-white/70">{text}</p>
+            </div>
+        </div>
     );
 }

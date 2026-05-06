@@ -13,6 +13,8 @@ import {
     EyeOff,
     ShieldCheck,
     RotateCw,
+    Sparkles,
+    CheckCircle2,
 } from "lucide-react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
@@ -67,7 +69,10 @@ function validateRegisterForm(form, t) {
     const errors = {};
 
     if (!form.name || form.name.trim().length < 2) {
-        errors.name = t("signup.validation.nameMin", "Name must be at least 2 characters.");
+        errors.name = t(
+            "signup.validation.nameMin",
+            "Name must be at least 2 characters."
+        );
     }
 
     if (!form.email || !EMAIL_REGEX.test(form.email)) {
@@ -101,10 +106,16 @@ function validateRegisterForm(form, t) {
     }
 
     if (!form.address || !form.address.trim()) {
-        errors.address = t("signup.validation.addressRequired", "Address is required.");
+        errors.address = t(
+            "signup.validation.addressRequired",
+            "Address is required."
+        );
     }
 
-    if (!form.verificationMethod || !["email", "phone"].includes(form.verificationMethod)) {
+    if (
+        !form.verificationMethod ||
+        !["email", "phone"].includes(form.verificationMethod)
+    ) {
         errors.verificationMethod = t(
             "signup.validation.verificationMethod",
             "Please select a verification method."
@@ -126,16 +137,16 @@ function validateRegisterForm(form, t) {
 /* ---------------------------------- */
 const Glow = () => (
     <>
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[#5f57ff]/25 blur-[90px]" />
-        <div className="pointer-events-none absolute bottom-[-260px] right-[-220px] h-[520px] w-[520px] rounded-full bg-[#2a2b68]/40 blur-[90px]" />
-        <div className="pointer-events-none absolute bottom-[-260px] left-[-220px] h-[520px] w-[520px] rounded-full bg-[#2b2458]/40 blur-[90px]" />
+        <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
     </>
 );
 
 function ErrorAlert({ message }) {
     if (!message) return null;
+
     return (
-        <div className="whitespace-pre-line rounded-xl border border-red-300/60 bg-red-500/15 px-4 py-3 text-sm text-red-100">
+        <div className="whitespace-pre-line rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
             {message}
         </div>
     );
@@ -143,8 +154,9 @@ function ErrorAlert({ message }) {
 
 function SuccessAlert({ message }) {
     if (!message) return null;
+
     return (
-        <div className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+        <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
             {message}
         </div>
     );
@@ -153,9 +165,9 @@ function SuccessAlert({ message }) {
 function Field({ label, children, error }) {
     return (
         <div className="space-y-2">
-            <div className="text-xs font-medium tracking-wide text-white/80">{label}</div>
+            <div className="text-sm font-semibold text-neutral-800">{label}</div>
             {children}
-            {!!error && <p className="text-xs text-red-200">{error}</p>}
+            {!!error && <p className="text-xs font-medium text-red-500">{error}</p>}
         </div>
     );
 }
@@ -177,7 +189,7 @@ function TextInput({
 }) {
     return (
         <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
                 <Icon size={18} />
             </span>
 
@@ -194,11 +206,9 @@ function TextInput({
                 maxLength={maxLength}
                 disabled={disabled}
                 className={[
-                    "h-11 w-full rounded-xl border bg-white/5 pl-10 pr-3 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
-                    hasError
-                        ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
-                        : "border-white/15 focus:border-white/35 focus:ring-white/10",
-                    "disabled:opacity-60",
+                    "h-12 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                    hasError ? "border-red-300" : "border-orange-100",
+                    "disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:opacity-60",
                 ].join(" ")}
             />
         </div>
@@ -219,7 +229,7 @@ function PasswordInput({
 }) {
     return (
         <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
                 <Lock size={18} />
             </span>
 
@@ -233,17 +243,15 @@ function PasswordInput({
                 autoComplete={autoComplete}
                 placeholder={placeholder}
                 className={[
-                    "h-11 w-full rounded-xl border bg-white/5 pl-10 pr-10 text-sm text-white placeholder:text-white/55 outline-none backdrop-blur-md focus:ring-2",
-                    hasError
-                        ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
-                        : "border-white/15 focus:border-white/35 focus:ring-white/10",
+                    "h-12 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                    hasError ? "border-red-300" : "border-orange-100",
                 ].join(" ")}
             />
 
             <button
                 type="button"
                 onClick={onToggleVisibility}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-white/70 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl p-2 text-neutral-500 transition hover:bg-orange-50 hover:text-[#1a4b8f]"
                 aria-label={
                     isVisible
                         ? t?.("signup.aria.hidePassword", "Hide password")
@@ -261,7 +269,7 @@ function PrimaryButton({ loading, loadingText, children }) {
         <button
             type="submit"
             disabled={loading}
-            className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-[#2b2458] shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition hover:bg-white/90 active:bg-white/85 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-12 w-full rounded-2xl bg-[#1a4b8f] text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] active:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
         >
             {loading ? loadingText : children}
         </button>
@@ -274,7 +282,7 @@ function SecondaryButton({ loading, onClick, loadingText, children }) {
             type="button"
             disabled={loading}
             onClick={onClick}
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 text-sm font-medium text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-white text-sm font-bold text-neutral-700 transition hover:bg-orange-50 hover:text-[#1a4b8f] disabled:cursor-not-allowed disabled:opacity-60"
         >
             {loading ? loadingText : children}
         </button>
@@ -300,6 +308,7 @@ function OtpInput({
 
     const commit = (nextChars, focusIdx) => {
         onChange(nextChars.join(""));
+
         if (
             typeof focusIdx === "number" &&
             refs.current[focusIdx] &&
@@ -310,7 +319,10 @@ function OtpInput({
     };
 
     const setAt = (idx, raw) => {
-        const clean = (raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const clean = (raw || "")
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "");
+
         const next = [...chars];
 
         if (!clean) {
@@ -320,6 +332,7 @@ function OtpInput({
         }
 
         const chunk = clean.slice(0, length - idx).split("");
+
         for (let i = 0; i < chunk.length; i++) {
             next[idx + i] = chunk[i];
         }
@@ -333,6 +346,7 @@ function OtpInput({
 
         if (e.key === "Backspace") {
             e.preventDefault();
+
             const next = [...chars];
 
             if (next[idx]) {
@@ -345,7 +359,8 @@ function OtpInput({
         }
 
         if (e.key === "ArrowLeft" && idx > 0) refs.current[idx - 1]?.focus?.();
-        if (e.key === "ArrowRight" && idx < length - 1) refs.current[idx + 1]?.focus?.();
+        if (e.key === "ArrowRight" && idx < length - 1)
+            refs.current[idx + 1]?.focus?.();
     };
 
     return (
@@ -373,17 +388,15 @@ function OtpInput({
                                 : `OTP character ${idx + 1}`
                         }
                         className={[
-                            "h-11 w-full rounded-xl border bg-white/5 text-center text-sm font-semibold uppercase text-white outline-none backdrop-blur-md focus:ring-2",
-                            hasError
-                                ? "border-red-300/60 focus:border-red-200 focus:ring-red-300/20"
-                                : "border-white/15 focus:border-white/35 focus:ring-white/10",
-                            "disabled:opacity-60",
+                            "h-12 w-full rounded-2xl border bg-white text-center text-sm font-bold uppercase text-neutral-900 outline-none transition focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                            hasError ? "border-red-300" : "border-orange-100",
+                            "disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:opacity-60",
                         ].join(" ")}
                     />
                 ))}
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-white/55">
+            <div className="flex items-center justify-between text-[11px] text-neutral-500">
                 <span>
                     {t
                         ? t("signup.otp.helper", "Enter the 6-character code")
@@ -394,7 +407,7 @@ function OtpInput({
                     type="button"
                     disabled={disabled || !value}
                     onClick={() => onChange("")}
-                    className="underline hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    className="font-semibold text-[#1a4b8f] underline disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     {t ? t("signup.otp.clear", "Clear") : "Clear"}
                 </button>
@@ -414,17 +427,22 @@ export default function Signup({ locale = "en", dict = {} }) {
     const t = (key, fallback) => {
         const parts = key.split(".");
         let cur = dict;
+
         for (const p of parts) cur = cur?.[p];
+
         return cur ?? fallback;
     };
 
     const safeNext = useMemo(() => {
         const raw = searchParams?.get("next");
+
         if (!raw) return null;
+
         return raw.startsWith("/") ? raw : null;
     }, [searchParams]);
 
     const [step, setStep] = useState("register");
+
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -435,6 +453,7 @@ export default function Signup({ locale = "en", dict = {} }) {
         verificationMethod: "",
         recaptchaToken: "",
     });
+
     const [otp, setOtp] = useState("");
 
     const [passVisible, setPassVisible] = useState(false);
@@ -452,8 +471,10 @@ export default function Signup({ locale = "en", dict = {} }) {
         setInForm(e, form, setForm);
 
         const key = e.target.name;
+
         setFieldErrors((prev) => {
             if (!prev?.[key]) return prev;
+
             const next = { ...prev };
             delete next[key];
             return next;
@@ -492,16 +513,26 @@ export default function Signup({ locale = "en", dict = {} }) {
                     "Please select a verification method."
                 ),
             }));
-            setError(t("signup.validation.verificationMethod", "Please select a verification method."));
+            setError(
+                t(
+                    "signup.validation.verificationMethod",
+                    "Please select a verification method."
+                )
+            );
             return;
         }
 
         if (!executeRecaptcha) {
             setFieldErrors((prev) => ({
                 ...prev,
-                captcha: t("signup.validation.recaptcha", "Please complete reCAPTCHA."),
+                captcha: t(
+                    "signup.validation.recaptcha",
+                    "Please complete reCAPTCHA."
+                ),
             }));
-            setError(t("signup.validation.recaptcha", "Please complete reCAPTCHA."));
+            setError(
+                t("signup.validation.recaptcha", "Please complete reCAPTCHA.")
+            );
             return;
         }
 
@@ -513,17 +544,27 @@ export default function Signup({ locale = "en", dict = {} }) {
             if (!recaptchaToken || typeof recaptchaToken !== "string") {
                 setFieldErrors((prev) => ({
                     ...prev,
-                    captcha: t("signup.validation.recaptcha", "Please complete reCAPTCHA."),
+                    captcha: t(
+                        "signup.validation.recaptcha",
+                        "Please complete reCAPTCHA."
+                    ),
                 }));
-                setError(t("signup.validation.recaptcha", "Please complete reCAPTCHA."));
+                setError(
+                    t("signup.validation.recaptcha", "Please complete reCAPTCHA.")
+                );
                 return;
             }
         } catch {
             setFieldErrors((prev) => ({
                 ...prev,
-                captcha: t("signup.validation.recaptcha", "Please complete reCAPTCHA."),
+                captcha: t(
+                    "signup.validation.recaptcha",
+                    "Please complete reCAPTCHA."
+                ),
             }));
-            setError(t("signup.validation.recaptcha", "Please complete reCAPTCHA."));
+            setError(
+                t("signup.validation.recaptcha", "Please complete reCAPTCHA.")
+            );
             return;
         }
 
@@ -575,6 +616,7 @@ export default function Signup({ locale = "en", dict = {} }) {
             setOtp("");
         } catch (err) {
             const fe = extractFieldErrors(err);
+
             if (fe) {
                 setFieldErrors(fe);
                 setError(t("signup.errors.fixFields", "Please fix the highlighted fields."));
@@ -595,13 +637,31 @@ export default function Signup({ locale = "en", dict = {} }) {
         const cleanOtp = otp.trim().toUpperCase();
 
         if (!form.verificationMethod) {
-            setFieldErrors({ verificationMethod: t("signup.validation.verificationMethod", "Please select a verification method.") });
-            setError(t("signup.validation.verificationMethod", "Please select a verification method."));
+            setFieldErrors({
+                verificationMethod: t(
+                    "signup.validation.verificationMethod",
+                    "Please select a verification method."
+                ),
+            });
+
+            setError(
+                t(
+                    "signup.validation.verificationMethod",
+                    "Please select a verification method."
+                )
+            );
+
             return;
         }
 
         if (!cleanOtp || cleanOtp.length !== 6) {
-            setFieldErrors({ otp: t("signup.validation.otpRequired", "Please enter the 6-character OTP.") });
+            setFieldErrors({
+                otp: t(
+                    "signup.validation.otpRequired",
+                    "Please enter the 6-character OTP."
+                ),
+            });
+
             setError(t("signup.errors.otpCheck", "Please check the OTP and try again."));
             return;
         }
@@ -627,7 +687,10 @@ export default function Signup({ locale = "en", dict = {} }) {
             setSuccess(
                 getSuccessText(
                     res,
-                    t("signup.success.otpVerified", "OTP verified successfully! Redirecting to login...")
+                    t(
+                        "signup.success.otpVerified",
+                        "OTP verified successfully! Redirecting to login..."
+                    )
                 )
             );
 
@@ -637,6 +700,7 @@ export default function Signup({ locale = "en", dict = {} }) {
             }, 900);
         } catch (err) {
             const fe = extractFieldErrors(err);
+
             if (fe) {
                 setFieldErrors(fe);
                 setError(t("signup.errors.otpCheck", "Please check the OTP and try again."));
@@ -656,9 +720,19 @@ export default function Signup({ locale = "en", dict = {} }) {
         if (!form.verificationMethod) {
             setFieldErrors((prev) => ({
                 ...prev,
-                verificationMethod: t("signup.validation.verificationMethod", "Please select a verification method."),
+                verificationMethod: t(
+                    "signup.validation.verificationMethod",
+                    "Please select a verification method."
+                ),
             }));
-            setError(t("signup.validation.verificationMethod", "Please select a verification method."));
+
+            setError(
+                t(
+                    "signup.validation.verificationMethod",
+                    "Please select a verification method."
+                )
+            );
+
             return;
         }
 
@@ -686,6 +760,7 @@ export default function Signup({ locale = "en", dict = {} }) {
             );
         } catch (err) {
             const fe = extractFieldErrors(err);
+
             if (fe) {
                 setFieldErrors(fe);
                 setError(t("signup.errors.otpResendFail", "Unable to resend OTP."));
@@ -709,106 +784,137 @@ export default function Signup({ locale = "en", dict = {} }) {
         form.verificationMethod === "email" ? form.email : form.phone;
 
     return (
-        <section className="z-0 w-full">
-            <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#1b1741] via-[#2a2b68] to-[#2b2458]">
-                <Glow />
+        <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+            <Glow />
 
-                <div className="relative mx-auto flex w-full max-w-7xl items-start justify-center px-4 py-12 lg:min-h-screen lg:items-center lg:py-0">
-                    <div className="mx-auto grid w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl md:grid-cols-2">
-                        <div className="relative hidden md:block">
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#5f57ff]/35 via-transparent to-[#2a2b68]/40" />
-                            <div className="relative flex h-full flex-col justify-between p-10">
-                                <div>
-                                    <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
-                                        <ShieldCheck size={16} />
-                                        {step === "register"
-                                            ? t("signup.left.tagCreate", "Create Account")
-                                            : t("signup.left.tagOtp", "Verify OTP")}
-                                    </div>
+            <div className="relative mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+                <div className="grid w-full max-w-5xl overflow-hidden rounded-[32px] border border-orange-100 bg-white/95 shadow-[0_24px_70px_rgba(15,42,94,0.14)] backdrop-blur lg:grid-cols-[0.95fr_1.05fr]">
+                    {/* Left Side */}
+                    <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#1a4b8f] via-[#0f2a5e] to-[#13295b] p-10 text-white lg:block">
+                        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                        <div className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl" />
 
-                                    <h1 className="mt-6 text-4xl font-semibold tracking-wide text-white">
-                                        {step === "register"
-                                            ? t("signup.left.titleCreate", "Join HkMandu")
-                                            : t("signup.left.titleOtp", "Secure Verification")}
-                                    </h1>
-
-                                    <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/75">
-                                        {step === "register"
-                                            ? t(
-                                                "signup.left.descCreate",
-                                                "Create your account to manage orders and access services."
-                                            )
-                                            : t(
-                                                "signup.left.descOtp",
-                                                "Enter the OTP sent to your selected verification method to activate your account."
-                                            )}
-                                    </p>
-
-                                    {step === "register" && (
-                                        <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/70">
-                                            <div className="font-semibold text-white/85">
-                                                {t("signup.left.passwordRuleTitle", "Password rule")}
-                                            </div>
-                                            <div className="mt-1">
-                                                {t(
-                                                    "signup.left.passwordRuleText",
-                                                    "8+ chars, uppercase, lowercase, number, special (@$!%*?&)."
-                                                )}
-                                            </div>
-
-                                            <div className="mt-3 font-semibold text-white/85">
-                                                {t("signup.left.phoneRuleTitle", "Phone formats")}
-                                            </div>
-                                            <div className="mt-1 whitespace-pre-line">
-                                                {t(
-                                                    "signup.left.phoneRuleText",
-                                                    "Nepal: +9779876543210 or +977-9876543210 \nHK: +85251234567 or +852-51234567"
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {step === "otp" && (
-                                        <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
-                                            <div className="text-white/65">
-                                                {t("signup.otp.sentVia", "Verification via")}
-                                            </div>
-                                            <div className="mt-1 font-semibold capitalize text-white">
-                                                {form.verificationMethod}
-                                            </div>
-                                            <div className="mt-3 text-white/65">
-                                                {t("signup.otp.sentTo", "OTP sent to")}
-                                            </div>
-                                            <div className="mt-1 break-all font-semibold text-white">
-                                                {verificationTarget}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="text-xs text-white/65">
+                        <div className="relative z-10 flex h-full flex-col justify-between">
+                            <div>
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-orange-100 backdrop-blur">
+                                    <ShieldCheck size={16} />
                                     {step === "register"
-                                        ? t("signup.left.tipCreate", "Tip: Use a strong password and keep it private.")
-                                        : t("signup.left.tipOtp", "Didn’t receive OTP? You can resend it.")}
-                                </div>
+                                        ? t("signup.left.tagCreate", "Create Account")
+                                        : t("signup.left.tagOtp", "Verify OTP")}
+                                </span>
+
+                                <h1 className="mt-6 text-4xl font-bold leading-tight">
+                                    {step === "register"
+                                        ? t("signup.left.titleCreate", "Join HkMandu")
+                                        : t("signup.left.titleOtp", "Secure Verification")}
+                                </h1>
+
+                                <p className="mt-4 max-w-md text-sm leading-7 text-white/75">
+                                    {step === "register"
+                                        ? t(
+                                            "signup.left.descCreate",
+                                            "Create your account to manage orders and access services."
+                                        )
+                                        : t(
+                                            "signup.left.descOtp",
+                                            "Enter the OTP sent to your selected verification method to activate your account."
+                                        )}
+                                </p>
+
+                                {step === "register" && (
+                                    <div className="mt-6 space-y-4">
+                                        <InfoPoint
+                                            icon={<Lock className="h-5 w-5" />}
+                                            title={t(
+                                                "signup.left.passwordRuleTitle",
+                                                "Password rule"
+                                            )}
+                                            text={t(
+                                                "signup.left.passwordRuleText",
+                                                "8+ chars, uppercase, lowercase, number, special (@$!%*?&)."
+                                            )}
+                                        />
+
+                                        <InfoPoint
+                                            icon={<Phone className="h-5 w-5" />}
+                                            title={t(
+                                                "signup.left.phoneRuleTitle",
+                                                "Phone formats"
+                                            )}
+                                            text={t(
+                                                "signup.left.phoneRuleText",
+                                                "Nepal: +9779876543210 or +977-9876543210\nHK: +85251234567 or +852-51234567"
+                                            )}
+                                        />
+                                    </div>
+                                )}
+
+                                {step === "otp" && (
+                                    <div className="mt-6 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+                                        <div className="text-sm text-white/65">
+                                            {t("signup.otp.sentVia", "Verification via")}
+                                        </div>
+
+                                        <div className="mt-1 font-bold capitalize text-white">
+                                            {form.verificationMethod}
+                                        </div>
+
+                                        <div className="mt-4 text-sm text-white/65">
+                                            {t("signup.otp.sentTo", "OTP sent to")}
+                                        </div>
+
+                                        <div className="mt-1 break-all font-bold text-white">
+                                            {verificationTarget}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="text-xs text-white/65">
+                                {step === "register"
+                                    ? t(
+                                        "signup.left.tipCreate",
+                                        "Tip: Use a strong password and keep it private."
+                                    )
+                                    : t(
+                                        "signup.left.tipOtp",
+                                        "Didn’t receive OTP? You can resend it."
+                                    )}
                             </div>
                         </div>
+                    </div>
 
-                        <div className="p-6 md:p-10">
-                            <div className="text-center md:hidden">
-                                <h1 className="text-3xl font-semibold tracking-wide text-white">
+                    {/* Right Side */}
+                    <div className="p-5 sm:p-8 lg:p-10">
+                        <div className="mx-auto w-full max-w-md">
+                            <div className="mb-8">
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#1a4b8f]">
+                                    <Sparkles className="h-4 w-4" />
                                     {step === "register"
                                         ? t("signup.mobile.titleCreate", "Sign up")
                                         : t("signup.mobile.titleOtp", "Verify OTP")}
-                                </h1>
-                                <p className="mt-2 text-sm text-white/75">
+                                </div>
+
+                                <h1 className="text-3xl font-bold tracking-tight text-neutral-950">
                                     {step === "register"
-                                        ? t("signup.mobile.descCreate", "Fill in your details to create an account")
-                                        : t("signup.mobile.descOtp", "Enter the OTP sent to your selected method")}
+                                        ? t("signup.left.titleCreate", "Join HkMandu")
+                                        : t("signup.left.titleOtp", "Secure Verification")}
+                                </h1>
+
+                                <p className="mt-2 text-sm leading-6 text-neutral-500">
+                                    {step === "register"
+                                        ? t(
+                                            "signup.mobile.descCreate",
+                                            "Fill in your details to create an account"
+                                        )
+                                        : t(
+                                            "signup.mobile.descOtp",
+                                            "Enter the OTP sent to your selected method"
+                                        )}
                                 </p>
                             </div>
 
-                            <div className="mt-6 space-y-4 md:mt-0">
+                            <div className="space-y-4">
                                 <ErrorAlert message={error} />
                                 <SuccessAlert message={success} />
 
@@ -825,7 +931,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 id="name"
                                                 value={form.name}
                                                 onChange={handleInputChange}
-                                                placeholder={t("signup.form.fullNamePlaceholder", "Enter your full name")}
+                                                placeholder={t(
+                                                    "signup.form.fullNamePlaceholder",
+                                                    "Enter your full name"
+                                                )}
                                                 autoComplete="name"
                                                 hasError={!!fieldErrors?.name}
                                             />
@@ -842,7 +951,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 id="email"
                                                 value={form.email}
                                                 onChange={handleInputChange}
-                                                placeholder={t("signup.form.emailPlaceholder", "you@example.com")}
+                                                placeholder={t(
+                                                    "signup.form.emailPlaceholder",
+                                                    "you@example.com"
+                                                )}
                                                 autoComplete="email"
                                                 hasError={!!fieldErrors?.email}
                                             />
@@ -860,7 +972,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     id="phone"
                                                     value={form.phone}
                                                     onChange={handleInputChange}
-                                                    placeholder={t("signup.form.phonePlaceholder", "+9779812345678")}
+                                                    placeholder={t(
+                                                        "signup.form.phonePlaceholder",
+                                                        "+9779812345678"
+                                                    )}
                                                     autoComplete="tel"
                                                     hasError={!!fieldErrors?.phone}
                                                 />
@@ -877,7 +992,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     id="address"
                                                     value={form.address}
                                                     onChange={handleInputChange}
-                                                    placeholder={t("signup.form.addressPlaceholder", "Kathmandu")}
+                                                    placeholder={t(
+                                                        "signup.form.addressPlaceholder",
+                                                        "Kathmandu"
+                                                    )}
                                                     autoComplete="street-address"
                                                     hasError={!!fieldErrors?.address}
                                                 />
@@ -895,8 +1013,13 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     value={form.password}
                                                     onChange={handleInputChange}
                                                     isVisible={passVisible}
-                                                    onToggleVisibility={() => setPassVisible((s) => !s)}
-                                                    placeholder={t("signup.form.passwordPlaceholder", "Create a password")}
+                                                    onToggleVisibility={() =>
+                                                        setPassVisible((s) => !s)
+                                                    }
+                                                    placeholder={t(
+                                                        "signup.form.passwordPlaceholder",
+                                                        "Create a password"
+                                                    )}
                                                     autoComplete="new-password"
                                                     hasError={!!fieldErrors?.password}
                                                     t={t}
@@ -904,7 +1027,10 @@ export default function Signup({ locale = "en", dict = {} }) {
                                             </Field>
 
                                             <Field
-                                                label={t("signup.form.confirmPassword", "Confirm password")}
+                                                label={t(
+                                                    "signup.form.confirmPassword",
+                                                    "Confirm password"
+                                                )}
                                                 error={fieldErrors?.confirm_password}
                                             >
                                                 <PasswordInput
@@ -913,113 +1039,156 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     value={form.confirm_password}
                                                     onChange={handleInputChange}
                                                     isVisible={confirmVisible}
-                                                    onToggleVisibility={() => setConfirmVisible((s) => !s)}
+                                                    onToggleVisibility={() =>
+                                                        setConfirmVisible((s) => !s)
+                                                    }
                                                     placeholder={t(
                                                         "signup.form.confirmPasswordPlaceholder",
                                                         "Repeat password"
                                                     )}
                                                     autoComplete="new-password"
-                                                    hasError={!!fieldErrors?.confirm_password}
+                                                    hasError={
+                                                        !!fieldErrors?.confirm_password
+                                                    }
                                                     t={t}
                                                 />
                                             </Field>
                                         </div>
 
                                         <Field
-                                            label={t("signup.form.verificationMethod", "Verification method")}
+                                            label={t(
+                                                "signup.form.verificationMethod",
+                                                "Verification method"
+                                            )}
                                             error={fieldErrors?.verificationMethod}
                                         >
                                             <div className="grid grid-cols-2 gap-3">
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleVerificationMethodChange("email")}
-                                                    className={`h-11 rounded-xl border text-sm font-medium transition ${form.verificationMethod === "email"
-                                                            ? "border-white bg-white text-[#2b2458]"
-                                                            : "border-white/15 bg-white/5 text-white"
-                                                        }`}
+                                                    onClick={() =>
+                                                        handleVerificationMethodChange(
+                                                            "email"
+                                                        )
+                                                    }
+                                                    className={[
+                                                        "h-12 rounded-2xl border text-sm font-bold transition",
+                                                        form.verificationMethod === "email"
+                                                            ? "border-[#1a4b8f] bg-blue-50 text-[#1a4b8f]"
+                                                            : "border-orange-100 bg-white text-neutral-700 hover:bg-orange-50",
+                                                    ].join(" ")}
                                                 >
-                                                    {t("signup.form.verifyByEmail", "Email")}
+                                                    {t(
+                                                        "signup.form.verifyByEmail",
+                                                        "Email"
+                                                    )}
                                                 </button>
 
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleVerificationMethodChange("phone")}
-                                                    className={`h-11 rounded-xl border text-sm font-medium transition ${form.verificationMethod === "phone"
-                                                            ? "border-white bg-white text-[#2b2458]"
-                                                            : "border-white/15 bg-white/5 text-white"
-                                                        }`}
+                                                    onClick={() =>
+                                                        handleVerificationMethodChange(
+                                                            "phone"
+                                                        )
+                                                    }
+                                                    className={[
+                                                        "h-12 rounded-2xl border text-sm font-bold transition",
+                                                        form.verificationMethod === "phone"
+                                                            ? "border-[#1a4b8f] bg-blue-50 text-[#1a4b8f]"
+                                                            : "border-orange-100 bg-white text-neutral-700 hover:bg-orange-50",
+                                                    ].join(" ")}
                                                 >
-                                                    {t("signup.form.verifyByPhone", "Phone")}
+                                                    {t(
+                                                        "signup.form.verifyByPhone",
+                                                        "Phone"
+                                                    )}
                                                 </button>
                                             </div>
                                         </Field>
 
-                                        {/* <Field
-                                            label={t("signup.form.securityCheck", "Security check")}
-                                            error={fieldErrors?.captcha}
-                                        >
-                                            <div className="flex min-h-11 items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 text-sm text-white/80">
-                                                <CheckCircle2 size={18} className="text-emerald-300" />
-                                                <span>
-                                                    {t(
-                                                        "signup.form.recaptchaInfo",
-                                                        "reCAPTCHA will run automatically on submit."
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </Field> */}
-
                                         <PrimaryButton
                                             loading={loadingRegister}
-                                            loadingText={t("signup.buttons.pleaseWait", "Please wait...")}
+                                            loadingText={t(
+                                                "signup.buttons.pleaseWait",
+                                                "Please wait..."
+                                            )}
                                         >
-                                            {t("signup.buttons.createAccount", "Create account")}
+                                            {t(
+                                                "signup.buttons.createAccount",
+                                                "Create account"
+                                            )}
                                         </PrimaryButton>
 
-                                        <div className="text-center text-sm text-white/85">
-                                            {t("signup.links.alreadyHave", "Already have an account?")}{" "}
+                                        <div className="rounded-2xl bg-orange-50 px-4 py-4 text-center text-sm text-neutral-600">
+                                            {t(
+                                                "signup.links.alreadyHave",
+                                                "Already have an account?"
+                                            )}{" "}
                                             <Link
                                                 href={`/${locale}/auth/login`}
-                                                className="font-semibold text-cyan-200 hover:text-cyan-100 hover:underline"
+                                                className="font-bold text-[#1a4b8f] hover:underline"
                                             >
                                                 {t("signup.links.login", "Login")}
                                             </Link>
                                         </div>
 
-                                        <div className="text-center text-sm text-white/85">
-                                            {t("signup.links.alreadyRegister", "Already registered?")}{" "}
+                                        <div className="text-center text-sm text-neutral-600">
+                                            {t(
+                                                "signup.links.alreadyRegister",
+                                                "Already registered?"
+                                            )}{" "}
                                             <Link
                                                 href={`/${locale}/auth/verify-account`}
-                                                className="font-semibold text-cyan-200 hover:text-cyan-100 hover:underline"
+                                                className="font-bold text-[#1a4b8f] hover:underline"
                                             >
-                                                {t("signup.links.verifyNow", "Verify Account Now")}
+                                                {t(
+                                                    "signup.links.verifyNow",
+                                                    "Verify Account Now"
+                                                )}
                                             </Link>
                                         </div>
 
-                                        <div className="pt-2 text-center text-[11px] text-white/55">
-                                            {t("signup.footer.agreePrefix", "By creating an account, you agree to our")}{" "}
-                                            <Link href={`/${locale}/terms`} className="underline hover:text-white">
+                                        <div className="pt-1 text-center text-[11px] leading-5 text-neutral-500">
+                                            {t(
+                                                "signup.footer.agreePrefix",
+                                                "By creating an account, you agree to our"
+                                            )}{" "}
+                                            <Link
+                                                href={`/${locale}/terms`}
+                                                className="font-semibold text-[#1a4b8f] underline"
+                                            >
                                                 {t("signup.footer.terms", "Terms")}
                                             </Link>{" "}
                                             {t("signup.footer.and", "and")}{" "}
-                                            <Link href={`/${locale}/privacy`} className="underline hover:text-white">
-                                                {t("signup.footer.privacy", "Privacy Policy")}
+                                            <Link
+                                                href={`/${locale}/privacy-policy`}
+                                                className="font-semibold text-[#1a4b8f] underline"
+                                            >
+                                                {t(
+                                                    "signup.footer.privacy",
+                                                    "Privacy Policy"
+                                                )}
                                             </Link>
                                             .
                                         </div>
                                     </form>
                                 ) : (
                                     <form onSubmit={handleVerifyOtp} className="space-y-5">
-                                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
-                                            <div className="text-white/70">
+                                        <div className="rounded-2xl border border-orange-100 bg-orange-50 p-4 text-sm text-neutral-700">
+                                            <div className="text-neutral-500">
                                                 {t("signup.otp.sentTo", "OTP sent to")}
                                             </div>
-                                            <div className="mt-1 break-all font-semibold text-white">
+
+                                            <div className="mt-1 break-all font-bold text-[#1a4b8f]">
                                                 {verificationTarget}
                                             </div>
-                                            <div className="mt-3 text-white/60">
-                                                {t("signup.otp.method", "Verification method")}:
-                                                <span className="ml-2 capitalize text-white">
+
+                                            <div className="mt-3 text-neutral-500">
+                                                {t(
+                                                    "signup.otp.method",
+                                                    "Verification method"
+                                                )}
+                                                :
+                                                <span className="ml-2 font-bold capitalize text-neutral-900">
                                                     {form.verificationMethod}
                                                 </span>
                                             </div>
@@ -1033,6 +1202,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 value={otp}
                                                 onChange={(v) => {
                                                     setOtp(v.toUpperCase());
+
                                                     if (fieldErrors?.otp) {
                                                         setFieldErrors((prev) => {
                                                             const next = { ...prev };
@@ -1040,10 +1210,13 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                             return next;
                                                         });
                                                     }
+
                                                     if (error) setError("");
                                                 }}
                                                 length={6}
-                                                disabled={loadingVerify || loadingResend}
+                                                disabled={
+                                                    loadingVerify || loadingResend
+                                                }
                                                 hasError={!!fieldErrors?.otp}
                                                 t={t}
                                             />
@@ -1051,7 +1224,10 @@ export default function Signup({ locale = "en", dict = {} }) {
 
                                         <PrimaryButton
                                             loading={loadingVerify}
-                                            loadingText={t("signup.buttons.pleaseWait", "Please wait...")}
+                                            loadingText={t(
+                                                "signup.buttons.pleaseWait",
+                                                "Please wait..."
+                                            )}
                                         >
                                             {t("signup.buttons.verifyOtp", "Verify OTP")}
                                         </PrimaryButton>
@@ -1060,26 +1236,41 @@ export default function Signup({ locale = "en", dict = {} }) {
                                             <SecondaryButton
                                                 loading={loadingResend}
                                                 onClick={handleResendOtp}
-                                                loadingText={t("signup.buttons.pleaseWait", "Please wait...")}
+                                                loadingText={t(
+                                                    "signup.buttons.pleaseWait",
+                                                    "Please wait..."
+                                                )}
                                             >
                                                 <RotateCw size={16} />
-                                                {t("signup.buttons.resendOtp", "Resend OTP")}
+                                                {t(
+                                                    "signup.buttons.resendOtp",
+                                                    "Resend OTP"
+                                                )}
                                             </SecondaryButton>
 
                                             <SecondaryButton
                                                 loading={false}
                                                 onClick={backToRegister}
-                                                loadingText={t("signup.buttons.pleaseWait", "Please wait...")}
+                                                loadingText={t(
+                                                    "signup.buttons.pleaseWait",
+                                                    "Please wait..."
+                                                )}
                                             >
-                                                {t("signup.buttons.backToSignup", "Back to Signup")}
+                                                {t(
+                                                    "signup.buttons.backToSignup",
+                                                    "Back to Signup"
+                                                )}
                                             </SecondaryButton>
                                         </div>
 
-                                        <div className="text-center text-sm text-white/85">
-                                            {t("signup.links.wantLogin", "Want to login?")}{" "}
+                                        <div className="text-center text-sm text-neutral-600">
+                                            {t(
+                                                "signup.links.wantLogin",
+                                                "Want to login?"
+                                            )}{" "}
                                             <Link
                                                 href={`/${locale}/auth/login`}
-                                                className="font-semibold text-cyan-200 hover:text-cyan-100 hover:underline"
+                                                className="font-bold text-[#1a4b8f] hover:underline"
                                             >
                                                 {t("signup.links.login", "Login")}
                                             </Link>
@@ -1092,5 +1283,20 @@ export default function Signup({ locale = "en", dict = {} }) {
                 </div>
             </div>
         </section>
+    );
+}
+
+function InfoPoint({ icon, title, text }) {
+    return (
+        <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+            <div className="mt-0.5 text-orange-200">{icon}</div>
+
+            <div>
+                <p className="font-semibold text-white">{title}</p>
+                <p className="mt-1 whitespace-pre-line text-sm leading-6 text-white/70">
+                    {text}
+                </p>
+            </div>
+        </div>
     );
 }

@@ -2,6 +2,16 @@
 
 import React, { useMemo } from "react";
 import Link from "next/link";
+import {
+    ArrowRight,
+    BadgeCheck,
+    BriefcaseBusiness,
+    Calculator,
+    Home,
+    Plane,
+    Code2,
+    Sparkles,
+} from "lucide-react";
 
 const serviceOrder = [
     "softwareDevelopment",
@@ -13,134 +23,152 @@ const serviceOrder = [
 
 const translations = {
     en: {
-        title: "Perfect Services",
+        title: "R Services",
         subtitle:
-            "We provide a complete range of business, travel, home, and professional services designed to simplify your everyday needs — all in one place.",
+            "From business setup to digital solutions, travel support, finance, and home assistance — R Services brings trusted professional help closer to you, all through one simple platform.",
+        badge: "Professional Services",
+        explore: "Explore Service",
         items: {
             businessServices: {
                 title: "Company Register & F&B License",
                 description:
-                    "Complete support for company registration and food & beverage licensing to help you start and grow your business smoothly.",
+                    "Launch your business with confidence. We simplify company registration and F&B licensing with guided support from start to approval.",
                 href: "/services/business-services",
             },
             travelImmigration: {
                 title: "Travel & Immigration Services",
                 description:
-                    "All-in-one support for visa and immigration, tours and travel, flight booking, and transport arrangements.",
+                    "Plan your next journey with ease. Get reliable support for visas, immigration guidance, travel bookings, flights, and transport arrangements.",
                 href: "/services/travel-immigration",
             },
             homeOfficeServices: {
                 title: "Home & Office Services",
                 description:
-                    "Reliable moving, repair, and installation services for homes, offices, and workspaces.",
+                    "Make your space work better. From moving and repairs to installation support, we connect you with reliable help for home and office needs.",
                 href: "/services/home-office-services",
             },
             softwareDevelopment: {
                 title: "Software Development",
                 description:
-                    "Custom software solutions tailored to your business needs, from websites to enterprise systems.",
+                    "Turn your ideas into powerful digital products. We build websites, business systems, and custom software designed to grow with your goals.",
                 href: "/services/software-development",
             },
             accountingFinance: {
                 title: "Accounting & Finance",
                 description:
-                    "Professional accounting and financial support to simplify records, reporting, and business operations.",
+                    "Stay organized, compliant, and business-ready with professional accounting and finance support tailored for smoother daily operations.",
                 href: "/services/accounting-finance",
             },
         },
     },
 
     ne: {
-        title: "उत्तम सेवाहरू",
+        title: "R Services",
         subtitle:
-            "हामी व्यवसाय, यात्रा, घर तथा व्यावसायिक सेवाहरू एकै ठाउँमा उपलब्ध गराउँछौं, जसले तपाईंको दैनिक आवश्यकतालाई सरल बनाउँछ।",
+            "व्यवसाय सुरु गर्नेदेखि डिजिटल समाधान, यात्रा सहयोग, लेखा–वित्त र घर/अफिस सेवासम्म — R Services ले भरपर्दो व्यावसायिक सहयोग एउटै सरल प्लेटफर्ममा ल्याउँछ।",
+        badge: "व्यावसायिक सेवाहरू",
+        explore: "सेवा हेर्नुहोस्",
         items: {
             businessServices: {
                 title: "कम्पनी दर्ता तथा F&B लाइसेन्स",
                 description:
-                    "कम्पनी दर्ता र खाना तथा पेय लाइसेन्सका लागि पूर्ण सहयोग, ताकि तपाईंले आफ्नो व्यवसाय सहज रूपमा सुरु र विस्तार गर्न सक्नुहोस्।",
+                    "आफ्नो व्यवसाय आत्मविश्वासका साथ सुरु गर्नुहोस्। कम्पनी दर्ता र F&B लाइसेन्स प्रक्रियालाई हामी सहज, स्पष्ट र व्यवस्थित बनाउँछौं।",
                 href: "/services/business-services",
             },
             travelImmigration: {
                 title: "यात्रा तथा आप्रवासन सेवा",
                 description:
-                    "भिसा तथा आप्रवासन, टुर तथा ट्राभल, उडान टिकट, र यातायात बुकिङका लागि एकै ठाउँमा सम्पूर्ण सहयोग।",
+                    "तपाईंको अर्को यात्रा झन्झटमुक्त बनाउनुहोस्। भिसा, आप्रवासन, टुर, फ्लाइट बुकिङ र यातायात व्यवस्थापनमा भरपर्दो सहयोग पाउनुहोस्।",
                 href: "/services/travel-immigration",
             },
             homeOfficeServices: {
                 title: "घर तथा कार्यालय सेवा",
                 description:
-                    "घर, कार्यालय तथा कार्यस्थलका लागि भरपर्दो सार्ने, मर्मत तथा जडान सेवाहरू।",
+                    "घर वा अफिसलाई अझ सहज र व्यवस्थित बनाउनुहोस्। सर्ने, मर्मत गर्ने र जडान गर्ने कामका लागि भरपर्दो सेवा सजिलै पाउनुहोस्।",
                 href: "/services/home-office-services",
             },
             softwareDevelopment: {
                 title: "सफ्टवेयर विकास",
                 description:
-                    "वेबसाइटदेखि व्यवसायिक प्रणालीसम्म तपाईंको आवश्यकताअनुसार अनुकूल सफ्टवेयर समाधानहरू।",
+                    "तपाईंको आइडियालाई प्रभावकारी डिजिटल उत्पादनमा बदल्नुहोस्। वेबसाइट, बिजनेस सिस्टम र कस्टम सफ्टवेयर तपाईंको लक्ष्यअनुसार तयार गर्छौं।",
                 href: "/services/software-development",
             },
             accountingFinance: {
                 title: "लेखांकन तथा वित्त",
                 description:
-                    "रेकर्ड, रिपोर्टिङ र व्यवसायिक सञ्चालनलाई सहज बनाउन व्यावसायिक लेखांकन तथा वित्तीय सहयोग।",
+                    "व्यवसायलाई व्यवस्थित, स्पष्ट र तयार राख्नुहोस्। दैनिक सञ्चालन, रेकर्ड र रिपोर्टिङका लागि व्यावसायिक लेखा–वित्त सहयोग पाउनुहोस्।",
                 href: "/services/accounting-finance",
             },
         },
     },
 
     zh: {
-        title: "精选服务",
+        title: "R服务",
         subtitle:
-            "我们提供完整的商业、旅游、家居及专业服务，一站式满足您的日常需求，让一切更简单。",
+            "从公司设立到数字解决方案、旅游支持、财务管理及家居办公室服务，R服务将可信赖的专业支持整合到一个简单平台。",
+        badge: "专业服务",
+        explore: "查看服务",
         items: {
             businessServices: {
                 title: "公司注册与餐饮牌照",
                 description:
-                    "为公司注册和餐饮牌照申请提供完整支持，帮助您顺利开展和发展业务。",
+                    "让您的业务顺利起步。我们为公司注册和餐饮牌照申请提供清晰、便捷、可靠的全流程支持。",
                 href: "/services/business-services",
             },
             travelImmigration: {
                 title: "旅游与移民服务",
                 description:
-                    "提供签证与移民、旅游规划、机票预订及交通安排的一站式服务。",
+                    "轻松规划您的下一段旅程。我们提供签证、移民咨询、旅游安排、机票预订和交通支持。",
                 href: "/services/travel-immigration",
             },
             homeOfficeServices: {
                 title: "家居与办公室服务",
                 description:
-                    "为住宅、办公室和工作空间提供可靠的搬迁、维修与安装服务。",
+                    "让您的生活和办公空间更高效舒适。搬迁、维修和安装服务，都可以通过我们轻松获得支持。",
                 href: "/services/home-office-services",
             },
             softwareDevelopment: {
                 title: "软件开发",
                 description:
-                    "根据您的业务需求定制软件解决方案，从网站到企业系统都可支持。",
+                    "把您的想法变成强大的数字产品。我们打造网站、业务系统和定制软件，助力您的业务持续成长。",
                 href: "/services/software-development",
             },
             accountingFinance: {
                 title: "会计与财务",
                 description:
-                    "提供专业会计与财务支持，帮助简化记录、报表和业务运营。",
+                    "让财务管理更清晰、更专业。我们提供会计、记录、报表和业务运营相关的可靠支持。",
                 href: "/services/accounting-finance",
             },
         },
     },
 };
 
-const serviceEmojis = {
-    businessServices: "🏢",
-    travelImmigration: "✈️",
-    homeOfficeServices: "🏠",
-    softwareDevelopment: "💻",
-    accountingFinance: "📊",
-};
-
-const serviceBackgrounds = {
-    businessServices: "https://picsum.photos/300/200?1",
-    travelImmigration: "https://picsum.photos/300/200?2",
-    homeOfficeServices: "https://picsum.photos/300/200?3",
-    softwareDevelopment: "https://picsum.photos/300/200?4",
-    accountingFinance: "https://picsum.photos/300/200?5",
+const serviceConfig = {
+    softwareDevelopment: {
+        icon: Code2,
+        emoji: "💻",
+        tone: "blue",
+    },
+    accountingFinance: {
+        icon: Calculator,
+        emoji: "📊",
+        tone: "orange",
+    },
+    businessServices: {
+        icon: BriefcaseBusiness,
+        emoji: "🏢",
+        tone: "blue",
+    },
+    travelImmigration: {
+        icon: Plane,
+        emoji: "✈️",
+        tone: "orange",
+    },
+    homeOfficeServices: {
+        icon: Home,
+        emoji: "🏠",
+        tone: "blue",
+    },
 };
 
 export default function PerfectServicesSection({ locale = "en" }) {
@@ -154,51 +182,102 @@ export default function PerfectServicesSection({ locale = "en" }) {
     }, [lang]);
 
     return (
-        <section className="w-full bg-white py-2 md:py-4 lg:py-6 ">
-            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="mx-auto mb-10 max-w-[650px] text-center">
-                    <h2 className="text-[32px] font-bold text-neutral-900">
+        <section
+            id="perfect-services"
+            className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 py-12 sm:py-14 lg:py-16"
+        >
+            <div className="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
+            <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
+
+            <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto mb-8 max-w-3xl text-center md:mb-10">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#1a4b8f] shadow-sm">
+                        <Sparkles className="h-4 w-4" />
+                        {t.badge}
+                    </div>
+
+                    <h2 className="text-[30px] font-bold leading-tight tracking-tight text-neutral-950 sm:text-4xl lg:text-[46px]">
                         {t.title}
                     </h2>
-                    <p className="mt-2 text-sm leading-7 text-neutral-500">
+
+                    <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base">
                         {t.subtitle}
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-[14px] md:grid-cols-3 md:gap-6 lg:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
                     {serviceOrder.map((key) => {
                         const item = t.items[key];
+                        const config = serviceConfig[key];
+                        const Icon = config.icon;
+                        const isOrange = config.tone === "orange";
 
                         return (
                             <Link
                                 key={key}
-                                href={item.href}
-                                className="group relative overflow-hidden rounded-[18px] bg-gradient-to-br from-white to-indigo-50 p-[30px_20px_20px] transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02]"
+                                href={`/${locale}${item.href}`}
+                                className={[
+                                    "group relative overflow-hidden rounded-[26px] border border-orange-100 bg-white/95 p-4 shadow-sm backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_45px_rgba(15,42,94,0.10)] sm:p-5",
+                                    "last:col-span-2 last:mx-auto last:w-[calc(50%-6px)]",
+                                    "md:last:col-span-1 md:last:mx-0 md:last:w-full",
+                                ].join(" ")}
                             >
-                                <img
-                                    src={serviceBackgrounds[key]}
-                                    alt={item.title}
-                                    className="absolute left-0 top-0 h-full w-full object-cover opacity-[0.08]"
-                                />
+                                <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-orange-100/70 blur-2xl transition group-hover:bg-orange-200/80" />
+                                <div className="pointer-events-none absolute -bottom-12 -left-12 h-32 w-32 rounded-full bg-blue-100/60 blur-2xl transition group-hover:bg-blue-200/70" />
 
-                                <div className="relative z-10 flex min-h-[220px] flex-col items-center text-center">
-                                    <div className="mx-auto flex h-[55px] w-[55px] items-center justify-center rounded-full bg-white text-[24px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] transition duration-300 group-hover:scale-110">
-                                        <span aria-hidden="true">{serviceEmojis[key]}</span>
+                                <div className="relative flex min-h-[230px] flex-col">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div
+                                            className={[
+                                                "flex h-13 w-13 items-center justify-center rounded-2xl transition duration-300 group-hover:scale-110",
+                                                isOrange
+                                                    ? "bg-orange-100 text-orange-600 group-hover:bg-orange-500 group-hover:text-white"
+                                                    : "bg-[#1a4b8f]/10 text-[#1a4b8f] group-hover:bg-[#1a4b8f] group-hover:text-white",
+                                            ].join(" ")}
+                                        >
+                                            <Icon className="h-6 w-6" />
+                                        </div>
+
+                                        <span className="text-2xl leading-none opacity-80 transition group-hover:scale-110">
+                                            {config.emoji}
+                                        </span>
                                     </div>
 
-                                    <h3 className="mt-[18px] text-[15px] font-medium text-neutral-900">
+                                    <h3 className="mt-5 text-[15px] font-bold leading-6 text-neutral-950 sm:text-base">
                                         {item.title}
                                     </h3>
 
-                                    <p className="mt-[6px] px-[10px] text-[13px] leading-6 text-neutral-500">
+                                    <p className="mt-2 line-clamp-4 text-xs leading-6 text-neutral-500 sm:text-[13px]">
                                         {item.description}
                                     </p>
+
+                                    <div className="mt-auto pt-5">
+                                        <div className="inline-flex items-center gap-2 text-xs font-bold text-[#1a4b8f] transition group-hover:gap-3">
+                                            <span>{t.explore}</span>
+                                            <ArrowRight className="h-4 w-4" />
+                                        </div>
+                                    </div>
                                 </div>
                             </Link>
                         );
                     })}
                 </div>
+
+                <div className="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-3">
+                    <TrustPoint text="Hong Kong ↔ Nepal" />
+                    <TrustPoint text="Multilingual Support" />
+                    <TrustPoint text="Simple Request Flow" />
+                </div>
             </div>
         </section>
+    );
+}
+
+function TrustPoint({ text }) {
+    return (
+        <div className="flex items-center justify-center gap-2 rounded-2xl border border-orange-100 bg-white/85 px-4 py-3 text-sm font-semibold text-neutral-700 shadow-sm backdrop-blur">
+            <BadgeCheck className="h-4 w-4 text-[#1a4b8f]" />
+            <span>{text}</span>
+        </div>
     );
 }
