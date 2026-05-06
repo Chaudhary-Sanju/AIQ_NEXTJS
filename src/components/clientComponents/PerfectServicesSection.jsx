@@ -184,7 +184,7 @@ export default function PerfectServicesSection({ locale = "en" }) {
     return (
         <section
             id="perfect-services"
-            className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 py-12 sm:py-14 lg:py-16"
+            className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 py-4 sm:py-4 lg:py-6"
         >
             <div className="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-orange-200/40 blur-3xl" />
             <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
