@@ -19,6 +19,8 @@ export default async function Home({ params }) {
 
       <HeroSlider locale={locale} autoPlay interval={4000} />
 
+      <ServiceRequestForm locale={locale} />
+      
       <ProductTypeSection locale={locale} type="featuredProduct" limit={6} />
 
       <div id="perfect-services">
@@ -27,7 +29,6 @@ export default async function Home({ params }) {
 
       <ProductTypeSection locale={locale} type="trendingProduct" limit={6} />
 
-      <ServiceRequestForm locale={locale} />
     </>
   );
 }
