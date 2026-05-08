@@ -663,7 +663,7 @@ function CheckoutForm({ locale = "en" }) {
                                         value={form.phoneNumber}
                                         error={errors.phoneNumber}
                                         onChange={(v) => updateForm("phoneNumber", v)}
-                                        placeholder="+852-12345678"
+                                        placeholder="+977-9800000000 or +852-12345678"
                                         disabled={isLoggedIn}
                                     />
                                 </div>
