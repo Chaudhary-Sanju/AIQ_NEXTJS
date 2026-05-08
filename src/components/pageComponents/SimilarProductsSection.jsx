@@ -16,7 +16,9 @@ import http from "@/http";
 import { imgUrl } from "@/lib";
 
 const pick = (obj, locale = "en") => {
-    if (!obj || typeof obj !== "object") return "";
+    if (!obj) return "";
+    if (typeof obj === "string") return obj;
+    if (typeof obj !== "object") return "";
     return obj?.[locale] || obj?.en || obj?.ne || obj?.zh || "";
 };
 
@@ -62,6 +64,38 @@ const UI = {
         ne: "समीक्षाहरू",
         zh: "评价",
     },
+};
+
+const makeCartProduct = (p, locale = "en") => {
+    return {
+        _id: p.id,
+        id: p.id,
+        slug: p.slug || "",
+
+        name: {
+            en: p.name || "Product",
+            ne: p.name || "Product",
+            zh: p.name || "Product",
+            [locale]: p.name || "Product",
+        },
+
+        summary: {
+            en: p.summary || "",
+            ne: p.summary || "",
+            zh: p.summary || "",
+            [locale]: p.summary || "",
+        },
+
+        price: p.price,
+        discounted_price: p.discounted_price,
+
+        image: p.image ? [p.image] : [],
+        images: p.image ? [p.image] : [],
+
+        qty: p.qty,
+        stock: p.stock,
+        sellOnNoStock: p.sellOnNoStock,
+    };
 };
 
 export default function SimilarProductsSection({
@@ -110,12 +144,20 @@ export default function SimilarProductsSection({
                         name: pick(p?.name, locale),
                         summary: pick(p?.summary, locale),
                         price: p?.price,
-                        discounted_price: p?.discounted_price,
+                        discounted_price:
+                            p?.discounted_price ?? p?.discountPrice ?? null,
                         image: Array.isArray(p?.images)
                             ? p.images[0]
                             : Array.isArray(p?.image)
                                 ? p.image[0]
-                                : null,
+                                : typeof p?.image === "string"
+                                    ? p.image
+                                    : null,
+
+                        qty: p?.qty,
+                        stock: p?.stock,
+                        sellOnNoStock: p?.sellOnNoStock,
+
                         reviewSummary: {
                             averageRating: Number(
                                 p?.reviewSummary?.averageRating || 0
@@ -147,7 +189,7 @@ export default function SimilarProductsSection({
 
     return (
         <section className={className}>
-            <div className="mx-auto w-full max-w-7xl px-4 md:px-6 pt-10">
+            <div className="mx-auto w-full max-w-7xl px-4 pt-10 md:px-6">
                 <div className="rounded-[32px] border border-orange-100 bg-white/95 p-4 shadow-[0_18px_45px_rgba(15,42,94,0.08)] backdrop-blur md:p-5 lg:p-6">
                     <div className="mb-5 flex items-center justify-between gap-3">
                         <div>
@@ -166,7 +208,9 @@ export default function SimilarProductsSection({
                             className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white px-4 py-2 text-xs font-bold text-[#1a4b8f] transition hover:bg-orange-50 md:text-sm"
                         >
                             <ArrowUpRight className="h-4 w-4" />
-                            <span className="hidden sm:inline">{resolvedSeeAll}</span>
+                            <span className="hidden sm:inline">
+                                {resolvedSeeAll}
+                            </span>
                             <span className="sm:hidden">More</span>
                         </Link>
                     </div>
@@ -249,11 +293,9 @@ function ProductCard({ p, locale }) {
 
     const href = `/${locale}/product/${p.slug}`;
 
-    const addToCartText =
-        UI.addToCart?.[locale] || UI.addToCart.en;
+    const addToCartText = UI.addToCart?.[locale] || UI.addToCart.en;
 
-    const noReviewYetText =
-        UI.noReviewYet?.[locale] || UI.noReviewYet.en;
+    const noReviewYetText = UI.noReviewYet?.[locale] || UI.noReviewYet.en;
 
     const reviewText = UI.review?.[locale] || UI.review.en;
     const reviewsText = UI.reviews?.[locale] || UI.reviews.en;
@@ -281,7 +323,7 @@ function ProductCard({ p, locale }) {
     })();
 
     return (
-        <div className="group rounded-[24px]  border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
+        <div className="group rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
             <Link
                 href={href}
                 className="relative block h-[150px] w-full overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50"
@@ -334,9 +376,7 @@ function ProductCard({ p, locale }) {
                         </span>
                     </>
                 ) : (
-                    <span className="text-neutral-400">
-                        {noReviewYetText}
-                    </span>
+                    <span className="text-neutral-400">{noReviewYetText}</span>
                 )}
             </div>
 
@@ -365,7 +405,9 @@ function ProductCard({ p, locale }) {
             <button
                 type="button"
                 disabled={busy}
-                onClick={() => addToCart(p.id, 1)}
+                onClick={() =>
+                    addToCart(p.id, 1, makeCartProduct(p, locale))
+                }
                 className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />

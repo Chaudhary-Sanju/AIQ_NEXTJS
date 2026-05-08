@@ -7,12 +7,16 @@ import {
     CalendarDays,
     CheckCircle2,
     CreditCard,
+    Globe2,
+    Home,
     Loader2,
     Lock,
     Mail,
     MapPin,
     Package,
     Phone,
+    PlaneLanding,
+    PlaneTakeoff,
     RefreshCcw,
     ShieldCheck,
     User,
@@ -24,17 +28,13 @@ import {
 } from "lucide-react";
 
 import http from "@/http";
-
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 const COPY = {
     en: {
         eyebrow: "AI EXPRESS",
         titleA: "Submit",
-        titleB: "courier pickup",
         titleC: "request",
-        subtitle:
-            "Book your courier pickup, verify with OTP, and let HkMandu handle the rest.",
 
         senderInfo: "Sender Information",
         receiverInfo: "Receiver Information",
@@ -93,11 +93,12 @@ const COPY = {
             { value: "same-day", label: "Same Day" },
         ],
         paymentMethods: [
-            { value: "cod", label: "Cash on Delivery" },
-            { value: "card", label: "Card" },
-            { value: "bank deposit", label: "Bank Deposit" },
-            { value: "cheque", label: "Cheque" },
-            { value: "bank-transfer", label: "Bank Transfer" },
+            { value: "card / cheque", label: "Card / Cheque" },
+            { value: "bank deposit / transfer", label: "Bank Deposit / Transfer" },
+            {
+                value: "online transfer / credit card",
+                label: "Online Transfer / Credit Card",
+            },
         ],
         verificationMethods: [
             { value: "email", label: "Email" },
@@ -137,15 +138,14 @@ const COPY = {
             "Sender email is required when verification method is email.",
         selectPickupDateFirst: "Select pickup date first",
         captchaRequired: "Please complete reCAPTCHA verification.",
+        serviceType: "Service Type",
+        route: "Route",
     },
 
     ne: {
         eyebrow: "एआई एक्सप्रेस",
-        titleA: "कुरियर पिकअप",
-        titleB: "अनुरोध",
-        titleC: "पेश गर्नुहोस्",
-        subtitle:
-            "आफ्नो कुरियर पिकअप बुक गर्नुहोस्, OTP बाट प्रमाणित गर्नुहोस्, र बाँकी HkMandu लाई जिम्मा दिनुहोस्।",
+        titleA: "कुरियर",
+        titleC: "अनुरोध पठाउनुहोस्",
 
         senderInfo: "पठाउने व्यक्तिको जानकारी",
         receiverInfo: "प्राप्त गर्ने व्यक्तिको जानकारी",
@@ -168,7 +168,7 @@ const COPY = {
         packageType: "पार्सल प्रकार",
         weight: "तौल (केजी)",
         quantity: "संख्या",
-        dimensions: "आकार  (L x W x H)",
+        dimensions: "आकार (L x W x H)",
         isFragile: "नाजुक सामान",
         paymentMethod: "भुक्तानी विधि",
         specialInstructions: "विशेष निर्देशन",
@@ -204,11 +204,15 @@ const COPY = {
             { value: "same-day", label: "उही दिन" },
         ],
         paymentMethods: [
-            { value: "cod", label: "क्यास अन डेलिभरी" },
-            { value: "card", label: "कार्ड" },
-            { value: "bank deposit", label: "बैंक जम्मा" },
-            { value: "cheque", label: "चेक" },
-            { value: "bank-transfer", label: "बैंक ट्रान्सफर" },
+            { value: "card / cheque", label: "कार्ड / चेक" },
+            {
+                value: "bank deposit / transfer",
+                label: "बैंक जम्मा / ट्रान्सफर",
+            },
+            {
+                value: "online transfer / credit card",
+                label: "अनलाइन ट्रान्सफर / क्रेडिट कार्ड",
+            },
         ],
         verificationMethods: [
             { value: "email", label: "इमेल" },
@@ -248,15 +252,14 @@ const COPY = {
             "प्रमाणीकरण विधि इमेल भएमा पठाउने व्यक्तिको इमेल आवश्यक हुन्छ।",
         selectPickupDateFirst: "पहिले पिकअप मिति छान्नुहोस्",
         captchaRequired: "कृपया reCAPTCHA प्रमाणिकरण पूरा गर्नुहोस्।",
+        serviceType: "सेवा प्रकार",
+        route: "रुट",
     },
 
     zh: {
         eyebrow: "AI EXPRESS",
         titleA: "提交",
-        titleB: "快递取件",
         titleC: "请求",
-        subtitle:
-            "预约您的快递取件，通过 OTP 验证，剩下的交给 HkMandu。",
 
         senderInfo: "寄件人资料",
         receiverInfo: "收件人资料",
@@ -279,13 +282,12 @@ const COPY = {
         packageType: "包裹类型",
         weight: "重量 (kg)",
         quantity: "数量",
-        dimensions: "尺寸  (L x W x H)",
+        dimensions: "尺寸 (L x W x H)",
         isFragile: "易碎物品",
         paymentMethod: "付款方式",
         specialInstructions: "特别说明",
         verificationMethod: "验证方式",
-        confirmRequest:
-            "我确认货运资料正确无误，且包裹内不含违禁物品。",
+        confirmRequest: "我确认货运资料正确无误，且包裹内不含违禁物品。",
 
         placeholders: {
             senderName: "寄件人姓名",
@@ -315,11 +317,12 @@ const COPY = {
             { value: "same-day", label: "即日" },
         ],
         paymentMethods: [
-            { value: "cod", label: "货到付款" },
-            { value: "card", label: "银行卡" },
-            { value: "bank deposit", label: "银行入数" },
-            { value: "cheque", label: "支票" },
-            { value: "bank-transfer", label: "銀行轉帳" },
+            { value: "card / cheque", label: "银行卡 / 支票" },
+            { value: "bank deposit / transfer", label: "银行入数 / 转账" },
+            {
+                value: "online transfer / credit card",
+                label: "网上转账 / 信用卡",
+            },
         ],
         verificationMethods: [
             { value: "email", label: "邮箱" },
@@ -342,8 +345,7 @@ const COPY = {
         reset: "再次提交请求",
         secure: "您的取件请求资料将被安全及私密地保存。",
         successTitle: "取件请求验证成功",
-        successText:
-            "您的快递取件请求已确认，我们的团队会尽快处理并联系您。",
+        successText: "您的快递取件请求已确认，我们的团队会尽快处理并联系您。",
 
         required: "此字段为必填。",
         invalidEmail: "请输入有效邮箱地址。",
@@ -355,10 +357,11 @@ const COPY = {
         invalidQuantity: "数量必须至少为 1。",
         invalidOtp: "请输入验证码。",
         confirmRequired: "提交前必须确认请求。",
-        emailRequiredForVerification:
-            "当验证方式为邮箱时，寄件人邮箱为必填。",
+        emailRequiredForVerification: "当验证方式为邮箱时，寄件人邮箱为必填。",
         selectPickupDateFirst: "请先选择取件日期",
         captchaRequired: "请先完成 reCAPTCHA 验证。",
+        serviceType: "服务类型",
+        route: "路线",
     },
 };
 
@@ -379,11 +382,239 @@ const initialForm = {
     quantity: 1,
     dimensions: "",
     isFragile: false,
-    paymentMethod: "cod",
+    paymentMethod: "card / cheque",
     specialInstructions: "",
     isConfirmed: false,
     verificationMethod: "phone",
 };
+
+const SERVICE_CONFIG = {
+    "door-to-door": {
+        icon: Home,
+        theme: {
+            sectionBg: "bg-[#f6f3ef]",
+            softBg: "bg-emerald-50",
+            softBorder: "border-emerald-200",
+            softText: "text-emerald-700",
+            iconBg: "bg-emerald-100",
+            iconText: "text-emerald-700",
+            gradient:
+                "bg-[linear-gradient(90deg,#bbf7d0_0%,#22c55e_45%,#15803d_100%)]",
+            button:
+                "bg-[linear-gradient(90deg,#22c55e_0%,#16a34a_45%,#15803d_100%)] shadow-[0_18px_40px_rgba(34,197,94,0.28)]",
+            focusColor: "#22c55e",
+        },
+        label: {
+            en: "Door to Door",
+            ne: "घरदेखि घरसम्म",
+            zh: "门到门",
+        },
+        badge: {
+            en: "Local Delivery",
+            ne: "स्थानीय डेलिभरी",
+            zh: "本地配送",
+        },
+        routeFrom: {
+            en: "Pickup Address",
+            ne: "पिकअप ठेगाना",
+            zh: "取件地址",
+        },
+        routeTo: {
+            en: "Delivery Address",
+            ne: "डेलिभरी ठेगाना",
+            zh: "送达地址",
+        },
+        titleB: {
+            en: "door to door",
+            ne: "घरदेखि घरसम्म",
+            zh: "门到门",
+        },
+        subtitle: {
+            en: "Book a local pickup and delivery request from one address directly to another.",
+            ne: "एक स्थानीय ठेगानाबाट अर्को ठेगानासम्म सिधै पिकअप र डेलिभरी अनुरोध गर्नुहोस्।",
+            zh: "预约本地从一个地址直接送到另一个地址的取件服务。",
+        },
+        note: {
+            en: "Use this form when both pickup and delivery are local. Example: within Hong Kong, within Kathmandu, or city-to-city local delivery.",
+            ne: "पिकअप र डेलिभरी दुवै स्थानीय हुँदा यो फारम प्रयोग गर्नुहोस्। जस्तै: हङकङ भित्र, काठमाडौं भित्र, वा स्थानीय शहरदेखि शहर डेलिभरी।",
+            zh: "当取件和派送都属于本地配送时使用此表格。例如：香港本地、加德满都市内或本地城市之间配送。",
+        },
+        pickupAddressLabel: {
+            en: "Pickup Address",
+            ne: "पिकअप ठेगाना",
+            zh: "取件地址",
+        },
+        deliveryAddressLabel: {
+            en: "Delivery Address",
+            ne: "डेलिभरी ठेगाना",
+            zh: "送达地址",
+        },
+        pickupPlaceholder: {
+            en: "Enter pickup address",
+            ne: "पिकअप ठेगाना हाल्नुहोस्",
+            zh: "输入取件地址",
+        },
+        deliveryPlaceholder: {
+            en: "Enter delivery address",
+            ne: "डेलिभरी ठेगाना हाल्नुहोस्",
+            zh: "输入送达地址",
+        },
+        deliveryType: "door2door",
+        lockDeliveryType: true,
+    },
+
+    "hk-to-nepal": {
+        icon: PlaneTakeoff,
+        theme: {
+            sectionBg: "bg-[#f5f7ff]",
+            softBg: "bg-blue-50",
+            softBorder: "border-blue-200",
+            softText: "text-blue-700",
+            iconBg: "bg-blue-100",
+            iconText: "text-blue-700",
+            gradient:
+                "bg-[linear-gradient(90deg,#dbeafe_0%,#3b82f6_45%,#1d4ed8_100%)]",
+            button:
+                "bg-[linear-gradient(90deg,#3b82f6_0%,#2563eb_45%,#1d4ed8_100%)] shadow-[0_18px_40px_rgba(59,130,246,0.30)]",
+            focusColor: "#3b82f6",
+        },
+        label: {
+            en: "HK to Nepal",
+            ne: "हङकङदेखि नेपाल",
+            zh: "香港到尼泊尔",
+        },
+        badge: {
+            en: "International Courier",
+            ne: "अन्तर्राष्ट्रिय कुरियर",
+            zh: "国际快递",
+        },
+        routeFrom: {
+            en: "Hong Kong",
+            ne: "हङकङ",
+            zh: "香港",
+        },
+        routeTo: {
+            en: "Nepal",
+            ne: "नेपाल",
+            zh: "尼泊尔",
+        },
+        titleB: {
+            en: "HK to Nepal",
+            ne: "हङकङदेखि नेपाल",
+            zh: "香港到尼泊尔",
+        },
+        subtitle: {
+            en: "Send parcels from Hong Kong to Nepal with secure pickup and tracking support.",
+            ne: "हङकङबाट नेपालमा सुरक्षित पिकअप र ट्र्याकिङसहित पार्सल पठाउनुहोस्।",
+            zh: "从香港寄送包裹到尼泊尔，支持安全取件及追踪。",
+        },
+        note: {
+            en: "Use this form when the parcel starts from Hong Kong and the final receiver is in Nepal.",
+            ne: "पार्सल हङकङबाट सुरु भएर अन्तिम प्राप्तकर्ता नेपालमा हुँदा यो फारम प्रयोग गर्नुहोस्।",
+            zh: "当包裹从香港寄出，最终收件人在尼泊尔时使用此表格。",
+        },
+        pickupAddressLabel: {
+            en: "Pickup Address in Hong Kong",
+            ne: "हङकङको पिकअप ठेगाना",
+            zh: "香港取件地址",
+        },
+        deliveryAddressLabel: {
+            en: "Delivery Address in Nepal",
+            ne: "नेपालको डेलिभरी ठेगाना",
+            zh: "尼泊尔送达地址",
+        },
+        pickupPlaceholder: {
+            en: "Hong Kong pickup address",
+            ne: "हङकङको पिकअप ठेगाना",
+            zh: "香港取件地址",
+        },
+        deliveryPlaceholder: {
+            en: "Nepal delivery address",
+            ne: "नेपालको डेलिभरी ठेगाना",
+            zh: "尼泊尔送达地址",
+        },
+        deliveryType: "door2door",
+        lockDeliveryType: false,
+    },
+
+    "nepal-to-hk": {
+        icon: PlaneLanding,
+        theme: {
+            sectionBg: "bg-[#fff7ed]",
+            softBg: "bg-orange-50",
+            softBorder: "border-orange-200",
+            softText: "text-orange-700",
+            iconBg: "bg-orange-100",
+            iconText: "text-orange-700",
+            gradient:
+                "bg-[linear-gradient(90deg,#ffedd5_0%,#f97316_45%,#c2410c_100%)]",
+            button:
+                "bg-[linear-gradient(90deg,#fb923c_0%,#f97316_45%,#c2410c_100%)] shadow-[0_18px_40px_rgba(249,115,22,0.30)]",
+            focusColor: "#f97316",
+        },
+        label: {
+            en: "Nepal to HK",
+            ne: "नेपालदेखि हङकङ",
+            zh: "尼泊尔到香港",
+        },
+        badge: {
+            en: "International Courier",
+            ne: "अन्तर्राष्ट्रिय कुरियर",
+            zh: "国际快递",
+        },
+        routeFrom: {
+            en: "Nepal",
+            ne: "नेपाल",
+            zh: "尼泊尔",
+        },
+        routeTo: {
+            en: "Hong Kong",
+            ne: "हङकङ",
+            zh: "香港",
+        },
+        titleB: {
+            en: "Nepal to HK",
+            ne: "नेपालदेखि हङकङ",
+            zh: "尼泊尔到香港",
+        },
+        subtitle: {
+            en: "Send parcels from Nepal to Hong Kong with verified courier pickup service.",
+            ne: "नेपालबाट हङकङमा प्रमाणित कुरियर पिकअप सेवासहित पार्सल पठाउनुहोस्।",
+            zh: "从尼泊尔寄送包裹到香港，提供验证快递取件服务。",
+        },
+        note: {
+            en: "Use this form when the parcel starts from Nepal and the final receiver is in Hong Kong.",
+            ne: "पार्सल नेपालबाट सुरु भएर अन्तिम प्राप्तकर्ता हङकङमा हुँदा यो फारम प्रयोग गर्नुहोस्।",
+            zh: "当包裹从尼泊尔寄出，最终收件人在香港时使用此表格。",
+        },
+        pickupAddressLabel: {
+            en: "Pickup Address in Nepal",
+            ne: "नेपालको पिकअप ठेगाना",
+            zh: "尼泊尔取件地址",
+        },
+        deliveryAddressLabel: {
+            en: "Delivery Address in Hong Kong",
+            ne: "हङकङको डेलिभरी ठेगाना",
+            zh: "香港送达地址",
+        },
+        pickupPlaceholder: {
+            en: "Nepal pickup address",
+            ne: "नेपालको पिकअप ठेगाना",
+            zh: "尼泊尔取件地址",
+        },
+        deliveryPlaceholder: {
+            en: "Hong Kong delivery address",
+            ne: "हङकङको डेलिभरी ठेगाना",
+            zh: "香港送达地址",
+        },
+        deliveryType: "door2door",
+        lockDeliveryType: false,
+    },
+};
+
+function pick(obj, locale = "en", fallback = "") {
+    return obj?.[locale] || obj?.en || fallback;
+}
 
 function getErrorText(err) {
     const data = err?.response?.data;
@@ -404,14 +635,13 @@ function getErrorText(err) {
     return "Something went wrong. Please try again.";
 }
 
-
-function Field({ label, icon: Icon, required = true, error, children }) {
+function Field({ label, icon: Icon, required = true, error, children, color = "#4b63ff" }) {
     return (
         <label className="block space-y-2">
             <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
-                {Icon ? <Icon className="h-3.5 w-3.5 text-[#4b63ff]" /> : null}
+                {Icon ? <Icon className="h-3.5 w-3.5" style={{ color }} /> : null}
                 {label}
-                {required ? <span className="text-[#4b63ff]">*</span> : null}
+                {required ? <span style={{ color }}>*</span> : null}
             </span>
             {children}
             {error ? <p className="text-xs text-red-500">{error}</p> : null}
@@ -442,7 +672,6 @@ function inputClass(hasError) {
 function isValidPhone(value) {
     return /^(\+977\d{10}|\+852\d{8})$/.test((value || "").trim());
 }
-
 
 function formatSlotLabel(startHour) {
     const endHour = startHour + 2;
@@ -487,10 +716,51 @@ function getTimeSlotsForDate(dateStr) {
         }));
 }
 
-export default function AiExpressPickupForm({ locale = "en" }) {
+export default function AiExpressPickupForm({
+    locale = "en",
+    serviceType = "door-to-door",
+}) {
     const t = COPY[locale] || COPY.en;
 
-    const [form, setForm] = useState(initialForm);
+    const activeService =
+        SERVICE_CONFIG[serviceType] || SERVICE_CONFIG["door-to-door"];
+
+    const ServiceIcon = activeService.icon || Truck;
+    const theme = activeService.theme;
+
+    const serviceTitle = pick(activeService.titleB, locale, "Door to Door");
+    const serviceSubtitle = pick(activeService.subtitle, locale, "");
+    const serviceBadge = pick(activeService.badge, locale, serviceTitle);
+    const serviceNote = pick(activeService.note, locale, serviceSubtitle);
+    const routeFrom = pick(activeService.routeFrom, locale, "");
+    const routeTo = pick(activeService.routeTo, locale, "");
+
+    const pickupAddressLabel = pick(
+        activeService.pickupAddressLabel,
+        locale,
+        t.pickupAddress
+    );
+    const deliveryAddressLabel = pick(
+        activeService.deliveryAddressLabel,
+        locale,
+        t.deliveryAddress
+    );
+    const pickupAddressPlaceholder = pick(
+        activeService.pickupPlaceholder,
+        locale,
+        t.placeholders.pickupAddress
+    );
+    const deliveryAddressPlaceholder = pick(
+        activeService.deliveryPlaceholder,
+        locale,
+        t.placeholders.deliveryAddress
+    );
+
+    const [form, setForm] = useState({
+        ...initialForm,
+        deliveryType: activeService.deliveryType || initialForm.deliveryType,
+    });
+
     const [errors, setErrors] = useState({});
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
     const [requestMeta, setRequestMeta] = useState(null);
@@ -521,8 +791,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
         const { name, value, type, checked } = e.target;
 
         setForm((prev) => {
-            const updatedValue =
-                type === "checkbox" ? checked : value;
+            const updatedValue = type === "checkbox" ? checked : value;
 
             const updated = {
                 ...prev,
@@ -541,7 +810,10 @@ export default function AiExpressPickupForm({ locale = "en" }) {
     };
 
     const handleOtpChange = (index, value) => {
-        const cleaned = value.replace(/[^a-zA-Z0-9]/g, "").slice(-1).toUpperCase();
+        const cleaned = value
+            .replace(/[^a-zA-Z0-9]/g, "")
+            .slice(-1)
+            .toUpperCase();
 
         setOtpValues((prev) => {
             const next = [...prev];
@@ -617,8 +889,9 @@ export default function AiExpressPickupForm({ locale = "en" }) {
 
         if (!form.senderName.trim()) nextErrors.senderName = t.required;
         if (!form.senderPhone.trim()) nextErrors.senderPhone = t.required;
-        else if (!isValidPhone(form.senderPhone))
+        else if (!isValidPhone(form.senderPhone)) {
             nextErrors.senderPhone = t.invalidSenderPhone;
+        }
 
         if (form.senderEmail.trim() && !/^\S+@\S+\.\S+$/.test(form.senderEmail)) {
             nextErrors.senderEmail = t.invalidEmail;
@@ -632,8 +905,9 @@ export default function AiExpressPickupForm({ locale = "en" }) {
 
         if (!form.receiverName.trim()) nextErrors.receiverName = t.required;
         if (!form.receiverPhone.trim()) nextErrors.receiverPhone = t.required;
-        else if (!isValidPhone(form.receiverPhone))
+        else if (!isValidPhone(form.receiverPhone)) {
             nextErrors.receiverPhone = t.invalidReceiverPhone;
+        }
 
         if (!form.deliveryAddress.trim()) nextErrors.deliveryAddress = t.required;
         if (!form.packageType.trim()) nextErrors.packageType = t.required;
@@ -644,7 +918,11 @@ export default function AiExpressPickupForm({ locale = "en" }) {
             nextErrors.weight = t.invalidWeight;
         }
 
-        if (form.quantity === "" || form.quantity === null || form.quantity === undefined) {
+        if (
+            form.quantity === "" ||
+            form.quantity === null ||
+            form.quantity === undefined
+        ) {
             nextErrors.quantity = t.required;
         } else if (!(Number(form.quantity) >= 1)) {
             nextErrors.quantity = t.invalidQuantity;
@@ -667,6 +945,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!validate()) return;
 
         if (!executeRecaptcha) {
@@ -696,6 +975,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
             }
 
             const payload = {
+                serviceType,
                 senderName: form.senderName.trim(),
                 senderPhone: form.senderPhone.trim(),
                 senderEmail: form.senderEmail.trim() || null,
@@ -810,7 +1090,10 @@ export default function AiExpressPickupForm({ locale = "en" }) {
     };
 
     const resetAll = () => {
-        setForm(initialForm);
+        setForm({
+            ...initialForm,
+            deliveryType: activeService.deliveryType || initialForm.deliveryType,
+        });
         setErrors({});
         setOtpValues(["", "", "", "", "", ""]);
         setRequestMeta(null);
@@ -819,10 +1102,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
     };
 
     return (
-        <section className="relative overflow-hidden bg-[#f6f3ef] px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-            <div className="absolute inset-x-0 top-0 h-[320px] bg-[radial-gradient(circle_at_top,#d9d6ff_0%,rgba(246,243,239,0)_58%)]" />
+        <section
+            className={`relative overflow-hidden px-4 py-14 sm:px-6 lg:px-8 lg:py-20 ${theme.sectionBg}`}
+        >
+            <div className="absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.20)_0%,rgba(246,243,239,0)_60%)]" />
 
-            <div className="relative mx-auto max-w-4xl">
+            <div className="relative mx-auto max-w-5xl">
                 <div className="mb-8 text-center sm:mb-10 sm:text-left">
                     <div className="mb-4 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.32em] text-neutral-500">
                         <span className="h-px w-10 bg-neutral-300" />
@@ -831,20 +1116,84 @@ export default function AiExpressPickupForm({ locale = "en" }) {
 
                     <h1 className="max-w-3xl text-4xl font-medium leading-tight text-neutral-900 sm:text-5xl">
                         {t.titleA}{" "}
-                        <span className="font-serif italic text-[#4b63ff]">
-                            {t.titleB}
+                        <span className={`font-serif italic ${theme.softText}`}>
+                            {serviceTitle}
                         </span>
                         <br />
                         {t.titleC}
                     </h1>
 
                     <p className="mt-5 max-w-2xl text-sm leading-7 text-neutral-500 sm:text-base">
-                        {t.subtitle}
+                        {serviceSubtitle}
                     </p>
                 </div>
 
-                <div className="rounded-[28px] border border-black/5 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur sm:p-8">
-                    <div className="mb-6 h-1 w-full rounded-full bg-[linear-gradient(90deg,#d9d6ff_0%,#4b63ff_45%,#3e51d1_100%)]" />
+                <div className="rounded-[30px] border border-black/5 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur sm:p-8">
+                    <div className={`mb-6 h-1 w-full rounded-full ${theme.gradient}`} />
+
+                    <div
+                        className={`mb-6 rounded-3xl border p-5 ${theme.softBg} ${theme.softBorder}`}
+                    >
+                        <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
+                            <div className="flex gap-4">
+                                <div
+                                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${theme.iconBg} ${theme.iconText}`}
+                                >
+                                    <ServiceIcon className="h-6 w-6" />
+                                </div>
+
+                                <div>
+                                    <div
+                                        className={`mb-2 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] shadow-sm ${theme.softText}`}
+                                    >
+                                        {serviceBadge}
+                                    </div>
+
+                                    <h2 className="text-xl font-semibold text-neutral-900">
+                                        {serviceTitle}
+                                    </h2>
+
+                                    <p className="mt-2 text-sm leading-7 text-neutral-600">
+                                        {serviceNote}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="rounded-2xl bg-white p-4 shadow-sm">
+                                <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-400">
+                                    <Globe2 className="h-3.5 w-3.5" />
+                                    {t.route}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <div className="text-xs text-neutral-400">From</div>
+                                        <div className="text-sm font-semibold text-neutral-900">
+                                            {routeFrom}
+                                        </div>
+                                    </div>
+
+                                    <ArrowRight className={`h-4 w-4 ${theme.softText}`} />
+
+                                    <div className="text-right">
+                                        <div className="text-xs text-neutral-400">To</div>
+                                        <div className="text-sm font-semibold text-neutral-900">
+                                            {routeTo}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 rounded-xl bg-neutral-50 px-3 py-2">
+                                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+                                        {t.serviceType}
+                                    </div>
+                                    <div className={`mt-1 text-sm font-semibold ${theme.softText}`}>
+                                        {serviceTitle}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {banner.text ? (
                         <div
@@ -864,7 +1213,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             <SectionTitle title={t.senderInfo} />
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.senderName} icon={User} error={errors.senderName}>
+                                <Field
+                                    label={t.senderName}
+                                    icon={User}
+                                    error={errors.senderName}
+                                    color={theme.focusColor}
+                                >
                                     <input
                                         name="senderName"
                                         value={form.senderName}
@@ -874,7 +1228,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     />
                                 </Field>
 
-                                <Field label={t.senderPhone} icon={Phone} error={errors.senderPhone}>
+                                <Field
+                                    label={t.senderPhone}
+                                    icon={Phone}
+                                    error={errors.senderPhone}
+                                    color={theme.focusColor}
+                                >
                                     <input
                                         name="senderPhone"
                                         value={form.senderPhone}
@@ -890,6 +1249,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                 icon={Mail}
                                 error={errors.senderEmail}
                                 required={false}
+                                color={theme.focusColor}
                             >
                                 <input
                                     type="email"
@@ -902,12 +1262,23 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.deliveryType} icon={Truck} error={errors.deliveryType}>
+                                <Field
+                                    label={t.deliveryType}
+                                    icon={Truck}
+                                    error={errors.deliveryType}
+                                    color={theme.focusColor}
+                                >
                                     <select
                                         name="deliveryType"
                                         value={form.deliveryType}
                                         onChange={handleChange}
-                                        className={`${inputClass(!!errors.deliveryType)} h-12`}
+                                        disabled={activeService.lockDeliveryType}
+                                        className={`${inputClass(
+                                            !!errors.deliveryType
+                                        )} h-12 ${activeService.lockDeliveryType
+                                                ? "cursor-not-allowed bg-neutral-50"
+                                                : ""
+                                            }`}
                                     >
                                         {t.deliveryTypes.map((item) => (
                                             <option key={item.value} value={item.value}>
@@ -917,7 +1288,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     </select>
                                 </Field>
 
-                                <Field label={t.serviceSpeed} icon={Clock3} error={errors.serviceSpeed}>
+                                <Field
+                                    label={t.serviceSpeed}
+                                    icon={Clock3}
+                                    error={errors.serviceSpeed}
+                                    color={theme.focusColor}
+                                >
                                     <select
                                         name="serviceSpeed"
                                         value={form.serviceSpeed}
@@ -933,18 +1309,28 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                 </Field>
                             </div>
 
-                            <Field label={t.pickupAddress} icon={MapPin} error={errors.pickupAddress}>
+                            <Field
+                                label={pickupAddressLabel}
+                                icon={MapPin}
+                                error={errors.pickupAddress}
+                                color={theme.focusColor}
+                            >
                                 <input
                                     name="pickupAddress"
                                     value={form.pickupAddress}
                                     onChange={handleChange}
-                                    placeholder={t.placeholders.pickupAddress}
+                                    placeholder={pickupAddressPlaceholder}
                                     className={`${inputClass(!!errors.pickupAddress)} h-12`}
                                 />
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.pickupDate} icon={CalendarDays} error={errors.pickupDate}>
+                                <Field
+                                    label={t.pickupDate}
+                                    icon={CalendarDays}
+                                    error={errors.pickupDate}
+                                    color={theme.focusColor}
+                                >
                                     <input
                                         type="date"
                                         name="pickupDate"
@@ -959,16 +1345,21 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     label={t.pickupTimeSlot}
                                     icon={Clock3}
                                     error={errors.pickupTimeSlot}
+                                    color={theme.focusColor}
                                 >
                                     <select
                                         name="pickupTimeSlot"
                                         value={form.pickupTimeSlot}
                                         onChange={handleChange}
                                         disabled={!form.pickupDate}
-                                        className={`${inputClass(!!errors.pickupTimeSlot)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.pickupTimeSlot
+                                        )} h-12`}
                                     >
                                         <option value="">
-                                            {form.pickupDate ? t.choose : t.selectPickupDateFirst}
+                                            {form.pickupDate
+                                                ? t.choose
+                                                : t.selectPickupDateFirst}
                                         </option>
 
                                         {availableTimeSlots.map((slot) => (
@@ -983,7 +1374,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             <SectionTitle title={t.receiverInfo} />
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.receiverName} icon={User} error={errors.receiverName}>
+                                <Field
+                                    label={t.receiverName}
+                                    icon={User}
+                                    error={errors.receiverName}
+                                    color={theme.focusColor}
+                                >
                                     <input
                                         name="receiverName"
                                         value={form.receiverName}
@@ -997,6 +1393,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     label={t.receiverPhone}
                                     icon={Phone}
                                     error={errors.receiverPhone}
+                                    color={theme.focusColor}
                                 >
                                     <input
                                         name="receiverPhone"
@@ -1009,15 +1406,16 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             </div>
 
                             <Field
-                                label={t.deliveryAddress}
+                                label={deliveryAddressLabel}
                                 icon={MapPin}
                                 error={errors.deliveryAddress}
+                                color={theme.focusColor}
                             >
                                 <input
                                     name="deliveryAddress"
                                     value={form.deliveryAddress}
                                     onChange={handleChange}
-                                    placeholder={t.placeholders.deliveryAddress}
+                                    placeholder={deliveryAddressPlaceholder}
                                     className={`${inputClass(!!errors.deliveryAddress)} h-12`}
                                 />
                             </Field>
@@ -1025,7 +1423,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             <SectionTitle title={t.packageInfo} />
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.packageType} icon={Package} error={errors.packageType}>
+                                <Field
+                                    label={t.packageType}
+                                    icon={Package}
+                                    error={errors.packageType}
+                                    color={theme.focusColor}
+                                >
                                     <input
                                         name="packageType"
                                         value={form.packageType}
@@ -1035,7 +1438,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     />
                                 </Field>
 
-                                <Field label={t.weight} icon={Scale} error={errors.weight}>
+                                <Field
+                                    label={t.weight}
+                                    icon={Scale}
+                                    error={errors.weight}
+                                    color={theme.focusColor}
+                                >
                                     <input
                                         type="number"
                                         name="weight"
@@ -1050,7 +1458,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             </div>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.quantity} icon={Hash} error={errors.quantity}>
+                                <Field
+                                    label={t.quantity}
+                                    icon={Hash}
+                                    error={errors.quantity}
+                                    color={theme.focusColor}
+                                >
                                     <input
                                         type="number"
                                         name="quantity"
@@ -1068,6 +1481,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     icon={Box}
                                     error={errors.dimensions}
                                     required={false}
+                                    color={theme.focusColor}
                                 >
                                     <input
                                         name="dimensions"
@@ -1080,7 +1494,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             </div>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.isFragile} icon={AlertTriangle} error={errors.isFragile}>
+                                <Field
+                                    label={t.isFragile}
+                                    icon={AlertTriangle}
+                                    error={errors.isFragile}
+                                    color={theme.focusColor}
+                                >
                                     <select
                                         name="isFragile"
                                         value={String(form.isFragile)}
@@ -1101,6 +1520,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     label={t.paymentMethod}
                                     icon={CreditCard}
                                     error={errors.paymentMethod}
+                                    color={theme.focusColor}
                                 >
                                     <select
                                         name="paymentMethod"
@@ -1122,6 +1542,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                 icon={ShieldCheck}
                                 error={errors.specialInstructions}
                                 required={false}
+                                color={theme.focusColor}
                             >
                                 <textarea
                                     name="specialInstructions"
@@ -1129,7 +1550,9 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     onChange={handleChange}
                                     placeholder={t.placeholders.specialInstructions}
                                     rows={4}
-                                    className={`${inputClass(!!errors.specialInstructions)} min-h-[110px] resize-none py-3`}
+                                    className={`${inputClass(
+                                        !!errors.specialInstructions
+                                    )} min-h-[110px] resize-none py-3`}
                                 />
                             </Field>
 
@@ -1139,12 +1562,14 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                 label={t.verificationMethod}
                                 icon={ShieldCheck}
                                 error={errors.verificationMethod}
+                                color={theme.focusColor}
                             >
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     {t.verificationMethods.map((item) => {
                                         const active = form.verificationMethod === item.value;
                                         const disabled =
-                                            item.value === "email" && !form.senderEmail.trim();
+                                            item.value === "email" &&
+                                            !form.senderEmail.trim();
 
                                         return (
                                             <button
@@ -1160,9 +1585,11 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                                 className={[
                                                     "rounded-2xl border px-4 py-3 text-left transition",
                                                     active
-                                                        ? "border-[#4b63ff] bg-[#eef1ff] shadow-[0_10px_25px_rgba(75,99,255,0.12)]"
+                                                        ? `${theme.softBorder} ${theme.softBg} shadow-[0_10px_25px_rgba(15,23,42,0.08)]`
                                                         : "border-neutral-200 bg-white hover:border-neutral-300",
-                                                    disabled ? "cursor-not-allowed opacity-50" : "",
+                                                    disabled
+                                                        ? "cursor-not-allowed opacity-50"
+                                                        : "",
                                                 ].join(" ")}
                                             >
                                                 <div className="text-sm font-semibold text-neutral-900">
@@ -1170,8 +1597,10 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                                 </div>
                                                 <div className="mt-1 text-xs text-neutral-500">
                                                     {item.value === "email"
-                                                        ? form.senderEmail.trim() || t.placeholders.senderEmail
-                                                        : form.senderPhone.trim() || t.placeholders.senderPhone}
+                                                        ? form.senderEmail.trim() ||
+                                                        t.placeholders.senderEmail
+                                                        : form.senderPhone.trim() ||
+                                                        t.placeholders.senderPhone}
                                                 </div>
                                             </button>
                                         );
@@ -1186,7 +1615,8 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                         name="isConfirmed"
                                         checked={form.isConfirmed}
                                         onChange={handleChange}
-                                        className="mt-1 h-4 w-4 rounded border-neutral-300 text-[#4b63ff] focus:ring-[#4b63ff]"
+                                        className="mt-1 h-4 w-4 rounded border-neutral-300"
+                                        style={{ accentColor: theme.focusColor }}
                                     />
                                     <div>
                                         <div className="text-sm font-medium text-neutral-800">
@@ -1208,9 +1638,11 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                             <button
                                 type="submit"
                                 disabled={submitLoading}
-                                className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#5b6ff8_0%,#4357e8_45%,#3e4fd4_100%)] px-6 text-sm font-semibold uppercase tracking-[0.26em] text-white shadow-[0_18px_40px_rgba(75,99,255,0.35)] transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-70"
+                                className={`inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl px-6 text-sm font-semibold uppercase tracking-[0.26em] text-white transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-70 ${theme.button}`}
                             >
-                                {submitLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                {submitLoading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : null}
                                 {submitLoading ? t.sending : t.submit}
                                 {!submitLoading ? <ArrowRight className="h-4 w-4" /> : null}
                             </button>
@@ -1219,8 +1651,10 @@ export default function AiExpressPickupForm({ locale = "en" }) {
 
                     {step === "otp" ? (
                         <form onSubmit={handleVerify} className="space-y-6">
-                            <div className="rounded-[24px] border border-[#dfe4ff] bg-[#f8f9ff] p-5">
-                                <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#4b63ff] shadow-sm">
+                            <div className={`rounded-[24px] border p-5 ${theme.softBg} ${theme.softBorder}`}>
+                                <div
+                                    className={`mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm ${theme.softText}`}
+                                >
                                     <Lock className="h-5 w-5" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-neutral-900">
@@ -1240,7 +1674,12 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                 ) : null}
                             </div>
 
-                            <Field label={t.otpLabel} icon={ShieldCheck} error={errors.otp}>
+                            <Field
+                                label={t.otpLabel}
+                                icon={ShieldCheck}
+                                error={errors.otp}
+                                color={theme.focusColor}
+                            >
                                 <div className="space-y-3">
                                     <div className="flex flex-wrap gap-2 sm:gap-3">
                                         {otpValues.map((digit, index) => (
@@ -1251,11 +1690,17 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                                 }}
                                                 type="text"
                                                 inputMode="text"
-                                                autoComplete={index === 0 ? "one-time-code" : "off"}
+                                                autoComplete={
+                                                    index === 0 ? "one-time-code" : "off"
+                                                }
                                                 maxLength={1}
                                                 value={digit}
-                                                onChange={(e) => handleOtpChange(index, e.target.value)}
-                                                onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                                onChange={(e) =>
+                                                    handleOtpChange(index, e.target.value)
+                                                }
+                                                onKeyDown={(e) =>
+                                                    handleOtpKeyDown(index, e)
+                                                }
                                                 onPaste={handleOtpPaste}
                                                 className={[
                                                     "h-14 w-12 rounded-2xl border bg-white text-center text-lg font-semibold uppercase outline-none transition sm:h-16 sm:w-14",
@@ -1268,7 +1713,9 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                     </div>
 
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="text-neutral-500">{t.placeholders.otp}</span>
+                                        <span className="text-neutral-500">
+                                            {t.placeholders.otp}
+                                        </span>
                                         <button
                                             type="button"
                                             onClick={clearOtp}
@@ -1284,7 +1731,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                                 <button
                                     type="submit"
                                     disabled={verifyLoading}
-                                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#5b6ff8_0%,#4357e8_45%,#3e4fd4_100%)] px-5 text-sm font-semibold text-white shadow-[0_15px_35px_rgba(75,99,255,0.28)] disabled:cursor-not-allowed disabled:opacity-70"
+                                    className={`inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70 ${theme.button}`}
                                 >
                                     {verifyLoading ? (
                                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1332,7 +1779,7 @@ export default function AiExpressPickupForm({ locale = "en" }) {
                 </div>
 
                 <div className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-neutral-500">
-                    <Lock className="h-3.5 w-3.5 text-[#4b63ff]" />
+                    <Lock className={`h-3.5 w-3.5 ${theme.softText}`} />
                     <span>{t.secure}</span>
                 </div>
             </div>

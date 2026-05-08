@@ -3,23 +3,47 @@ import DeliveryHero from "@/components/clientComponents/DeliveryHero";
 import { getDictionary, locales } from "@/i18n/getDictionary";
 import AboutSection from "@/components/clientComponents/AiExpressAboutSection";
 import OurCoverageSection from "@/components/clientComponents/OurCoverageSection";
+import AiExpressPickupForm from "@/components/clientComponents/AiExpressPickupForm";
 import FAQSection from "@/components/clientComponents/FAQSection";
-import AiExpressServiceCards from "@/components/clientComponents/AiExpressServiceCards";
 
-export async function generateMetadata() {
-    return {
-        title: "AI Courier Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
-
+const SERVICES = {
+    "door-to-door": {
+        title: "Door to Door Courier Service | HkMandu AI Express",
         description:
-            "AI-powered international courier platform connecting Hong Kong and Nepal with real-time tracking, secure cross-border logistics, and fast delivery services.",
+            "Book door to door courier pickup and delivery with HkMandu AI Express.",
+    },
+    "hk-to-nepal": {
+        title: "Hong Kong to Nepal Courier Service | HkMandu AI Express",
+        description:
+            "Send parcels from Hong Kong to Nepal with HkMandu AI Express pickup and delivery support.",
+    },
+    "nepal-to-hk": {
+        title: "Nepal to Hong Kong Courier Service | HkMandu AI Express",
+        description:
+            "Send parcels from Nepal to Hong Kong with HkMandu AI Express courier support.",
+    },
+};
 
+export async function generateMetadata({ params }) {
+    const { service } = await params;
+
+    const current = SERVICES[service];
+
+    if (!current) {
+        return {
+            title: "AI Express | HkMandu",
+            description: "AI Express courier service by HkMandu.",
+        };
+    }
+
+    return {
+        title: current.title,
+        description: current.description,
         icons: {
             icon: "/default.ico",
         },
-
         category: "logistics",
         generator: "Next.js",
-
         keywords: [
             "AI courier",
             "Hong Kong Nepal shipping",
@@ -29,16 +53,12 @@ export async function generateMetadata() {
             "Hong Kong courier service",
             "Nepal courier service",
         ],
-
         authors: [{ name: "YALAKOM Team" }],
-
         creator: "YALAKOM",
         publisher: "YALAKOM",
-
         openGraph: {
-            title: "AI Courier Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
-            description:
-                "AI-powered international courier platform connecting Hong Kong and Nepal with real-time tracking, secure cross-border logistics, and fast delivery services.",
+            title: current.title,
+            description: current.description,
             locale: "en_HK",
             type: "website",
             images: [
@@ -50,21 +70,20 @@ export async function generateMetadata() {
                 },
             ],
         },
-
         twitter: {
             card: "summary_large_image",
-            title: "AI Courier Service | Hong Kong ↔ Nepal Fast & Secure Delivery",
-            description:
-                "AI-powered international courier platform connecting Hong Kong and Nepal with real-time tracking, secure cross-border logistics, and fast delivery services.",
+            title: current.title,
+            description: current.description,
             images: ["/default-og.png"],
         },
     };
 }
 
 export default async function Page({ params }) {
-    const { locale } = await params;
+    const { locale, service } = await params;
 
     if (!locales.includes(locale)) notFound();
+    if (!SERVICES[service]) notFound();
 
     const dict = await getDictionary(locale);
 
@@ -79,7 +98,9 @@ export default async function Page({ params }) {
                 }}
             />
 
-            <AiExpressServiceCards locale={locale} />
+            <section id="pickup-form" className="scroll-mt-24">
+                <AiExpressPickupForm locale={locale} serviceType={service} />
+            </section>
 
             <AboutSection dict={dict} />
 

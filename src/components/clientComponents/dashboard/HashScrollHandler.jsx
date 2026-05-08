@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+const HOME_ONLY_HASHES = ["perfect-services"];
+
 const getHeaderOffset = () => {
     if (typeof window === "undefined") return 0;
 
@@ -62,8 +64,18 @@ export default function HashScrollHandler() {
         const locale = segments[1] || "en";
         const homePath = `/${locale}`;
 
-        // If user clicked hash link from another page, first go home with same hash.
-        if (pathname !== homePath) {
+        const isHomeOnlyHash = HOME_ONLY_HASHES.includes(id);
+
+        /*
+            Only homepage-only section hashes should redirect to home.
+            Example:
+            /en/about#perfect-services -> /en#perfect-services
+
+            Other hashes should stay on their current page.
+            Example:
+            /en/ai-express/door-to-door#pickup-form should stay there.
+        */
+        if (isHomeOnlyHash && pathname !== homePath) {
             router.replace(`${homePath}#${id}`, {
                 scroll: false,
             });
@@ -76,15 +88,16 @@ export default function HashScrollHandler() {
         const tryScroll = () => {
             attempts += 1;
 
-            const didScroll = scrollToHashTarget(id, attempts === 1 ? "auto" : "smooth");
+            const didScroll = scrollToHashTarget(
+                id,
+                attempts === 1 ? "auto" : "smooth"
+            );
 
-            // Retry because home page sections/images/API content may render after route change.
             if (!didScroll && attempts < 12) {
                 timeoutId = window.setTimeout(tryScroll, 120);
                 return;
             }
 
-            // One final smooth correction after layout settles.
             if (didScroll) {
                 timeoutId = window.setTimeout(() => {
                     scrollToHashTarget(id, "smooth");

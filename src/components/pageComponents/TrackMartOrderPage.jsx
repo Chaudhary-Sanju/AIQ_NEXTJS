@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
     ArrowRight,
     CheckCircle2,
@@ -123,15 +124,14 @@ const content = {
 
 export default function TrackMartOrderPage({ locale = "en" }) {
     const t = content[locale] || content.en;
+    const searchParams = useSearchParams();
 
     const [orderId, setOrderId] = useState("");
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
 
-    const handleTrack = async (e) => {
-        e.preventDefault();
-
-        const cleanOrderId = orderId.trim();
+    const trackByOrderId = async (value) => {
+        const cleanOrderId = value.trim();
 
         if (!cleanOrderId) {
             toast.error(t.required);
@@ -143,7 +143,6 @@ export default function TrackMartOrderPage({ locale = "en" }) {
             setResult(null);
 
             const res = await http.get(`/frontend/order/track/${cleanOrderId}`);
-            console.log(res)
             const data = res?.data?.data;
 
             if (!data) {
@@ -158,6 +157,20 @@ export default function TrackMartOrderPage({ locale = "en" }) {
             setLoading(false);
         }
     };
+
+    const handleTrack = async (e) => {
+        e.preventDefault();
+        await trackByOrderId(orderId);
+    };
+
+    useEffect(() => {
+        const orderNumber = searchParams?.get("orderNumber") || "";
+        if (!orderNumber) return;
+
+        setOrderId(orderNumber);
+        trackByOrderId(orderNumber);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     const timeline =
         result?.timeline?.length > 0

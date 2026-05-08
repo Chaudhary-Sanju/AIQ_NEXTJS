@@ -24,7 +24,9 @@ import SimilarProductsSection from "./SimilarProductsSection";
 import { useCart } from "@/contexts/CartContext";
 
 const pick = (obj, locale = "en") => {
-  if (!obj || typeof obj !== "object") return "";
+  if (!obj) return "";
+  if (typeof obj === "string") return obj;
+  if (typeof obj !== "object") return "";
   return obj?.[locale] || obj?.en || obj?.ne || obj?.zh || "";
 };
 
@@ -42,6 +44,50 @@ const formatDate = (date) => {
   } catch {
     return "";
   }
+};
+
+const getProductImages = (product) => {
+  if (Array.isArray(product?.images) && product.images.length) {
+    return product.images;
+  }
+
+  if (Array.isArray(product?.image) && product.image.length) {
+    return product.image;
+  }
+
+  if (product?.featuredImage) return [product.featuredImage];
+  if (product?.thumbnail) return [product.thumbnail];
+
+  if (typeof product?.image === "string") return [product.image];
+
+  return [];
+};
+
+const normalizeProductForCart = (product) => {
+  const images = getProductImages(product);
+
+  return {
+    ...product,
+    _id: product?._id,
+    id: product?._id,
+    slug: product?.slug || "",
+    name: product?.name || {
+      en: "Product",
+      ne: "Product",
+      zh: "Product",
+    },
+    summary: product?.summary || {},
+    price: product?.price,
+    discounted_price: product?.discounted_price ?? product?.discountPrice ?? null,
+    discountPrice: product?.discountPrice ?? product?.discounted_price ?? null,
+    image: images,
+    images,
+    featuredImage: product?.featuredImage || images?.[0] || null,
+    thumbnail: product?.thumbnail || images?.[0] || null,
+    qty: product?.qty,
+    stock: product?.stock ?? product?.qty,
+    sellOnNoStock: Boolean(product?.sellOnNoStock),
+  };
 };
 
 const UI = {
@@ -321,11 +367,7 @@ export default function ProductDetailsView({
     [product, locale]
   );
 
-  const images = useMemo(() => {
-    if (Array.isArray(product?.images)) return product.images;
-    if (Array.isArray(product?.image)) return product.image;
-    return [];
-  }, [product]);
+  const images = useMemo(() => getProductImages(product), [product]);
 
   const reviews = useMemo(() => {
     return Array.isArray(product?.reviews) ? product.reviews : [];
@@ -376,7 +418,10 @@ export default function ProductDetailsView({
 
   const handleAddToCart = () => {
     if (!product?._id) return;
-    addToCart(product._id, quantity);
+
+    const cartProduct = normalizeProductForCart(product);
+
+    addToCart(product._id, quantity, cartProduct);
   };
 
   if (loading) {
@@ -430,7 +475,6 @@ export default function ProductDetailsView({
 
           <div className="rounded-[32px] border border-orange-100 bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,42,94,0.10)] backdrop-blur md:p-6 lg:p-8">
             <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-              {/* Gallery */}
               <div className="grid gap-4 md:grid-cols-[96px_minmax(0,1fr)]">
                 <div className="order-2 flex gap-3 overflow-x-auto md:order-1 md:flex-col md:overflow-visible">
                   {images.map((img, index) => {
@@ -440,9 +484,7 @@ export default function ProductDetailsView({
                       <button
                         key={`${img}-${index}`}
                         type="button"
-                        onClick={() =>
-                          setSelectedImage(index)
-                        }
+                        onClick={() => setSelectedImage(index)}
                         className={[
                           "relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border bg-white transition",
                           active
@@ -489,7 +531,6 @@ export default function ProductDetailsView({
                 </div>
               </div>
 
-              {/* Product Info */}
               <div className="flex flex-col">
                 <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#1a4b8f]">
                   <PackageCheck className="h-4 w-4" />
@@ -505,17 +546,12 @@ export default function ProductDetailsView({
                   <RatingStars value={averageRating} size="lg" />
 
                   <span className="font-bold text-neutral-900">
-                    {averageRating
-                      ? averageRating.toFixed(1)
-                      : "0.0"}
+                    {averageRating ? averageRating.toFixed(1) : "0.0"}
                   </span>
 
                   <span className="text-neutral-500">
                     ({totalReviews}{" "}
-                    {totalReviews === 1
-                      ? t.review
-                      : t.reviews}
-                    )
+                    {totalReviews === 1 ? t.review : t.reviews})
                   </span>
                 </div>
 
@@ -552,10 +588,7 @@ export default function ProductDetailsView({
                 <div className="mt-6 grid gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 p-4 text-sm text-neutral-700 sm:grid-cols-2">
                   <MetaItem
                     label={t.category}
-                    value={
-                      pick(product?.categoryId?.name, locale) ||
-                      "-"
-                    }
+                    value={pick(product?.categoryId?.name, locale) || "-"}
                   />
 
                   <MetaItem
@@ -638,7 +671,6 @@ export default function ProductDetailsView({
               </div>
             </div>
 
-            {/* Description */}
             <div className="mt-10 rounded-[26px] border border-orange-100 bg-gradient-to-br from-white to-orange-50/40 p-5 md:p-7">
               <h2 className="text-2xl font-bold text-neutral-950">
                 {t.aboutItem}
@@ -647,14 +679,11 @@ export default function ProductDetailsView({
               <div
                 className="mt-3 text-[15px] leading-7 text-neutral-600 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-semibold [&_a]:text-[#1a4b8f] [&_a]:underline"
                 dangerouslySetInnerHTML={{
-                  __html:
-                    product?.description ||
-                    `<p>${summary || ""}</p>`,
+                  __html: product?.description || `<p>${summary || ""}</p>`,
                 }}
               />
             </div>
 
-            {/* Reviews */}
             <div className="mt-8 rounded-[26px] border border-orange-100 bg-white p-5 md:p-7">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                 <div>
@@ -663,13 +692,9 @@ export default function ProductDetailsView({
                   </h2>
 
                   <p className="mt-1 text-sm text-neutral-500">
-                    {averageRating
-                      ? averageRating.toFixed(1)
-                      : "0.0"}{" "}
+                    {averageRating ? averageRating.toFixed(1) : "0.0"}{" "}
                     {t.outOfFive} {totalReviews}{" "}
-                    {totalReviews === 1
-                      ? t.review
-                      : t.reviews}
+                    {totalReviews === 1 ? t.review : t.reviews}
                   </p>
                 </div>
 
@@ -677,28 +702,21 @@ export default function ProductDetailsView({
                   <RatingStars value={averageRating} size="lg" />
 
                   <div className="text-3xl font-bold text-neutral-950">
-                    {averageRating
-                      ? averageRating.toFixed(1)
-                      : "0.0"}
+                    {averageRating ? averageRating.toFixed(1) : "0.0"}
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 grid gap-3">
                 {[5, 4, 3, 2, 1].map((star) => {
-                  const count = Number(
-                    ratingBreakdown?.[star] || 0
-                  );
+                  const count = Number(ratingBreakdown?.[star] || 0);
 
                   const percent = totalReviews
                     ? Math.round((count / totalReviews) * 100)
                     : 0;
 
                   return (
-                    <div
-                      key={star}
-                      className="flex items-center gap-3 text-sm"
-                    >
+                    <div key={star} className="flex items-center gap-3 text-sm">
                       <div className="w-12 shrink-0 font-semibold text-neutral-700">
                         {star} ★
                       </div>
@@ -730,17 +748,13 @@ export default function ProductDetailsView({
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <p className="font-bold text-neutral-950">
-                            {item?.user_id?.name ||
-                              "Customer"}
+                            {item?.user_id?.name || "Customer"}
                           </p>
 
                           <div className="mt-1 flex items-center gap-2">
-                            <RatingStars
-                              value={item?.rating || 0}
-                            />
+                            <RatingStars value={item?.rating || 0} />
 
-                            {item?.order_id
-                              ?.orderNumber ? (
+                            {item?.order_id?.orderNumber ? (
                               <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-bold text-green-700">
                                 {t.verifiedOrder}
                               </span>

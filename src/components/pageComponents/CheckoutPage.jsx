@@ -201,14 +201,18 @@ function CheckoutForm({ locale = "en" }) {
     const router = useRouter();
     const stripe = useStripe();
     const elements = useElements();
-    const { clearCart } = useCart();
+    const {
+        cart,
+        loading: cartLoading,
+        clearCart,
+        removeItem: removeCartItem,
+        fetchCart,
+    } = useCart();
 
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.value);
     const isLoggedIn = user && Object.keys(user).length > 0;
 
-    const [cart, setCart] = useState(null);
-    const [cartLoading, setCartLoading] = useState(true);
     const [zones, setZones] = useState([]);
     const [zoneLoading, setZoneLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -227,7 +231,7 @@ function CheckoutForm({ locale = "en" }) {
         cityDistrict: "",
         address: "",
         landmark: "",
-        paymentMethod: "cod",
+        paymentMethod: "stripe",
     });
 
     const productListHref = `/${locale}/product?page=1&limit=10`;
@@ -273,18 +277,6 @@ function CheckoutForm({ locale = "en" }) {
         }));
     };
 
-    const loadCart = async () => {
-        try {
-            setCartLoading(true);
-            const res = await http.get("/frontend/cart");
-            setCart(res?.data?.data || null);
-        } catch (err) {
-            toast.error(err?.response?.data?.message || "Failed to load cart.");
-        } finally {
-            setCartLoading(false);
-        }
-    };
-
     const loadZones = async () => {
         try {
             setZoneLoading(true);
@@ -300,7 +292,7 @@ function CheckoutForm({ locale = "en" }) {
     };
 
     useEffect(() => {
-        loadCart();
+        fetchCart();
         loadZones();
 
         const token = fromStorage("hkmandu");
@@ -335,6 +327,14 @@ function CheckoutForm({ locale = "en" }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoggedIn, user]);
 
+
+    useEffect(() => {
+        setForm((prev) => ({
+            ...prev,
+            paymentMethod: isLoggedIn ? prev.paymentMethod || "cod" : "stripe",
+        }));
+    }, [isLoggedIn]);
+
     useEffect(() => {
         setAppliedCoupon(null);
     }, [subTotal]);
@@ -352,13 +352,16 @@ function CheckoutForm({ locale = "en" }) {
         if (!form.phoneNumber.trim()) next.phoneNumber = "Phone number is required";
 
         if (form.phoneNumber && !PHONE_REGEX.test(form.phoneNumber)) {
-            next.phoneNumber = "Invalid phone format";
+            next.phoneNumber =
+                "Invalid phone number. Use one of these formats: +977-9800000000, +852-12345678, or 9800000000.";
         }
-
         if (!form.cityDistrict) next.cityDistrict = "City/District is required";
         if (!form.address.trim()) next.address = "Address is required";
         if (!selectedZone) next.cityDistrict = "Please select delivery zone";
         if (!cartItems.length) next.cart = "Cart is empty";
+        if (!isLoggedIn && form.paymentMethod !== "stripe") {
+            next.paymentMethod = "Guest checkout supports card payment only.";
+        }
 
         setErrors(next);
 
@@ -372,18 +375,17 @@ function CheckoutForm({ locale = "en" }) {
     };
 
     const removeItem = async (productId) => {
-        try {
-            await http.delete(`/frontend/cart/remove/${productId}`);
-            toast.success("Item removed from cart.");
-            setAppliedCoupon(null);
-            loadCart();
-        } catch (err) {
-            toast.error(err?.response?.data?.message || "Failed to remove item.");
-        }
+        await removeCartItem(productId);
+        setAppliedCoupon(null);
+        await fetchCart();
     };
 
     const applyCoupon = async () => {
         try {
+            if (!isLoggedIn) {
+                return toast.error("Please login to use coupon codes.");
+            }
+
             if (!couponCode.trim()) {
                 return toast.error("Please enter coupon code.");
             }
@@ -421,12 +423,7 @@ function CheckoutForm({ locale = "en" }) {
 
     const resetCartAfterSuccess = async () => {
         await clearCart({ silent: true });
-
-        setCart({
-            items: [],
-            totalItems: 0,
-            subTotal: 0,
-        });
+        await fetchCart();
 
         setAppliedCoupon(null);
         setCouponCode("");
@@ -456,7 +453,7 @@ function CheckoutForm({ locale = "en" }) {
                     productID: getProductId(item),
                     qty: getQty(item),
                 })),
-                coupon: appliedCoupon
+                coupon: isLoggedIn && appliedCoupon
                     ? {
                         couponId: appliedCoupon.couponId,
                         code: appliedCoupon.code,
@@ -467,13 +464,15 @@ function CheckoutForm({ locale = "en" }) {
                     : null,
                 discountAmount,
                 finalAmount: total,
-                paymentMethod: form.paymentMethod,
+                paymentMethod: isLoggedIn ? form.paymentMethod : "stripe",
                 orderNote: form.orderNote.trim(),
             };
 
             const res = await http.post("/frontend/order/", payload);
 
-            if (form.paymentMethod === "stripe") {
+            const selectedPaymentMethod = isLoggedIn ? form.paymentMethod : "stripe";
+
+            if (selectedPaymentMethod === "stripe") {
                 const clientSecret = res?.data?.stripe?.clientSecret;
 
                 if (!clientSecret) {
@@ -529,8 +528,18 @@ function CheckoutForm({ locale = "en" }) {
                 toast.success(res?.data?.message || "Order placed successfully.");
             }
 
+            const orderNumber = res?.data?.data?.orderNumber;
             await resetCartAfterSuccess();
-            router.push(`/${locale}/dashboard?tab=orders`);
+
+            if (isLoggedIn) {
+                router.push(`/${locale}/dashboard?tab=orders`);
+            } else {
+                router.push(
+                    orderNumber
+                        ? `/${locale}/support/track-order?orderNumber=${orderNumber}`
+                        : `/${locale}/support/track-order`
+                );
+            }
         } catch (err) {
             toast.error(err?.response?.data?.message || "Failed to place order.");
         } finally {
@@ -754,15 +763,21 @@ function CheckoutForm({ locale = "en" }) {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    <PaymentOption
-                                        checked={form.paymentMethod === "cod"}
-                                        label={t("cod", locale)}
-                                        icon={<Truck className="h-4 w-4" />}
-                                        onChange={() => updateForm("paymentMethod", "cod")}
-                                    />
+                                    {isLoggedIn ? (
+                                        <PaymentOption
+                                            checked={form.paymentMethod === "cod"}
+                                            label={t("cod", locale)}
+                                            icon={<Truck className="h-4 w-4" />}
+                                            onChange={() => updateForm("paymentMethod", "cod")}
+                                        />
+                                    ) : (
+                                        <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 text-sm font-semibold text-[#1a4b8f]">
+                                            Guest checkout is available with card payment only. Login to use Cash on Delivery.
+                                        </div>
+                                    )}
 
                                     <PaymentOption
-                                        checked={form.paymentMethod === "stripe"}
+                                        checked={(isLoggedIn ? form.paymentMethod : "stripe") === "stripe"}
                                         label={t("stripe", locale)}
                                         icon={<CreditCard className="h-4 w-4" />}
                                         onChange={() =>
@@ -770,7 +785,7 @@ function CheckoutForm({ locale = "en" }) {
                                         }
                                     />
 
-                                    {form.paymentMethod === "stripe" && (
+                                    {(isLoggedIn ? form.paymentMethod : "stripe") === "stripe" && (
                                         <div className="rounded-2xl border border-orange-100 bg-white p-4">
                                             <label className="mb-3 block text-sm font-semibold text-neutral-800">
                                                 {t("cardDetails", locale)}
@@ -875,7 +890,7 @@ function CheckoutForm({ locale = "en" }) {
                                         setAppliedCoupon(null);
                                     }}
                                     placeholder="SAVE20"
-                                    disabled={couponLoading}
+                                    disabled={couponLoading || !isLoggedIn}
                                     className="h-11 min-w-0 flex-1 rounded-xl border border-orange-100 px-3 text-sm outline-none transition focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:bg-neutral-100"
                                 />
 
@@ -891,7 +906,7 @@ function CheckoutForm({ locale = "en" }) {
                                     <button
                                         type="button"
                                         onClick={applyCoupon}
-                                        disabled={couponLoading}
+                                        disabled={couponLoading || !isLoggedIn}
                                         className="h-11 rounded-xl bg-[#1a4b8f] px-5 text-sm font-bold text-white transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-70"
                                     >
                                         {couponLoading ? (
@@ -902,6 +917,12 @@ function CheckoutForm({ locale = "en" }) {
                                     </button>
                                 )}
                             </div>
+
+                            {!isLoggedIn && (
+                                <p className="mt-2 text-xs font-medium text-neutral-500">
+                                    Coupon codes are available after login.
+                                </p>
+                            )}
 
                             {appliedCoupon && (
                                 <p className="mt-2 text-xs font-medium text-green-600">
@@ -961,7 +982,7 @@ function CheckoutForm({ locale = "en" }) {
                             ) : (
                                 <>
                                     <CheckCircle2 className="h-4 w-4" />
-                                    {form.paymentMethod === "stripe"
+                                    {(isLoggedIn ? form.paymentMethod : "stripe") === "stripe"
                                         ? t("payNow", locale)
                                         : t("placeOrder", locale)}
                                 </>

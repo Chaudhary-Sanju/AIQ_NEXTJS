@@ -17,6 +17,7 @@ import {
 import { setUser } from "@/store/userSlice";
 import http from "@/http";
 import { inStorage } from "@/lib";
+import { clearGuestCartStorage } from "@/contexts/CartContext";
 import { setInForm } from "@/lib/index";
 
 const Glow = () => (
@@ -233,6 +234,8 @@ export default function Login({ locale = "en", dict = {} }) {
 
             dispatch(setUser(data.user));
             inStorage("hkmandu", data.token, remember);
+            clearGuestCartStorage();
+            window.dispatchEvent(new Event("hkmandu-auth-changed"));
 
             router.replace(safeNext || `/${locale}/dashboard`);
             router.refresh();

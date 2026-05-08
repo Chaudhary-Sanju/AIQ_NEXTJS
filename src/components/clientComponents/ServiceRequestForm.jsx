@@ -6,6 +6,7 @@ import {
     BadgeDollarSign,
     BriefcaseBusiness,
     CheckCircle2,
+    ClipboardCheck,
     Clock3,
     CreditCard,
     Loader2,
@@ -15,6 +16,7 @@ import {
     Phone,
     RefreshCcw,
     ShieldCheck,
+    Sparkles,
     User,
 } from "lucide-react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
@@ -36,6 +38,17 @@ const COPY = {
         titleC: "request",
         subtitle:
             "Tell us about your project and we'll get back to you within one business day.",
+
+        bannerTitle: "Need help with a service?",
+        bannerText:
+            "Start with a quick request. We’ll only ask for the full details when you’re ready.",
+        bannerCta: "Request Now",
+        bannerPoints: [
+            "Quick service review",
+            "OTP verified request",
+            "Team response within one business day",
+        ],
+
         displayName: "Display Name or Alias",
         email: "Email",
         phone: "Phone",
@@ -50,7 +63,8 @@ const COPY = {
             email: "alex@example.com",
             phone: "+85251234567",
             address: "Kowloon, Hong Kong",
-            workDesc: "Describe your project, goals, timeline, and any relevant details...",
+            workDesc:
+                "Describe your project, goals, timeline, and any relevant details...",
             budget: "5000",
             otp: "Enter 6-digit OTP",
         },
@@ -75,10 +89,13 @@ const COPY = {
         phoneMethod: "Phone",
         required: "This field is required.",
         invalidEmail: "Please enter a valid email address.",
-        invalidPhone: "Phone must be a valid Nepal (+977XXXXXXXXXX) or Hong Kong (+852XXXXXXXX) number.",
+        invalidPhone:
+            "Phone must be a valid Nepal (+977XXXXXXXXXX) or Hong Kong (+852XXXXXXXX) number.",
         invalidBudget: "Please enter a valid budget amount.",
         invalidOtp: "Please enter the OTP code.",
         invalidServiceType: "Invalid service type.",
+        clear: "Clear",
+        expiresAt: "Expires at",
         timelines: [
             { value: "within 24 hours", label: "Within 24 hours" },
             { value: "within a week", label: "Within a week" },
@@ -112,6 +129,17 @@ const COPY = {
         titleC: "पेश गर्नुहोस्",
         subtitle:
             "आफ्नो परियोजनाबारे हामीलाई बताउनुहोस्। हामी एक कार्यदिवसभित्र तपाईंलाई सम्पर्क गर्नेछौं।",
+
+        bannerTitle: "सेवा चाहिएको छ?",
+        bannerText:
+            "छिटो अनुरोधबाट सुरु गर्नुहोस्। तपाईं तयार भएपछि मात्र पूरा विवरण मागिन्छ।",
+        bannerCta: "अहिले अनुरोध गर्नुहोस्",
+        bannerPoints: [
+            "छिटो सेवा समीक्षा",
+            "OTP मार्फत प्रमाणित अनुरोध",
+            "एक कार्यदिवसभित्र टोलीबाट प्रतिक्रिया",
+        ],
+
         displayName: "डिस्प्ले नाम वा उपनाम",
         email: "इमेल",
         phone: "फोन",
@@ -126,7 +154,8 @@ const COPY = {
             email: "alex@example.com",
             phone: "+9779812345678",
             address: "काठमाडौं, नेपाल",
-            workDesc: "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
+            workDesc:
+                "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
             budget: "5000",
             otp: "६ अङ्कको OTP हाल्नुहोस्",
         },
@@ -151,10 +180,13 @@ const COPY = {
         phoneMethod: "फोन",
         required: "यो फिल्ड आवश्यक छ।",
         invalidEmail: "कृपया मान्य इमेल लेख्नुहोस्।",
-        invalidPhone: "फोन नम्बर +977XXXXXXXXXX वा +852XXXXXXXX ढाँचामा हुनुपर्छ।",
+        invalidPhone:
+            "फोन नम्बर +977XXXXXXXXXX वा +852XXXXXXXX ढाँचामा हुनुपर्छ।",
         invalidBudget: "कृपया मान्य बजेट लेख्नुहोस्।",
         invalidOtp: "कृपया OTP कोड लेख्नुहोस्।",
         invalidServiceType: "अवैध सेवा प्रकार।",
+        clear: "खाली गर्नुहोस्",
+        expiresAt: "म्याद सकिने समय",
         timelines: [
             { value: "within 24 hours", label: "२४ घण्टाभित्र" },
             { value: "within a week", label: "एक हप्ताभित्र" },
@@ -187,6 +219,16 @@ const COPY = {
         titleB: "服务",
         titleC: "需求",
         subtitle: "告诉我们您的项目需求，我们会在一个工作日内回复您。",
+
+        bannerTitle: "需要服务协助？",
+        bannerText: "先从快速需求开始。准备好后再填写完整资料。",
+        bannerCta: "立即申请",
+        bannerPoints: [
+            "快速服务审核",
+            "OTP 验证需求",
+            "团队将在一个工作日内回复",
+        ],
+
         displayName: "显示名称或昵称",
         email: "电邮",
         phone: "电话",
@@ -229,6 +271,8 @@ const COPY = {
         invalidBudget: "请输入有效的预算金额。",
         invalidOtp: "请输入验证码。",
         invalidServiceType: "服务类型无效。",
+        clear: "清除",
+        expiresAt: "过期时间",
         timelines: [
             { value: "within 24 hours", label: "24 小时内" },
             { value: "within a week", label: "一周内" },
@@ -271,6 +315,7 @@ const initialForm = {
 
 function getErrorText(err) {
     const data = err?.response?.data;
+
     const message =
         data?.message ||
         data?.error ||
@@ -296,7 +341,9 @@ function Field({ label, icon: Icon, required = true, error, children }) {
                 {label}
                 {required ? <span className="text-[#4b63ff]">*</span> : null}
             </span>
+
             {children}
+
             {error ? <p className="text-xs text-red-500">{error}</p> : null}
         </label>
     );
@@ -342,6 +389,7 @@ export default function ServiceRequestForm({
     const [errors, setErrors] = useState({});
     const [requestMeta, setRequestMeta] = useState(null);
     const [step, setStep] = useState("form");
+    const [showForm, setShowForm] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [verifyLoading, setVerifyLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
@@ -458,18 +506,20 @@ export default function ServiceRequestForm({
     const validate = () => {
         const nextErrors = {};
 
+        if (!ALLOWED_SERVICE_TYPES.includes(normalizedServiceType)) {
+            nextErrors.serviceType = t.invalidServiceType;
+        }
+
         if (!form.displayName.trim()) {
             nextErrors.displayName = t.required;
         }
 
-        // Email is required
         if (!form.email.trim()) {
             nextErrors.email = t.required;
         } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
             nextErrors.email = t.invalidEmail;
         }
 
-        // Phone is optional, but if entered, it must match backend format
         if (
             form.phone.trim() &&
             !/^(\+977[- ]?\d{10}|\+852[- ]?\d{8})$/.test(form.phone.trim())
@@ -507,7 +557,6 @@ export default function ServiceRequestForm({
             nextErrors.paymentMethod = t.required;
         }
 
-        // Phone verification requires phone
         if (form.verificationMethod === "phone" && !form.phone.trim()) {
             nextErrors.phone = t.required;
         }
@@ -550,6 +599,7 @@ export default function ServiceRequestForm({
             }
 
             const payload = {
+                serviceType: normalizedServiceType,
                 displayName: form.displayName.trim(),
                 email: form.email.trim().toLowerCase(),
                 phone: form.phone.trim(),
@@ -651,6 +701,7 @@ export default function ServiceRequestForm({
         setOtpValues(["", "", "", "", "", ""]);
         setRequestMeta(null);
         setStep("form");
+        setShowForm(false);
         setBanner({ type: "", text: "" });
     };
 
@@ -669,7 +720,7 @@ export default function ServiceRequestForm({
                         {heading.line1}{" "}
                         <span className="font-serif italic text-[#4b63ff]">
                             {heading.highlight}
-                        </span> &thinsp;
+                        </span>{" "}
                         {heading.line2}
                     </h1>
 
@@ -694,7 +745,50 @@ export default function ServiceRequestForm({
                         </div>
                     ) : null}
 
-                    {step === "form" ? (
+                    {step === "form" && !showForm ? (
+                        <div className="overflow-hidden rounded-[26px] border border-[#dfe4ff] bg-[linear-gradient(135deg,#f8f9ff_0%,#ffffff_55%,#eef1ff_100%)] p-5 sm:p-7">
+                            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="max-w-xl">
+                                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#4b63ff] shadow-sm">
+                                        <Sparkles className="h-5 w-5" />
+                                    </div>
+
+                                    <h2 className="text-2xl font-semibold leading-tight text-neutral-900 sm:text-3xl">
+                                        {t.bannerTitle}
+                                    </h2>
+
+                                    <p className="mt-3 text-sm leading-7 text-neutral-500 sm:text-base">
+                                        {t.bannerText}
+                                    </p>
+
+                                    <div className="mt-5 grid gap-3">
+                                        {t.bannerPoints.map((point) => (
+                                            <div
+                                                key={point}
+                                                className="flex items-center gap-3 text-sm font-medium text-neutral-700"
+                                            >
+                                                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#4b63ff] shadow-sm">
+                                                    <ClipboardCheck className="h-4 w-4" />
+                                                </span>
+                                                {point}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForm(true)}
+                                    className="inline-flex h-14 shrink-0 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#5b6ff8_0%,#4357e8_45%,#3e4fd4_100%)] px-6 text-sm font-semibold uppercase tracking-[0.22em] text-white shadow-[0_18px_40px_rgba(75,99,255,0.35)] transition hover:translate-y-[-1px]"
+                                >
+                                    {t.bannerCta}
+                                    <ArrowRight className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+                    ) : null}
+
+                    {step === "form" && showForm ? (
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <Field
                                 label={t.displayName}
@@ -706,19 +800,27 @@ export default function ServiceRequestForm({
                                     value={form.displayName}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.displayName}
-                                    className={`${inputClass(!!errors.displayName)} h-12`}
+                                    className={`${inputClass(
+                                        !!errors.displayName
+                                    )} h-12`}
                                 />
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field label={t.email} icon={Mail} error={errors.email}>
+                                <Field
+                                    label={t.email}
+                                    icon={Mail}
+                                    error={errors.email}
+                                >
                                     <input
                                         type="email"
                                         name="email"
                                         value={form.email}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.email}
-                                        className={`${inputClass(!!errors.email)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.email
+                                        )} h-12`}
                                     />
                                 </Field>
 
@@ -733,18 +835,26 @@ export default function ServiceRequestForm({
                                         value={form.phone}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.phone}
-                                        className={`${inputClass(!!errors.phone)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.phone
+                                        )} h-12`}
                                     />
                                 </Field>
                             </div>
 
-                            <Field label={t.address} icon={MapPin} error={errors.address}>
+                            <Field
+                                label={t.address}
+                                icon={MapPin}
+                                error={errors.address}
+                            >
                                 <input
                                     name="address"
                                     value={form.address}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.address}
-                                    className={`${inputClass(!!errors.address)} h-12`}
+                                    className={`${inputClass(
+                                        !!errors.address
+                                    )} h-12`}
                                 />
                             </Field>
 
@@ -794,7 +904,10 @@ export default function ServiceRequestForm({
                                         )} h-12 rounded-l-none bg-[#fafbff] font-semibold uppercase text-[#4b63ff]`}
                                     >
                                         {t.currencies.map((currency) => (
-                                            <option key={currency} value={currency}>
+                                            <option
+                                                key={currency}
+                                                value={currency}
+                                            >
                                                 {currency}
                                             </option>
                                         ))}
@@ -816,10 +929,15 @@ export default function ServiceRequestForm({
                                             !!errors.projectTime
                                         )} h-12`}
                                     >
-                                        <option value="">{t.chooseTimeline}</option>
+                                        <option value="">
+                                            {t.chooseTimeline}
+                                        </option>
 
                                         {t.timelines.map((item) => (
-                                            <option key={item.value} value={item.value}>
+                                            <option
+                                                key={item.value}
+                                                value={item.value}
+                                            >
                                                 {item.label}
                                             </option>
                                         ))}
@@ -839,10 +957,15 @@ export default function ServiceRequestForm({
                                             !!errors.paymentMethod
                                         )} h-12`}
                                     >
-                                        <option value="">{t.choosePayment}</option>
+                                        <option value="">
+                                            {t.choosePayment}
+                                        </option>
 
                                         {t.payments.map((item) => (
-                                            <option key={item.value} value={item.value}>
+                                            <option
+                                                key={item.value}
+                                                value={item.value}
+                                            >
                                                 {item.label}
                                             </option>
                                         ))}
@@ -875,7 +998,8 @@ export default function ServiceRequestForm({
                                         },
                                     ].map((item) => {
                                         const active =
-                                            form.verificationMethod === item.value;
+                                            form.verificationMethod ===
+                                            item.value;
 
                                         return (
                                             <button
@@ -902,6 +1026,7 @@ export default function ServiceRequestForm({
                                                 <div className="text-sm font-semibold text-neutral-900">
                                                     {item.label}
                                                 </div>
+
                                                 <div className="mt-1 text-xs text-neutral-500">
                                                     {item.helper}
                                                 </div>
@@ -956,7 +1081,7 @@ export default function ServiceRequestForm({
 
                                 {requestMeta?.expiresAt ? (
                                     <p className="mt-1 text-xs text-neutral-500">
-                                        Expires at:{" "}
+                                        {t.expiresAt}:{" "}
                                         {new Date(
                                             requestMeta.expiresAt
                                         ).toLocaleString()}
@@ -1016,7 +1141,7 @@ export default function ServiceRequestForm({
                                             onClick={clearOtp}
                                             className="font-medium text-neutral-500 underline underline-offset-2 hover:text-neutral-700"
                                         >
-                                            Clear
+                                            {t.clear}
                                         </button>
                                     </div>
                                 </div>

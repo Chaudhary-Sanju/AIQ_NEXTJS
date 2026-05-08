@@ -120,8 +120,8 @@ const normalizeCartItems = (items = [], locale = "en") => {
             return {
                 id: productId,
                 slug: product?.slug || "",
-                name: pick(product?.name, locale) || "Product",
-                summary: pick(product?.summary, locale),
+                name: pick(product?.name, locale) || (typeof product?.name === "string" ? product.name : "Product"),
+                summary: pick(product?.summary, locale) || (typeof product?.summary === "string" ? product.summary : ""),
                 image: Array.isArray(product?.images)
                     ? product.images[0]
                     : Array.isArray(product?.image)

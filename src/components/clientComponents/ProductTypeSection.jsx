@@ -16,7 +16,9 @@ import http from "@/http";
 import { imgUrl } from "@/lib";
 
 const pick = (obj, locale = "en") => {
-    if (!obj || typeof obj !== "object") return "";
+    if (!obj) return "";
+    if (typeof obj === "string") return obj;
+    if (typeof obj !== "object") return "";
     return obj?.[locale] || obj?.en || obj?.ne || obj?.zh || "";
 };
 
@@ -79,6 +81,57 @@ const UI = {
     },
 };
 
+const getFirstImage = (product) => {
+    if (Array.isArray(product?.images) && product.images.length) {
+        return product.images[0];
+    }
+
+    if (Array.isArray(product?.image) && product.image.length) {
+        return product.image[0];
+    }
+
+    if (product?.featuredImage) return product.featuredImage;
+    if (product?.thumbnail) return product.thumbnail;
+
+    if (typeof product?.image === "string") return product.image;
+
+    return null;
+};
+
+const normalizeProduct = (p, locale) => {
+    const firstImage = getFirstImage(p);
+
+    return {
+        _id: p?._id,
+        id: p?._id,
+        slug: p?.slug || "",
+        name: p?.name || {
+            en: pick(p?.name, "en") || pick(p?.name, locale) || "Product",
+            ne: pick(p?.name, "ne") || pick(p?.name, locale) || "Product",
+            zh: pick(p?.name, "zh") || pick(p?.name, locale) || "Product",
+        },
+        displayName: pick(p?.name, locale),
+        summary: p?.summary || {
+            en: pick(p?.summary, "en"),
+            ne: pick(p?.summary, "ne"),
+            zh: pick(p?.summary, "zh"),
+        },
+        displaySummary: pick(p?.summary, locale),
+        price: p?.price,
+        discounted_price: p?.discounted_price ?? p?.discountPrice ?? null,
+        image: firstImage ? [firstImage] : [],
+        images: firstImage ? [firstImage] : [],
+        singleImage: firstImage,
+        qty: p?.qty,
+        stock: p?.stock,
+        sellOnNoStock: p?.sellOnNoStock,
+        reviewSummary: {
+            averageRating: Number(p?.reviewSummary?.averageRating || 0),
+            totalReviews: Number(p?.reviewSummary?.totalReviews || 0),
+        },
+    };
+};
+
 export default function ProductTypeSection({
     locale = "en",
     type = "featuredProduct",
@@ -115,27 +168,7 @@ export default function ProductTypeSection({
 
                 const mapped = data
                     .filter((p) => p?.status === true)
-                    .map((p) => ({
-                        id: p?._id,
-                        slug: p?.slug,
-                        name: pick(p?.name, locale),
-                        summary: pick(p?.summary, locale),
-                        price: p?.price,
-                        discounted_price: p?.discounted_price,
-                        image: Array.isArray(p?.images)
-                            ? p.images[0]
-                            : Array.isArray(p?.image)
-                                ? p.image[0]
-                                : null,
-                        reviewSummary: {
-                            averageRating: Number(
-                                p?.reviewSummary?.averageRating || 0
-                            ),
-                            totalReviews: Number(
-                                p?.reviewSummary?.totalReviews || 0
-                            ),
-                        },
-                    }));
+                    .map((p) => normalizeProduct(p, locale));
 
                 if (mounted) setRows(mapped);
             } catch {
@@ -175,7 +208,9 @@ export default function ProductTypeSection({
                             className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white px-4 py-2 text-xs font-bold text-[#1a4b8f] transition hover:bg-orange-50 md:text-sm"
                         >
                             <ArrowUpRight className="h-4 w-4" />
-                            <span className="hidden sm:inline">{resolvedSeeAll}</span>
+                            <span className="hidden sm:inline">
+                                {resolvedSeeAll}
+                            </span>
                             <span className="sm:hidden">More</span>
                         </Link>
                     </div>
@@ -285,6 +320,10 @@ function ProductCard({ p, locale }) {
         return pct > 0 ? pct : null;
     })();
 
+    const finalPrice = hasDiscount ? p.discounted_price : p.price;
+
+    const displayImage = p.singleImage || p.images?.[0] || p.image?.[0];
+
     return (
         <div className="group rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
             <Link
@@ -298,10 +337,10 @@ function ProductCard({ p, locale }) {
                     </span>
                 ) : null}
 
-                {p.image ? (
+                {displayImage ? (
                     <Image
-                        src={imgUrl(p.image)}
-                        alt={p.name || "Product"}
+                        src={imgUrl(displayImage)}
+                        alt={p.displayName || "Product"}
                         fill
                         className="object-cover transition duration-500 group-hover:scale-105"
                         sizes="(max-width: 1024px) 178px, 220px"
@@ -316,12 +355,12 @@ function ProductCard({ p, locale }) {
 
             <Link href={href} className="mt-3 block">
                 <h3 className="line-clamp-1 text-[13px] font-bold text-neutral-950 transition group-hover:text-[#1a4b8f]">
-                    {p.name}
+                    {p.displayName}
                 </h3>
             </Link>
 
             <p className="mt-1.5 line-clamp-2 min-h-[38px] text-[11px] leading-[1.7] text-neutral-500">
-                {p.summary || ""}
+                {p.displaySummary || ""}
             </p>
 
             <div className="mt-2 flex min-h-[20px] items-center gap-1 text-[11px]">
@@ -339,9 +378,7 @@ function ProductCard({ p, locale }) {
                         </span>
                     </>
                 ) : (
-                    <span className="text-neutral-400">
-                        {notRatedYetText}
-                    </span>
+                    <span className="text-neutral-400">{notRatedYetText}</span>
                 )}
             </div>
 
@@ -364,13 +401,13 @@ function ProductCard({ p, locale }) {
             </div>
 
             <div className="text-[16px] font-bold leading-none text-[#1a4b8f]">
-                {money(hasDiscount ? p.discounted_price : p.price)}
+                {money(finalPrice)}
             </div>
 
             <button
                 type="button"
                 disabled={busy}
-                onClick={() => addToCart(p.id, 1)}
+                onClick={() => addToCart(p.id, 1, p)}
                 className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
