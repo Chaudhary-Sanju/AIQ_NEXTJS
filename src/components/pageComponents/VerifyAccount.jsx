@@ -16,6 +16,9 @@ import {
 
 import http from "@/http";
 
+const PHONE_REGEX =
+    /^((\+977-?\d{10})|(\d{10})|(\+852-?[569]\d{7})|([569]\d{7}))$/;
+
 /* ---------------------------------- */
 /* Backend Error Handling */
 /* ---------------------------------- */
@@ -98,6 +101,7 @@ function TextInput({
     id,
     value,
     onChange,
+    onBlur,
     placeholder,
     autoComplete,
     inputMode,
@@ -117,6 +121,7 @@ function TextInput({
                 id={id}
                 value={value}
                 onChange={onChange}
+                onBlur={onBlur}
                 placeholder={placeholder}
                 autoComplete={autoComplete}
                 inputMode={inputMode}
@@ -284,6 +289,29 @@ function OtpInput({
     );
 }
 
+function normalizePhone(value) {
+    const raw = value.trim();
+    const digits = raw.replace(/\D/g, "");
+
+    if (digits.length === 10) {
+        return `+977-${digits}`;
+    }
+
+    if (digits.length === 8) {
+        return `+852-${digits}`;
+    }
+
+    if (digits.startsWith("977") && digits.length === 13) {
+        return `+977-${digits.slice(3)}`;
+    }
+
+    if (digits.startsWith("852") && digits.length === 11) {
+        return `+852-${digits.slice(3)}`;
+    }
+
+    return raw;
+}
+
 /* ---------------------------------- */
 /* Page */
 /* ---------------------------------- */
@@ -369,10 +397,15 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
 
         const local = {};
 
-        if (!verificationMethod) {
-            local.verificationMethod = t(
-                "verify.validation.verificationMethodRequired",
-                "Please select a verification method."
+        if (verificationMethod === "phone" && !phone?.trim()) {
+            local.phone = t("verify.validation.phoneRequired", "Phone is required.");
+        } else if (
+            verificationMethod === "phone" &&
+            !PHONE_REGEX.test(normalizePhone(phone))
+        ) {
+            local.phone = t(
+                "verify.validation.phoneInvalid",
+                "Phone must be a valid Nepal (+977) or Hong Kong (+852) number."
             );
         }
 
@@ -390,6 +423,8 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
             return;
         }
 
+        const normalizedPhone = normalizePhone(phone);
+
         const payload =
             verificationMethod === "email"
                 ? {
@@ -397,7 +432,7 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                     verificationMethod: "email",
                 }
                 : {
-                    phone: phone.trim(),
+                    phone: normalizedPhone,
                     verificationMethod: "phone",
                 };
 
@@ -434,12 +469,18 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
         setFieldErrors({});
 
         const cleanOtp = otp.trim().toUpperCase();
+        const normalizedPhone = normalizePhone(phone);
         const local = {};
 
-        if (!verificationMethod) {
-            local.verificationMethod = t(
-                "verify.validation.verificationMethodRequired",
-                "Please select a verification method."
+        if (verificationMethod === "phone" && !phone?.trim()) {
+            local.phone = t("verify.validation.phoneRequired", "Phone is required.");
+        } else if (
+            verificationMethod === "phone" &&
+            !PHONE_REGEX.test(normalizePhone(phone))
+        ) {
+            local.phone = t(
+                "verify.validation.phoneInvalid",
+                "Phone must be a valid Nepal (+977) or Hong Kong (+852) number."
             );
         }
 
@@ -709,9 +750,10 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                                 id="phone"
                                                 value={phone}
                                                 onChange={onPhoneChange}
+                                                onBlur={(e) => setPhone(normalizePhone(e.target.value))}
                                                 placeholder={t(
                                                     "verify.form.phonePlaceholder",
-                                                    "+9779812345678"
+                                                    "9812345678"
                                                 )}
                                                 autoComplete="tel"
                                                 hasError={!!fieldErrors?.phone}

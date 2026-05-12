@@ -134,7 +134,7 @@
       "passwordRuleTitle": "पासवर्ड नियम",
       "passwordRuleText": "८+ अक्षर, ठूलो/सानो अक्षर, नम्बर, विशेष (@$!%*?&).",
       "phoneRuleTitle": "फोन ढाँचा",
-      "phoneRuleText": "नेपाल: +9779876543210 वा +977-9876543210\nHK: +85251234567 वा +852-51234567",
+      "phoneRuleText": "नेपाल: 9876543210\nHK: 51234567",
       "tipCreate": "टिप: बलियो पासवर्ड प्रयोग गर्नुहोस् र गोप्य राख्नुहोस्।",
       "tipOtp": "OTP आएन? पुनः पठाउन सक्नुहुन्छ।"
     },
@@ -152,7 +152,7 @@
       "email": "इमेल",
       "emailPlaceholder": "you@example.com",
       "phone": "फोन",
-      "phonePlaceholder": "+9779876543210",
+      "phonePlaceholder": "9876543210",
       "address": "ठेगाना",
       "addressPlaceholder": "सहर / क्षेत्र",
       "password": "पासवर्ड",

@@ -121,7 +121,7 @@
       "passwordRuleTitle": "密碼規則",
       "passwordRuleText": "至少 8 位，需包含大寫、小寫、數字及特殊字元 (@$!%*?&)。",
       "phoneRuleTitle": "電話格式",
-      "phoneRuleText": "尼泊爾: +9779876543210 或 +977-9876543210\n香港: +85251234567 或 +852-51234567",
+      "phoneRuleText": "尼泊爾: 9876543210\n香港: 51234567",
       "tipCreate": "提示：使用強密碼並妥善保管。",
       "tipOtp": "收不到 OTP？你可以重新發送。"
     },
@@ -139,7 +139,7 @@
       "email": "電郵",
       "emailPlaceholder": "you@example.com",
       "phone": "電話",
-      "phonePlaceholder": "+9779876543210",
+      "phonePlaceholder": "9876543210",
       "address": "地址",
       "addressPlaceholder": "城市 / 地區",
       "password": "密碼",

@@ -54,6 +54,7 @@ function TextInput({
     id,
     value,
     onChange,
+    onBlur,
     placeholder,
     autoComplete,
     required = true,
@@ -72,6 +73,7 @@ function TextInput({
                 required={required}
                 value={value}
                 onChange={onChange}
+                onBlur={onBlur}
                 autoComplete={autoComplete}
                 placeholder={placeholder}
                 className={[
@@ -163,6 +165,49 @@ function extractErrorText(err, fallback) {
     return fallback;
 }
 
+function normalizeIdentifier(value) {
+    const raw = value.trim();
+
+    if (!raw) return raw;
+
+    // If it looks like an email, leave it untouched
+    if (raw.includes("@")) {
+        return raw.toLowerCase();
+    }
+
+    const digits = raw.replace(/\D/g, "");
+
+    // Nepal local number -> +977XXXXXXXXXX
+    if (digits.length === 10) {
+        return `+977-${digits}`;
+    }
+
+    // Hong Kong local number -> +852XXXXXXXX
+    if (digits.length === 8) {
+        return `+852-${digits}`;
+    }
+
+    // Already entered with country code
+    if (digits.startsWith("977") && digits.length === 13) {
+        return `+977-${digits.slice(3)}`;
+    }
+
+    if (digits.startsWith("852") && digits.length === 11) {
+        return `+852-${digits.slice(3)}`;
+    }
+
+    return raw;
+}
+
+function handleIdentifierBlur(value, setForm) {
+    const formatted = normalizeIdentifier(value);
+
+    setForm((prev) => ({
+        ...prev,
+        identifier: formatted,
+    }));
+}
+
 export default function Login({ locale = "en", dict = {} }) {
     const [form, setForm] = useState({ identifier: "", password: "" });
     const [remember, setRemember] = useState(false);
@@ -225,8 +270,10 @@ export default function Login({ locale = "en", dict = {} }) {
         }
 
         try {
+            const normalizedIdentifier = normalizeIdentifier(form.identifier);
+
             const payload = {
-                identifier: form.identifier.trim().toLowerCase(),
+                identifier: normalizedIdentifier,
                 password: form.password,
             };
 
@@ -361,6 +408,7 @@ export default function Login({ locale = "en", dict = {} }) {
                                         id="identifier"
                                         value={form.identifier}
                                         onChange={handleInputChange}
+                                        onBlur={(e) => handleIdentifierBlur(e.target.value, setForm)}
                                         placeholder={t(
                                             "login.identifierPlaceholder",
                                             "Enter your email or phone"

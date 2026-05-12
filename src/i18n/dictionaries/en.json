@@ -134,7 +134,7 @@
       "passwordRuleTitle": "Password rule",
       "passwordRuleText": "8+ chars, uppercase, lowercase, number, special (@$!%*?&).",
       "phoneRuleTitle": "Phone formats",
-      "phoneRuleText": "Nepal: +9779876543210 or +977-9876543210 \nHK: +85251234567 or +852-51234567",
+      "phoneRuleText": "Nepal: 9876543210 \nHK: 51234567",
       "tipCreate": "Tip: Use a strong password and keep it private.",
       "tipOtp": "Didn’t receive OTP? You can resend it."
     },
@@ -152,7 +152,7 @@
       "email": "Email",
       "emailPlaceholder": "you@example.com",
       "phone": "Phone",
-      "phonePlaceholder": "+9779876543210",
+      "phonePlaceholder": "9876543210",
       "address": "Address",
       "addressPlaceholder": "City / Area",
       "password": "Password",

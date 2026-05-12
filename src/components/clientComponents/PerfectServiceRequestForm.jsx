@@ -50,7 +50,7 @@ const COPY = {
         placeholders: {
             displayName: "Alex Lee",
             email: "alex@example.com",
-            phone: "+85251234567",
+            phone: "51234567",
             address: "Kowloon, Hong Kong",
             workDesc: "Describe your project, goals, timeline, and any relevant details...",
             budget: "5000",
@@ -78,7 +78,7 @@ const COPY = {
         required: "This field is required.",
         invalidEmail: "Please enter a valid email address.",
         invalidPhone:
-            "Phone must be a valid Nepal (+977XXXXXXXXXX) or Hong Kong (+852XXXXXXXX) number.",
+            "Phone must be a valid Nepal (9XXXXXXXXX) or Hong Kong (5XXXXXXX) number.",
         invalidBudget: "Please enter a valid budget amount.",
         invalidOtp: "Please enter the OTP code.",
         invalidServiceType: "Invalid service type.",
@@ -124,7 +124,7 @@ const COPY = {
         placeholders: {
             displayName: "अर्जुन श्रेष्ठ",
             email: "alex@example.com",
-            phone: "+9779812345678",
+            phone: "9812345678",
             address: "काठमाडौं, नेपाल",
             workDesc:
                 "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
@@ -153,7 +153,7 @@ const COPY = {
         required: "यो फिल्ड आवश्यक छ।",
         invalidEmail: "कृपया मान्य इमेल लेख्नुहोस्।",
         invalidPhone:
-            "फोन नम्बर +977XXXXXXXXXX वा +852XXXXXXXX ढाँचामा हुनुपर्छ।",
+            "फोन नम्बर 9XXXXXXXXX वा 5XXXXXXX ढाँचामा हुनुपर्छ।",
         invalidBudget: "कृपया मान्य बजेट लेख्नुहोस्।",
         invalidOtp: "कृपया OTP कोड लेख्नुहोस्।",
         invalidServiceType: "अवैध सेवा प्रकार।",
@@ -198,7 +198,7 @@ const COPY = {
         placeholders: {
             displayName: "Alex Chan",
             email: "alex@example.com",
-            phone: "+85251234567",
+            phone: "51234567",
             address: "香港九龙",
             workDesc: "请描述您的项目、目标、时间安排及其他相关细节...",
             budget: "5000",
@@ -306,6 +306,42 @@ function inputClass(hasError) {
             ? "border-red-300 focus:border-red-400 focus:ring-red-100"
             : "border-neutral-200 focus:border-[#4b63ff] focus:ring-[#4b63ff]/10",
     ].join(" ");
+}
+
+
+function normalizePhone(value) {
+    const raw = value.trim();
+    const digits = raw.replace(/\D/g, "");
+
+    // Nepal local number: 10 digits -> +977XXXXXXXXXX
+    if (digits.length === 10) {
+        return `+977-${digits}`;
+    }
+
+    // Hong Kong local number: 8 digits -> +852XXXXXXXX
+    if (digits.length === 8) {
+        return `+852-${digits}`;
+    }
+
+    // Already typed with country code
+    if (digits.startsWith("977") && digits.length === 13) {
+        return `+977-${digits.slice(3)}`;
+    }
+
+    if (digits.startsWith("852") && digits.length === 11) {
+        return `+852-${digits.slice(3)}`;
+    }
+
+    return raw;
+}
+
+function handlePhoneBlur(name, value, setForm) {
+    const formatted = normalizePhone(value);
+
+    setForm((prev) => ({
+        ...prev,
+        [name]: formatted,
+    }));
 }
 
 export default function PerfectServiceRequestForm({
@@ -464,7 +500,10 @@ export default function PerfectServiceRequestForm({
             nextErrors.email = t.invalidEmail;
         }
 
-        if (form.phone.trim() && !PHONE_REGEX.test(form.phone.trim())) {
+        if (
+            form.phone.trim() &&
+            !/^(\+977[- ]?\d{10}|\+852[- ]?\d{8}|\d{10}|\d{8})$/.test(form.phone.trim())
+        ) {
             nextErrors.phone = t.invalidPhone;
         }
 
@@ -714,6 +753,23 @@ export default function PerfectServiceRequestForm({
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
+
+                                <Field
+                                    label={t.phone}
+                                    icon={Phone}
+                                    error={errors.phone}
+                                    required={false}
+                                >
+                                    <input
+                                        name="phone"
+                                        value={form.phone}
+                                        onChange={handleChange}
+                                        onBlur={(e) => handlePhoneBlur("phone", e.target.value, setForm)}
+                                        placeholder={t.placeholders.phone}
+                                        className={`${inputClass(!!errors.phone)} h-12`}
+                                    />
+                                </Field>
+
                                 <Field
                                     label={t.email}
                                     icon={Mail}
@@ -727,23 +783,6 @@ export default function PerfectServiceRequestForm({
                                         placeholder={t.placeholders.email}
                                         className={`${inputClass(
                                             !!errors.email
-                                        )} h-12`}
-                                    />
-                                </Field>
-
-                                <Field
-                                    label={t.phone}
-                                    icon={Phone}
-                                    error={errors.phone}
-                                    required={false}
-                                >
-                                    <input
-                                        name="phone"
-                                        value={form.phone}
-                                        onChange={handleChange}
-                                        placeholder={t.placeholders.phone}
-                                        className={`${inputClass(
-                                            !!errors.phone
                                         )} h-12`}
                                     />
                                 </Field>

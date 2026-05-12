@@ -67,10 +67,10 @@ const COPY = {
 
         placeholders: {
             senderName: "Sender name",
-            senderPhone: "+9779800000000",
+            senderPhone: "9800000000",
             senderEmail: "sender@example.com",
             receiverName: "Receiver name",
-            receiverPhone: "+85290000000",
+            receiverPhone: "90000000",
             pickupAddress: "Pickup address",
             pickupDate: "",
             pickupTimeSlot: "10:00 AM - 1:00 PM",
@@ -127,9 +127,10 @@ const COPY = {
         required: "This field is required.",
         invalidEmail: "Please enter a valid email address.",
         invalidSenderPhone:
-            "Use a valid Nepal (+977XXXXXXXXXX) or Hong Kong (+852XXXXXXXX) number.",
+            "Enter 8 digits for Hong Kong or 10 digits for Nepal.",
+
         invalidReceiverPhone:
-            "Use a valid Nepal (+977XXXXXXXXXX) or Hong Kong (+852XXXXXXXX) number.",
+            "Enter 8 digits for Hong Kong or 10 digits for Nepal.",
         invalidWeight: "Please enter a valid positive weight.",
         invalidQuantity: "Quantity must be at least 1.",
         invalidOtp: "Please enter the OTP code.",
@@ -178,10 +179,10 @@ const COPY = {
 
         placeholders: {
             senderName: "पठाउने व्यक्तिको नाम",
-            senderPhone: "+9779800000000",
+            senderPhone: "9800000000",
             senderEmail: "sender@example.com",
             receiverName: "प्राप्त गर्ने व्यक्तिको नाम",
-            receiverPhone: "+85290000000",
+            receiverPhone: "90000000",
             pickupAddress: "पिकअप ठेगाना",
             pickupDate: "",
             pickupTimeSlot: "10:00 AM - 1:00 PM",
@@ -241,9 +242,9 @@ const COPY = {
         required: "यो फिल्ड आवश्यक छ।",
         invalidEmail: "कृपया मान्य इमेल हाल्नुहोस्।",
         invalidSenderPhone:
-            "मान्य नेपाल (+977XXXXXXXXXX) वा हङकङ (+852XXXXXXXX) नम्बर हाल्नुहोस्।",
+            "मान्य नेपाल (9XXXXXXXXX) वा हङकङ (8XXXXXXX) नम्बर हाल्नुहोस्।",
         invalidReceiverPhone:
-            "मान्य नेपाल (+977XXXXXXXXXX) वा हङकङ (+852XXXXXXXX) नम्बर हाल्नुहोस्।",
+            "मान्य नेपाल (9XXXXXXXXX) वा हङकङ (8XXXXXXX) नम्बर हाल्नुहोस्।",
         invalidWeight: "कृपया मान्य धनात्मक तौल हाल्नुहोस्।",
         invalidQuantity: "संख्या कम्तीमा १ हुनुपर्छ।",
         invalidOtp: "कृपया OTP हाल्नुहोस्।",
@@ -291,10 +292,10 @@ const COPY = {
 
         placeholders: {
             senderName: "寄件人姓名",
-            senderPhone: "+9779800000000",
+            senderPhone: "9800000000",
             senderEmail: "sender@example.com",
             receiverName: "收件人姓名",
-            receiverPhone: "+85290000000",
+            receiverPhone: "90000000",
             pickupAddress: "取件地址",
             pickupDate: "",
             pickupTimeSlot: "10:00 AM - 1:00 PM",
@@ -350,9 +351,9 @@ const COPY = {
         required: "此字段为必填。",
         invalidEmail: "请输入有效邮箱地址。",
         invalidSenderPhone:
-            "请输入有效的尼泊尔 (+977XXXXXXXXXX) 或香港 (+852XXXXXXXX) 电话号码。",
+            "请输入有效的尼泊尔 (9XXXXXXXXX) 或香港 (8XXXXXXX) 电话号码。",
         invalidReceiverPhone:
-            "请输入有效的尼泊尔 (+977XXXXXXXXXX) 或香港 (+852XXXXXXXX) 电话号码。",
+            "请输入有效的尼泊尔 (9XXXXXXXXX) 或香港 (8XXXXXXX) 电话号码。",
         invalidWeight: "请输入有效的正数重量。",
         invalidQuantity: "数量必须至少为 1。",
         invalidOtp: "请输入验证码。",
@@ -377,6 +378,16 @@ const initialForm = {
     receiverName: "",
     receiverPhone: "",
     deliveryAddress: "",
+    pickupAddressHK: {
+        street: "",
+        floor: "",
+        district: "",
+    },
+    deliveryAddressHK: {
+        street: "",
+        floor: "",
+        district: "",
+    },
     packageType: "",
     weight: "",
     quantity: 1,
@@ -669,8 +680,52 @@ function inputClass(hasError) {
     ].join(" ");
 }
 
-function isValidPhone(value) {
-    return /^(\+977\d{10}|\+852\d{8})$/.test((value || "").trim());
+function handlePhoneBlur(name, value, setForm) {
+    const formatted = normalizePhone(value);
+
+    setForm((prev) => ({
+        ...prev,
+        [name]: formatted,
+    }));
+}
+
+function normalizePhone(value = "") {
+    const raw = value.trim();
+
+    // Remove everything except digits
+    const digits = raw.replace(/\D/g, "");
+
+    // Nepal number (10 digits)
+    if (digits.length === 10) {
+        return `+977-${digits}`;
+    }
+
+    // Hong Kong number (8 digits)
+    if (digits.length === 8) {
+        return `+852-${digits}`;
+    }
+
+    // If user typed country code manually
+    if (digits.startsWith("977") && digits.length === 13) {
+        return `+977-${digits.slice(3)}`;
+    }
+
+    if (digits.startsWith("852") && digits.length === 11) {
+        return `+852-${digits.slice(3)}`;
+    }
+
+    return raw;
+}
+
+function isValidPhone(value = "") {
+    const cleaned = value.replace(/\s/g, "");
+
+    return (
+        /^\+977-\d{10}$/.test(cleaned) ||
+        /^\+852-\d{8}$/.test(cleaned) ||
+        /^\d{10}$/.test(cleaned) ||
+        /^\d{8}$/.test(cleaned)
+    );
 }
 
 function formatSlotLabel(startHour) {
@@ -714,6 +769,49 @@ function getTimeSlotsForDate(dateStr) {
             value: formatSlotLabel(hour),
             label: formatSlotLabel(hour),
         }));
+}
+
+const HK_DISTRICTS = [
+    "Central and Western",
+    "Eastern",
+    "Southern",
+    "Wan Chai",
+    "Sham Shui Po",
+    "Kowloon City",
+    "Kwun Tong",
+    "Wong Tai Sin",
+    "Yau Tsim Mong",
+    "Islands",
+    "Kwai Tsing",
+    "North",
+    "Sai Kung",
+    "Sha Tin",
+    "Tai Po",
+    "Tsuen Wan",
+    "Tuen Mun",
+    "Yuen Long",
+];
+
+function formatHongKongAddress(address) {
+    return [
+        `Street / Building: ${address.street?.trim() || ""}`,
+        `Floor / Unit: ${address.floor?.trim() || ""}`,
+        `District: ${address.district?.trim() || ""}`,
+    ].join(", ");
+}
+
+function shouldUseHongKongPickup(serviceType) {
+    return (
+        serviceType === "door-to-door" ||
+        serviceType === "hk-to-nepal"
+    );
+}
+
+function shouldUseHongKongDelivery(serviceType) {
+    return (
+        serviceType === "door-to-door" ||
+        serviceType === "nepal-to-hk"
+    );
 }
 
 export default function AiExpressPickupForm({
@@ -790,13 +888,25 @@ export default function AiExpressPickupForm({
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
-        setForm((prev) => {
-            const updatedValue = type === "checkbox" ? checked : value;
+        const isNested =
+            name.startsWith("pickupAddressHK.") ||
+            name.startsWith("deliveryAddressHK.");
 
-            const updated = {
-                ...prev,
-                [name]: updatedValue,
-            };
+        setForm((prev) => {
+            let updated = { ...prev };
+
+            if (isNested) {
+                const [parent, child] = name.split(".");
+
+                updated[parent] = {
+                    ...prev[parent],
+                    [child]: value,
+                };
+            } else {
+                let updatedValue = type === "checkbox" ? checked : value;
+
+                updated[name] = updatedValue;
+            }
 
             if (name === "pickupDate") {
                 updated.pickupTimeSlot = "";
@@ -886,11 +996,48 @@ export default function AiExpressPickupForm({
 
     const validate = () => {
         const nextErrors = {};
+        const pickupUsesHK = shouldUseHongKongPickup(serviceType);
+        const deliveryUsesHK = shouldUseHongKongDelivery(serviceType);
 
         if (!form.senderName.trim()) nextErrors.senderName = t.required;
-        if (!form.senderPhone.trim()) nextErrors.senderPhone = t.required;
-        else if (!isValidPhone(form.senderPhone)) {
-            nextErrors.senderPhone = t.invalidSenderPhone;
+        const senderDigits = form.senderPhone.replace(/\D/g, "");
+        const receiverDigits = form.receiverPhone.replace(/\D/g, "");
+
+        // Sender phone validation
+        if (!form.senderPhone.trim()) {
+            nextErrors.senderPhone = t.required;
+        } else if (
+            senderDigits.length !== 8 &&
+            senderDigits.length !== 10 &&
+            senderDigits.length !== 11 &&
+            senderDigits.length !== 13
+        ) {
+            nextErrors.senderPhone =
+                "Phone number must be 8 digits (Hong Kong) or 10 digits (Nepal).";
+        } else if (
+            senderDigits.length === 8 &&
+            !/^\d{8}$/.test(senderDigits)
+        ) {
+            nextErrors.senderPhone =
+                "Hong Kong number must contain exactly 8 digits.";
+        } else if (
+            senderDigits.length === 10 &&
+            !/^\d{10}$/.test(senderDigits)
+        ) {
+            nextErrors.senderPhone =
+                "Nepal number must contain exactly 10 digits.";
+        } else if (
+            senderDigits.length === 11 &&
+            !/^852\d{8}$/.test(senderDigits)
+        ) {
+            nextErrors.senderPhone =
+                "Hong Kong number format should be +852-XXXXXXXX.";
+        } else if (
+            senderDigits.length === 13 &&
+            !/^977\d{10}$/.test(senderDigits)
+        ) {
+            nextErrors.senderPhone =
+                "Nepal number format should be +977-XXXXXXXXXX.";
         }
 
         if (form.senderEmail.trim() && !/^\S+@\S+\.\S+$/.test(form.senderEmail)) {
@@ -898,18 +1045,48 @@ export default function AiExpressPickupForm({
         }
 
         if (!form.deliveryType) nextErrors.deliveryType = t.required;
-        if (!form.pickupAddress.trim()) nextErrors.pickupAddress = t.required;
         if (!form.pickupDate) nextErrors.pickupDate = t.required;
         if (!form.pickupTimeSlot.trim()) nextErrors.pickupTimeSlot = t.required;
         if (!form.serviceSpeed) nextErrors.serviceSpeed = t.required;
 
         if (!form.receiverName.trim()) nextErrors.receiverName = t.required;
-        if (!form.receiverPhone.trim()) nextErrors.receiverPhone = t.required;
-        else if (!isValidPhone(form.receiverPhone)) {
-            nextErrors.receiverPhone = t.invalidReceiverPhone;
+        // Receiver phone validation
+        if (!form.receiverPhone.trim()) {
+            nextErrors.receiverPhone = t.required;
+        } else if (
+            receiverDigits.length !== 8 &&
+            receiverDigits.length !== 10 &&
+            receiverDigits.length !== 11 &&
+            receiverDigits.length !== 13
+        ) {
+            nextErrors.receiverPhone =
+                "Phone number must be 8 digits (Hong Kong) or 10 digits (Nepal).";
+        } else if (
+            receiverDigits.length === 8 &&
+            !/^\d{8}$/.test(receiverDigits)
+        ) {
+            nextErrors.receiverPhone =
+                "Hong Kong number must contain exactly 8 digits.";
+        } else if (
+            receiverDigits.length === 10 &&
+            !/^\d{10}$/.test(receiverDigits)
+        ) {
+            nextErrors.receiverPhone =
+                "Nepal number must contain exactly 10 digits.";
+        } else if (
+            receiverDigits.length === 11 &&
+            !/^852\d{8}$/.test(receiverDigits)
+        ) {
+            nextErrors.receiverPhone =
+                "Hong Kong number format should be +852-XXXXXXXX.";
+        } else if (
+            receiverDigits.length === 13 &&
+            !/^977\d{10}$/.test(receiverDigits)
+        ) {
+            nextErrors.receiverPhone =
+                "Nepal number format should be +977-XXXXXXXXXX.";
         }
 
-        if (!form.deliveryAddress.trim()) nextErrors.deliveryAddress = t.required;
         if (!form.packageType.trim()) nextErrors.packageType = t.required;
 
         if (form.weight === "" || form.weight === null || form.weight === undefined) {
@@ -938,6 +1115,44 @@ export default function AiExpressPickupForm({
         if (!form.isConfirmed) {
             nextErrors.isConfirmed = t.confirmRequired;
         }
+
+        if (pickupUsesHK) {
+            if (!form.pickupAddressHK.street.trim()) {
+                nextErrors["pickupAddressHK.street"] = t.required;
+            }
+
+            if (!form.pickupAddressHK.floor.trim()) {
+                nextErrors["pickupAddressHK.floor"] = t.required;
+            }
+
+            if (!form.pickupAddressHK.district.trim()) {
+                nextErrors["pickupAddressHK.district"] = t.required;
+            }
+        } else {
+            if (!form.pickupAddress.trim()) {
+                nextErrors.pickupAddress = t.required;
+            }
+        }
+
+        if (deliveryUsesHK) {
+            if (!form.deliveryAddressHK.street.trim()) {
+                nextErrors["deliveryAddressHK.street"] = t.required;
+            }
+
+            if (!form.deliveryAddressHK.floor.trim()) {
+                nextErrors["deliveryAddressHK.floor"] = t.required;
+            }
+
+            if (!form.deliveryAddressHK.district.trim()) {
+                nextErrors["deliveryAddressHK.district"] = t.required;
+            }
+        } else {
+            if (!form.deliveryAddress.trim()) {
+                nextErrors.deliveryAddress = t.required;
+            }
+        }
+
+        console.log("VALIDATION ERRORS:", nextErrors);
 
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
@@ -974,19 +1189,27 @@ export default function AiExpressPickupForm({
                 return;
             }
 
+            const finalPickupAddress = shouldUseHongKongPickup(serviceType)
+                ? formatHongKongAddress(form.pickupAddressHK)
+                : form.pickupAddress.trim();
+
+            const finalDeliveryAddress = shouldUseHongKongDelivery(serviceType)
+                ? formatHongKongAddress(form.deliveryAddressHK)
+                : form.deliveryAddress.trim();
+
             const payload = {
                 serviceType,
                 senderName: form.senderName.trim(),
                 senderPhone: form.senderPhone.trim(),
                 senderEmail: form.senderEmail.trim() || null,
                 deliveryType: form.deliveryType,
-                pickupAddress: form.pickupAddress.trim(),
+                pickupAddress: finalPickupAddress,
+                deliveryAddress: finalDeliveryAddress,
                 pickupDate: form.pickupDate,
                 pickupTimeSlot: form.pickupTimeSlot.trim(),
                 serviceSpeed: form.serviceSpeed,
                 receiverName: form.receiverName.trim(),
                 receiverPhone: form.receiverPhone.trim(),
-                deliveryAddress: form.deliveryAddress.trim(),
                 packageType: form.packageType.trim(),
                 weight: Number(form.weight),
                 quantity: Number(form.quantity),
@@ -1238,7 +1461,14 @@ export default function AiExpressPickupForm({
                                         name="senderPhone"
                                         value={form.senderPhone}
                                         onChange={handleChange}
-                                        placeholder={t.placeholders.senderPhone}
+                                        onBlur={(e) =>
+                                            handlePhoneBlur(
+                                                "senderPhone",
+                                                e.target.value,
+                                                setForm
+                                            )
+                                        }
+                                        placeholder="9800000000 or 91234567"
                                         className={`${inputClass(!!errors.senderPhone)} h-12`}
                                     />
                                 </Field>
@@ -1276,8 +1506,8 @@ export default function AiExpressPickupForm({
                                         className={`${inputClass(
                                             !!errors.deliveryType
                                         )} h-12 ${activeService.lockDeliveryType
-                                                ? "cursor-not-allowed bg-neutral-50"
-                                                : ""
+                                            ? "cursor-not-allowed bg-neutral-50"
+                                            : ""
                                             }`}
                                     >
                                         {t.deliveryTypes.map((item) => (
@@ -1309,7 +1539,7 @@ export default function AiExpressPickupForm({
                                 </Field>
                             </div>
 
-                            <Field
+                            {/* <Field
                                 label={pickupAddressLabel}
                                 icon={MapPin}
                                 error={errors.pickupAddress}
@@ -1322,7 +1552,86 @@ export default function AiExpressPickupForm({
                                     placeholder={pickupAddressPlaceholder}
                                     className={`${inputClass(!!errors.pickupAddress)} h-12`}
                                 />
-                            </Field>
+                            </Field> */}
+
+                            {shouldUseHongKongPickup(serviceType) ? (
+                                <div className="space-y-5">
+                                    <div className="grid gap-5 md:grid-cols-2">
+                                        <Field
+                                            label="Street / Building"
+                                            icon={MapPin}
+                                            error={errors["pickupAddressHK.street"]}
+                                            color={theme.focusColor}
+                                        >
+                                            <input
+                                                name="pickupAddressHK.street"
+                                                value={form.pickupAddressHK.street}
+                                                onChange={handleChange}
+                                                placeholder="Street number, building name, block"
+                                                className={`${inputClass(
+                                                    !!errors["pickupAddressHK.street"]
+                                                )} h-12`}
+                                            />
+                                        </Field>
+
+                                        <Field
+                                            label="Floor / Unit"
+                                            icon={Home}
+                                            error={errors["pickupAddressHK.floor"]}
+                                            color={theme.focusColor}
+                                        >
+                                            <input
+                                                name="pickupAddressHK.floor"
+                                                value={form.pickupAddressHK.floor}
+                                                onChange={handleChange}
+                                                placeholder="Floor, flat or unit number"
+                                                className={`${inputClass(
+                                                    !!errors["pickupAddressHK.floor"]
+                                                )} h-12`}
+                                            />
+                                        </Field>
+                                    </div>
+
+                                    <Field
+                                        label="Hong Kong District"
+                                        icon={Globe2}
+                                        error={errors["pickupAddressHK.district"]}
+                                        color={theme.focusColor}
+                                    >
+                                        <select
+                                            name="pickupAddressHK.district"
+                                            value={form.pickupAddressHK.district}
+                                            onChange={handleChange}
+                                            className={`${inputClass(
+                                                !!errors["pickupAddressHK.district"]
+                                            )} h-12`}
+                                        >
+                                            <option value="">Select District</option>
+
+                                            {HK_DISTRICTS.map((district) => (
+                                                <option key={district} value={district}>
+                                                    {district}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </Field>
+                                </div>
+                            ) : (
+                                <Field
+                                    label={pickupAddressLabel}
+                                    icon={MapPin}
+                                    error={errors.pickupAddress}
+                                    color={theme.focusColor}
+                                >
+                                    <input
+                                        name="pickupAddress"
+                                        value={form.pickupAddress}
+                                        onChange={handleChange}
+                                        placeholder={pickupAddressPlaceholder}
+                                        className={`${inputClass(!!errors.pickupAddress)} h-12`}
+                                    />
+                                </Field>
+                            )}
 
                             <div className="grid gap-5 md:grid-cols-2">
                                 <Field
@@ -1399,13 +1708,20 @@ export default function AiExpressPickupForm({
                                         name="receiverPhone"
                                         value={form.receiverPhone}
                                         onChange={handleChange}
-                                        placeholder={t.placeholders.receiverPhone}
+                                        onBlur={(e) =>
+                                            handlePhoneBlur(
+                                                "receiverPhone",
+                                                e.target.value,
+                                                setForm
+                                            )
+                                        }
+                                        placeholder="9800000000 or 91234567"
                                         className={`${inputClass(!!errors.receiverPhone)} h-12`}
                                     />
                                 </Field>
                             </div>
 
-                            <Field
+                            {/* <Field
                                 label={deliveryAddressLabel}
                                 icon={MapPin}
                                 error={errors.deliveryAddress}
@@ -1418,7 +1734,86 @@ export default function AiExpressPickupForm({
                                     placeholder={deliveryAddressPlaceholder}
                                     className={`${inputClass(!!errors.deliveryAddress)} h-12`}
                                 />
-                            </Field>
+                            </Field> */}
+
+                            {shouldUseHongKongDelivery(serviceType) ? (
+                                <div className="space-y-5">
+                                    <div className="grid gap-5 md:grid-cols-2">
+                                        <Field
+                                            label="Street / Building"
+                                            icon={MapPin}
+                                            error={errors["deliveryAddressHK.street"]}
+                                            color={theme.focusColor}
+                                        >
+                                            <input
+                                                name="deliveryAddressHK.street"
+                                                value={form.deliveryAddressHK.street}
+                                                onChange={handleChange}
+                                                placeholder="Street number, building name, block"
+                                                className={`${inputClass(
+                                                    !!errors["deliveryAddressHK.street"]
+                                                )} h-12`}
+                                            />
+                                        </Field>
+
+                                        <Field
+                                            label="Floor / Unit"
+                                            icon={Home}
+                                            error={errors["deliveryAddressHK.floor"]}
+                                            color={theme.focusColor}
+                                        >
+                                            <input
+                                                name="deliveryAddressHK.floor"
+                                                value={form.deliveryAddressHK.floor}
+                                                onChange={handleChange}
+                                                placeholder="Floor, flat or unit number"
+                                                className={`${inputClass(
+                                                    !!errors["deliveryAddressHK.floor"]
+                                                )} h-12`}
+                                            />
+                                        </Field>
+                                    </div>
+
+                                    <Field
+                                        label="Hong Kong District"
+                                        icon={Globe2}
+                                        error={errors["deliveryAddressHK.district"]}
+                                        color={theme.focusColor}
+                                    >
+                                        <select
+                                            name="deliveryAddressHK.district"
+                                            value={form.deliveryAddressHK.district}
+                                            onChange={handleChange}
+                                            className={`${inputClass(
+                                                !!errors["deliveryAddressHK.district"]
+                                            )} h-12`}
+                                        >
+                                            <option value="">Select District</option>
+
+                                            {HK_DISTRICTS.map((district) => (
+                                                <option key={district} value={district}>
+                                                    {district}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </Field>
+                                </div>
+                            ) : (
+                                <Field
+                                    label={deliveryAddressLabel}
+                                    icon={MapPin}
+                                    error={errors.deliveryAddress}
+                                    color={theme.focusColor}
+                                >
+                                    <input
+                                        name="deliveryAddress"
+                                        value={form.deliveryAddress}
+                                        onChange={handleChange}
+                                        placeholder={deliveryAddressPlaceholder}
+                                        className={`${inputClass(!!errors.deliveryAddress)} h-12`}
+                                    />
+                                </Field>
+                            )}
 
                             <SectionTitle title={t.packageInfo} />
 

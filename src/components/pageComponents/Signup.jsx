@@ -172,6 +172,47 @@ function Field({ label, children, error }) {
     );
 }
 
+function normalizePhone(value) {
+    const raw = value.trim();
+    const digits = raw.replace(/\D/g, "");
+
+    if (digits.length === 10) {
+        return `+977-${digits}`;
+    }
+
+    if (digits.length === 8) {
+        return `+852-${digits}`;
+    }
+
+    if (digits.startsWith("977") && digits.length === 13) {
+        return `+977-${digits.slice(3)}`;
+    }
+
+    if (digits.startsWith("852") && digits.length === 11) {
+        return `+852-${digits.slice(3)}`;
+    }
+
+    return raw;
+}
+
+function handlePhoneBlur(value, form, setForm, setFieldErrors, setError) {
+    const formatted = normalizePhone(value);
+
+    setForm((prev) => ({
+        ...prev,
+        phone: formatted,
+    }));
+
+    setFieldErrors((prev) => {
+        if (!prev?.phone) return prev;
+        const next = { ...prev };
+        delete next.phone;
+        return next;
+    });
+
+    if (setError) setError("");
+}
+
 function TextInput({
     icon: Icon,
     type = "text",
@@ -179,6 +220,7 @@ function TextInput({
     id,
     value,
     onChange,
+    onBlur,
     placeholder,
     autoComplete,
     inputMode,
@@ -200,6 +242,7 @@ function TextInput({
                 required={required}
                 value={value}
                 onChange={onChange}
+                onBlur={onBlur}
                 autoComplete={autoComplete}
                 placeholder={placeholder}
                 inputMode={inputMode}
@@ -568,8 +611,11 @@ export default function Signup({ locale = "en", dict = {} }) {
             return;
         }
 
+        const normalizedPhone = normalizePhone(form.phone);
+
         const formToValidate = {
             ...form,
+            phone: normalizedPhone,
             recaptchaToken,
         };
 
@@ -586,7 +632,7 @@ export default function Signup({ locale = "en", dict = {} }) {
             email: form.email.trim().toLowerCase(),
             password: form.password,
             confirm_password: form.confirm_password,
-            phone: form.phone.trim(),
+            phone: normalizedPhone,
             address: form.address.trim(),
             verificationMethod: form.verificationMethod,
             recaptchaToken,
@@ -843,7 +889,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                             )}
                                             text={t(
                                                 "signup.left.phoneRuleText",
-                                                "Nepal: +9779876543210 or +977-9876543210\nHK: +85251234567 or +852-51234567"
+                                                "Nepal: 9876543210\nHK: 51234567"
                                             )}
                                         />
                                     </div>
@@ -972,9 +1018,18 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     id="phone"
                                                     value={form.phone}
                                                     onChange={handleInputChange}
+                                                    onBlur={(e) =>
+                                                        handlePhoneBlur(
+                                                            e.target.value,
+                                                            form,
+                                                            setForm,
+                                                            setFieldErrors,
+                                                            setError
+                                                        )
+                                                    }
                                                     placeholder={t(
                                                         "signup.form.phonePlaceholder",
-                                                        "+9779812345678"
+                                                        "9812345678"
                                                     )}
                                                     autoComplete="tel"
                                                     hasError={!!fieldErrors?.phone}

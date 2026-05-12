@@ -8,6 +8,40 @@ import { tGet } from "./utils";
 const PHONE_REGEX =
     /^(\+852[-\s]?\d{4}[-\s]?\d{4}|\+977[-\s]?(9\d{9}|[1-9]\d{7}))$/;
 
+function normalizePhone(value) {
+    const raw = value.trim();
+    const digits = raw.replace(/\D/g, "");
+
+    // Nepal local mobile: 10 digits -> +977XXXXXXXXXX
+    if (digits.length === 10) {
+        return `+977-${digits}`;
+    }
+
+    // Hong Kong local: 8 digits -> +852XXXXXXXX
+    if (digits.length === 8) {
+        return `+852-${digits}`;
+    }
+
+    // Already entered with country code
+    if (digits.startsWith("977") && digits.length === 13) {
+        return `+977-${digits.slice(3)}`;
+    }
+
+    if (digits.startsWith("852") && digits.length === 11) {
+        return `+852-${digits.slice(3)}`;
+    }
+
+    return raw;
+}
+
+function handlePhoneBlur(value, setProfile, setErr, setSuccess) {
+    const formatted = normalizePhone(value);
+
+    setProfile((prev) => ({ ...prev, phone: formatted }));
+    setErr("");
+    setSuccess("");
+}
+
 export default function ProfilePanel({ dict }) {
     const T = useMemo(
         () => ({
@@ -82,7 +116,7 @@ export default function ProfilePanel({ dict }) {
 
         if (saving) return;
 
-        const phone = profile.phone.trim();
+        const phone = normalizePhone(profile.phone);
 
         if (!PHONE_REGEX.test(phone)) {
             setErr(T.invalidPhone);
@@ -168,6 +202,9 @@ export default function ProfilePanel({ dict }) {
                                 <input
                                     value={profile.phone}
                                     onChange={(e) => updateProfile("phone", e.target.value)}
+                                    onBlur={(e) =>
+                                        handlePhoneBlur(e.target.value, setProfile, setErr, setSuccess)
+                                    }
                                     placeholder="+977 9861234567 or +852 9123 4567"
                                     className="input-base"
                                 />
