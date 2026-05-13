@@ -149,6 +149,10 @@ export default function Navbar({ locale = "en", dict = {} }) {
         return `/${locale}/product?${query.toString()}`;
     };
 
+    const bulkPurchaseHref = () => {
+        return `/${locale}/bulk-purchase?page=1&limit=10`;
+    };
+
     const scrollToPerfectServices = () => {
         closeMenus();
 
@@ -336,7 +340,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
     const handleSearchSubmit = (e, keyword) => {
         e.preventDefault();
-
         const value = keyword.trim();
 
         closeMenus();
@@ -358,7 +361,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)",
             }}
         >
-            {/* Top Bar - Desktop */}
             <div
                 className="hidden lg:block"
                 style={{
@@ -417,7 +419,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            {/* Desktop Navbar */}
             <div className="hidden bg-orange-50 lg:block">
                 <div className="mx-auto max-w-7xl px-3 lg:px-4 xl:px-6">
                     <div className="grid h-[80px] grid-cols-[78px_minmax(200px,1fr)_auto_auto] items-center gap-2 xl:grid-cols-[105px_minmax(280px,430px)_minmax(390px,1fr)_auto] xl:gap-4">
@@ -477,7 +478,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                         </form>
 
                         <nav className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap">
-                            {/* A Express */}
                             <div className="relative" ref={desktopExpressRef}>
                                 <div
                                     className="flex items-center overflow-hidden rounded-full border bg-orange-50"
@@ -543,7 +543,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* A Grocery */}
                             <div className="relative" ref={desktopGroceryRef}>
                                 <div
                                     className="flex items-center overflow-hidden rounded-full border bg-orange-50"
@@ -594,7 +593,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                                 "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
                                         }}
                                     >
-                                        <Link
+                                        {/* <Link
                                             href={groceryMainHref()}
                                             onClick={() => {
                                                 setGroceryOpen(false);
@@ -604,6 +603,18 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
                                         >
                                             {t("nav.allProducts", "All Products")}
+                                        </Link> */}
+
+                                        <Link
+                                            href={bulkPurchaseHref()}
+                                            onClick={() => {
+                                                setGroceryOpen(false);
+                                                setExpressOpen(false);
+                                                setServicesOpen(false);
+                                            }}
+                                            className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
+                                        >
+                                            {t("nav.bulkPurchase", "Bulk Purchase")}
                                         </Link>
 
                                         <div className="my-1 border-t border-yellow-200" />
@@ -644,7 +655,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* R Services */}
                             <div className="relative" ref={desktopServicesRef}>
                                 <div
                                     className="flex items-center overflow-hidden rounded-full border bg-orange-50"
@@ -855,7 +865,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
-            {/* Mobile + Tablet Navbar */}
             <div className="bg-orange-50 lg:hidden">
                 <div className="px-3 pb-2.5 pt-3">
                     <div className="flex items-center gap-2">
@@ -945,7 +954,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                     </div>
                 </div>
 
-                {/* Previous mobile design kept here */}
                 <div
                     className="border-y bg-orange-50"
                     style={{
@@ -1036,7 +1044,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                         }}
                     >
                         <div className="space-y-2">
-                            {/* A Express mobile dropdown */}
                             <div
                                 className="overflow-hidden rounded-xl border bg-orange-50"
                                 style={{
@@ -1104,7 +1111,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* A Grocery mobile dropdown */}
                             <div
                                 className="overflow-hidden rounded-xl border bg-orange-50"
                                 style={{
@@ -1151,7 +1157,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         className="border-t px-2 pb-2"
                                         style={{ borderColor: "#fed7aa" }}
                                     >
-                                        <Link
+                                        {/* <Link
                                             href={groceryMainHref()}
                                             onClick={() => {
                                                 setGroceryOpen(false);
@@ -1165,6 +1171,22 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             }}
                                         >
                                             {t("nav.allProducts", "All Products")}
+                                        </Link> */}
+
+                                        <Link
+                                            href={bulkPurchaseHref()}
+                                            onClick={() => {
+                                                setGroceryOpen(false);
+                                                setExpressOpen(false);
+                                                setServicesOpen(false);
+                                                setMobileOpen(false);
+                                            }}
+                                            className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
+                                            style={{
+                                                color: "#374166",
+                                            }}
+                                        >
+                                            {t("nav.bulkPurchase", "Bulk Purchase")}
                                         </Link>
 
                                         <div className="my-1 border-t border-orange-200" />
@@ -1209,7 +1231,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* R Services mobile dropdown */}
                             <div
                                 className="overflow-hidden rounded-xl border bg-orange-50"
                                 style={{
@@ -1265,7 +1286,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* Login / Dashboard */}
                             <div
                                 className="overflow-hidden rounded-xl border bg-orange-50"
                                 style={{
@@ -1329,7 +1349,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            {/* Language */}
                             <div
                                 className="flex items-center justify-between rounded-xl border bg-orange-50 px-4 py-3.5"
                                 style={{

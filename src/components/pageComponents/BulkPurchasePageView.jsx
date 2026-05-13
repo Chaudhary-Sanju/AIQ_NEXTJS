@@ -16,7 +16,6 @@ import {
     LayoutGrid,
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-
 import http from "@/http";
 import { imgUrl } from "@/lib";
 
@@ -35,19 +34,19 @@ const money = (n) => {
 
 const UI = {
     title: {
-        en: "All Products",
-        ne: "सबै उत्पादनहरू",
-        zh: "全部商品",
+        en: "Bulk Purchase",
+        ne: "थोक खरिद",
+        zh: "批量采购",
     },
     subtitle: {
-        en: "Browse and search products",
-        ne: "उत्पादनहरू हेर्नुहोस् र खोज्नुहोस्",
-        zh: "浏览并搜索商品",
+        en: "Choose quantity and add products in bulk",
+        ne: "परिमाण छान्नुहोस् र थोकमा उत्पादन थप्नुहोस्",
+        zh: "选择数量并批量加入商品",
     },
     searchPlaceholder: {
-        en: "Search products...",
-        ne: "उत्पादन खोज्नुहोस्...",
-        zh: "搜索商品...",
+        en: "Search bulk products...",
+        ne: "थोक उत्पादन खोज्नुहोस्...",
+        zh: "搜索批量商品...",
     },
     sortLabel: {
         en: "Sort by",
@@ -95,9 +94,9 @@ const UI = {
         zh: "未找到商品。",
     },
     addToCart: {
-        en: "Add to Cart",
-        ne: "कार्टमा थप्नुहोस्",
-        zh: "加入购物车",
+        en: "Add Bulk",
+        ne: "थोकमा थप्नुहोस्",
+        zh: "批量加入",
     },
     results: {
         en: "products found",
@@ -144,6 +143,21 @@ const UI = {
         ne: "सबै कोटीहरू",
         zh: "全部分类",
     },
+    qty: {
+        en: "Qty",
+        ne: "परिमाण",
+        zh: "数量",
+    },
+    custom: {
+        en: "Custom quantity",
+        ne: "कस्टम परिमाण",
+        zh: "自定义数量",
+    },
+    bulkBadge: {
+        en: "Bulk Purchase",
+        ne: "थोक खरिद",
+        zh: "批量采购",
+    },
 };
 
 const SORT_OPTIONS = [
@@ -167,7 +181,6 @@ const getFirstImage = (product) => {
 
     if (product?.featuredImage) return product.featuredImage;
     if (product?.thumbnail) return product.thumbnail;
-
     if (typeof product?.image === "string") return product.image;
 
     return null;
@@ -213,7 +226,7 @@ const normalizeProduct = (p, locale) => {
     };
 };
 
-export default function ProductsPageView({ locale = "en", dict }) {
+export default function BulkPurchasePageView({ locale = "en", dict }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -280,6 +293,15 @@ export default function ProductsPageView({ locale = "en", dict }) {
             dict?.productsPage?.allCategories ||
             UI.allCategories[locale] ||
             UI.allCategories.en,
+        qty: dict?.productsPage?.qty || UI.qty[locale] || UI.qty.en,
+        custom:
+            dict?.productsPage?.custom ||
+            UI.custom[locale] ||
+            UI.custom.en,
+        bulkBadge:
+            dict?.productsPage?.bulkBadge ||
+            UI.bulkBadge[locale] ||
+            UI.bulkBadge.en,
     };
 
     const sortLabelMap = {
@@ -336,7 +358,6 @@ export default function ProductsPageView({ locale = "en", dict }) {
         }, 450);
 
         return () => clearTimeout(timer);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchInput]);
 
     useEffect(() => {
@@ -459,7 +480,7 @@ export default function ProductsPageView({ locale = "en", dict }) {
                         <div>
                             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#1a4b8f]">
                                 <PackageCheck className="h-4 w-4" />
-                                A Grocery
+                                {t.bulkBadge}
                             </div>
 
                             <h1 className="text-2xl font-bold tracking-tight text-neutral-950 md:text-[36px]">
@@ -474,7 +495,6 @@ export default function ProductsPageView({ locale = "en", dict }) {
                         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px] lg:w-[720px]">
                             <div className="relative">
                                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-
                                 <input
                                     type="text"
                                     value={searchInput}
@@ -488,7 +508,6 @@ export default function ProductsPageView({ locale = "en", dict }) {
 
                             <div className="relative">
                                 <SlidersHorizontal className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-
                                 <select
                                     value={sortBy}
                                     onChange={(e) =>
@@ -562,6 +581,8 @@ export default function ProductsPageView({ locale = "en", dict }) {
                                             notRatedYetText={t.notRatedYet}
                                             reviewText={t.review}
                                             reviewsText={t.reviews}
+                                            qtyText={t.qty}
+                                            customText={t.custom}
                                         />
                                     ))}
                                 </div>
@@ -603,7 +624,7 @@ function CategorySidebar({
                         {t.categories}
                     </h2>
                     <p className="text-xs text-neutral-500">
-                        {categories.length} {t.results}
+                        {categories.length} {t.categories}
                     </p>
                 </div>
             </div>
@@ -825,9 +846,46 @@ function ProductCard({
     notRatedYetText,
     reviewText,
     reviewsText,
+    qtyText,
+    customText,
 }) {
     const { addToCart, busy } = useCart();
-    const [error, setError] = useState("");
+
+    const getMaxQty = () => {
+        if (p?.sellOnNoStock) return 100;
+
+        const stockValue = Number(p?.qty ?? p?.stock ?? 0);
+        if (Number.isNaN(stockValue) || stockValue < 0) return 0;
+
+        return Math.floor(stockValue);
+    };
+
+    const maxQty = getMaxQty();
+    const isOutOfStock = !p?.sellOnNoStock && maxQty <= 0;
+
+    const clampQty = (value) => {
+        const num = Number(value);
+
+        if (Number.isNaN(num) || num < 1) return 1;
+        if (maxQty > 0 && num > maxQty) return maxQty;
+        if (p?.sellOnNoStock && num > 100) return 100;
+
+        return Math.floor(num);
+    };
+
+    const [qty, setQty] = useState(() => {
+        if (isOutOfStock) return 0;
+        return clampQty(10);
+    });
+
+    useEffect(() => {
+        if (isOutOfStock) {
+            setQty(0);
+            return;
+        }
+
+        setQty((prev) => clampQty(prev || 10));
+    }, [p?.qty, p?.stock, p?.sellOnNoStock]);
 
     const href = `/${locale}/product/${p.slug}`;
 
@@ -854,28 +912,35 @@ function ProductCard({
 
     const finalPrice = hasDiscount ? p.discounted_price : p.price;
     const displayImage = p.singleImage || p.images?.[0] || p.image?.[0];
+    const safeQty = isOutOfStock ? 0 : clampQty(qty);
 
-    const stock = Number(p?.qty ?? p?.stock ?? 0);
-    const hasStock = p?.sellOnNoStock ? true : stock > 0;
+    const handleManualQtyChange = (e) => {
+        const value = e.target.value;
+
+        if (value === "") {
+            setQty("");
+            return;
+        }
+
+        setQty(clampQty(value));
+    };
+
+    const handleManualQtyBlur = () => {
+        if (isOutOfStock) {
+            setQty(0);
+            return;
+        }
+
+        setQty(clampQty(qty || 1));
+    };
 
     const handleAddToCart = () => {
-        setError("");
-
-        if (p?.sellOnNoStock) {
-            addToCart(p.id, 1, p);
-            return;
-        }
-
-        if (stock <= 0) {
-            setError("No Stock");
-            return;
-        }
-
-        addToCart(p.id, 1, p);
+        if (isOutOfStock) return;
+        addToCart(p.id, safeQty, p);
     };
 
     return (
-        <div className="group flex h-full flex-col rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
+        <div className="group rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
             <Link
                 href={href}
                 className="relative block h-[150px] w-full overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50"
@@ -935,7 +1000,6 @@ function ProductCard({
                         <span className="text-neutral-400 line-through">
                             {money(p.price)}
                         </span>
-
                         {discountPercent ? (
                             <span className="font-bold text-red-500">
                                 -{discountPercent}%
@@ -943,7 +1007,7 @@ function ProductCard({
                         ) : null}
                     </div>
                 ) : (
-                    <span className="invisible">discount</span>
+                    <div />
                 )}
             </div>
 
@@ -951,30 +1015,93 @@ function ProductCard({
                 {money(finalPrice)}
             </div>
 
-            <div className="mt-1 min-h-[16px] text-[11px] font-semibold">
-                {!p?.sellOnNoStock ? (
-                    stock > 0 ? (
-                        <span className="text-neutral-500">Stock: {stock}</span>
-                    ) : (
-                        <span className="text-red-500">No Stock</span>
-                    )
+            <div className="mt-1 text-[11px] font-semibold">
+                {p?.sellOnNoStock ? (
+                    <span className="text-emerald-600">Bulk limit: up to 100</span>
+                ) : isOutOfStock ? (
+                    <span className="text-red-500">Out of stock</span>
                 ) : (
-                    <span className="invisible">Stock</span>
+                    <span className="text-neutral-500">In stock: {maxQty}</span>
                 )}
             </div>
 
-            <div className="mt-2 min-h-[16px] text-[11px] font-semibold text-red-500">
-                {error ? error : <span className="invisible">message</span>}
+            <div className="mt-3 rounded-2xl border border-orange-100 bg-orange-50/60 p-2.5">
+                <div className="mb-2 flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wide text-neutral-600">
+                        {qtyText}
+                    </span>
+                    <span className="text-[11px] font-bold text-[#1a4b8f]">
+                        {safeQty || 0}
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2">
+                    <button
+                        type="button"
+                        disabled={isOutOfStock}
+                        onClick={() => setQty(clampQty(10))}
+                        className={`h-9 rounded-xl text-[11px] font-bold transition ${safeQty === 10
+                                ? "bg-[#1a4b8f] text-white"
+                                : "border border-orange-200 bg-white text-neutral-700 hover:border-[#1a4b8f] hover:text-[#1a4b8f]"
+                            } disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                        10
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={isOutOfStock}
+                        onClick={() => setQty(clampQty(20))}
+                        className={`h-9 rounded-xl text-[11px] font-bold transition ${safeQty === 20
+                                ? "bg-[#1a4b8f] text-white"
+                                : "border border-orange-200 bg-white text-neutral-700 hover:border-[#1a4b8f] hover:text-[#1a4b8f]"
+                            } disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                        20
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={isOutOfStock || safeQty <= 1}
+                        onClick={() => setQty(clampQty(safeQty - 1))}
+                        className="h-9 rounded-xl border border-orange-200 bg-white text-sm font-bold text-neutral-700 transition hover:border-[#1a4b8f] hover:text-[#1a4b8f] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        -
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={isOutOfStock || safeQty >= maxQty}
+                        onClick={() => setQty(clampQty(safeQty + 1))}
+                        className="h-9 rounded-xl border border-orange-200 bg-white text-sm font-bold text-neutral-700 transition hover:border-[#1a4b8f] hover:text-[#1a4b8f] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        +
+                    </button>
+                </div>
+
+                <div className="mt-2">
+                    <input
+                        type="number"
+                        min="1"
+                        max={isOutOfStock ? 0 : maxQty}
+                        value={qty}
+                        disabled={isOutOfStock}
+                        onChange={handleManualQtyChange}
+                        onBlur={handleManualQtyBlur}
+                        placeholder={customText}
+                        className="h-10 w-full rounded-xl border border-orange-200 bg-white px-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100"
+                    />
+                </div>
             </div>
 
             <button
                 type="button"
-                disabled={busy || !hasStock}
+                disabled={busy || isOutOfStock}
                 onClick={handleAddToCart}
-                className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                {hasStock ? addToCartText : "No Stock"}
+                {isOutOfStock ? "Out of stock" : `${addToCartText} (${safeQty})`}
             </button>
         </div>
     );

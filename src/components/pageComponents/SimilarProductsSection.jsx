@@ -64,6 +64,16 @@ const UI = {
         ne: "समीक्षाहरू",
         zh: "评价",
     },
+    noStock: {
+        en: "No Stock",
+        ne: "स्टक छैन",
+        zh: "缺货",
+    },
+    noMoreStock: {
+        en: "No more stock available",
+        ne: "थप स्टक उपलब्ध छैन",
+        zh: "没有更多库存",
+    },
 };
 
 const makeCartProduct = (p, locale = "en") => {
@@ -71,27 +81,22 @@ const makeCartProduct = (p, locale = "en") => {
         _id: p.id,
         id: p.id,
         slug: p.slug || "",
-
         name: {
             en: p.name || "Product",
             ne: p.name || "Product",
             zh: p.name || "Product",
             [locale]: p.name || "Product",
         },
-
         summary: {
             en: p.summary || "",
             ne: p.summary || "",
             zh: p.summary || "",
             [locale]: p.summary || "",
         },
-
         price: p.price,
         discounted_price: p.discounted_price,
-
         image: p.image ? [p.image] : [],
         images: p.image ? [p.image] : [],
-
         qty: p.qty,
         stock: p.stock,
         sellOnNoStock: p.sellOnNoStock,
@@ -153,11 +158,9 @@ export default function SimilarProductsSection({
                                 : typeof p?.image === "string"
                                     ? p.image
                                     : null,
-
                         qty: p?.qty,
                         stock: p?.stock,
                         sellOnNoStock: p?.sellOnNoStock,
-
                         reviewSummary: {
                             averageRating: Number(
                                 p?.reviewSummary?.averageRating || 0
@@ -225,11 +228,9 @@ export default function SimilarProductsSection({
                         <>
                             <div className="hidden lg:grid lg:grid-cols-5 lg:gap-4">
                                 {products.map((p) => (
-                                    <ProductCard
-                                        key={p.id}
-                                        p={p}
-                                        locale={locale}
-                                    />
+                                    <div key={p.id} className="flex">
+                                        <ProductCard p={p} locale={locale} />
+                                    </div>
                                 ))}
                             </div>
 
@@ -238,12 +239,9 @@ export default function SimilarProductsSection({
                                     {products.map((p) => (
                                         <div
                                             key={p.id}
-                                            className="w-[178px] shrink-0"
+                                            className="flex w-[178px] shrink-0"
                                         >
-                                            <ProductCard
-                                                p={p}
-                                                locale={locale}
-                                            />
+                                            <ProductCard p={p} locale={locale} />
                                         </div>
                                     ))}
                                 </div>
@@ -289,16 +287,17 @@ function SkeletonGrid({ count = 5 }) {
 }
 
 function ProductCard({ p, locale }) {
-    const { addToCart, busy } = useCart();
+    const { addToCart, busy, cartItems = [] } = useCart();
+    const [error, setError] = useState("");
 
     const href = `/${locale}/product/${p.slug}`;
 
     const addToCartText = UI.addToCart?.[locale] || UI.addToCart.en;
-
     const noReviewYetText = UI.noReviewYet?.[locale] || UI.noReviewYet.en;
-
     const reviewText = UI.review?.[locale] || UI.review.en;
     const reviewsText = UI.reviews?.[locale] || UI.reviews.en;
+    const noStockText = UI.noStock?.[locale] || UI.noStock.en;
+    const noMoreStockText = UI.noMoreStock?.[locale] || UI.noMoreStock.en;
 
     const averageRating = Number(p?.reviewSummary?.averageRating || 0);
     const totalReviews = Number(p?.reviewSummary?.totalReviews || 0);
@@ -318,12 +317,42 @@ function ProductCard({ p, locale }) {
         if (!price || Number.isNaN(price) || Number.isNaN(disc)) return null;
 
         const pct = Math.round(((price - disc) / price) * 100);
-
         return pct > 0 ? pct : null;
     })();
 
+    const stock = Number(p?.qty ?? p?.stock ?? 0);
+    const hasStock = p?.sellOnNoStock ? true : stock > 0;
+
+    const existingCartQty = Array.isArray(cartItems)
+        ? cartItems.reduce((sum, item) => {
+            const itemId = item?.productId || item?._id || item?.id;
+            return itemId === p.id ? sum + Number(item?.quantity || 0) : sum;
+        }, 0)
+        : 0;
+
+    const handleAddToCart = () => {
+        setError("");
+
+        if (p?.sellOnNoStock) {
+            addToCart(p.id, 1, makeCartProduct(p, locale));
+            return;
+        }
+
+        if (stock <= 0) {
+            setError(noStockText);
+            return;
+        }
+
+        if (existingCartQty >= stock) {
+            setError(noMoreStockText);
+            return;
+        }
+
+        addToCart(p.id, 1, makeCartProduct(p, locale));
+    };
+
     return (
-        <div className="group rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
+        <div className="group flex h-full w-full flex-col rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
             <Link
                 href={href}
                 className="relative block h-[150px] w-full overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50"
@@ -365,11 +394,9 @@ function ProductCard({ p, locale }) {
                 {totalReviews > 0 ? (
                     <>
                         <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-
                         <span className="font-bold text-neutral-900">
                             {averageRating.toFixed(1)}
                         </span>
-
                         <span className="text-neutral-500">
                             ({totalReviews}{" "}
                             {totalReviews === 1 ? reviewText : reviewsText})
@@ -394,7 +421,7 @@ function ProductCard({ p, locale }) {
                         ) : null}
                     </div>
                 ) : (
-                    <div />
+                    <span className="invisible">discount</span>
                 )}
             </div>
 
@@ -402,16 +429,30 @@ function ProductCard({ p, locale }) {
                 {money(hasDiscount ? p.discounted_price : p.price)}
             </div>
 
+            <div className="mt-1 min-h-[16px] text-[11px] font-semibold">
+                {!p?.sellOnNoStock ? (
+                    hasStock ? (
+                        <span className="text-neutral-500">Stock: {stock}</span>
+                    ) : (
+                        <span className="text-red-500">{noStockText}</span>
+                    )
+                ) : (
+                    <span className="invisible">Stock placeholder</span>
+                )}
+            </div>
+
+            <div className="mt-2 min-h-[16px] text-[11px] font-semibold text-red-500">
+                {error ? error : <span className="invisible">Error placeholder</span>}
+            </div>
+
             <button
                 type="button"
-                disabled={busy}
-                onClick={() =>
-                    addToCart(p.id, 1, makeCartProduct(p, locale))
-                }
-                className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={busy || !hasStock}
+                onClick={handleAddToCart}
+                className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-2 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <ShoppingCart className="h-3.5 w-3.5" />
-                {addToCartText}
+                {hasStock ? addToCartText : noStockText}
             </button>
         </div>
     );
