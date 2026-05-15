@@ -73,6 +73,41 @@ export default function RootLayout({ children }) {
                         {children}
                     </CartProvider>
                 </Providers>
+
+                <script
+                    id="tawk-to"
+                    strategy="afterInteractive"
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                        var Tawk_API = Tawk_API || {};
+                        var Tawk_LoadStart = new Date();
+
+                        // Force LEFT position
+                        Tawk_API.customStyle = {
+                            visibility: {
+                            desktop: {
+                                position: 'bl'   // bottom-left
+                            },
+                            mobile: {
+                                position: 'bl'
+                            }
+                            }
+                        };
+
+                        (function(){
+                            var s1 = document.createElement("script"),
+                                s0 = document.getElementsByTagName("script")[0];
+
+                            s1.async = true;
+                            s1.src = 'https://embed.tawk.to/6a06d1a9e57a6a1c342a4585/1jola605g';
+                            s1.charset = 'UTF-8';
+                            s1.setAttribute('crossorigin','*');
+
+                            s0.parentNode.insertBefore(s1, s0);
+                        })();
+    `,
+                    }}
+                />
             </body>
         </html>
     );
