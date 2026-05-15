@@ -12,12 +12,12 @@ const SERVICES = {
         description:
             "Book door to door courier pickup and delivery with HkMandu AI Express.",
     },
-    "hk-to-nepal": {
+    "hk-to-kathmandu": {
         title: "Hong Kong to Nepal Courier Service | HkMandu AI Express",
         description:
             "Send parcels from Hong Kong to Nepal with HkMandu AI Express pickup and delivery support.",
     },
-    "nepal-to-hk": {
+    "kathmandu-to-hk": {
         title: "Nepal to Hong Kong Courier Service | HkMandu AI Express",
         description:
             "Send parcels from Nepal to Hong Kong with HkMandu AI Express courier support.",

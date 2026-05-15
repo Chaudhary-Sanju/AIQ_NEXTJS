@@ -68,7 +68,7 @@ export default function AiExpressAboutSection({ locale = "en", dict = {} }) {
                         </div>
 
                         <h2 className="mt-5 max-w-2xl text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl lg:text-[46px] lg:leading-[1.08]">
-                            {t("aboutUs.title", "Fast delivery built for Nepal and Hong Kong.")}
+                            {t("aboutUs.title", "Fast delivery built for Kathmandu and Hong Kong.")}
                         </h2>
 
                         <div className="mt-5 max-w-2xl space-y-4 text-[15px] leading-7 text-neutral-600 sm:text-base lg:text-[17px] lg:leading-8">

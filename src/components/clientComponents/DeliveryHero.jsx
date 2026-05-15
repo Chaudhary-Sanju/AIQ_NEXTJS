@@ -56,7 +56,7 @@ export default function DeliveryHero({ locale = "en", dict = {}, links = {} }) {
                             <h1 className="text-white font-bold leading-tight tracking-tight text-xl sm:text-3xl md:text-4xl lg:text-[2.85rem] xl:text-5xl">
                                 {t(
                                     "deliveryHero.title",
-                                    "Life Moves Fast. So Do We—Delivering Across Nepal and Hong Kong at Your Speed."
+                                    "Life Moves Fast. So Do We—Delivering Across Kathmandu and Hong Kong at Your Speed."
                                 )
                                     .split("\n")
                                     .map((line, i) => (

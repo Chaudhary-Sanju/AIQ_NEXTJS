@@ -37,17 +37,17 @@ const YELLOW_BORDER = "#facc15";
 const EXPRESS_LINKS = [
     {
         key: "doorToDoor",
-        label: "Door to Door",
+        label: "Door to Door (HK Only)",
         href: "/ai-express/door-to-door#pickup-form",
     },
     {
         key: "hkToNepal",
-        label: "HK to Nepal",
+        label: "HK to Kathmandu",
         href: "/ai-express/hk-to-nepal#pickup-form",
     },
     {
         key: "nepalToHk",
-        label: "Nepal to HK",
+        label: "Kathmandu to HK",
         href: "/ai-express/nepal-to-hk#pickup-form",
     },
 ];
@@ -74,9 +74,9 @@ const SERVICES = [
         href: "/services/travel-immigration",
     },
     {
-        key: "homeOfficeServices",
-        label: "Home & Office Services",
-        href: "/services/home-office-services",
+        key: "constructionRepairServices",
+        label: "Construction & Repair Services",
+        href: "/services/construction-repair-services",
     },
 ];
 

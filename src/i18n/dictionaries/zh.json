@@ -4,11 +4,11 @@
 
     "servicesTitle": "R Services",
     "services": {
-      "software": "軟體開發",
+      "software": "軟件開發",
       "accounting": "會計與財務",
-      "businessServices": "公司註冊與餐飲牌照",
-      "travelImmigration": "旅遊與移民服務",
-      "homeOfficeServices": "家居與辦公室服務"
+      "businessServices": "公司註冊及餐飲牌照",
+      "travelImmigration": "旅遊與移民",
+      "constructionRepairServices": "建築與維修服務"
     },
 
     "searchPlaceholder": "搜尋商品",
@@ -514,6 +514,20 @@
         "whatsappLink": "https://wa.me/85200000000",
         "alt": "家居及辦公服務圖片"
       }
+    },
+    "constructionRepairServices": {
+      "hero": {
+        "pill": "可靠的建築與維修方案",
+        "titleLine1": "透過專業的",
+        "titleHighlight": "建築與維修服務",
+        "titleSuffix": "改善您的空間。",
+        "subtitle": "從翻新、安裝到電力、水管、維修及保養服務，我們協助家庭與企業保持安全、高效及現代化。",
+        "ctaSecondary": "WhatsApp 聯絡我們",
+        "ctaPrimaryText": "查看服務",
+        "ctaPrimaryLink": "/services/construction-repair-services",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "建築與維修服務主視覺圖片"
+      }
     }
   },
 
@@ -551,6 +565,13 @@
         "line1": "升级您的",
         "highlight": "家居与办公室",
         "line2": "服务体验"
+      }
+    },
+    "construction-repair-services": {
+      "title": {
+        "line1": "打造、維修並改善您的",
+        "highlight": "空間",
+        "line2": "由值得信賴的專業團隊提供服務"
       }
     }
   }

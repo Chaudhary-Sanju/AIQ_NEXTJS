@@ -11,6 +11,7 @@ import {
     Plane,
     Code2,
     Sparkles,
+    Hammer,
 } from "lucide-react";
 
 const serviceOrder = [
@@ -18,7 +19,7 @@ const serviceOrder = [
     "accountingFinance",
     "businessServices",
     "travelImmigration",
-    "homeOfficeServices",
+    "constructionRepairServices",
 ];
 
 const translations = {
@@ -41,11 +42,11 @@ const translations = {
                     "Plan your next journey with ease. Get reliable support for visas, immigration guidance, travel bookings, flights, and transport arrangements.",
                 href: "/services/travel-immigration",
             },
-            homeOfficeServices: {
-                title: "Home & Office Services",
+            constructionRepairServices: {
+                title: "Construction & Repair Services",
                 description:
-                    "Make your space work better. From moving and repairs to installation support, we connect you with reliable help for home and office needs.",
-                href: "/services/home-office-services",
+                    "Build, renovate, and repair with confidence. From home renovations and office setup to electrical, plumbing, and maintenance support — we connect you with trusted professionals.",
+                href: "/services/construction-repair-services",
             },
             softwareDevelopment: {
                 title: "Software Development",
@@ -81,11 +82,11 @@ const translations = {
                     "तपाईंको अर्को यात्रा झन्झटमुक्त बनाउनुहोस्। भिसा, आप्रवासन, टुर, फ्लाइट बुकिङ र यातायात व्यवस्थापनमा भरपर्दो सहयोग पाउनुहोस्।",
                 href: "/services/travel-immigration",
             },
-            homeOfficeServices: {
-                title: "घर तथा कार्यालय सेवा",
+            constructionRepairServices: {
+                title: "निर्माण तथा मर्मत सेवा",
                 description:
-                    "घर वा अफिसलाई अझ सहज र व्यवस्थित बनाउनुहोस्। सर्ने, मर्मत गर्ने र जडान गर्ने कामका लागि भरपर्दो सेवा सजिलै पाउनुहोस्।",
-                href: "/services/home-office-services",
+                    "निर्माण, नवीकरण र मर्मत कार्य सहज बनाउनुहोस्। घर, अफिस, इलेक्ट्रिकल, प्लम्बिङ तथा मर्मतसम्बन्धी कामका लागि भरपर्दो प्राविधिक सहयोग पाउनुहोस्।",
+                href: "/services/construction-repair-services",
             },
             softwareDevelopment: {
                 title: "सफ्टवेयर विकास",
@@ -121,11 +122,11 @@ const translations = {
                     "轻松规划您的下一段旅程。我们提供签证、移民咨询、旅游安排、机票预订和交通支持。",
                 href: "/services/travel-immigration",
             },
-            homeOfficeServices: {
-                title: "家居与办公室服务",
+            constructionRepairServices: {
+                title: "建筑与维修服务",
                 description:
-                    "让您的生活和办公空间更高效舒适。搬迁、维修和安装服务，都可以通过我们轻松获得支持。",
-                href: "/services/home-office-services",
+                    "让建筑、翻新与维修更轻松。无论是家居装修、办公室安装，还是电力、水管和维护服务，我们都能为您连接可靠专业人员。",
+                href: "/services/construction-repair-services",
             },
             softwareDevelopment: {
                 title: "软件开发",
@@ -164,9 +165,9 @@ const serviceConfig = {
         emoji: "✈️",
         tone: "orange",
     },
-    homeOfficeServices: {
-        icon: Home,
-        emoji: "🏠",
+    constructionRepairServices: {
+        icon: Hammer,
+        emoji: "🔨",
         tone: "blue",
     },
 };

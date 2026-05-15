@@ -8,7 +8,7 @@
       "accounting": "लेखांकन तथा वित्त",
       "businessServices": "कम्पनी दर्ता तथा F&B लाइसेन्स",
       "travelImmigration": "यात्रा तथा आप्रवासन",
-      "homeOfficeServices": "घर तथा कार्यालय सेवा"
+      "constructionRepairServices": "निर्माण तथा मर्मत सेवा"
     },
 
     "searchPlaceholder": "सामान खोज्नुहोस्",
@@ -528,6 +528,20 @@
         "whatsappLink": "https://wa.me/85200000000",
         "alt": "घर तथा अफिस सेवा चित्र"
       }
+    },
+    "constructionRepairServices": {
+      "hero": {
+        "pill": "भरपर्दो निर्माण तथा मर्मत समाधान",
+        "titleLine1": "भरपर्दो",
+        "titleHighlight": "निर्माण तथा मर्मत सेवासँग",
+        "titleSuffix": "आफ्नो स्थान सुधार गर्नुहोस्।",
+        "subtitle": "नवीकरण, जडान, इलेक्ट्रिकल, प्लम्बिङ, मर्मत तथा मर्मतसम्भार सेवामार्फत हामी घर र व्यवसायलाई सुरक्षित, व्यवस्थित र आधुनिक बनाउन सहयोग गर्छौं।",
+        "ctaSecondary": "WhatsApp मा सम्पर्क गर्नुहोस्",
+        "ctaPrimaryText": "सेवा हेर्नुहोस्",
+        "ctaPrimaryLink": "/services/construction-repair-services",
+        "whatsappLink": "https://wa.me/85200000000",
+        "alt": "निर्माण तथा मर्मत सेवा हिरो छवि"
+      }
     }
   },
 
@@ -565,6 +579,13 @@
         "line1": "तपाईंको",
         "highlight": "घर र कार्यालय",
         "line2": "सेवाहरू हामीसँग स्तरोन्नति गर्नुहोस्"
+      }
+    },
+    "construction-repair-services": {
+      "title": {
+        "line1": "निर्माण, मर्मत र सुधार गर्नुहोस् आफ्नो",
+        "highlight": "स्थान",
+        "line2": "भरपर्दो प्राविधिक टोलीसँग"
       }
     }
   }

@@ -6,9 +6,9 @@
     "services": {
       "software": "Software Development",
       "accounting": "Accounting & Finance",
-      "businessServices": "Company Register & F&B License",
+      "businessServices": "Company Registration & F&B License",
       "travelImmigration": "Travel & Immigration",
-      "homeOfficeServices": "Home & Office Services"
+      "constructionRepairServices": "Construction & Repair Services"
     },
 
     "searchPlaceholder": "Search for an item",
@@ -330,7 +330,7 @@
 
   "deliveryHero": {
     "alt": "Delivery rider",
-    "title": "Life Moves Fast. So Do We—Delivering\nAcross Nepal and Hong Kong at Your Speed.",
+    "title": "Life Moves Fast. So Do We—Delivering\nAcross Kathmandu and Hong Kong at Your Speed.",
     "subtitle": "From local deliveries to international shipping between Hong Kong and Nepal—experience real-time tracking, instant pickups, and lightning-fast service with HkMandu.",
     "ctaWhatsapp": "Contact on WhatsApp",
     "ctaTrack": "Track Order",
@@ -522,18 +522,18 @@
         "alt": "Travel and immigration hero image"
       }
     },
-    "homeOfficeServices": {
+    "constructionRepairServices": {
       "hero": {
-        "pill": "Reliable moving and setup solutions",
-        "titleLine1": "Upgrade your space with dependable",
-        "titleHighlight": "home & office services",
+        "pill": "Reliable construction and repair solutions",
+        "titleLine1": "Build and improve your space with trusted",
+        "titleHighlight": "construction & repair services",
         "titleSuffix": ".",
-        "subtitle": "From moving and installations to repairs and maintenance, we help keep your home and workplace running smoothly.",
+        "subtitle": "From renovations and installations to electrical, plumbing, maintenance, and repair work, we help homes and businesses stay safe, functional, and modern.",
         "ctaSecondary": "Contact on WhatsApp",
         "ctaPrimaryText": "Explore Service",
-        "ctaPrimaryLink": "/services/home-office-services",
+        "ctaPrimaryLink": "/services/construction-repair-services",
         "whatsappLink": "https://wa.me/85200000000",
-        "alt": "Home and office services hero image"
+        "alt": "Construction and repair services hero image"
       }
     }
   },
@@ -572,6 +572,13 @@
         "line1": "Upgrade your",
         "highlight": "home & office",
         "line2": "services with us"
+      }
+    },
+    "construction-repair-services": {
+      "title": {
+        "line1": "Build, repair & improve your",
+        "highlight": "space",
+        "line2": "with trusted professionals"
       }
     }
   }

@@ -17,29 +17,29 @@ const SERVICES = [
         },
     },
     {
-        key: "hk-to-nepal",
+        key: "hk-to-kathmandu",
         icon: PlaneTakeoff,
         title: {
-            en: "HK to Nepal",
+            en: "HK to Kathmandu",
             ne: "हङकङदेखि नेपाल",
             zh: "香港到尼泊尔",
         },
         description: {
-            en: "Send parcels from Hong Kong to Nepal with secure courier support.",
+            en: "Send parcels from Hong Kong to Kathmandu with secure courier support.",
             ne: "हङकङबाट नेपालमा सुरक्षित कुरियर सेवासहित पार्सल पठाउनुहोस्।",
             zh: "从香港寄送包裹到尼泊尔，提供安全快递支援。",
         },
     },
     {
-        key: "nepal-to-hk",
+        key: "kathmandu-to-hk",
         icon: PlaneLanding,
         title: {
-            en: "Nepal to HK",
+            en: "Kathmandu to HK",
             ne: "नेपालदेखि हङकङ",
             zh: "尼泊尔到香港",
         },
         description: {
-            en: "Send parcels from Nepal to Hong Kong with verified pickup service.",
+            en: "Send parcels from Kathmandu to Hong Kong with verified pickup service.",
             ne: "नेपालबाट हङकङमा प्रमाणित पिकअप सेवासहित पार्सल पठाउनुहोस्।",
             zh: "从尼泊尔寄送包裹到香港，提供验证取件服务。",
         },

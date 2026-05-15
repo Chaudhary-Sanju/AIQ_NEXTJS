@@ -369,7 +369,11 @@ const SERVICE_CONFIG = {
         badge: { en: "Local Delivery", ne: "स्थानीय डेलिभरी", zh: "本地配送" },
         routeFrom: { en: "Pickup Address", ne: "पिकअप ठेगाना", zh: "取件地址" },
         routeTo: { en: "Delivery Address", ne: "डेलिभरी ठेगाना", zh: "派送地址" },
-        titleB: { en: "door to door", ne: "ढोकाबाट ढोकासम्म", zh: "门到门" },
+        titleB: {
+            en: "Door to Door (HK Only)",
+            ne: "ढोका-देखि-ढोकासम्म (हङकङ मात्र)",
+            zh: "门到门服务（仅限香港）"
+        },
         subtitle: {
             en: "Book a local pickup and delivery request from one address directly to another.",
             ne: "एउटा ठेगानाबाट अर्को ठेगानामा स्थानीय पिकअप र डेलिभरी अनुरोध बुक गर्नुहोस्।",
@@ -404,7 +408,7 @@ const SERVICE_CONFIG = {
         lockDeliveryType: true,
     },
 
-    "hk-to-nepal": {
+    "hk-to-kathmandu": {
         icon: PlaneTakeoff,
         theme: {
             sectionBg: "bg-[#f5f7ff]",
@@ -418,22 +422,22 @@ const SERVICE_CONFIG = {
                 "bg-[linear-gradient(90deg,#3b82f6_0%,#2563eb_45%,#1d4ed8_100%)] shadow-[0_18px_40px_rgba(59,130,246,0.30)]",
             focusColor: "#3b82f6",
         },
-        label: { en: "HK to Nepal", ne: "हङकङ देखि नेपाल", zh: "香港到尼泊尔" },
+        label: { en: "HK to Kathmandu", ne: "हङकङ देखि नेपाल", zh: "香港到尼泊尔" },
         badge: {
             en: "International Courier",
             ne: "अन्तर्राष्ट्रिय कुरियर",
             zh: "国际快递",
         },
         routeFrom: { en: "Hong Kong", ne: "हङकङ", zh: "香港" },
-        routeTo: { en: "Nepal", ne: "नेपाल", zh: "尼泊尔" },
-        titleB: { en: "HK to Nepal", ne: "हङकङ देखि नेपाल", zh: "香港到尼泊尔" },
+        routeTo: { en: "Kathmandu", ne: "नेपाल", zh: "尼泊尔" },
+        titleB: { en: "HK to Kathmandu", ne: "हङकङ देखि नेपाल", zh: "香港到尼泊尔" },
         subtitle: {
-            en: "Send parcels from Hong Kong to Nepal with secure pickup and tracking support.",
+            en: "Send parcels from Hong Kong to Kathmandu with secure pickup and tracking support.",
             ne: "हङकङबाट नेपालसम्म सुरक्षित पिकअप र ट्र्याकिङ सहित पार्सल पठाउनुहोस्।",
             zh: "从香港寄送包裹到尼泊尔，支持安全取件和追踪。",
         },
         note: {
-            en: "Use this form when the parcel starts from Hong Kong and the final receiver is in Nepal.",
+            en: "Use this form when the parcel starts from Hong Kong and the final receiver is in Kathmandu.",
             ne: "पार्सल हङकङबाट सुरु भएर नेपालमा पुग्ने भए यो फारम प्रयोग गर्नुहोस्।",
             zh: "当包裹从香港寄出并最终送达尼泊尔时，请使用此表单。",
         },
@@ -443,7 +447,7 @@ const SERVICE_CONFIG = {
             zh: "香港取件地址",
         },
         deliveryAddressLabel: {
-            en: "Delivery Address in Nepal",
+            en: "Delivery Address in Kathmandu",
             ne: "नेपालमा डेलिभरी ठेगाना",
             zh: "尼泊尔派送地址",
         },
@@ -453,7 +457,7 @@ const SERVICE_CONFIG = {
             zh: "香港取件地址",
         },
         deliveryPlaceholder: {
-            en: "Nepal delivery address",
+            en: "Kathmandu delivery address",
             ne: "नेपाल डेलिभरी ठेगाना",
             zh: "尼泊尔派送地址",
         },
@@ -461,7 +465,7 @@ const SERVICE_CONFIG = {
         lockDeliveryType: false,
     },
 
-    "nepal-to-hk": {
+    "kathmandu-to-hk": {
         icon: PlaneLanding,
         theme: {
             sectionBg: "bg-[#fff7ed]",
@@ -475,27 +479,27 @@ const SERVICE_CONFIG = {
                 "bg-[linear-gradient(90deg,#fb923c_0%,#f97316_45%,#c2410c_100%)] shadow-[0_18px_40px_rgba(249,115,22,0.30)]",
             focusColor: "#f97316",
         },
-        label: { en: "Nepal to HK", ne: "नेपाल देखि हङकङ", zh: "尼泊尔到香港" },
+        label: { en: "Kathmandu to HK", ne: "नेपाल देखि हङकङ", zh: "尼泊尔到香港" },
         badge: {
             en: "International Courier",
             ne: "अन्तर्राष्ट्रिय कुरियर",
             zh: "国际快递",
         },
-        routeFrom: { en: "Nepal", ne: "नेपाल", zh: "尼泊尔" },
+        routeFrom: { en: "Kathmandu", ne: "नेपाल", zh: "尼泊尔" },
         routeTo: { en: "Hong Kong", ne: "हङकङ", zh: "香港" },
-        titleB: { en: "Nepal to HK", ne: "नेपाल देखि हङकङ", zh: "尼泊尔到香港" },
+        titleB: { en: "Kathmandu to HK", ne: "नेपाल देखि हङकङ", zh: "尼泊尔到香港" },
         subtitle: {
-            en: "Send parcels from Nepal to Hong Kong with verified courier pickup service.",
+            en: "Send parcels from Kathmandu to Hong Kong with verified courier pickup service.",
             ne: "नेपालबाट हङकङसम्म प्रमाणित कुरियर पिकअप सेवासहित पार्सल पठाउनुहोस्।",
             zh: "从尼泊尔寄送包裹到香港，提供已验证的上门取件服务。",
         },
         note: {
-            en: "Use this form when the parcel starts from Nepal and the final receiver is in Hong Kong.",
+            en: "Use this form when the parcel starts from Kathmandu and the final receiver is in Hong Kong.",
             ne: "पार्सल नेपालबाट सुरु भएर हङकङमा पुग्ने भए यो फारम प्रयोग गर्नुहोस्।",
             zh: "当包裹从尼泊尔寄出并最终送达香港时，请使用此表单。",
         },
         pickupAddressLabel: {
-            en: "Pickup Address in Nepal",
+            en: "Pickup Address in Kathmandu",
             ne: "नेपालमा पिकअप ठेगाना",
             zh: "尼泊尔取件地址",
         },
@@ -505,7 +509,7 @@ const SERVICE_CONFIG = {
             zh: "香港派送地址",
         },
         pickupPlaceholder: {
-            en: "Nepal pickup address",
+            en: "Kathmandu pickup address",
             ne: "नेपाल पिकअप ठेगाना",
             zh: "尼泊尔取件地址",
         },
@@ -639,11 +643,11 @@ function formatHongKongAddress(address) {
 }
 
 function shouldUseHongKongPickup(serviceType) {
-    return serviceType === "door-to-door" || serviceType === "hk-to-nepal";
+    return serviceType === "door-to-door" || serviceType === "hk-to-kathmandu";
 }
 
 function shouldUseHongKongDelivery(serviceType) {
-    return serviceType === "door-to-door" || serviceType === "nepal-to-hk";
+    return serviceType === "door-to-door" || serviceType === "kathmandu-to-hk";
 }
 
 function getServiceSpeedOptions(serviceType, deliveryType) {
@@ -655,7 +659,7 @@ function getServiceSpeedOptions(serviceType, deliveryType) {
         ];
     }
 
-    if (serviceType === "hk-to-nepal" || serviceType === "nepal-to-hk") {
+    if (serviceType === "hk-to-kathmandu" || serviceType === "kathmandu-to-hk") {
         if (deliveryType === "door2branch") {
             return [
                 { value: "standard", label: "Standard (4-6 days)" },
