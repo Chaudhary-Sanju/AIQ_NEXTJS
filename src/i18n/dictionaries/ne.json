@@ -36,7 +36,10 @@
     "dashboard": "ड्यासबोर्ड",
     "settings": "सेटिङ्स",
     "terms": "नियम तथा सर्तहरू",
-    "privacy": "गोपनीयता नीति"
+    "privacy": "गोपनीयता नीति",
+    "bulkPurchase": "थोक खरिद",
+    "bbqDelivery": "बीबीक्यू डेलिभरी सेवा",
+    "nepaliProduct": "नेपाली उत्पादन (नेपालमा बनेको)"
   },
 
   "footer": {

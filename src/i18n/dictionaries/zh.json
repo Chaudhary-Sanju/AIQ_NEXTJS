@@ -36,7 +36,10 @@
     "dashboard": "控制台",
     "settings": "設定",
     "terms": "條款及細則",
-    "privacy": "私隱政策"
+    "privacy": "私隱政策",
+    "bulkPurchase": "批量采购",
+    "bbqDelivery": "烧烤配送服务",
+    "nepaliProduct": "尼泊尔产品（尼泊尔制造）"
   },
 
   "footer": {

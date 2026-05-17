@@ -36,7 +36,10 @@
     "dashboard": "Dashboard",
     "settings": "Settings",
     "terms": "Terms & Conditions",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "bulkPurchase": "Bulk Purchase",
+    "bbqDelivery": "BBQ Delivery Service",
+    "nepaliProduct": "Nepali Product (Made In Nepal)"
   },
 
   "footer": {

@@ -80,11 +80,6 @@ const SERVICES = [
     },
 ];
 
-const pickLang = (obj, locale = "en") => {
-    if (!obj || typeof obj !== "object") return "";
-    return obj?.[locale] || obj?.en || obj?.ne || obj?.zh || "";
-};
-
 export default function Navbar({ locale = "en", dict = {} }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [servicesOpen, setServicesOpen] = useState(false);
@@ -94,9 +89,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
     const [desktopSearch, setDesktopSearch] = useState("");
     const [mobileSearch, setMobileSearch] = useState("");
-
-    const [categories, setCategories] = useState([]);
-    const [categoryLoading, setCategoryLoading] = useState(false);
 
     const desktopServicesRef = useRef(null);
     const desktopGroceryRef = useRef(null);
@@ -117,9 +109,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const t = (key, fallback) => {
         const parts = key.split(".");
         let cur = dict;
-
         for (const p of parts) cur = cur?.[p];
-
         return cur ?? fallback;
     };
 
@@ -133,59 +123,32 @@ export default function Navbar({ locale = "en", dict = {} }) {
         setProfileOpen(false);
     };
 
-    const groceryMainHref = () => {
-        return `/${locale}/product?page=1&limit=10`;
-    };
-
-    const groceryHref = (slug) => {
-        if (!slug) return groceryMainHref();
-
-        const query = new URLSearchParams({
-            page: "1",
-            limit: "10",
-            category: slug,
-        });
-
-        return `/${locale}/product?${query.toString()}`;
-    };
-
-    const bulkPurchaseHref = () => {
-        return `/${locale}/bulk-purchase?page=1&limit=10`;
-    };
+    const groceryMainHref = () => `/${locale}/product?page=1&limit=10`;
+    const bulkPurchaseHref = () => `/${locale}/bulk-purchase?page=1&limit=10`;
+    const bbqDeliveryHref = () => `/${locale}/product?category=bbq&page=1&limit=10`;
+    const nepaliProductHref = () => `/${locale}/product?category=madeinnepal&page=1&limit=10`;
 
     const scrollToPerfectServices = () => {
         closeMenus();
-
         const homePath = `/${locale}`;
-
         if (pathname !== homePath) {
             router.push(`${homePath}#perfect-services`);
             return;
         }
-
         const el = document.getElementById("perfect-services");
-
         if (el) {
             setTimeout(() => {
                 const header = document.querySelector("header");
                 let headerHeight = 0;
-
                 if (header) {
                     const style = getComputedStyle(header);
-
                     if (style.position === "sticky" || style.position === "fixed") {
                         headerHeight = header.getBoundingClientRect().height;
                     }
                 }
-
                 const originalMargin = el.style.scrollMarginTop;
                 el.style.scrollMarginTop = `${headerHeight + 12}px`;
-
-                el.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                });
-
+                el.scrollIntoView({ behavior: "smooth", block: "start" });
                 setTimeout(() => {
                     el.style.scrollMarginTop = originalMargin;
                 }, 500);
@@ -216,54 +179,13 @@ export default function Navbar({ locale = "en", dict = {} }) {
         [locale, dict]
     );
 
-    useEffect(() => {
-        let mounted = true;
-
-        const fetchCategories = async () => {
-            try {
-                setCategoryLoading(true);
-
-                const res = await http.get("/frontend/category");
-
-                const rawData =
-                    res?.data?.data?.data ||
-                    res?.data?.data ||
-                    res?.data?.categories ||
-                    [];
-
-                const list = Array.isArray(rawData) ? rawData : [];
-
-                if (mounted) {
-                    setCategories(list.filter((item) => item?.status !== false));
-                }
-            } catch (error) {
-                console.error("Failed to load grocery categories:", error);
-
-                if (mounted) {
-                    setCategories([]);
-                }
-            } finally {
-                if (mounted) {
-                    setCategoryLoading(false);
-                }
-            }
-        };
-
-        fetchCategories();
-
-        return () => {
-            mounted = false;
-        };
-    }, []);
-
+    // User authentication sync
     useEffect(() => {
         const token = fromStorage("hkmandu");
-
         if (!isLoggedIn && token) {
             http.get("frontend/auth/details")
                 .then((res) => {
                     const u = res.data?.user ?? res.data;
-
                     if (u) {
                         dispatch(setUser(u));
                         fetchCart();
@@ -276,39 +198,25 @@ export default function Navbar({ locale = "en", dict = {} }) {
         }
     }, [dispatch, isLoggedIn, fetchCart]);
 
+    // Close dropdowns on escape or outside click
     useEffect(() => {
         function onKeyDown(e) {
-            if (e.key === "Escape") {
-                closeMenus();
-            }
+            if (e.key === "Escape") closeMenus();
         }
-
         function onPointerDown(e) {
             const inDesktopServices = desktopServicesRef.current?.contains(e.target);
             const inDesktopGrocery = desktopGroceryRef.current?.contains(e.target);
             const inDesktopExpress = desktopExpressRef.current?.contains(e.target);
             const inMobileDrawer = mobileDrawerRef.current?.contains(e.target);
             const inProfile = profileRef.current?.contains(e.target);
-
-            if (
-                inDesktopServices ||
-                inDesktopGrocery ||
-                inDesktopExpress ||
-                inMobileDrawer ||
-                inProfile
-            ) {
-                return;
-            }
-
+            if (inDesktopServices || inDesktopGrocery || inDesktopExpress || inMobileDrawer || inProfile) return;
             setServicesOpen(false);
             setGroceryOpen(false);
             setExpressOpen(false);
             setProfileOpen(false);
         }
-
         document.addEventListener("keydown", onKeyDown);
         document.addEventListener("pointerdown", onPointerDown);
-
         return () => {
             document.removeEventListener("keydown", onKeyDown);
             document.removeEventListener("pointerdown", onPointerDown);
@@ -317,16 +225,13 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
     const switchLocale = (nextLocale) => {
         if (!pathname) return;
-
         const segments = pathname.split("/");
-
         if (LOCALES.includes(segments[1])) {
             segments[1] = nextLocale;
             router.push(segments.join("/"));
         } else {
             router.push(`/${nextLocale}${pathname}`);
         }
-
         closeMenus();
     };
 
@@ -341,15 +246,11 @@ export default function Navbar({ locale = "en", dict = {} }) {
     const handleSearchSubmit = (e, keyword) => {
         e.preventDefault();
         const value = keyword.trim();
-
         closeMenus();
-
         const query = new URLSearchParams();
         query.set("page", "1");
         query.set("limit", "10");
-
         if (value) query.set("search", value);
-
         router.push(`/${locale}/product?${query.toString()}`);
     };
 
@@ -357,48 +258,31 @@ export default function Navbar({ locale = "en", dict = {} }) {
         <header
             className="w-full bg-orange-50"
             style={{
-                boxShadow:
-                    "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)",
+                boxShadow: "0 1px 0 #e5e7eb, 0 4px 16px -4px rgba(26,75,143,0.07)",
             }}
         >
+            {/* Top bar (desktop) */}
             <div
                 className="hidden lg:block"
-                style={{
-                    background:
-                        "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)",
-                }}
+                style={{ background: "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)" }}
             >
                 <div className="mx-auto max-w-7xl px-4 lg:px-6">
-                    <div
-                        className="flex h-9 items-center justify-between"
-                        style={{ fontSize: "13.3px", letterSpacing: "0.01em" }}
-                    >
+                    <div className="flex h-9 items-center justify-between" style={{ fontSize: "13.3px", letterSpacing: "0.01em" }}>
                         <div className="flex items-center gap-4 text-white/80">
                             <span className="inline-flex items-center gap-1.5">
                                 <Mail className="h-4 w-3 opacity-70" />
                                 contact@hkmandu.com
                             </span>
-
                             <span className="h-3 w-px bg-white/20" />
-
                             <span className="inline-flex items-center gap-1.5">
                                 <Phone className="h-4 w-3 opacity-70" />
                                 +852-1111-1111 &nbsp;|&nbsp; +977-9812345678
                             </span>
                         </div>
-
                         <div className="flex items-center gap-1 text-white/70">
                             {[
-                                {
-                                    key: "nav.terms",
-                                    fallback: "Terms & Conditions",
-                                    href: l("/terms"),
-                                },
-                                {
-                                    key: "nav.privacy",
-                                    fallback: "Privacy Policy",
-                                    href: l("/privacy-policy"),
-                                },
+                                { key: "nav.terms", fallback: "Terms & Conditions", href: l("/terms") },
+                                { key: "nav.privacy", fallback: "Privacy Policy", href: l("/privacy-policy") },
                             ].map((item, i, arr) => (
                                 <span key={item.href} className="inline-flex items-center">
                                     <Link
@@ -408,10 +292,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     >
                                         {t(item.key, item.fallback)}
                                     </Link>
-
-                                    {i < arr.length - 1 && (
-                                        <span className="text-white/25">|</span>
-                                    )}
+                                    {i < arr.length - 1 && <span className="text-white/25">|</span>}
                                 </span>
                             ))}
                         </div>
@@ -419,13 +300,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
+            {/* Main desktop navbar */}
             <div className="hidden bg-orange-50 lg:block">
                 <div className="mx-auto max-w-7xl px-3 lg:px-4 xl:px-6">
                     <div className="grid h-[80px] grid-cols-[78px_minmax(200px,1fr)_auto_auto] items-center gap-2 xl:grid-cols-[105px_minmax(280px,430px)_minmax(390px,1fr)_auto] xl:gap-4">
-                        <Link
-                            href={l("/")}
-                            className="group flex flex-col items-center justify-center leading-none"
-                        >
+                        {/* Logo */}
+                        <Link href={l("/")} className="group flex flex-col items-center justify-center leading-none">
                             <Image
                                 src="/logo.png"
                                 alt={t("nav.logo", "HkMandu")}
@@ -433,22 +313,16 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 height={48}
                                 className="h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105 xl:h-11"
                             />
-
                             <span
                                 className="mt-1 text-[10px] font-bold uppercase tracking-widest xl:text-[12px]"
-                                style={{
-                                    color: "#1a4b8f",
-                                    letterSpacing: "0.14em",
-                                }}
+                                style={{ color: "#1a4b8f", letterSpacing: "0.14em" }}
                             >
                                 HkMandu
                             </span>
                         </Link>
 
-                        <form
-                            className="w-full"
-                            onSubmit={(e) => handleSearchSubmit(e, desktopSearch)}
-                        >
+                        {/* Search */}
+                        <form className="w-full" onSubmit={(e) => handleSearchSubmit(e, desktopSearch)}>
                             <div className="relative">
                                 <input
                                     type="text"
@@ -456,33 +330,24 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     onChange={(e) => setDesktopSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
                                     className="h-10 w-full border bg-orange-50 pl-3 pr-10 text-sm text-neutral-800 outline-none transition-all duration-200 focus:bg-orange-50 xl:h-11 xl:pl-4 xl:pr-12"
-                                    style={{
-                                        borderRadius: "6px",
-                                        borderColor: "#fed7aa",
-                                        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)",
-                                    }}
+                                    style={{ borderRadius: "6px", borderColor: "#fed7aa", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)" }}
                                 />
-
                                 <button
                                     type="submit"
                                     aria-label={t("nav.searchAria", "Search")}
                                     className="absolute right-0 top-0 flex h-10 w-10 items-center justify-center rounded-r-md transition-colors duration-150 hover:text-white xl:h-11 xl:w-11"
-                                    style={{
-                                        color: "#1a4b8f",
-                                        borderRadius: "0 6px 6px 0",
-                                    }}
+                                    style={{ color: "#1a4b8f", borderRadius: "0 6px 6px 0" }}
                                 >
                                     <Search className="h-4 w-4" />
                                 </button>
                             </div>
                         </form>
 
+                        {/* Desktop navigation pills */}
                         <nav className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap">
+                            {/* Express dropdown */}
                             <div className="relative" ref={desktopExpressRef}>
-                                <div
-                                    className="flex items-center overflow-hidden rounded-full border bg-orange-50"
-                                    style={{ borderColor: YELLOW_BORDER }}
-                                >
+                                <div className="flex items-center overflow-hidden rounded-full border bg-orange-50" style={{ borderColor: YELLOW_BORDER }}>
                                     <Link
                                         href={l("/ai-express")}
                                         onClick={() => setExpressOpen(false)}
@@ -491,51 +356,20 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     >
                                         {t("nav.aiExpress", "A Express")}
                                     </Link>
-
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            setExpressOpen((v) => !v);
-                                            setGroceryOpen(false);
-                                            setServicesOpen(false);
-                                            setProfileOpen(false);
-                                        }}
+                                        onClick={() => { setExpressOpen(v => !v); setGroceryOpen(false); setServicesOpen(false); setProfileOpen(false); }}
                                         className="inline-flex items-center border-l px-2 py-2 text-[13px] font-semibold transition-colors duration-150 xl:text-[14px]"
-                                        style={{
-                                            borderColor: YELLOW_BORDER,
-                                            color: expressOpen ? "#1a4b8f" : "#404040",
-                                        }}
+                                        style={{ borderColor: YELLOW_BORDER, color: expressOpen ? "#1a4b8f" : "#404040" }}
                                         aria-label="Toggle express menu"
                                     >
-                                        <ChevronDown
-                                            className="h-3.5 w-3.5 transition-transform duration-200"
-                                            style={{
-                                                transform: expressOpen
-                                                    ? "rotate(180deg)"
-                                                    : "rotate(0deg)",
-                                            }}
-                                        />
+                                        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" style={{ transform: expressOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
                                     </button>
                                 </div>
-
                                 {expressOpen && (
-                                    <div
-                                        className="absolute left-1/2 top-full z-30 mt-3 w-56 -translate-x-1/2 bg-orange-50 p-1.5"
-                                        style={{
-                                            borderRadius: "10px",
-                                            border: `1px solid ${YELLOW_BORDER}`,
-                                            boxShadow:
-                                                "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
-                                        }}
-                                    >
-                                        {EXPRESS_LINKS.map((item) => (
-                                            <Link
-                                                key={item.key}
-                                                href={l(item.href)}
-                                                onClick={() => setExpressOpen(false)}
-                                                className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
-                                                style={{ fontWeight: 450 }}
-                                            >
+                                    <div className="absolute left-1/2 top-full z-30 mt-3 w-56 -translate-x-1/2 bg-orange-50 p-1.5" style={{ borderRadius: "10px", border: `1px solid ${YELLOW_BORDER}`, boxShadow: "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)" }}>
+                                        {EXPRESS_LINKS.map(item => (
+                                            <Link key={item.key} href={l(item.href)} onClick={() => setExpressOpen(false)} className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]" style={{ fontWeight: 450 }}>
                                                 {t(`nav.express.${item.key}`, item.label)}
                                             </Link>
                                         ))}
@@ -543,6 +377,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
+                            {/* Grocery dropdown with multi-language items */}
                             <div className="relative" ref={desktopGroceryRef}>
                                 <div
                                     className="flex items-center overflow-hidden rounded-full border bg-orange-50"
@@ -556,7 +391,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     >
                                         {t("nav.organicMart", "A Grocery")}
                                     </Link>
-
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -575,9 +409,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <ChevronDown
                                             className="h-3.5 w-3.5 transition-transform duration-200"
                                             style={{
-                                                transform: groceryOpen
-                                                    ? "rotate(180deg)"
-                                                    : "rotate(0deg)",
+                                                transform: groceryOpen ? "rotate(180deg)" : "rotate(0deg)",
                                             }}
                                         />
                                     </button>
@@ -593,18 +425,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                                 "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
                                         }}
                                     >
-                                        {/* <Link
-                                            href={groceryMainHref()}
-                                            onClick={() => {
-                                                setGroceryOpen(false);
-                                                setExpressOpen(false);
-                                                setServicesOpen(false);
-                                            }}
-                                            className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
-                                        >
-                                            {t("nav.allProducts", "All Products")}
-                                        </Link> */}
-
+                                        {/* Bulk Purchase */}
                                         <Link
                                             href={bulkPurchaseHref()}
                                             onClick={() => {
@@ -619,103 +440,62 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                                         <div className="my-1 border-t border-yellow-200" />
 
-                                        {categoryLoading ? (
-                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
-                                                {t("nav.loading", "Loading...")}
-                                            </div>
-                                        ) : categories.length > 0 ? (
-                                            categories.map((category) => {
-                                                const name = pickLang(category?.name, locale);
-                                                const slug = category?.slug;
+                                        {/* BBQ Delivery Service */}
+                                        <Link
+                                            href={bbqDeliveryHref()}
+                                            onClick={() => {
+                                                setGroceryOpen(false);
+                                                setExpressOpen(false);
+                                                setServicesOpen(false);
+                                            }}
+                                            className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
+                                        >
+                                            {t("nav.bbqDelivery", "BBQ Delivery Service")}
+                                        </Link>
 
-                                                if (!slug) return null;
+                                        <div className="my-1 border-t border-yellow-200" />
 
-                                                return (
-                                                    <Link
-                                                        key={category._id || slug}
-                                                        href={groceryHref(slug)}
-                                                        onClick={() => {
-                                                            setGroceryOpen(false);
-                                                            setExpressOpen(false);
-                                                            setServicesOpen(false);
-                                                        }}
-                                                        className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
-                                                        style={{ fontWeight: 450 }}
-                                                    >
-                                                        {name || "Category"}
-                                                    </Link>
-                                                );
-                                            })
-                                        ) : (
-                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
-                                                {t("nav.noCategory", "No categories found")}
-                                            </div>
-                                        )}
+                                        {/* Nepali Product (Made In Nepal) */}
+                                        <Link
+                                            href={nepaliProductHref()}
+                                            onClick={() => {
+                                                setGroceryOpen(false);
+                                                setExpressOpen(false);
+                                                setServicesOpen(false);
+                                            }}
+                                            className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
+                                        >
+                                            {t("nav.nepaliProduct", "Nepali Product (Made In Nepal)")}
+                                        </Link>
                                     </div>
                                 )}
                             </div>
 
+                            {/* Services dropdown */}
                             <div className="relative" ref={desktopServicesRef}>
-                                <div
-                                    className="flex items-center overflow-hidden rounded-full border bg-orange-50"
-                                    style={{ borderColor: YELLOW_BORDER }}
-                                >
+                                <div className="flex items-center overflow-hidden rounded-full border bg-orange-50" style={{ borderColor: YELLOW_BORDER }}>
                                     <button
                                         type="button"
                                         onClick={scrollToPerfectServices}
                                         className="px-3 py-2 text-[13px] font-semibold transition-colors duration-150 hover:text-[#1a4b8f] xl:text-[14px]"
-                                        style={{
-                                            color: "#404040",
-                                            letterSpacing: "0.01em",
-                                        }}
+                                        style={{ color: "#404040", letterSpacing: "0.01em" }}
                                     >
                                         {t("nav.servicesTitle", "R Services")}
                                     </button>
-
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            setServicesOpen((v) => !v);
-                                            setGroceryOpen(false);
-                                            setExpressOpen(false);
-                                            setProfileOpen(false);
-                                        }}
+                                        onClick={() => { setServicesOpen(v => !v); setGroceryOpen(false); setExpressOpen(false); setProfileOpen(false); }}
                                         className="inline-flex items-center border-l px-2 py-2 text-[13px] font-semibold transition-colors duration-150 xl:text-[14px]"
-                                        style={{
-                                            borderColor: YELLOW_BORDER,
-                                            color: servicesOpen ? "#1a4b8f" : "#404040",
-                                        }}
+                                        style={{ borderColor: YELLOW_BORDER, color: servicesOpen ? "#1a4b8f" : "#404040" }}
                                         aria-label="Toggle services menu"
                                     >
-                                        <ChevronDown
-                                            className="h-3.5 w-3.5 transition-transform duration-200"
-                                            style={{
-                                                transform: servicesOpen
-                                                    ? "rotate(180deg)"
-                                                    : "rotate(0deg)",
-                                            }}
-                                        />
+                                        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" style={{ transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
                                     </button>
                                 </div>
-
                                 {servicesOpen && (
-                                    <div
-                                        className="absolute left-1/2 top-full z-30 mt-3 w-72 -translate-x-1/2 bg-orange-50 p-1.5"
-                                        style={{
-                                            borderRadius: "10px",
-                                            border: `1px solid ${YELLOW_BORDER}`,
-                                            boxShadow:
-                                                "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
-                                        }}
-                                    >
-                                        {SERVICES.map((service) => (
-                                            <Link
-                                                key={service.key}
-                                                href={l(service.href)}
-                                                onClick={() => setServicesOpen(false)}
-                                                className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
-                                                style={{ fontWeight: 450 }}
-                                            >
+                                    <div className="absolute left-1/2 top-full z-30 mt-3 w-72 -translate-x-1/2 bg-orange-50 p-1.5" style={{ borderRadius: "10px", border: `1px solid ${YELLOW_BORDER}`, boxShadow: "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)" }}>
+                                        {SERVICES.map(service => (
+                                            <Link key={service.key} href={l(service.href)} onClick={() => setServicesOpen(false)} className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]" style={{ fontWeight: 450 }}>
                                                 {t(`nav.services.${service.key}`, service.label)}
                                             </Link>
                                         ))}
@@ -724,15 +504,11 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
                         </nav>
 
+                        {/* Cart / Auth / Language */}
                         <div className="flex min-w-max items-center gap-1 whitespace-nowrap xl:gap-2">
-                            <Link
-                                href={l("/cart")}
-                                aria-label={t("nav.cartAria", "Cart")}
-                                className="relative inline-flex items-center gap-1 rounded-md px-2 py-2 text-[13px] font-medium text-neutral-700 transition-colors duration-150 hover:bg-orange-100 hover:text-[#1a4b8f] xl:gap-1.5 xl:px-3 xl:text-sm"
-                            >
+                            <Link href={l("/cart")} aria-label={t("nav.cartAria", "Cart")} className="relative inline-flex items-center gap-1 rounded-md px-2 py-2 text-[13px] font-medium text-neutral-700 transition-colors duration-150 hover:bg-orange-100 hover:text-[#1a4b8f] xl:gap-1.5 xl:px-3 xl:text-sm">
                                 <ShoppingCart className="h-4 w-4" />
                                 <span>{t("nav.cart", "Cart")}</span>
-
                                 {totalItems > 0 && (
                                     <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#5b4fd4] px-1 text-[10px] font-bold text-white">
                                         {totalItems > 99 ? "99+" : totalItems}
@@ -742,45 +518,18 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                             <button
                                 type="button"
-                                onClick={() =>
-                                    switchLocale(
-                                        locale === "en" ? "zh" : locale === "zh" ? "ne" : "en"
-                                    )
-                                }
+                                onClick={() => switchLocale(locale === "en" ? "zh" : locale === "zh" ? "ne" : "en")}
                                 aria-label={t("nav.changeLanguageAria", "Change language")}
                                 className="inline-flex items-center gap-1 rounded-md px-2 py-2 text-[13px] font-medium text-neutral-700 transition-colors duration-150 hover:bg-orange-100 xl:gap-1.5 xl:px-3 xl:text-sm"
                             >
-                                <span
-                                    className="relative h-4 w-6 overflow-hidden"
-                                    style={{
-                                        borderRadius: "3px",
-                                        boxShadow: "0 0 0 1px rgba(0,0,0,0.12)",
-                                    }}
-                                >
-                                    <Image
-                                        src={FLAGS[locale] || FLAGS.en}
-                                        alt={LABELS[locale] || "EN"}
-                                        fill
-                                        className="object-cover"
-                                        sizes="24px"
-                                    />
+                                <span className="relative h-4 w-6 overflow-hidden" style={{ borderRadius: "3px", boxShadow: "0 0 0 1px rgba(0,0,0,0.12)" }}>
+                                    <Image src={FLAGS[locale] || FLAGS.en} alt={LABELS[locale] || "EN"} fill className="object-cover" sizes="24px" />
                                 </span>
-
                                 <span>{LABELS[locale] || "EN"}</span>
                             </button>
 
                             {!isLoggedIn ? (
-                                <Link
-                                    href={l("/auth/login")}
-                                    className="inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-semibold text-white transition-all duration-150 xl:gap-2 xl:px-3.5 xl:text-sm"
-                                    style={{
-                                        borderRadius: "7px",
-                                        background:
-                                            "linear-gradient(135deg, #1a4b8f 0%, #0f2a5e 100%)",
-                                        boxShadow: "0 2px 8px rgba(26,75,143,0.30)",
-                                        letterSpacing: "0.01em",
-                                    }}
-                                >
+                                <Link href={l("/auth/login")} className="inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-semibold text-white transition-all duration-150 xl:gap-2 xl:px-3.5 xl:text-sm" style={{ borderRadius: "7px", background: "linear-gradient(135deg, #1a4b8f 0%, #0f2a5e 100%)", boxShadow: "0 2px 8px rgba(26,75,143,0.30)", letterSpacing: "0.01em" }}>
                                     <LogIn className="h-3.5 w-3.5" />
                                     {t("nav.login", "Login")}
                                 </Link>
@@ -788,71 +537,26 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 <div className="relative" ref={profileRef}>
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            setProfileOpen((v) => !v);
-                                            setServicesOpen(false);
-                                            setGroceryOpen(false);
-                                            setExpressOpen(false);
-                                        }}
+                                        onClick={() => { setProfileOpen(v => !v); setServicesOpen(false); setGroceryOpen(false); setExpressOpen(false); }}
                                         className="inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-semibold text-white transition-all duration-150 xl:gap-2 xl:px-3.5 xl:text-sm"
-                                        style={{
-                                            borderRadius: "7px",
-                                            background:
-                                                "linear-gradient(135deg, #1a4b8f 0%, #0f2a5e 100%)",
-                                            boxShadow: "0 2px 8px rgba(26,75,143,0.30)",
-                                            letterSpacing: "0.01em",
-                                        }}
+                                        style={{ borderRadius: "7px", background: "linear-gradient(135deg, #1a4b8f 0%, #0f2a5e 100%)", boxShadow: "0 2px 8px rgba(26,75,143,0.30)", letterSpacing: "0.01em" }}
                                     >
                                         <User className="h-3.5 w-3.5" />
-                                        <span className="max-w-[90px] truncate xl:max-w-[120px]">
-                                            {displayName || t("nav.account", "My Account")}
-                                        </span>
-
-                                        <ChevronDown
-                                            className="h-3.5 w-3.5 transition-transform duration-200"
-                                            style={{
-                                                transform: profileOpen
-                                                    ? "rotate(180deg)"
-                                                    : "rotate(0deg)",
-                                            }}
-                                        />
+                                        <span className="max-w-[90px] truncate xl:max-w-[120px]">{displayName || t("nav.account", "My Account")}</span>
+                                        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" style={{ transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
                                     </button>
-
                                     {profileOpen && (
-                                        <div
-                                            className="absolute right-0 z-40 mt-3 w-52 bg-orange-50 p-1.5"
-                                            style={{
-                                                borderRadius: "10px",
-                                                border: "1px solid #fed7aa",
-                                                boxShadow:
-                                                    "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
-                                            }}
-                                        >
-                                            <Link
-                                                href={l("/dashboard")}
-                                                onClick={() => setProfileOpen(false)}
-                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-orange-100 hover:text-[#1a4b8f]"
-                                            >
+                                        <div className="absolute right-0 z-40 mt-3 w-52 bg-orange-50 p-1.5" style={{ borderRadius: "10px", border: "1px solid #fed7aa", boxShadow: "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)" }}>
+                                            <Link href={l("/dashboard")} onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-orange-100 hover:text-[#1a4b8f]">
                                                 <LayoutDashboard className="h-4 w-4" />
                                                 {t("nav.dashboard", "Dashboard")}
                                             </Link>
-
-                                            <Link
-                                                href={`/${locale}/dashboard/security`}
-                                                onClick={() => setProfileOpen(false)}
-                                                className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-orange-100 hover:text-[#1a4b8f]"
-                                            >
+                                            <Link href={`/${locale}/dashboard/security`} onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-orange-100 hover:text-[#1a4b8f]">
                                                 <Settings className="h-4 w-4" />
                                                 {t("nav.settings", "Settings")}
                                             </Link>
-
                                             <div className="my-1 border-t border-orange-200" />
-
-                                            <button
-                                                type="button"
-                                                onClick={handleLogout}
-                                                className="flex w-full items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-left text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
-                                            >
+                                            <button type="button" onClick={handleLogout} className="flex w-full items-center gap-2.5 rounded-[7px] px-3.5 py-2.5 text-left text-sm font-medium text-red-500 transition-colors hover:bg-red-50">
                                                 <LogOut className="h-4 w-4" />
                                                 {t("nav.logout", "Logout")}
                                             </button>
@@ -865,37 +569,16 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 </div>
             </div>
 
+            {/* Mobile navbar */}
             <div className="bg-orange-50 lg:hidden">
                 <div className="px-3 pb-2.5 pt-3">
                     <div className="flex items-center gap-2">
-                        <Link
-                            href={l("/")}
-                            className="flex w-[58px] shrink-0 flex-col items-center justify-center leading-none"
-                        >
-                            <Image
-                                src="/logo.png"
-                                alt={t("nav.logo", "HkMandu")}
-                                width={38}
-                                height={38}
-                                className="h-9 w-auto object-contain"
-                            />
-
-                            <span
-                                className="mt-0.5 font-bold uppercase tracking-widest"
-                                style={{
-                                    fontSize: "9px",
-                                    color: "#1a4b8f",
-                                    letterSpacing: "0.15em",
-                                }}
-                            >
-                                HkMandu
-                            </span>
+                        <Link href={l("/")} className="flex w-[58px] shrink-0 flex-col items-center justify-center leading-none">
+                            <Image src="/logo.png" alt={t("nav.logo", "HkMandu")} width={38} height={38} className="h-9 w-auto object-contain" />
+                            <span className="mt-0.5 font-bold uppercase tracking-widest" style={{ fontSize: "9px", color: "#1a4b8f", letterSpacing: "0.15em" }}>HkMandu</span>
                         </Link>
 
-                        <form
-                            className="min-w-0 flex-1"
-                            onSubmit={(e) => handleSearchSubmit(e, mobileSearch)}
-                        >
+                        <form className="min-w-0 flex-1" onSubmit={(e) => handleSearchSubmit(e, mobileSearch)}>
                             <div className="relative">
                                 <input
                                     type="text"
@@ -903,30 +586,16 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     onChange={(e) => setMobileSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
                                     className="h-10 w-full border bg-orange-50 pl-3.5 pr-10 text-sm text-neutral-800 outline-none focus:bg-orange-50"
-                                    style={{
-                                        borderRadius: "6px",
-                                        borderColor: "#fed7aa",
-                                    }}
+                                    style={{ borderRadius: "6px", borderColor: "#fed7aa" }}
                                 />
-
-                                <button
-                                    type="submit"
-                                    aria-label={t("nav.searchAria", "Search")}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2"
-                                    style={{ color: "#1a4b8f" }}
-                                >
+                                <button type="submit" aria-label={t("nav.searchAria", "Search")} className="absolute right-2.5 top-1/2 -translate-y-1/2" style={{ color: "#1a4b8f" }}>
                                     <Search className="h-4 w-4" />
                                 </button>
                             </div>
                         </form>
 
-                        <Link
-                            href={l("/cart")}
-                            className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700"
-                            aria-label={t("nav.cartAria", "Cart")}
-                        >
+                        <Link href={l("/cart")} className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700" aria-label={t("nav.cartAria", "Cart")}>
                             <ShoppingCart className="h-5 w-5" />
-
                             {totalItems > 0 && (
                                 <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#5b4fd4] px-1 text-[9px] font-bold text-white">
                                     {totalItems > 99 ? "99+" : totalItems}
@@ -936,174 +605,60 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
                         <button
                             type="button"
-                            onClick={() => {
-                                setMobileOpen((v) => !v);
-                                setServicesOpen(false);
-                                setGroceryOpen(false);
-                                setExpressOpen(false);
-                            }}
+                            onClick={() => { setMobileOpen(v => !v); setServicesOpen(false); setGroceryOpen(false); setExpressOpen(false); }}
                             className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700"
                             aria-label={t("nav.openMenuAria", "Open menu")}
                         >
-                            {mobileOpen ? (
-                                <X className="h-5 w-5" />
-                            ) : (
-                                <Menu className="h-5 w-5" />
-                            )}
+                            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                         </button>
                     </div>
                 </div>
 
-                <div
-                    className="border-y bg-orange-50"
-                    style={{
-                        borderColor: "#fed7aa",
-                    }}
-                >
+                {/* Mobile primary links (3 icons) */}
+                <div className="border-y bg-orange-50" style={{ borderColor: "#fed7aa" }}>
                     <div className="grid grid-cols-3">
                         {mobilePrimaryLinks.map((item, idx) => {
                             const Icon = item.icon;
-
                             if (item.type === "scroll") {
                                 return (
-                                    <button
-                                        key={item.label}
-                                        type="button"
-                                        onClick={scrollToPerfectServices}
-                                        className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-orange-100"
-                                        style={{
-                                            borderRight:
-                                                idx !== 2 ? "1px solid #fed7aa" : "none",
-                                        }}
-                                    >
-                                        <span
-                                            className="flex h-8 w-8 items-center justify-center rounded-full"
-                                            style={{ background: "rgba(26,75,143,0.09)" }}
-                                        >
-                                            <Icon
-                                                className="h-4 w-4"
-                                                style={{ color: "#1a4b8f" }}
-                                            />
+                                    <button key={item.label} type="button" onClick={scrollToPerfectServices} className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-orange-100" style={{ borderRight: idx !== 2 ? "1px solid #fed7aa" : "none" }}>
+                                        <span className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: "rgba(26,75,143,0.09)" }}>
+                                            <Icon className="h-4 w-4" style={{ color: "#1a4b8f" }} />
                                         </span>
-
-                                        <span
-                                            className="text-[12px] font-semibold"
-                                            style={{
-                                                color: "#1a2f5e",
-                                                letterSpacing: "0.01em",
-                                            }}
-                                        >
-                                            {item.label}
-                                        </span>
+                                        <span className="text-[12px] font-semibold" style={{ color: "#1a2f5e", letterSpacing: "0.01em" }}>{item.label}</span>
                                     </button>
                                 );
                             }
-
                             return (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => closeMenus()}
-                                    className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-orange-100"
-                                    style={{
-                                        borderRight:
-                                            idx !== 2 ? "1px solid #fed7aa" : "none",
-                                    }}
-                                >
-                                    <span
-                                        className="flex h-8 w-8 items-center justify-center rounded-full"
-                                        style={{ background: "rgba(26,75,143,0.09)" }}
-                                    >
-                                        <Icon
-                                            className="h-4 w-4"
-                                            style={{ color: "#1a4b8f" }}
-                                        />
+                                <Link key={item.label} href={item.href} onClick={() => closeMenus()} className="flex min-h-[72px] flex-col items-center justify-center gap-1.5 px-2 text-center transition-colors duration-150 hover:bg-orange-100" style={{ borderRight: idx !== 2 ? "1px solid #fed7aa" : "none" }}>
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: "rgba(26,75,143,0.09)" }}>
+                                        <Icon className="h-4 w-4" style={{ color: "#1a4b8f" }} />
                                     </span>
-
-                                    <span
-                                        className="text-[12px] font-semibold"
-                                        style={{
-                                            color: "#1a2f5e",
-                                            letterSpacing: "0.01em",
-                                        }}
-                                    >
-                                        {item.label}
-                                    </span>
+                                    <span className="text-[12px] font-semibold" style={{ color: "#1a2f5e", letterSpacing: "0.01em" }}>{item.label}</span>
                                 </Link>
                             );
                         })}
                     </div>
                 </div>
 
+                {/* Mobile drawer */}
                 {mobileOpen && (
-                    <div
-                        ref={mobileDrawerRef}
-                        className="border-b bg-orange-50 px-3 py-4"
-                        style={{
-                            borderColor: "#fed7aa",
-                        }}
-                    >
+                    <div ref={mobileDrawerRef} className="border-b bg-orange-50 px-3 py-4" style={{ borderColor: "#fed7aa" }}>
                         <div className="space-y-2">
-                            <div
-                                className="overflow-hidden rounded-xl border bg-orange-50"
-                                style={{
-                                    borderColor: "#fed7aa",
-                                }}
-                            >
+                            {/* Express section */}
+                            <div className="overflow-hidden rounded-xl border bg-orange-50" style={{ borderColor: "#fed7aa" }}>
                                 <div className="flex items-center justify-between">
-                                    <Link
-                                        href={l("/ai-express")}
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            setExpressOpen(false);
-                                        }}
-                                        className="flex-1 px-4 py-3.5 text-sm font-semibold"
-                                        style={{ color: "#1a2f5e" }}
-                                    >
+                                    <Link href={l("/ai-express")} onClick={() => { setMobileOpen(false); setExpressOpen(false); }} className="flex-1 px-4 py-3.5 text-sm font-semibold" style={{ color: "#1a2f5e" }}>
                                         {t("nav.aiExpress", "A Express")}
                                     </Link>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setExpressOpen((v) => !v);
-                                            setGroceryOpen(false);
-                                            setServicesOpen(false);
-                                        }}
-                                        className="px-4 py-3.5"
-                                        aria-label="Toggle express menu"
-                                    >
-                                        <ChevronDown
-                                            className="h-4 w-4 transition-transform duration-200"
-                                            style={{
-                                                transform: expressOpen
-                                                    ? "rotate(180deg)"
-                                                    : "rotate(0deg)",
-                                                color: "#1a4b8f",
-                                            }}
-                                        />
+                                    <button type="button" onClick={() => { setExpressOpen(v => !v); setGroceryOpen(false); setServicesOpen(false); }} className="px-4 py-3.5" aria-label="Toggle express menu">
+                                        <ChevronDown className="h-4 w-4 transition-transform duration-200" style={{ transform: expressOpen ? "rotate(180deg)" : "rotate(0deg)", color: "#1a4b8f" }} />
                                     </button>
                                 </div>
-
                                 {expressOpen && (
-                                    <div
-                                        className="border-t px-2 pb-2"
-                                        style={{ borderColor: "#fed7aa" }}
-                                    >
-                                        {EXPRESS_LINKS.map((item) => (
-                                            <Link
-                                                key={item.key}
-                                                href={l(item.href)}
-                                                onClick={() => {
-                                                    setExpressOpen(false);
-                                                    setMobileOpen(false);
-                                                }}
-                                                className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-orange-100"
-                                                style={{
-                                                    color: "#374166",
-                                                    fontWeight: 450,
-                                                }}
-                                            >
+                                    <div className="border-t px-2 pb-2" style={{ borderColor: "#fed7aa" }}>
+                                        {EXPRESS_LINKS.map(item => (
+                                            <Link key={item.key} href={l(item.href)} onClick={() => { setExpressOpen(false); setMobileOpen(false); }} className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-orange-100" style={{ color: "#374166", fontWeight: 450 }}>
                                                 {t(`nav.express.${item.key}`, item.label)}
                                             </Link>
                                         ))}
@@ -1111,6 +666,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
+                            {/* Grocery section with multi-language items */}
                             <div
                                 className="overflow-hidden rounded-xl border bg-orange-50"
                                 style={{
@@ -1129,7 +685,6 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     >
                                         {t("nav.organicMart", "A Grocery")}
                                     </Link>
-
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -1143,9 +698,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         <ChevronDown
                                             className="h-4 w-4 transition-transform duration-200"
                                             style={{
-                                                transform: groceryOpen
-                                                    ? "rotate(180deg)"
-                                                    : "rotate(0deg)",
+                                                transform: groceryOpen ? "rotate(180deg)" : "rotate(0deg)",
                                                 color: "#1a4b8f",
                                             }}
                                         />
@@ -1157,22 +710,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         className="border-t px-2 pb-2"
                                         style={{ borderColor: "#fed7aa" }}
                                     >
-                                        {/* <Link
-                                            href={groceryMainHref()}
-                                            onClick={() => {
-                                                setGroceryOpen(false);
-                                                setExpressOpen(false);
-                                                setServicesOpen(false);
-                                                setMobileOpen(false);
-                                            }}
-                                            className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
-                                            style={{
-                                                color: "#374166",
-                                            }}
-                                        >
-                                            {t("nav.allProducts", "All Products")}
-                                        </Link> */}
-
+                                        {/* Bulk Purchase */}
                                         <Link
                                             href={bulkPurchaseHref()}
                                             onClick={() => {
@@ -1182,103 +720,58 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                                 setMobileOpen(false);
                                             }}
                                             className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
-                                            style={{
-                                                color: "#374166",
-                                            }}
+                                            style={{ color: "#374166" }}
                                         >
                                             {t("nav.bulkPurchase", "Bulk Purchase")}
                                         </Link>
 
                                         <div className="my-1 border-t border-orange-200" />
 
-                                        {categoryLoading ? (
-                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
-                                                {t("nav.loading", "Loading...")}
-                                            </div>
-                                        ) : categories.length > 0 ? (
-                                            categories.map((category) => {
-                                                const name = pickLang(category?.name, locale);
-                                                const slug = category?.slug;
+                                        {/* BBQ Delivery Service */}
+                                        <Link
+                                            href={bbqDeliveryHref()}
+                                            onClick={() => {
+                                                setGroceryOpen(false);
+                                                setExpressOpen(false);
+                                                setServicesOpen(false);
+                                                setMobileOpen(false);
+                                            }}
+                                            className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
+                                            style={{ color: "#374166" }}
+                                        >
+                                            {t("nav.bbqDelivery", "BBQ Delivery Service")}
+                                        </Link>
 
-                                                if (!slug) return null;
+                                        <div className="my-1 border-t border-orange-200" />
 
-                                                return (
-                                                    <Link
-                                                        key={category._id || slug}
-                                                        href={groceryHref(slug)}
-                                                        onClick={() => {
-                                                            setGroceryOpen(false);
-                                                            setExpressOpen(false);
-                                                            setServicesOpen(false);
-                                                            setMobileOpen(false);
-                                                        }}
-                                                        className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-orange-100"
-                                                        style={{
-                                                            color: "#374166",
-                                                            fontWeight: 450,
-                                                        }}
-                                                    >
-                                                        {name || "Category"}
-                                                    </Link>
-                                                );
-                                            })
-                                        ) : (
-                                            <div className="px-3.5 py-2.5 text-sm text-neutral-400">
-                                                {t("nav.noCategory", "No categories found")}
-                                            </div>
-                                        )}
+                                        {/* Nepali Product (Made In Nepal) */}
+                                        <Link
+                                            href={nepaliProductHref()}
+                                            onClick={() => {
+                                                setGroceryOpen(false);
+                                                setExpressOpen(false);
+                                                setServicesOpen(false);
+                                                setMobileOpen(false);
+                                            }}
+                                            className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
+                                            style={{ color: "#374166" }}
+                                        >
+                                            {t("nav.nepaliProduct", "Nepali Product (Made In Nepal)")}
+                                        </Link>
                                     </div>
                                 )}
                             </div>
 
-                            <div
-                                className="overflow-hidden rounded-xl border bg-orange-50"
-                                style={{
-                                    borderColor: "#fed7aa",
-                                }}
-                            >
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setServicesOpen((v) => !v);
-                                        setGroceryOpen(false);
-                                        setExpressOpen(false);
-                                    }}
-                                    className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-semibold"
-                                    style={{ color: "#1a2f5e" }}
-                                >
+                            {/* Services section */}
+                            <div className="overflow-hidden rounded-xl border bg-orange-50" style={{ borderColor: "#fed7aa" }}>
+                                <button type="button" onClick={() => { setServicesOpen(v => !v); setGroceryOpen(false); setExpressOpen(false); }} className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-semibold" style={{ color: "#1a2f5e" }}>
                                     <span>{t("nav.servicesTitle", "R Services")}</span>
-
-                                    <ChevronDown
-                                        className="h-4 w-4 transition-transform duration-200"
-                                        style={{
-                                            transform: servicesOpen
-                                                ? "rotate(180deg)"
-                                                : "rotate(0deg)",
-                                            color: "#1a4b8f",
-                                        }}
-                                    />
+                                    <ChevronDown className="h-4 w-4 transition-transform duration-200" style={{ transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)", color: "#1a4b8f" }} />
                                 </button>
-
                                 {servicesOpen && (
-                                    <div
-                                        className="border-t px-2 pb-2"
-                                        style={{ borderColor: "#fed7aa" }}
-                                    >
-                                        {SERVICES.map((service) => (
-                                            <Link
-                                                key={service.key}
-                                                href={l(service.href)}
-                                                onClick={() => {
-                                                    setServicesOpen(false);
-                                                    setMobileOpen(false);
-                                                }}
-                                                className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-orange-100"
-                                                style={{
-                                                    color: "#374166",
-                                                    fontWeight: 450,
-                                                }}
-                                            >
+                                    <div className="border-t px-2 pb-2" style={{ borderColor: "#fed7aa" }}>
+                                        {SERVICES.map(service => (
+                                            <Link key={service.key} href={l(service.href)} onClick={() => { setServicesOpen(false); setMobileOpen(false); }} className="block rounded-lg px-3.5 py-2.5 text-sm transition-colors hover:bg-orange-100" style={{ color: "#374166", fontWeight: 450 }}>
                                                 {t(`nav.services.${service.key}`, service.label)}
                                             </Link>
                                         ))}
@@ -1286,62 +779,24 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            <div
-                                className="overflow-hidden rounded-xl border bg-orange-50"
-                                style={{
-                                    borderColor: "#fed7aa",
-                                }}
-                            >
+                            {/* Auth / settings section */}
+                            <div className="overflow-hidden rounded-xl border bg-orange-50" style={{ borderColor: "#fed7aa" }}>
                                 {!isLoggedIn ? (
-                                    <Link
-                                        href={l("/auth/login")}
-                                        onClick={() => setMobileOpen(false)}
-                                        className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold transition-colors hover:bg-orange-100"
-                                        style={{ color: "#1a4b8f" }}
-                                    >
+                                    <Link href={l("/auth/login")} onClick={() => setMobileOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold transition-colors hover:bg-orange-100" style={{ color: "#1a4b8f" }}>
                                         <LogIn className="h-4 w-4" />
                                         {t("nav.login", "Login")}
                                     </Link>
                                 ) : (
                                     <>
-                                        <Link
-                                            href={l("/dashboard")}
-                                            onClick={() => setMobileOpen(false)}
-                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-orange-100"
-                                            style={{
-                                                borderColor: "#fed7aa",
-                                                color: "#1a2f5e",
-                                            }}
-                                        >
-                                            <LayoutDashboard
-                                                className="h-4 w-4"
-                                                style={{ color: "#1a4b8f" }}
-                                            />
+                                        <Link href={l("/dashboard")} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-orange-100" style={{ borderColor: "#fed7aa", color: "#1a2f5e" }}>
+                                            <LayoutDashboard className="h-4 w-4" style={{ color: "#1a4b8f" }} />
                                             {t("nav.dashboard", "Dashboard")}
                                         </Link>
-
-                                        <Link
-                                            href={`/${locale}/dashboard/security`}
-                                            onClick={() => setMobileOpen(false)}
-                                            className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-orange-100"
-                                            style={{
-                                                borderColor: "#fed7aa",
-                                                color: "#1a2f5e",
-                                            }}
-                                        >
-                                            <Settings
-                                                className="h-4 w-4"
-                                                style={{ color: "#1a4b8f" }}
-                                            />
+                                        <Link href={`/${locale}/dashboard/security`} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 border-b px-4 py-3.5 text-sm font-medium transition-colors hover:bg-orange-100" style={{ borderColor: "#fed7aa", color: "#1a2f5e" }}>
+                                            <Settings className="h-4 w-4" style={{ color: "#1a4b8f" }} />
                                             {t("nav.settings", "Settings")}
                                         </Link>
-
-                                        <button
-                                            type="button"
-                                            onClick={handleLogout}
-                                            className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-sm font-medium transition-colors hover:bg-red-50"
-                                            style={{ color: "#dc2626" }}
-                                        >
+                                        <button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-sm font-medium transition-colors hover:bg-red-50" style={{ color: "#dc2626" }}>
                                             <LogOut className="h-4 w-4" />
                                             {t("nav.logout", "Logout")}
                                         </button>
@@ -1349,41 +804,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                 )}
                             </div>
 
-                            <div
-                                className="flex items-center justify-between rounded-xl border bg-orange-50 px-4 py-3.5"
-                                style={{
-                                    borderColor: "#fed7aa",
-                                }}
-                            >
-                                <span
-                                    className="text-sm font-semibold"
-                                    style={{ color: "#1a2f5e" }}
-                                >
-                                    {t("nav.language", "Language")}
-                                </span>
-
+                            {/* Language picker */}
+                            <div className="flex items-center justify-between rounded-xl border bg-orange-50 px-4 py-3.5" style={{ borderColor: "#fed7aa" }}>
+                                <span className="text-sm font-semibold" style={{ color: "#1a2f5e" }}>{t("nav.language", "Language")}</span>
                                 <div className="flex items-center gap-1.5">
-                                    {LOCALES.map((lc) => (
-                                        <button
-                                            key={lc}
-                                            type="button"
-                                            onClick={() => switchLocale(lc)}
-                                            className="rounded-md px-2.5 py-1 text-xs font-semibold transition-all duration-150"
-                                            style={
-                                                lc === locale
-                                                    ? {
-                                                        background:
-                                                            "linear-gradient(135deg, #1a4b8f, #0f2a5e)",
-                                                        color: "white",
-                                                        boxShadow:
-                                                            "0 2px 6px rgba(26,75,143,0.3)",
-                                                    }
-                                                    : {
-                                                        background: "#ffedd5",
-                                                        color: "#374166",
-                                                    }
-                                            }
-                                        >
+                                    {LOCALES.map(lc => (
+                                        <button key={lc} type="button" onClick={() => switchLocale(lc)} className="rounded-md px-2.5 py-1 text-xs font-semibold transition-all duration-150" style={lc === locale ? { background: "linear-gradient(135deg, #1a4b8f, #0f2a5e)", color: "white", boxShadow: "0 2px 6px rgba(26,75,143,0.3)" } : { background: "#ffedd5", color: "#374166" }}>
                                             {LABELS[lc]}
                                         </button>
                                     ))}

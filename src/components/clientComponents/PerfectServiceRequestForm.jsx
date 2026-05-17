@@ -32,12 +32,12 @@ const PHONE_REGEX = /^(\+977[- ]?\d{10}|\+852[- ]?\d{8})$/;
 
 const COPY = {
     en: {
-        eyebrow: "WORK WITH US",
+        eyebrow: "WORK WITH PROFESSIONAL",
         titleA: "Submit a",
         titleB: "service",
         titleC: "request",
         subtitle:
-            "Tell us about your project and we'll get back to you within one business day.",
+            "Tell us about your problem or project and we'll get back to you ASAP.",
         displayName: "Display Name or Alias",
         email: "Email",
         phone: "Phone",
@@ -106,12 +106,12 @@ const COPY = {
     },
 
     ne: {
-        eyebrow: "हामीसँग काम गर्नुहोस्",
+        eyebrow: "व्यावसायिकसँग काम गर्नुहोस्",
         titleA: "सेवा",
         titleB: "अनुरोध",
         titleC: "पेश गर्नुहोस्",
         subtitle:
-            "आफ्नो परियोजनाबारे हामीलाई बताउनुहोस्। हामी एक कार्यदिवसभित्र तपाईंलाई सम्पर्क गर्नेछौं।",
+            "तपाईंको समस्या वा परियोजनाबारे हामीलाई बताउनुहोस्, हामी सकेसम्म चाँडो तपाईंलाई जवाफ दिनेछौं।",
         displayName: "डिस्प्ले नाम वा उपनाम",
         email: "इमेल",
         phone: "फोन",
@@ -181,11 +181,11 @@ const COPY = {
     },
 
     zh: {
-        eyebrow: "与我们合作",
+        eyebrow: "与专业人士合作",
         titleA: "提交",
         titleB: "服务",
         titleC: "需求",
-        subtitle: "告诉我们您的项目需求，我们会在一个工作日内回复您。",
+        subtitle: "请告诉我们您的问题或项目，我们会尽快回复您。",
         displayName: "显示名称或昵称",
         email: "电邮",
         phone: "电话",
