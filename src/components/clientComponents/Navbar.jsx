@@ -425,7 +425,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                                 "0 8px 32px -4px rgba(26,75,143,0.14), 0 2px 8px -2px rgba(0,0,0,0.06)",
                                         }}
                                     >
-                                        {/* Bulk Purchase */}
+                                        {/* Bulk Purchase (Free Delivery) */}
                                         <Link
                                             href={bulkPurchaseHref()}
                                             onClick={() => {
@@ -435,12 +435,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             }}
                                             className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
                                         >
-                                            {t("nav.bulkPurchase", "Bulk Purchase")}
+                                            {t("nav.bulkPurchase", "Bulk Purchase (Free Delivery)")}
                                         </Link>
 
                                         <div className="my-1 border-t border-yellow-200" />
 
-                                        {/* BBQ Delivery Service */}
+                                        {/* BBQ & Delivery Services */}
                                         <Link
                                             href={bbqDeliveryHref()}
                                             onClick={() => {
@@ -450,7 +450,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             }}
                                             className="flex items-center rounded-[7px] px-3.5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors duration-100 hover:bg-yellow-50 hover:text-[#1a4b8f]"
                                         >
-                                            {t("nav.bbqDelivery", "BBQ Delivery Service")}
+                                            {t("nav.bbqDelivery", "BBQ & Delivery Services")}
                                         </Link>
 
                                         <div className="my-1 border-t border-yellow-200" />
@@ -710,7 +710,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                         className="border-t px-2 pb-2"
                                         style={{ borderColor: "#fed7aa" }}
                                     >
-                                        {/* Bulk Purchase */}
+                                        {/* Bulk Purchase (Free Delivery) */}
                                         <Link
                                             href={bulkPurchaseHref()}
                                             onClick={() => {
@@ -722,12 +722,12 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
                                             style={{ color: "#374166" }}
                                         >
-                                            {t("nav.bulkPurchase", "Bulk Purchase")}
+                                            {t("nav.bulkPurchase", "Bulk Purchase (Free Delivery)")}
                                         </Link>
 
                                         <div className="my-1 border-t border-orange-200" />
 
-                                        {/* BBQ Delivery Service */}
+                                        {/* BBQ & Delivery Services */}
                                         <Link
                                             href={bbqDeliveryHref()}
                                             onClick={() => {
@@ -739,7 +739,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                             className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors hover:bg-orange-100"
                                             style={{ color: "#374166" }}
                                         >
-                                            {t("nav.bbqDelivery", "BBQ Delivery Service")}
+                                            {t("nav.bbqDelivery", "BBQ & Delivery Services")}
                                         </Link>
 
                                         <div className="my-1 border-t border-orange-200" />

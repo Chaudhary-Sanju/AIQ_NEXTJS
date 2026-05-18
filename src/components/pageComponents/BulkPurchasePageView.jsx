@@ -40,15 +40,15 @@ const UI = {
         ne: "सबै उत्पादनहरू",
         zh: "全部商品",
     },
-    bulkPurchase: {
-        en: "Bulk Purchase",
-        ne: "थोक खरिद",
-        zh: "批量采购",
+    "bulkPurchase": {
+        "en": "Bulk Purchase (Free Delivery)",
+        "ne": "थोक खरिद (निःशुल्क डेलिभरी)",
+        "zh": "批量采购（免费配送）"
     },
-    bbqDelivery: {
-        en: "BBQ Delivery Service",
-        ne: "बीबीक्यू डेलिभरी सेवा",
-        zh: "烧烤配送服务",
+    "bbqDelivery": {
+        "en": "BBQ & Delivery Services",
+        "ne": "बार्बेक्यु र डेलिभरी सेवा",
+        "zh": "烧烤与配送服务"
     },
     nepaliProduct: {
         en: "Nepali Product (Made In Nepal)",
