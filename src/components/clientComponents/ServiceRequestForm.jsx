@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
     ArrowRight,
     BadgeDollarSign,
@@ -20,7 +20,10 @@ import {
     User,
 } from "lucide-react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { useDispatch, useSelector } from "react-redux";
 import http from "@/http";
+import { fromStorage, clearStorage } from "@/lib";
+import { setUser, clearUser } from "@/store/userSlice"; // Adjust import path as needed
 
 const ALLOWED_SERVICE_TYPES = [
     "software-development",
@@ -87,7 +90,6 @@ const COPY = {
         successText:
             "Your service request has been confirmed. Our team will review it and contact you soon.",
         chooseTimeline: "Select timeline",
-        choosePayment: "Select payment method",
         emailMethod: "Email",
         phoneMethod: "Phone",
         required: "This field is required.",
@@ -122,6 +124,7 @@ const COPY = {
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
         captchaRequired: "Please complete reCAPTCHA verification.",
+        loggedInMessage: "You're logged in. Your request will be submitted instantly without OTP verification.",
     },
 
     ne: {
@@ -177,7 +180,6 @@ const COPY = {
         successText:
             "तपाईंको सेवा अनुरोध पुष्टि भएको छ। हाम्रो टोलीले समीक्षा गरेर चाँडै सम्पर्क गर्नेछ।",
         chooseTimeline: "समयरेखा छान्नुहोस्",
-        choosePayment: "भुक्तानी विधि छान्नुहोस्",
         emailMethod: "इमेल",
         phoneMethod: "फोन",
         required: "यो फिल्ड आवश्यक छ।",
@@ -212,6 +214,7 @@ const COPY = {
         ],
         currencies: ["NPR", "HKD", "USD", "YUAN", "YEN"],
         captchaRequired: "कृपया reCAPTCHA प्रमाणिकरण पूरा गर्नुहोस्।",
+        loggedInMessage: "तपाईं लग इन हुनुहुन्छ। तपाईंको अनुरोध OTP प्रमाणीकरण बिना तुरुन्तै पेश हुनेछ।",
     },
 
     zh: {
@@ -263,7 +266,6 @@ const COPY = {
         successTitle: "需求已成功验证",
         successText: "您的服务需求已确认，我们的团队会尽快审核并联系您。",
         chooseTimeline: "选择时间安排",
-        choosePayment: "选择付款方式",
         emailMethod: "电邮",
         phoneMethod: "电话",
         required: "此栏位为必填。",
@@ -298,6 +300,7 @@ const COPY = {
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
         captchaRequired: "请先完成 reCAPTCHA 验证。",
+        loggedInMessage: "您已登录。您的请求将立即提交，无需 OTP 验证。",
     },
 };
 
@@ -308,7 +311,7 @@ const initialForm = {
     address: "",
     workDesc: "",
     budget: "",
-    currency: "HKD",
+    currency: "hkd",
     projectTime: "",
     paymentMethod: "",
     verificationMethod: "email",
@@ -360,22 +363,18 @@ function inputClass(hasError) {
     ].join(" ");
 }
 
-// Format phone to match backend exactly
 function formatPhone(value) {
     const raw = value.trim();
     const digits = raw.replace(/\D/g, "");
 
-    // Nepal: 10 digits -> +977-XXXXXXXXXX
     if (digits.length === 10 && digits.startsWith("9")) {
         return `+977-${digits}`;
     }
 
-    // Hong Kong: 8 digits -> +852-XXXXXXXX
     if (digits.length === 8) {
         return `+852-${digits}`;
     }
 
-    // Already has country code
     if (digits.startsWith("977") && digits.length === 13) {
         return `+977-${digits.slice(3)}`;
     }
@@ -388,7 +387,7 @@ function formatPhone(value) {
 }
 
 function validatePhone(value) {
-    if (!value || value.trim() === "") return true; // Empty is allowed
+    if (!value || value.trim() === "") return true;
     return PHONE_REGEX.test(value);
 }
 
@@ -396,9 +395,41 @@ export default function ServiceRequestForm({
     locale = "en",
     serviceType = "software-development",
     title,
+    fetchCart, // Pass fetchCart from parent if needed
 }) {
     const t = COPY[locale] || COPY.en;
     const { executeRecaptcha } = useGoogleReCaptcha();
+    const dispatch = useDispatch();
+
+    // Get user from Redux store - adjust based on your actual state structure
+    const user = useSelector((state) => state.user?.value || state.user);
+    const isLoggedIn = user && Object.keys(user).length > 0 && user._id;
+
+    // Get displayName from user (handle both 'name' and 'displayName' fields)
+    const userDisplayName = user?.displayName || user?.name || "";
+    const userEmail = user?.email || "";
+    const userPhone = user?.phone || "";
+
+    // Auth sync effect
+    useEffect(() => {
+        const token = fromStorage("hkmandu");
+        if (!isLoggedIn && token) {
+            http.get("frontend/auth/details")
+                .then((res) => {
+                    const u = res.data?.user ?? res.data;
+                    if (u) {
+                        dispatch(setUser(u));
+                        if (fetchCart) {
+                            fetchCart();
+                        }
+                    }
+                })
+                .catch(() => {
+                    clearStorage("hkmandu");
+                    dispatch(clearUser());
+                });
+        }
+    }, [dispatch, isLoggedIn, fetchCart]);
 
     const normalizedServiceType = useMemo(() => {
         return ALLOWED_SERVICE_TYPES.includes(serviceType)
@@ -416,7 +447,7 @@ export default function ServiceRequestForm({
 
     const [form, setForm] = useState({
         ...initialForm,
-        currency: t.currencies[0] || "HKD",
+        currency: (t.currencies[0] || "HKD").toLowerCase(),
     });
 
     const [errors, setErrors] = useState({});
@@ -428,6 +459,18 @@ export default function ServiceRequestForm({
     const [resendLoading, setResendLoading] = useState(false);
     const [banner, setBanner] = useState({ type: "", text: "" });
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
+
+    // Auto-fill form if user is logged in
+    useEffect(() => {
+        if (isLoggedIn && user && step === "form") {
+            setForm((prev) => ({
+                ...prev,
+                displayName: userDisplayName || prev.displayName,
+                email: userEmail || prev.email,
+                phone: userPhone || prev.phone,
+            }));
+        }
+    }, [isLoggedIn, user, userDisplayName, userEmail, userPhone, step]);
 
     const otpRefs = useMemo(
         () => Array.from({ length: 6 }, () => ({ current: null })),
@@ -547,14 +590,12 @@ export default function ServiceRequestForm({
                 }));
             }
 
-            // Validate phone format if not empty
             if (!validatePhone(formatted)) {
                 setErrors((prev) => ({ ...prev, phone: t.invalidPhone }));
             } else {
                 setErrors((prev) => ({ ...prev, phone: "" }));
             }
         } else {
-            // Clear phone error if empty (since it's optional)
             setErrors((prev) => ({ ...prev, phone: "" }));
         }
     };
@@ -572,22 +613,29 @@ export default function ServiceRequestForm({
             nextErrors.displayName = "Display name must be between 2 and 100 characters";
         }
 
-        if (!form.email.trim()) {
-            nextErrors.email = t.required;
-        } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
-            nextErrors.email = t.invalidEmail;
+        // Email validation based on verification method
+        if (form.verificationMethod === "phone") {
+            // Email is optional when verification method is phone
+            if (form.email && form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+                nextErrors.email = t.invalidEmail;
+            }
+        } else {
+            // Email is required for email verification
+            if (!form.email.trim()) {
+                nextErrors.email = t.required;
+            } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+                nextErrors.email = t.invalidEmail;
+            }
         }
 
         // Phone validation based on verification method
         if (form.verificationMethod === "phone") {
-            // Phone is required when verification method is phone
             if (!form.phone.trim()) {
                 nextErrors.phone = t.required;
             } else if (!validatePhone(form.phone)) {
                 nextErrors.phone = t.invalidPhone;
             }
         } else if (form.phone && form.phone.trim()) {
-            // If phone is provided (optional), validate format
             if (!validatePhone(form.phone)) {
                 nextErrors.phone = t.invalidPhone;
             }
@@ -605,7 +653,6 @@ export default function ServiceRequestForm({
             nextErrors.workDesc = "Work description must be between 5 and 500 characters";
         }
 
-        // Budget is optional - only validate if a value is provided
         if (form.budget !== "" && form.budget !== null && form.budget !== undefined) {
             const budgetValue = Number(form.budget);
             if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
@@ -630,6 +677,44 @@ export default function ServiceRequestForm({
 
         if (!validate()) return;
 
+        // For logged-in users, use direct-submit endpoint
+        if (isLoggedIn) {
+            try {
+                setSubmitLoading(true);
+                setBanner({ type: "", text: "" });
+
+                const payload = {
+                    serviceType: normalizedServiceType,
+                    displayName: form.displayName.trim(),
+                    email: form.email.trim().toLowerCase(),
+                    phone: form.phone.trim() || null,
+                    address: form.address.trim(),
+                    workDesc: form.workDesc.trim(),
+                    budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
+                        ? Number(form.budget)
+                        : null,
+                    currency: form.currency.toLowerCase(),
+                    projectTime: form.projectTime,
+                    paymentMethod: form.paymentMethod,
+                    verificationMethod: "auth",
+                };
+
+                const res = await http.post("/frontend/serviceForm/direct-submit", payload);
+
+                setStep("success");
+                setBanner({
+                    type: "success",
+                    text: res?.data?.message || t.successText,
+                });
+            } catch (err) {
+                setBanner({ type: "error", text: getErrorText(err) });
+            } finally {
+                setSubmitLoading(false);
+            }
+            return;
+        }
+
+        // For non-logged-in users, require reCAPTCHA
         if (!executeRecaptcha) {
             setErrors((prev) => ({
                 ...prev,
@@ -662,14 +747,13 @@ export default function ServiceRequestForm({
                 serviceType: normalizedServiceType,
                 displayName: form.displayName.trim(),
                 email: form.email.trim().toLowerCase(),
-                phone: form.phone.trim() || null, // Send null if empty
+                phone: form.phone.trim() || null,
                 address: form.address.trim(),
                 workDesc: form.workDesc.trim(),
-                // Only include budget if it has a value, otherwise send null
                 budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
                     ? Number(form.budget)
                     : null,
-                currency: form.currency.toLowerCase(), // Must be lowercase
+                currency: form.currency.toLowerCase(),
                 projectTime: form.projectTime,
                 paymentMethod: form.paymentMethod,
                 verificationMethod: form.verificationMethod,
@@ -725,7 +809,16 @@ export default function ServiceRequestForm({
                 text: res?.data?.success || t.successText,
             });
         } catch (err) {
-            setBanner({ type: "error", text: getErrorText(err) });
+            const errorData = err?.response?.data;
+
+            if (errorData?.lockedUntil) {
+                setBanner({
+                    type: "error",
+                    text: `${errorData.success}. Locked until: ${new Date(errorData.lockedUntil).toLocaleString()}`,
+                });
+            } else {
+                setBanner({ type: "error", text: getErrorText(err) });
+            }
         } finally {
             setVerifyLoading(false);
         }
@@ -751,6 +844,8 @@ export default function ServiceRequestForm({
                 type: "success",
                 text: res?.data?.success || `${t.resend}.`,
             });
+
+            setOtpValues(["", "", "", "", "", ""]);
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
         } finally {
@@ -759,7 +854,11 @@ export default function ServiceRequestForm({
     };
 
     const resetAll = () => {
-        setForm({ ...initialForm, currency: t.currencies[0] || "HKD" });
+        setForm({
+            ...initialForm,
+            currency: (t.currencies[0] || "HKD").toLowerCase(),
+            verificationMethod: "email",
+        });
         setErrors({});
         setOtpValues(["", "", "", "", "", ""]);
         setRequestMeta(null);
@@ -837,6 +936,12 @@ export default function ServiceRequestForm({
                                             </div>
                                         ))}
                                     </div>
+
+                                    {isLoggedIn && (
+                                        <div className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
+                                            ✓ {t.loggedInMessage}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <button
@@ -890,6 +995,7 @@ export default function ServiceRequestForm({
                                     label={t.email}
                                     icon={Mail}
                                     error={errors.email}
+                                    required={form.verificationMethod !== "phone"}
                                 >
                                     <input
                                         type="email"
@@ -969,7 +1075,7 @@ export default function ServiceRequestForm({
                                         {t.currencies.map((currency) => (
                                             <option
                                                 key={currency}
-                                                value={currency}
+                                                value={currency.toLowerCase()}
                                             >
                                                 {currency}
                                             </option>
@@ -1011,6 +1117,7 @@ export default function ServiceRequestForm({
                                     label={t.paymentMethod}
                                     icon={CreditCard}
                                     error={errors.paymentMethod}
+                                    required={false}
                                 >
                                     <select
                                         name="paymentMethod"
@@ -1020,10 +1127,6 @@ export default function ServiceRequestForm({
                                             !!errors.paymentMethod
                                         )} h-12`}
                                     >
-                                        <option value="">
-                                            {t.choosePayment}
-                                        </option>
-
                                         {t.payments.map((item) => (
                                             <option
                                                 key={item.value}
@@ -1036,70 +1139,72 @@ export default function ServiceRequestForm({
                                 </Field>
                             </div>
 
-                            <Field
-                                label={t.verificationMethod}
-                                icon={ShieldCheck}
-                                required={false}
-                            >
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    {[
-                                        {
-                                            value: "email",
-                                            label: t.emailMethod,
-                                            disabled: !form.email.trim(),
-                                            helper:
-                                                form.email.trim() ||
-                                                t.placeholders.email,
-                                        },
-                                        {
-                                            value: "phone",
-                                            label: t.phoneMethod,
-                                            disabled: !form.phone.trim() || !!errors.phone,
-                                            helper:
-                                                form.phone.trim() ||
-                                                t.placeholders.phone,
-                                        },
-                                    ].map((item) => {
-                                        const active =
-                                            form.verificationMethod ===
-                                            item.value;
+                            {!isLoggedIn && (
+                                <Field
+                                    label={t.verificationMethod}
+                                    icon={ShieldCheck}
+                                    required={false}
+                                >
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        {[
+                                            {
+                                                value: "email",
+                                                label: t.emailMethod,
+                                                disabled: !form.email.trim(),
+                                                helper:
+                                                    form.email.trim() ||
+                                                    t.placeholders.email,
+                                            },
+                                            {
+                                                value: "phone",
+                                                label: t.phoneMethod,
+                                                disabled: !form.phone.trim() || !!errors.phone,
+                                                helper:
+                                                    form.phone.trim() ||
+                                                    t.placeholders.phone,
+                                            },
+                                        ].map((item) => {
+                                            const active =
+                                                form.verificationMethod ===
+                                                item.value;
 
-                                        return (
-                                            <button
-                                                key={item.value}
-                                                type="button"
-                                                disabled={item.disabled}
-                                                onClick={() =>
-                                                    setForm((prev) => ({
-                                                        ...prev,
-                                                        verificationMethod:
-                                                            item.value,
-                                                    }))
-                                                }
-                                                className={[
-                                                    "rounded-2xl border px-4 py-3 text-left transition",
-                                                    active
-                                                        ? "border-[#4b63ff] bg-[#eef1ff] shadow-[0_10px_25px_rgba(75,99,255,0.12)]"
-                                                        : "border-neutral-200 bg-white hover:border-neutral-300",
-                                                    item.disabled
-                                                        ? "cursor-not-allowed opacity-50"
-                                                        : "",
-                                                ].join(" ")}
-                                            >
-                                                <div className="text-sm font-semibold text-neutral-900">
-                                                    {item.label}
-                                                </div>
+                                            return (
+                                                <button
+                                                    key={item.value}
+                                                    type="button"
+                                                    disabled={item.disabled}
+                                                    onClick={() =>
+                                                        setForm((prev) => ({
+                                                            ...prev,
+                                                            verificationMethod:
+                                                                item.value,
+                                                        }))
+                                                    }
+                                                    className={[
+                                                        "rounded-2xl border px-4 py-3 text-left transition",
+                                                        active
+                                                            ? "border-[#4b63ff] bg-[#eef1ff] shadow-[0_10px_25px_rgba(75,99,255,0.12)]"
+                                                            : "border-neutral-200 bg-white hover:border-neutral-300",
+                                                        item.disabled
+                                                            ? "cursor-not-allowed opacity-50"
+                                                            : "",
+                                                    ].join(" ")}
+                                                >
+                                                    <div className="text-sm font-semibold text-neutral-900">
+                                                        {item.label}
+                                                    </div>
 
-                                                <div className="mt-1 text-xs text-neutral-500">
-                                                    {item.helper}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </Field>
+                                                    <div className="mt-1 text-xs text-neutral-500">
+                                                        {item.helper}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </Field>
+                            )}
 
-                            {errors.captcha ? (
+                            {!isLoggedIn && errors.captcha ? (
                                 <p className="text-sm text-red-500">
                                     {errors.captcha}
                                 </p>

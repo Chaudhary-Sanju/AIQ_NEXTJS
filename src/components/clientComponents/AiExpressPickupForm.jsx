@@ -29,6 +29,9 @@ import {
 } from "lucide-react";
 import http from "@/http";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { useDispatch, useSelector } from "react-redux";
+import { fromStorage, clearStorage } from "@/lib";
+import { setUser, clearUser } from "@/store/userSlice";
 
 const COPY = {
     en: {
@@ -125,6 +128,7 @@ const COPY = {
         captchaRequired: "Please complete reCAPTCHA verification.",
         serviceType: "Service Type",
         route: "Route",
+        loggedInMessage: "✓ You're logged in. Your request will be submitted instantly without OTP verification.",
     },
 
     ne: {
@@ -221,6 +225,7 @@ const COPY = {
         captchaRequired: "कृपया reCAPTCHA पूरा गर्नुहोस्।",
         serviceType: "सेवा प्रकार",
         route: "रुट",
+        loggedInMessage: "✓ तपाईं लग इन हुनुहुन्छ। तपाईंको अनुरोध OTP प्रमाणीकरण बिना तुरुन्तै पेश हुनेछ।",
     },
 
     zh: {
@@ -313,6 +318,7 @@ const COPY = {
         captchaRequired: "请完成 reCAPTCHA 验证。",
         serviceType: "服务类型",
         route: "路线",
+        loggedInMessage: "✓ 您已登录。您的请求将立即提交，无需 OTP 验证。",
     },
 };
 
@@ -728,11 +734,40 @@ function getPickupTimeSlots(serviceType, serviceSpeed, pickupDate) {
 export default function AiExpressPickupForm({
     locale = "en",
     serviceType = "door-to-door",
+    fetchCart,
 }) {
     const t = COPY[locale] || COPY.en;
     const activeService = SERVICE_CONFIG[serviceType] || SERVICE_CONFIG["door-to-door"];
     const ServiceIcon = activeService.icon || Truck;
     const theme = activeService.theme;
+
+    const { executeRecaptcha } = useGoogleReCaptcha();
+    const dispatch = useDispatch();
+
+    const user = useSelector((state) => state.user?.value || state.user);
+    const isLoggedIn = user && Object.keys(user).length > 0 && user._id;
+    const userDisplayName = user?.displayName || user?.name || "";
+    const userEmail = user?.email || "";
+    const userPhone = user?.phone || "";
+
+    // Auth sync effect
+    useEffect(() => {
+        const token = fromStorage("hkmandu");
+        if (!isLoggedIn && token) {
+            http.get("frontend/auth/details")
+                .then((res) => {
+                    const u = res.data?.user ?? res.data;
+                    if (u) {
+                        dispatch(setUser(u));
+                        if (fetchCart) fetchCart();
+                    }
+                })
+                .catch(() => {
+                    clearStorage("hkmandu");
+                    dispatch(clearUser());
+                });
+        }
+    }, [dispatch, isLoggedIn, fetchCart]);
 
     const serviceTitle = pick(activeService.titleB, locale, "Door to Door");
     const serviceSubtitle = pick(activeService.subtitle, locale, "");
@@ -771,6 +806,18 @@ export default function AiExpressPickupForm({
             )[0]?.value || "standard",
     });
 
+    // Auto-fill form for logged-in users
+    useEffect(() => {
+        if (isLoggedIn && user) {
+            setForm((prev) => ({
+                ...prev,
+                senderName: userDisplayName || prev.senderName,
+                senderEmail: userEmail || prev.senderEmail,
+                senderPhone: userPhone || prev.senderPhone,
+            }));
+        }
+    }, [isLoggedIn, user, userDisplayName, userEmail, userPhone]);
+
     const [errors, setErrors] = useState({});
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
     const [requestMeta, setRequestMeta] = useState(null);
@@ -781,7 +828,6 @@ export default function AiExpressPickupForm({
     const [banner, setBanner] = useState({ type: "", text: "" });
 
     const otpRefs = useMemo(() => Array.from({ length: 6 }, () => ({ current: null })), []);
-    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const availableServiceSpeeds = useMemo(() => {
         return getServiceSpeedOptions(serviceType, form.deliveryType);
@@ -1013,10 +1059,14 @@ export default function AiExpressPickupForm({
         else if (!(Number(form.quantity) >= 1)) nextErrors.quantity = t.invalidQuantity;
 
         if (!form.paymentMethod) nextErrors.paymentMethod = t.required;
-        if (!form.verificationMethod) nextErrors.verificationMethod = t.required;
 
-        if (form.verificationMethod === "email" && !form.senderEmail.trim()) {
-            nextErrors.senderEmail = t.emailRequiredForVerification;
+        // Only require verification method for non-logged-in users
+        if (!isLoggedIn) {
+            if (!form.verificationMethod) nextErrors.verificationMethod = t.required;
+
+            if (form.verificationMethod === "email" && !form.senderEmail.trim()) {
+                nextErrors.senderEmail = t.emailRequiredForVerification;
+            }
         }
 
         if (!form.isConfirmed) nextErrors.isConfirmed = t.confirmRequired;
@@ -1049,6 +1099,61 @@ export default function AiExpressPickupForm({
         e.preventDefault();
         if (!validate()) return;
 
+        // For logged-in users, use direct-submit endpoint
+        if (isLoggedIn) {
+            try {
+                setSubmitLoading(true);
+                setBanner({ type: "", text: "" });
+
+                const finalPickupAddress = shouldUseHongKongPickup(serviceType)
+                    ? formatHongKongAddress(form.pickupAddressHK)
+                    : form.pickupAddress.trim();
+
+                const finalDeliveryAddress = shouldUseHongKongDelivery(serviceType)
+                    ? formatHongKongAddress(form.deliveryAddressHK)
+                    : form.deliveryAddress.trim();
+
+                const payload = {
+                    serviceType,
+                    senderName: form.senderName.trim(),
+                    senderPhone: form.senderPhone.trim(),
+                    senderEmail: form.senderEmail.trim() || null,
+                    deliveryType: form.deliveryType,
+                    pickupAddress: finalPickupAddress,
+                    deliveryAddress: finalDeliveryAddress,
+                    pickupDate: form.pickupDate,
+                    pickupTimeSlot: form.pickupTimeSlot.trim(),
+                    serviceSpeed: form.serviceSpeed,
+                    receiverName: form.receiverName.trim(),
+                    receiverPhone: form.receiverPhone.trim(),
+                    packageType: form.packageType.trim(),
+                    weight: Number(form.weight),
+                    quantity: Number(form.quantity),
+                    dimensions: form.dimensions.trim() || null,
+                    isFragile: Boolean(form.isFragile),
+                    isFlameable: Boolean(form.isFlameable),
+                    paymentMethod: form.paymentMethod,
+                    specialInstructions: form.specialInstructions.trim() || null,
+                    isConfirmed: true,
+                    verificationMethod: "auth",
+                };
+
+                const res = await http.post("/frontend/courierPickupForm/direct-submit", payload);
+
+                setStep("success");
+                setBanner({
+                    type: "success",
+                    text: res?.data?.message || t.successText,
+                });
+            } catch (err) {
+                setBanner({ type: "error", text: getErrorText(err) });
+            } finally {
+                setSubmitLoading(false);
+            }
+            return;
+        }
+
+        // For non-logged-in users, require reCAPTCHA
         if (!executeRecaptcha) {
             setErrors((prev) => ({ ...prev, captcha: t.captchaRequired }));
             return;
@@ -1110,7 +1215,7 @@ export default function AiExpressPickupForm({
             setStep("otp");
             setOtpValues(["", "", "", "", "", ""]);
             setErrors((prev) => ({ ...prev, otp: "" }));
-            setBanner({ type: "success", text: data?.success || t.verifyText });
+            setBanner({ type: "success", text: data?.message || t.verifyText });
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
         } finally {
@@ -1137,9 +1242,17 @@ export default function AiExpressPickupForm({
             });
 
             setStep("success");
-            setBanner({ type: "success", text: res?.data?.success || t.successText });
+            setBanner({ type: "success", text: res?.data?.message || t.successText });
         } catch (err) {
-            setBanner({ type: "error", text: getErrorText(err) });
+            const errorData = err?.response?.data;
+            if (errorData?.lockedUntil) {
+                setBanner({
+                    type: "error",
+                    text: `${errorData.message}. Locked until: ${new Date(errorData.lockedUntil).toLocaleString()}`,
+                });
+            } else {
+                setBanner({ type: "error", text: getErrorText(err) });
+            }
         } finally {
             setVerifyLoading(false);
         }
@@ -1161,7 +1274,8 @@ export default function AiExpressPickupForm({
                 expiresAt: res?.data?.expiresAt || prev?.expiresAt,
             }));
 
-            setBanner({ type: "success", text: res?.data?.success || t.resend });
+            setBanner({ type: "success", text: res?.data?.message || t.resend });
+            setOtpValues(["", "", "", "", "", ""]);
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
         } finally {
@@ -1279,6 +1393,12 @@ export default function AiExpressPickupForm({
 
                     {step === "form" ? (
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {isLoggedIn && (
+                                <div className={`rounded-lg p-3 text-sm ${theme.softBg} ${theme.softText}`}>
+                                    {t.loggedInMessage}
+                                </div>
+                            )}
+
                             <SectionTitle title={t.senderInfo} />
 
                             <div className="grid gap-5 md:grid-cols-2">
@@ -1308,7 +1428,7 @@ export default function AiExpressPickupForm({
                                 label={t.senderEmail}
                                 icon={Mail}
                                 error={errors.senderEmail}
-                                required={false}
+                                required={!isLoggedIn && form.verificationMethod === "email"}
                                 color={theme.focusColor}
                             >
                                 <input
@@ -1358,7 +1478,6 @@ export default function AiExpressPickupForm({
                             {shouldUseHongKongPickup(serviceType) ? (
                                 <div className="space-y-5">
                                     <div className="grid gap-5 md:grid-cols-2">
-
                                         <Field
                                             label="Floor / Unit"
                                             icon={Home}
@@ -1388,7 +1507,6 @@ export default function AiExpressPickupForm({
                                                 className={inputClass(!!errors["pickupAddressHK.street"])}
                                             />
                                         </Field>
-
                                     </div>
 
                                     <Field
@@ -1498,7 +1616,6 @@ export default function AiExpressPickupForm({
                             {shouldUseHongKongDelivery(serviceType) ? (
                                 <div className="space-y-5">
                                     <div className="grid gap-5 md:grid-cols-2">
-
                                         <Field
                                             label="Floor / Unit"
                                             icon={Home}
@@ -1513,7 +1630,7 @@ export default function AiExpressPickupForm({
                                                 className={inputClass(!!errors["deliveryAddressHK.floor"])}
                                             />
                                         </Field>
-                                        
+
                                         <Field
                                             label="Street / Building"
                                             icon={MapPin}
@@ -1528,7 +1645,6 @@ export default function AiExpressPickupForm({
                                                 className={inputClass(!!errors["deliveryAddressHK.street"])}
                                             />
                                         </Field>
-
                                     </div>
 
                                     <Field
@@ -1700,49 +1816,53 @@ export default function AiExpressPickupForm({
                                 />
                             </Field>
 
-                            <SectionTitle title={t.verificationInfo} />
+                            {!isLoggedIn && (
+                                <>
+                                    <SectionTitle title={t.verificationInfo} />
 
-                            <Field
-                                label={t.verificationMethod}
-                                icon={ShieldCheck}
-                                error={errors.verificationMethod}
-                                color={theme.focusColor}
-                            >
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    {t.verificationMethods.map((item) => {
-                                        const active = form.verificationMethod === item.value;
-                                        const disabled = item.value === "email" && !form.senderEmail.trim();
+                                    <Field
+                                        label={t.verificationMethod}
+                                        icon={ShieldCheck}
+                                        error={errors.verificationMethod}
+                                        color={theme.focusColor}
+                                    >
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            {t.verificationMethods.map((item) => {
+                                                const active = form.verificationMethod === item.value;
+                                                const disabled = item.value === "email" && !form.senderEmail.trim();
 
-                                        return (
-                                            <button
-                                                key={item.value}
-                                                type="button"
-                                                disabled={disabled}
-                                                onClick={() =>
-                                                    setForm((prev) => ({
-                                                        ...prev,
-                                                        verificationMethod: item.value,
-                                                    }))
-                                                }
-                                                className={[
-                                                    "rounded-2xl border px-4 py-3 text-left transition",
-                                                    active
-                                                        ? `${theme.softBorder} ${theme.softBg} shadow-[0_10px_25px_rgba(15,23,42,0.08)]`
-                                                        : "border-neutral-200 bg-white hover:border-neutral-300",
-                                                    disabled ? "cursor-not-allowed opacity-50" : "",
-                                                ].join(" ")}
-                                            >
-                                                <div className="text-sm font-semibold text-neutral-900">{item.label}</div>
-                                                <div className="mt-1 text-xs text-neutral-500">
-                                                    {item.value === "email"
-                                                        ? form.senderEmail.trim() || t.placeholders.senderEmail
-                                                        : form.senderPhone.trim() || t.placeholders.senderPhone}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </Field>
+                                                return (
+                                                    <button
+                                                        key={item.value}
+                                                        type="button"
+                                                        disabled={disabled}
+                                                        onClick={() =>
+                                                            setForm((prev) => ({
+                                                                ...prev,
+                                                                verificationMethod: item.value,
+                                                            }))
+                                                        }
+                                                        className={[
+                                                            "rounded-2xl border px-4 py-3 text-left transition",
+                                                            active
+                                                                ? `${theme.softBorder} ${theme.softBg} shadow-[0_10px_25px_rgba(15,23,42,0.08)]`
+                                                                : "border-neutral-200 bg-white hover:border-neutral-300",
+                                                            disabled ? "cursor-not-allowed opacity-50" : "",
+                                                        ].join(" ")}
+                                                    >
+                                                        <div className="text-sm font-semibold text-neutral-900">{item.label}</div>
+                                                        <div className="mt-1 text-xs text-neutral-500">
+                                                            {item.value === "email"
+                                                                ? form.senderEmail.trim() || t.placeholders.senderEmail
+                                                                : form.senderPhone.trim() || t.placeholders.senderPhone}
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </Field>
+                                </>
+                            )}
 
                             <label className="block">
                                 <div className="flex items-start gap-3 rounded-2xl border border-neutral-200 bg-[#fafbff] px-4 py-3">
@@ -1763,7 +1883,7 @@ export default function AiExpressPickupForm({
                                 </div>
                             </label>
 
-                            {errors.captcha ? <p className="text-sm text-red-500">{errors.captcha}</p> : null}
+                            {!isLoggedIn && errors.captcha ? <p className="text-sm text-red-500">{errors.captcha}</p> : null}
 
                             <button
                                 type="submit"

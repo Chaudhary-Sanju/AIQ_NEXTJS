@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
     ArrowRight,
     BadgeDollarSign,
@@ -18,7 +18,10 @@ import {
     User,
 } from "lucide-react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { useDispatch, useSelector } from "react-redux";
 import http from "@/http";
+import { fromStorage, clearStorage } from "@/lib";
+import { setUser, clearUser } from "@/store/userSlice";
 
 const ALLOWED_SERVICE_TYPES = [
     "software-development",
@@ -28,7 +31,6 @@ const ALLOWED_SERVICE_TYPES = [
     "home-office-services",
 ];
 
-// Updated regex to match backend exactly: +977-XXXXXXXXXX or +852-XXXXXXXX
 const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
 
 const COPY = {
@@ -37,8 +39,7 @@ const COPY = {
         titleA: "Submit a",
         titleB: "service",
         titleC: "request",
-        subtitle:
-            "Tell us about your problem or project and we'll get back to you ASAP.",
+        subtitle: "Tell us about your problem or project and we'll get back to you ASAP.",
         displayName: "Display Name or Alias",
         email: "Email",
         phone: "Phone",
@@ -61,8 +62,7 @@ const COPY = {
         reset: "Send Another Request",
         sending: "Sending...",
         verifyTitle: "Verify your request",
-        verifyText:
-            "We sent a one-time code to your selected verification method. Enter it below to confirm your request.",
+        verifyText: "We sent a one-time code to your selected verification method. Enter it below to confirm your request.",
         otpLabel: "Verification Code",
         verify: "Verify OTP",
         verifying: "Verifying...",
@@ -70,10 +70,8 @@ const COPY = {
         resending: "Resending...",
         secure: "Your information is kept private and secure.",
         successTitle: "Request verified successfully",
-        successText:
-            "Your service request has been confirmed. Our team will review it and contact you soon.",
+        successText: "Your service request has been confirmed. Our team will review it and contact you soon.",
         chooseTimeline: "Select timeline",
-        choosePayment: "Select payment method",
         emailMethod: "Email",
         phoneMethod: "Phone",
         required: "This field is required.",
@@ -82,6 +80,8 @@ const COPY = {
         invalidBudget: "Please enter a valid budget amount.",
         invalidOtp: "Please enter the OTP code.",
         invalidServiceType: "Invalid service type.",
+        clear: "Clear",
+        expiresAt: "Expires at",
         timelines: [
             { value: "within 24 hours", label: "Within 24 hours" },
             { value: "within a week", label: "Within a week" },
@@ -91,30 +91,20 @@ const COPY = {
             { value: "flexible", label: "Flexible" },
         ],
         payments: [
-            {
-                value: "Debit / Credit Card",
-                label: "Debit / Credit Card",
-            },
-            {
-                value: "Online Transfer / Payment",
-                label: "Online Transfer / Payment",
-            },
-            {
-                value: "Cash",
-                label: "Cash",
-            },
+            { value: "Debit / Credit Card", label: "Debit / Credit Card" },
+            { value: "Online Transfer / Payment", label: "Online Transfer / Payment" },
+            { value: "Cash", label: "Cash" },
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
         captchaRequired: "Please complete reCAPTCHA verification.",
+        loggedInMessage: "✓ You're logged in. Your request will be submitted instantly.",
     },
-
     ne: {
         eyebrow: "व्यावसायिकसँग काम गर्नुहोस्",
         titleA: "सेवा",
         titleB: "अनुरोध",
         titleC: "पेश गर्नुहोस्",
-        subtitle:
-            "तपाईंको समस्या वा परियोजनाबारे हामीलाई बताउनुहोस्, हामी सकेसम्म चाँडो तपाईंलाई जवाफ दिनेछौं।",
+        subtitle: "तपाईंको समस्या वा परियोजनाबारे हामीलाई बताउनुहोस्, हामी सकेसम्म चाँडो तपाईंलाई जवाफ दिनेछौं।",
         displayName: "डिस्प्ले नाम वा उपनाम",
         email: "इमेल",
         phone: "फोन",
@@ -129,8 +119,7 @@ const COPY = {
             email: "alex@example.com",
             phone: "9812345678",
             address: "काठमाडौं, नेपाल",
-            workDesc:
-                "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
+            workDesc: "आफ्नो परियोजना, लक्ष्य, समयरेखा र सम्बन्धित विवरण लेख्नुहोस्...",
             budget: "5000",
             otp: "६ अङ्कको OTP हाल्नुहोस्",
         },
@@ -138,8 +127,7 @@ const COPY = {
         reset: "फेरि अर्को अनुरोध पठाउनुहोस्",
         sending: "पठाइँदैछ...",
         verifyTitle: "आफ्नो अनुरोध प्रमाणित गर्नुहोस्",
-        verifyText:
-            "हामीले तपाईंले रोजेको प्रमाणीकरण माध्यममा एक पटक प्रयोग हुने कोड पठाएका छौँ। अनुरोध पुष्टि गर्न तल हाल्नुहोस्।",
+        verifyText: "हामीले तपाईंले रोजेको प्रमाणीकरण माध्यममा एक पटक प्रयोग हुने कोड पठाएका छौँ। अनुरोध पुष्टि गर्न तल हाल्नुहोस्।",
         otpLabel: "प्रमाणीकरण कोड",
         verify: "OTP प्रमाणित गर्नुहोस्",
         verifying: "प्रमाणित हुँदैछ...",
@@ -147,10 +135,8 @@ const COPY = {
         resending: "फेरि पठाइँदैछ...",
         secure: "तपाईंको जानकारी निजी र सुरक्षित राखिन्छ।",
         successTitle: "अनुरोध सफलतापूर्वक प्रमाणित भयो",
-        successText:
-            "तपाईंको सेवा अनुरोध पुष्टि भएको छ। हाम्रो टोलीले समीक्षा गरेर चाँडै सम्पर्क गर्नेछ।",
+        successText: "तपाईंको सेवा अनुरोध पुष्टि भएको छ। हाम्रो टोलीले समीक्षा गरेर चाँडै सम्पर्क गर्नेछ।",
         chooseTimeline: "समयरेखा छान्नुहोस्",
-        choosePayment: "भुक्तानी विधि छान्नुहोस्",
         emailMethod: "इमेल",
         phoneMethod: "फोन",
         required: "यो फिल्ड आवश्यक छ।",
@@ -159,6 +145,8 @@ const COPY = {
         invalidBudget: "कृपया मान्य बजेट लेख्नुहोस्।",
         invalidOtp: "कृपया OTP कोड लेख्नुहोस्।",
         invalidServiceType: "अवैध सेवा प्रकार।",
+        clear: "खाली गर्नुहोस्",
+        expiresAt: "म्याद सकिने समय",
         timelines: [
             { value: "within 24 hours", label: "२४ घण्टाभित्र" },
             { value: "within a week", label: "एक हप्ताभित्र" },
@@ -168,23 +156,14 @@ const COPY = {
             { value: "flexible", label: "लचिलो" },
         ],
         payments: [
-            {
-                value: "Debit / Credit Card",
-                label: "डेबिट / क्रेडिट कार्ड",
-            },
-            {
-                value: "Online Transfer / Payment",
-                label: "अनलाइन ट्रान्सफर / भुक्तानी",
-            },
-            {
-                value: "Cash",
-                label: "नगद",
-            },
+            { value: "Debit / Credit Card", label: "डेबिट / क्रेडिट कार्ड" },
+            { value: "Online Transfer / Payment", label: "अनलाइन ट्रान्सफर / भुक्तानी" },
+            { value: "Cash", label: "नगद" },
         ],
         currencies: ["NPR", "HKD", "USD", "YUAN", "YEN"],
         captchaRequired: "कृपया reCAPTCHA प्रमाणिकरण पूरा गर्नुहोस्।",
+        loggedInMessage: "✓ तपाईं लग इन हुनुहुन्छ। तपाईंको अनुरोध तुरुन्तै पेश हुनेछ।",
     },
-
     zh: {
         eyebrow: "与专业人士合作",
         titleA: "提交",
@@ -213,8 +192,7 @@ const COPY = {
         reset: "再发送一个需求",
         sending: "发送中...",
         verifyTitle: "验证您的需求",
-        verifyText:
-            "我们已把一次性验证码发送到您选择的验证方式，请在下方输入以确认需求。",
+        verifyText: "我们已把一次性验证码发送到您选择的验证方式，请在下方输入以确认需求。",
         otpLabel: "验证码",
         verify: "验证 OTP",
         verifying: "验证中...",
@@ -224,7 +202,6 @@ const COPY = {
         successTitle: "需求已成功验证",
         successText: "您的服务需求已确认，我们的团队会尽快审核并联系您。",
         chooseTimeline: "选择时间安排",
-        choosePayment: "选择付款方式",
         emailMethod: "电邮",
         phoneMethod: "电话",
         required: "此栏位为必填。",
@@ -233,6 +210,8 @@ const COPY = {
         invalidBudget: "请输入有效的预算金额。",
         invalidOtp: "请输入验证码。",
         invalidServiceType: "服务类型无效。",
+        clear: "清除",
+        expiresAt: "过期时间",
         timelines: [
             { value: "within 24 hours", label: "24 小时内" },
             { value: "within a week", label: "一周内" },
@@ -242,21 +221,13 @@ const COPY = {
             { value: "flexible", label: "可灵活安排" },
         ],
         payments: [
-            {
-                value: "Debit / Credit Card",
-                label: "借记卡 / 信用卡",
-            },
-            {
-                value: "Online Transfer / Payment",
-                label: "网上转账 / 在线支付",
-            },
-            {
-                value: "Cash",
-                label: "现金",
-            },
+            { value: "Debit / Credit Card", label: "借记卡 / 信用卡" },
+            { value: "Online Transfer / Payment", label: "网上转账 / 在线支付" },
+            { value: "Cash", label: "现金" },
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
         captchaRequired: "请先完成 reCAPTCHA 验证。",
+        loggedInMessage: "✓ 您已登录。您的请求将立即提交。",
     },
 };
 
@@ -267,7 +238,7 @@ const initialForm = {
     address: "",
     workDesc: "",
     budget: "",
-    currency: "HKD",
+    currency: "hkd",
     projectTime: "",
     paymentMethod: "",
     verificationMethod: "email",
@@ -275,20 +246,14 @@ const initialForm = {
 
 function getErrorText(err) {
     const data = err?.response?.data;
-    const message =
-        data?.message ||
-        data?.error ||
-        data?.success ||
-        (Array.isArray(data?.errors) ? data.errors[0] : null) ||
-        err?.message;
+    const message = data?.message || data?.error || data?.success ||
+        (Array.isArray(data?.errors) ? data.errors[0] : null) || err?.message;
 
     if (typeof message === "string") return message;
-
     if (message && typeof message === "object") {
         const first = Object.values(message).flat().find(Boolean);
         if (typeof first === "string") return first;
     }
-
     return "Something went wrong. Please try again.";
 }
 
@@ -296,12 +261,12 @@ function Field({ label, icon: Icon, required = true, error, children }) {
     return (
         <label className="block space-y-2">
             <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
-                {Icon ? <Icon className="h-3.5 w-3.5 text-[#4b63ff]" /> : null}
+                {Icon && <Icon className="h-3.5 w-3.5 text-[#4b63ff]" />}
                 {label}
-                {required ? <span className="text-[#4b63ff]">*</span> : null}
+                {required && <span className="text-[#4b63ff]">*</span>}
             </span>
             {children}
-            {error ? <p className="text-xs text-red-500">{error}</p> : null}
+            {error && <p className="text-xs text-red-500">{error}</p>}
         </label>
     );
 }
@@ -316,34 +281,28 @@ function inputClass(hasError) {
     ].join(" ");
 }
 
-// Format phone to match backend exactly
 function formatPhone(value) {
+    if (!value) return value;
     const raw = value.trim();
     const digits = raw.replace(/\D/g, "");
 
-    // Nepal: 10 digits -> +977-XXXXXXXXXX
     if (digits.length === 10 && digits.startsWith("9")) {
         return `+977-${digits}`;
     }
-
-    // Hong Kong: 8 digits -> +852-XXXXXXXX
     if (digits.length === 8) {
         return `+852-${digits}`;
     }
-
-    // Already has country code
     if (digits.startsWith("977") && digits.length === 13) {
         return `+977-${digits.slice(3)}`;
     }
-
     if (digits.startsWith("852") && digits.length === 11) {
         return `+852-${digits.slice(3)}`;
     }
-
     return raw;
 }
 
 function validatePhone(value) {
+    if (!value || value.trim() === "") return false; // Phone is required for non-auth
     return PHONE_REGEX.test(value);
 }
 
@@ -351,14 +310,39 @@ export default function PerfectServiceRequestForm({
     locale = "en",
     serviceType = "software-development",
     title,
+    fetchCart,
 }) {
     const t = COPY[locale] || COPY.en;
     const { executeRecaptcha } = useGoogleReCaptcha();
+    const dispatch = useDispatch();
+
+    const user = useSelector((state) => state.user?.value || state.user);
+    const isLoggedIn = user && Object.keys(user).length > 0 && user._id;
+    const userDisplayName = user?.displayName || user?.name || "";
+    const userEmail = user?.email || "";
+    const userPhone = user?.phone || "";
+
+    // Auth sync effect
+    useEffect(() => {
+        const token = fromStorage("hkmandu");
+        if (!isLoggedIn && token) {
+            http.get("frontend/auth/details")
+                .then((res) => {
+                    const u = res.data?.user ?? res.data;
+                    if (u) {
+                        dispatch(setUser(u));
+                        if (fetchCart) fetchCart();
+                    }
+                })
+                .catch(() => {
+                    clearStorage("hkmandu");
+                    dispatch(clearUser());
+                });
+        }
+    }, [dispatch, isLoggedIn, fetchCart]);
 
     const normalizedServiceType = useMemo(() => {
-        return ALLOWED_SERVICE_TYPES.includes(serviceType)
-            ? serviceType
-            : "software-development";
+        return ALLOWED_SERVICE_TYPES.includes(serviceType) ? serviceType : "software-development";
     }, [serviceType]);
 
     const heading = useMemo(() => {
@@ -371,7 +355,7 @@ export default function PerfectServiceRequestForm({
 
     const [form, setForm] = useState({
         ...initialForm,
-        currency: t.currencies[0] || "HKD",
+        currency: (t.currencies[0] || "HKD").toLowerCase(),
     });
 
     const [errors, setErrors] = useState({});
@@ -383,29 +367,32 @@ export default function PerfectServiceRequestForm({
     const [banner, setBanner] = useState({ type: "", text: "" });
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
 
-    const otpRefs = useMemo(
-        () => Array.from({ length: 6 }, () => ({ current: null })),
-        []
-    );
+    // Auto-fill form for logged-in users
+    useEffect(() => {
+        if (isLoggedIn && user && step === "form") {
+            setForm((prev) => ({
+                ...prev,
+                displayName: userDisplayName || prev.displayName,
+                email: userEmail || prev.email,
+                phone: userPhone || prev.phone,
+            }));
+        }
+    }, [isLoggedIn, user, userDisplayName, userEmail, userPhone, step]);
+
+    const otpRefs = useMemo(() => Array.from({ length: 6 }, () => ({ current: null })), []);
 
     const verificationValue = useMemo(() => {
         return form.verificationMethod === "phone" ? form.phone : form.email;
     }, [form.verificationMethod, form.phone, form.email]);
 
     const handleOtpChange = (index, value) => {
-        const cleaned = value
-            .replace(/[^a-zA-Z0-9]/g, "")
-            .slice(-1)
-            .toUpperCase();
-
+        const cleaned = value.replace(/[^a-zA-Z0-9]/g, "").slice(-1).toUpperCase();
         setOtpValues((prev) => {
             const next = [...prev];
             next[index] = cleaned;
             return next;
         });
-
         setErrors((prev) => ({ ...prev, otp: "" }));
-
         if (cleaned && index < 5) {
             otpRefs[index + 1]?.current?.focus();
         }
@@ -413,24 +400,12 @@ export default function PerfectServiceRequestForm({
 
     const handleOtpPaste = (e) => {
         e.preventDefault();
-
-        const pasted = e.clipboardData
-            .getData("text")
-            .replace(/[^a-zA-Z0-9]/g, "")
-            .slice(0, 6)
-            .toUpperCase();
-
+        const pasted = e.clipboardData.getData("text").replace(/[^a-zA-Z0-9]/g, "").slice(0, 6).toUpperCase();
         if (!pasted) return;
-
         const next = ["", "", "", "", "", ""];
-
-        pasted.split("").forEach((char, i) => {
-            next[i] = char;
-        });
-
+        pasted.split("").forEach((char, i) => { next[i] = char; });
         setOtpValues(next);
         setErrors((prev) => ({ ...prev, otp: "" }));
-
         const focusIndex = Math.min(pasted.length, 5);
         otpRefs[focusIndex]?.current?.focus();
     };
@@ -445,7 +420,6 @@ export default function PerfectServiceRequestForm({
                 });
             } else if (index > 0) {
                 otpRefs[index - 1]?.current?.focus();
-
                 setOtpValues((prev) => {
                     const next = [...prev];
                     next[index - 1] = "";
@@ -453,14 +427,8 @@ export default function PerfectServiceRequestForm({
                 });
             }
         }
-
-        if (e.key === "ArrowLeft" && index > 0) {
-            otpRefs[index - 1]?.current?.focus();
-        }
-
-        if (e.key === "ArrowRight" && index < 5) {
-            otpRefs[index + 1]?.current?.focus();
-        }
+        if (e.key === "ArrowLeft" && index > 0) otpRefs[index - 1]?.current?.focus();
+        if (e.key === "ArrowRight" && index < 5) otpRefs[index + 1]?.current?.focus();
     };
 
     const clearOtp = () => {
@@ -471,45 +439,40 @@ export default function PerfectServiceRequestForm({
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         setForm((prev) => {
             const updated = { ...prev, [name]: value };
-
-            if (
-                name === "phone" &&
-                !value.trim() &&
-                prev.verificationMethod === "phone"
-            ) {
+            if (name === "phone" && !value.trim() && prev.verificationMethod === "phone") {
                 updated.verificationMethod = "email";
             }
-
             return updated;
         });
-
         setErrors((prev) => ({ ...prev, [name]: "", captcha: "" }));
         setBanner({ type: "", text: "" });
     };
 
     const handlePhoneBlur = () => {
-        const formatted = formatPhone(form.phone);
-
-        if (formatted !== form.phone) {
-            setForm((prev) => ({
-                ...prev,
-                phone: formatted,
-            }));
-        }
-
-        // Validate phone format
-        if (form.phone && !validatePhone(formatted)) {
-            setErrors((prev) => ({ ...prev, phone: t.invalidPhone }));
-        } else {
-            setErrors((prev) => ({ ...prev, phone: "" }));
+        if (form.phone && form.phone.trim()) {
+            const formatted = formatPhone(form.phone);
+            if (formatted !== form.phone) {
+                setForm((prev) => ({ ...prev, phone: formatted }));
+            }
+            if (!validatePhone(formatted)) {
+                setErrors((prev) => ({ ...prev, phone: t.invalidPhone }));
+            } else {
+                setErrors((prev) => ({ ...prev, phone: "" }));
+            }
+        } else if (!isLoggedIn) {
+            // Phone is required for non-logged-in users
+            setErrors((prev) => ({ ...prev, phone: t.required }));
         }
     };
 
     const validate = () => {
         const nextErrors = {};
+
+        if (!ALLOWED_SERVICE_TYPES.includes(normalizedServiceType)) {
+            nextErrors.serviceType = t.invalidServiceType;
+        }
 
         if (!form.displayName.trim()) {
             nextErrors.displayName = t.required;
@@ -517,16 +480,36 @@ export default function PerfectServiceRequestForm({
             nextErrors.displayName = "Display name must be between 2 and 100 characters";
         }
 
-        if (!form.email.trim()) {
-            nextErrors.email = t.required;
-        } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
-            nextErrors.email = t.invalidEmail;
+        // Email validation based on verification method and auth status
+        if (!isLoggedIn) {
+            if (form.verificationMethod === "auth") {
+                // Should not happen for non-auth users
+            } else if (form.verificationMethod === "phone") {
+                if (form.email && form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+                    nextErrors.email = t.invalidEmail;
+                }
+            } else {
+                if (!form.email.trim()) {
+                    nextErrors.email = t.required;
+                } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+                    nextErrors.email = t.invalidEmail;
+                }
+            }
+        } else {
+            // For logged-in users, email is optional but must be valid if provided
+            if (form.email && form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+                nextErrors.email = t.invalidEmail;
+            }
         }
 
-        // Phone is now required by backend
-        if (!form.phone.trim()) {
-            nextErrors.phone = t.required;
-        } else if (!validatePhone(form.phone)) {
+        // Phone validation - required for non-logged-in users
+        if (!isLoggedIn) {
+            if (!form.phone.trim()) {
+                nextErrors.phone = t.required;
+            } else if (!validatePhone(form.phone)) {
+                nextErrors.phone = t.invalidPhone;
+            }
+        } else if (form.phone && form.phone.trim() && !validatePhone(form.phone)) {
             nextErrors.phone = t.invalidPhone;
         }
 
@@ -542,7 +525,6 @@ export default function PerfectServiceRequestForm({
             nextErrors.workDesc = "Work description must be between 5 and 500 characters";
         }
 
-        // Budget is optional, but if provided must be positive number
         if (form.budget !== "" && form.budget !== null && form.budget !== undefined) {
             const budgetValue = Number(form.budget);
             if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
@@ -550,18 +532,8 @@ export default function PerfectServiceRequestForm({
             }
         }
 
-        if (!form.projectTime) {
-            nextErrors.projectTime = t.required;
-        }
-
-        if (!form.paymentMethod) {
-            nextErrors.paymentMethod = t.required;
-        }
-
-        // Phone verification requires phone to be valid (already checked above)
-        if (form.verificationMethod === "phone" && !validatePhone(form.phone)) {
-            nextErrors.phone = t.invalidPhone;
-        }
+        if (!form.projectTime) nextErrors.projectTime = t.required;
+        if (!form.paymentMethod) nextErrors.paymentMethod = t.required;
 
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
@@ -569,14 +541,48 @@ export default function PerfectServiceRequestForm({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!validate()) return;
 
+        // For logged-in users, use direct-submit endpoint
+        if (isLoggedIn) {
+            try {
+                setSubmitLoading(true);
+                setBanner({ type: "", text: "" });
+
+                const payload = {
+                    displayName: form.displayName.trim(),
+                    email: form.email.trim().toLowerCase() || undefined,
+                    phone: form.phone.trim() || null,
+                    address: form.address.trim(),
+                    workDesc: form.workDesc.trim(),
+                    budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
+                        ? Number(form.budget)
+                        : null,
+                    currency: form.currency.toLowerCase(),
+                    projectTime: form.projectTime,
+                    paymentMethod: form.paymentMethod,
+                    serviceType: normalizedServiceType,
+                    verificationMethod: "auth",
+                };
+
+                const res = await http.post("/frontend/perfectServiceForm/direct-submit", payload);
+
+                setStep("success");
+                setBanner({
+                    type: "success",
+                    text: res?.data?.success || t.successText,
+                });
+            } catch (err) {
+                setBanner({ type: "error", text: getErrorText(err) });
+            } finally {
+                setSubmitLoading(false);
+            }
+            return;
+        }
+
+        // For non-logged-in users, require reCAPTCHA
         if (!executeRecaptcha) {
-            setErrors((prev) => ({
-                ...prev,
-                captcha: t.captchaRequired,
-            }));
+            setErrors((prev) => ({ ...prev, captcha: t.captchaRequired }));
             return;
         }
 
@@ -587,30 +593,21 @@ export default function PerfectServiceRequestForm({
             const recaptchaToken = await executeRecaptcha("submit_form");
 
             if (!recaptchaToken || typeof recaptchaToken !== "string") {
-                setErrors((prev) => ({
-                    ...prev,
-                    captcha: t.captchaRequired,
-                }));
-
-                setBanner({
-                    type: "error",
-                    text: t.captchaRequired,
-                });
-
+                setErrors((prev) => ({ ...prev, captcha: t.captchaRequired }));
+                setBanner({ type: "error", text: t.captchaRequired });
                 return;
             }
 
-            // Prepare payload matching backend validator
             const payload = {
                 displayName: form.displayName.trim(),
                 email: form.email.trim().toLowerCase(),
-                phone: form.phone.trim(), // Now required and must match regex
+                phone: form.phone.trim(),
                 address: form.address.trim(),
                 workDesc: form.workDesc.trim(),
                 budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
                     ? Number(form.budget)
-                    : null, // Send null for empty budget
-                currency: form.currency.toLowerCase(), // Must be lowercase (npr, hkd, usd, yuan, yen)
+                    : null,
+                currency: form.currency.toLowerCase(),
                 projectTime: form.projectTime,
                 paymentMethod: form.paymentMethod,
                 verificationMethod: form.verificationMethod,
@@ -618,25 +615,13 @@ export default function PerfectServiceRequestForm({
                 recaptchaToken,
             };
 
-            const res = await http.post(
-                "/frontend/perfectServiceForm/submit",
-                payload
-            );
-
+            const res = await http.post("/frontend/perfectServiceForm/submit", payload);
             const data = res?.data || {};
 
-            setRequestMeta({
-                id: data.id,
-                expiresAt: data.expiresAt,
-            });
-
+            setRequestMeta({ id: data.id, expiresAt: data.expiresAt });
             setStep("otp");
             setOtpValues(["", "", "", "", "", ""]);
-
-            setBanner({
-                type: "success",
-                text: data?.success || t.verifyText,
-            });
+            setBanner({ type: "success", text: data?.success || t.verifyText });
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
         } finally {
@@ -646,7 +631,6 @@ export default function PerfectServiceRequestForm({
 
     const handleVerify = async (e) => {
         e.preventDefault();
-
         const otp = otpValues.join("").trim();
 
         if (otp.length !== 6) {
@@ -658,22 +642,23 @@ export default function PerfectServiceRequestForm({
         setBanner({ type: "", text: "" });
 
         try {
-            const res = await http.post(
-                "/frontend/perfectServiceForm/verify-otp",
-                {
-                    id: requestMeta?.id,
-                    otp,
-                }
-            );
+            const res = await http.post("/frontend/perfectServiceForm/verify-otp", {
+                id: requestMeta?.id,
+                otp,
+            });
 
             setStep("success");
-
-            setBanner({
-                type: "success",
-                text: res?.data?.success || t.successText,
-            });
+            setBanner({ type: "success", text: res?.data?.success || t.successText });
         } catch (err) {
-            setBanner({ type: "error", text: getErrorText(err) });
+            const errorData = err?.response?.data;
+            if (errorData?.lockedUntil) {
+                setBanner({
+                    type: "error",
+                    text: `${errorData.success}. Locked until: ${new Date(errorData.lockedUntil).toLocaleString()}`,
+                });
+            } else {
+                setBanner({ type: "error", text: getErrorText(err) });
+            }
         } finally {
             setVerifyLoading(false);
         }
@@ -686,22 +671,17 @@ export default function PerfectServiceRequestForm({
         setBanner({ type: "", text: "" });
 
         try {
-            const res = await http.post(
-                "/frontend/perfectServiceForm/resend-otp",
-                {
-                    id: requestMeta.id,
-                }
-            );
+            const res = await http.post("/frontend/perfectServiceForm/resend-otp", {
+                id: requestMeta.id,
+            });
 
             setRequestMeta((prev) => ({
                 ...prev,
                 expiresAt: res?.data?.expiresAt || prev?.expiresAt,
             }));
 
-            setBanner({
-                type: "success",
-                text: res?.data?.success || `${t.resend}.`,
-            });
+            setBanner({ type: "success", text: res?.data?.success || `${t.resend}.` });
+            setOtpValues(["", "", "", "", "", ""]);
         } catch (err) {
             setBanner({ type: "error", text: getErrorText(err) });
         } finally {
@@ -710,7 +690,11 @@ export default function PerfectServiceRequestForm({
     };
 
     const resetAll = () => {
-        setForm({ ...initialForm, currency: t.currencies[0] || "HKD" });
+        setForm({
+            ...initialForm,
+            currency: (t.currencies[0] || "HKD").toLowerCase(),
+            verificationMethod: "email",
+        });
         setErrors({});
         setOtpValues(["", "", "", "", "", ""]);
         setRequestMeta(null);
@@ -731,9 +715,7 @@ export default function PerfectServiceRequestForm({
 
                     <h1 className="max-w-xl text-4xl font-medium leading-tight text-neutral-900 sm:text-5xl">
                         {heading.line1}{" "}
-                        <span className="font-serif italic text-[#4b63ff]">
-                            {heading.highlight}
-                        </span>
+                        <span className="font-serif italic text-[#4b63ff]">{heading.highlight}</span>
                         <br />
                         {heading.line2}
                     </h1>
@@ -746,44 +728,35 @@ export default function PerfectServiceRequestForm({
                 <div className="rounded-[28px] border border-black/5 bg-white/90 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur sm:p-8">
                     <div className="mb-6 h-1 w-full rounded-full bg-[linear-gradient(90deg,#d9d6ff_0%,#4b63ff_45%,#3e51d1_100%)]" />
 
-                    {banner.text ? (
-                        <div
-                            className={[
-                                "mb-5 rounded-2xl border px-4 py-3 text-sm",
-                                banner.type === "error"
-                                    ? "border-red-200 bg-red-50 text-red-700"
-                                    : "border-emerald-200 bg-emerald-50 text-emerald-700",
-                            ].join(" ")}
-                        >
+                    {banner.text && (
+                        <div className={`mb-5 rounded-2xl border px-4 py-3 text-sm ${banner.type === "error"
+                            ? "border-red-200 bg-red-50 text-red-700"
+                            : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            }`}>
                             {banner.text}
                         </div>
-                    ) : null}
+                    )}
 
-                    {step === "form" ? (
+                    {step === "form" && (
                         <form onSubmit={handleSubmit} className="space-y-5">
-                            <Field
-                                label={t.displayName}
-                                icon={User}
-                                error={errors.displayName}
-                            >
+                            {isLoggedIn && (
+                                <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
+                                    {t.loggedInMessage}
+                                </div>
+                            )}
+
+                            <Field label={t.displayName} icon={User} error={errors.displayName}>
                                 <input
                                     name="displayName"
                                     value={form.displayName}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.displayName}
-                                    className={`${inputClass(
-                                        !!errors.displayName
-                                    )} h-12`}
+                                    className={`${inputClass(!!errors.displayName)} h-12`}
                                 />
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field
-                                    label={t.phone}
-                                    icon={Phone}
-                                    error={errors.phone}
-                                    required={true} // Now required
-                                >
+                                <Field label={t.phone} icon={Phone} error={errors.phone} required={!isLoggedIn}>
                                     <input
                                         name="phone"
                                         value={form.phone}
@@ -794,45 +767,29 @@ export default function PerfectServiceRequestForm({
                                     />
                                 </Field>
 
-                                <Field
-                                    label={t.email}
-                                    icon={Mail}
-                                    error={errors.email}
-                                >
+                                <Field label={t.email} icon={Mail} error={errors.email} required={!isLoggedIn && form.verificationMethod !== "phone"}>
                                     <input
                                         type="email"
                                         name="email"
                                         value={form.email}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.email}
-                                        className={`${inputClass(
-                                            !!errors.email
-                                        )} h-12`}
+                                        className={`${inputClass(!!errors.email)} h-12`}
                                     />
                                 </Field>
                             </div>
 
-                            <Field
-                                label={t.address}
-                                icon={MapPin}
-                                error={errors.address}
-                            >
+                            <Field label={t.address} icon={MapPin} error={errors.address}>
                                 <input
                                     name="address"
                                     value={form.address}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.address}
-                                    className={`${inputClass(
-                                        !!errors.address
-                                    )} h-12`}
+                                    className={`${inputClass(!!errors.address)} h-12`}
                                 />
                             </Field>
 
-                            <Field
-                                label={t.workDesc}
-                                icon={BriefcaseBusiness}
-                                error={errors.workDesc}
-                            >
+                            <Field label={t.workDesc} icon={BriefcaseBusiness} error={errors.workDesc}>
                                 <textarea
                                     name="workDesc"
                                     value={form.workDesc}
@@ -840,18 +797,11 @@ export default function PerfectServiceRequestForm({
                                     placeholder={t.placeholders.workDesc}
                                     rows={3}
                                     maxLength={500}
-                                    className={`${inputClass(
-                                        !!errors.workDesc
-                                    )} min-h-[130px] resize-none py-3`}
+                                    className={`${inputClass(!!errors.workDesc)} min-h-[130px] resize-none py-3`}
                                 />
                             </Field>
 
-                            <Field
-                                label={t.budget}
-                                icon={BadgeDollarSign}
-                                error={errors.budget}
-                                required={false}
-                            >
+                            <Field label={t.budget} icon={BadgeDollarSign} error={errors.budget} required={false}>
                                 <div className="grid grid-cols-[1fr_110px] overflow-hidden rounded-2xl">
                                     <input
                                         type="number"
@@ -861,21 +811,16 @@ export default function PerfectServiceRequestForm({
                                         placeholder={t.placeholders.budget}
                                         min="0"
                                         step="0.01"
-                                        className={`${inputClass(
-                                            !!errors.budget
-                                        )} h-12 rounded-r-none border-r-0`}
+                                        className={`${inputClass(!!errors.budget)} h-12 rounded-r-none border-r-0`}
                                     />
-
                                     <select
                                         name="currency"
                                         value={form.currency}
                                         onChange={handleChange}
-                                        className={`${inputClass(
-                                            false
-                                        )} h-12 rounded-l-none bg-[#fafbff] font-semibold uppercase text-[#4b63ff]`}
+                                        className={`${inputClass(false)} h-12 rounded-l-none bg-[#fafbff] font-semibold uppercase text-[#4b63ff]`}
                                     >
                                         {t.currencies.map((currency) => (
-                                            <option key={currency} value={currency}>
+                                            <option key={currency} value={currency.toLowerCase()}>
                                                 {currency}
                                             </option>
                                         ))}
@@ -884,205 +829,107 @@ export default function PerfectServiceRequestForm({
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-                                <Field
-                                    label={t.projectTime}
-                                    icon={Clock3}
-                                    error={errors.projectTime}
-                                >
+                                <Field label={t.projectTime} icon={Clock3} error={errors.projectTime}>
                                     <select
                                         name="projectTime"
                                         value={form.projectTime}
                                         onChange={handleChange}
-                                        className={`${inputClass(
-                                            !!errors.projectTime
-                                        )} h-12`}
+                                        className={`${inputClass(!!errors.projectTime)} h-12`}
                                     >
                                         <option value="">{t.chooseTimeline}</option>
-
                                         {t.timelines.map((item) => (
-                                            <option
-                                                key={item.value}
-                                                value={item.value}
-                                            >
-                                                {item.label}
-                                            </option>
+                                            <option key={item.value} value={item.value}>{item.label}</option>
                                         ))}
                                     </select>
                                 </Field>
 
-                                <Field
-                                    label={t.paymentMethod}
-                                    icon={CreditCard}
-                                    error={errors.paymentMethod}
-                                >
+                                <Field label={t.paymentMethod} icon={CreditCard} error={errors.paymentMethod} required={false}>
                                     <select
                                         name="paymentMethod"
                                         value={form.paymentMethod}
                                         onChange={handleChange}
-                                        className={`${inputClass(
-                                            !!errors.paymentMethod
-                                        )} h-12`}
+                                        className={`${inputClass(!!errors.paymentMethod)} h-12`}
                                     >
-                                        <option value="">{t.choosePayment}</option>
-
                                         {t.payments.map((item) => (
-                                            <option
-                                                key={item.value}
-                                                value={item.value}
-                                            >
-                                                {item.label}
-                                            </option>
+                                            <option key={item.value} value={item.value}>{item.label}</option>
                                         ))}
                                     </select>
                                 </Field>
                             </div>
 
-                            <Field
-                                label={t.verificationMethod}
-                                icon={ShieldCheck}
-                                required={false}
-                            >
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    {[
-                                        {
-                                            value: "email",
-                                            label: t.emailMethod,
-                                            disabled: !form.email.trim(),
-                                            helper:
-                                                form.email.trim() ||
-                                                t.placeholders.email,
-                                        },
-                                        {
-                                            value: "phone",
-                                            label: t.phoneMethod,
-                                            disabled: !form.phone.trim() || !!errors.phone,
-                                            helper:
-                                                form.phone.trim() ||
-                                                t.placeholders.phone,
-                                        },
-                                    ].map((item) => {
-                                        const active =
-                                            form.verificationMethod === item.value;
+                            {!isLoggedIn && (
+                                <Field label={t.verificationMethod} icon={ShieldCheck} required={false}>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        {[
+                                            { value: "email", label: t.emailMethod, disabled: !form.email.trim(), helper: form.email.trim() || t.placeholders.email },
+                                            { value: "phone", label: t.phoneMethod, disabled: !form.phone.trim() || !!errors.phone, helper: form.phone.trim() || t.placeholders.phone },
+                                        ].map((item) => {
+                                            const active = form.verificationMethod === item.value;
+                                            return (
+                                                <button
+                                                    key={item.value}
+                                                    type="button"
+                                                    disabled={item.disabled}
+                                                    onClick={() => setForm((prev) => ({ ...prev, verificationMethod: item.value }))}
+                                                    className={[
+                                                        "rounded-2xl border px-4 py-3 text-left transition",
+                                                        active ? "border-[#4b63ff] bg-[#eef1ff] shadow-[0_10px_25px_rgba(75,99,255,0.12)]" : "border-neutral-200 bg-white hover:border-neutral-300",
+                                                        item.disabled ? "cursor-not-allowed opacity-50" : "",
+                                                    ].join(" ")}
+                                                >
+                                                    <div className="text-sm font-semibold text-neutral-900">{item.label}</div>
+                                                    <div className="mt-1 text-xs text-neutral-500">{item.helper}</div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </Field>
+                            )}
 
-                                        return (
-                                            <button
-                                                key={item.value}
-                                                type="button"
-                                                disabled={item.disabled}
-                                                onClick={() =>
-                                                    setForm((prev) => ({
-                                                        ...prev,
-                                                        verificationMethod:
-                                                            item.value,
-                                                    }))
-                                                }
-                                                className={[
-                                                    "rounded-2xl border px-4 py-3 text-left transition",
-                                                    active
-                                                        ? "border-[#4b63ff] bg-[#eef1ff] shadow-[0_10px_25px_rgba(75,99,255,0.12)]"
-                                                        : "border-neutral-200 bg-white hover:border-neutral-300",
-                                                    item.disabled
-                                                        ? "cursor-not-allowed opacity-50"
-                                                        : "",
-                                                ].join(" ")}
-                                            >
-                                                <div className="text-sm font-semibold text-neutral-900">
-                                                    {item.label}
-                                                </div>
-
-                                                <div className="mt-1 text-xs text-neutral-500">
-                                                    {item.helper}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </Field>
-
-                            {errors.captcha ? (
-                                <p className="text-sm text-red-500">
-                                    {errors.captcha}
-                                </p>
-                            ) : null}
+                            {errors.captcha && <p className="text-sm text-red-500">{errors.captcha}</p>}
 
                             <button
                                 type="submit"
                                 disabled={submitLoading}
                                 className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#5b6ff8_0%,#4357e8_45%,#3e4fd4_100%)] px-6 text-sm font-semibold uppercase tracking-[0.26em] text-white shadow-[0_18px_40px_rgba(75,99,255,0.35)] transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-70"
                             >
-                                {submitLoading ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : null}
-
+                                {submitLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                                 {submitLoading ? t.sending : t.submit}
-
-                                {!submitLoading ? (
-                                    <ArrowRight className="h-4 w-4" />
-                                ) : null}
+                                {!submitLoading && <ArrowRight className="h-4 w-4" />}
                             </button>
                         </form>
-                    ) : null}
+                    )}
 
-                    {step === "otp" ? (
+                    {step === "otp" && (
                         <form onSubmit={handleVerify} className="space-y-6">
                             <div className="rounded-[24px] border border-[#dfe4ff] bg-[#f8f9ff] p-5">
                                 <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#4b63ff] shadow-sm">
                                     <Lock className="h-5 w-5" />
                                 </div>
-
-                                <h2 className="text-2xl font-semibold text-neutral-900">
-                                    {t.verifyTitle}
-                                </h2>
-
-                                <p className="mt-2 text-sm leading-7 text-neutral-500">
-                                    {t.verifyText}
-                                </p>
-
-                                <p className="mt-3 text-sm font-medium text-neutral-700">
-                                    {verificationValue}
-                                </p>
-
-                                {requestMeta?.expiresAt ? (
+                                <h2 className="text-2xl font-semibold text-neutral-900">{t.verifyTitle}</h2>
+                                <p className="mt-2 text-sm leading-7 text-neutral-500">{t.verifyText}</p>
+                                <p className="mt-3 text-sm font-medium text-neutral-700">{verificationValue}</p>
+                                {requestMeta?.expiresAt && (
                                     <p className="mt-1 text-xs text-neutral-500">
-                                        Expires at:{" "}
-                                        {new Date(
-                                            requestMeta.expiresAt
-                                        ).toLocaleString()}
+                                        {t.expiresAt}: {new Date(requestMeta.expiresAt).toLocaleString()}
                                     </p>
-                                ) : null}
+                                )}
                             </div>
 
-                            <Field
-                                label={t.otpLabel}
-                                icon={ShieldCheck}
-                                error={errors.otp}
-                            >
+                            <Field label={t.otpLabel} icon={ShieldCheck} error={errors.otp}>
                                 <div className="space-y-3">
                                     <div className="flex flex-wrap gap-2 sm:gap-3">
                                         {otpValues.map((digit, index) => (
                                             <input
                                                 key={index}
-                                                ref={(el) => {
-                                                    otpRefs[index].current = el;
-                                                }}
+                                                ref={(el) => { otpRefs[index].current = el; }}
                                                 type="text"
                                                 inputMode="text"
-                                                autoComplete={
-                                                    index === 0
-                                                        ? "one-time-code"
-                                                        : "off"
-                                                }
+                                                autoComplete={index === 0 ? "one-time-code" : "off"}
                                                 maxLength={1}
                                                 value={digit}
-                                                onChange={(e) =>
-                                                    handleOtpChange(
-                                                        index,
-                                                        e.target.value
-                                                    )
-                                                }
-                                                onKeyDown={(e) =>
-                                                    handleOtpKeyDown(index, e)
-                                                }
+                                                onChange={(e) => handleOtpChange(index, e.target.value)}
+                                                onKeyDown={(e) => handleOtpKeyDown(index, e)}
                                                 onPaste={handleOtpPaste}
                                                 className={[
                                                     "h-14 w-12 rounded-2xl border bg-white text-center text-lg font-semibold uppercase outline-none transition sm:h-16 sm:w-14",
@@ -1093,18 +940,10 @@ export default function PerfectServiceRequestForm({
                                             />
                                         ))}
                                     </div>
-
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="text-neutral-500">
-                                            {t.placeholders.otp}
-                                        </span>
-
-                                        <button
-                                            type="button"
-                                            onClick={clearOtp}
-                                            className="font-medium text-neutral-500 underline underline-offset-2 hover:text-neutral-700"
-                                        >
-                                            Clear
+                                        <span className="text-neutral-500">{t.placeholders.otp}</span>
+                                        <button type="button" onClick={clearOtp} className="font-medium text-neutral-500 underline underline-offset-2 hover:text-neutral-700">
+                                            {t.clear}
                                         </button>
                                     </div>
                                 </div>
@@ -1116,45 +955,29 @@ export default function PerfectServiceRequestForm({
                                     disabled={verifyLoading}
                                     className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#5b6ff8_0%,#4357e8_45%,#3e4fd4_100%)] px-5 text-sm font-semibold text-white shadow-[0_15px_35px_rgba(75,99,255,0.28)] disabled:cursor-not-allowed disabled:opacity-70"
                                 >
-                                    {verifyLoading ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : null}
-
+                                    {verifyLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                                     {verifyLoading ? t.verifying : t.verify}
                                 </button>
-
                                 <button
                                     type="button"
                                     onClick={handleResend}
                                     disabled={resendLoading}
                                     className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white px-5 text-sm font-semibold text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-70"
                                 >
-                                    {resendLoading ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <RefreshCcw className="h-4 w-4" />
-                                    )}
-
+                                    {resendLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCcw className="h-4 w-4" />}
                                     {resendLoading ? t.resending : t.resend}
                                 </button>
                             </div>
                         </form>
-                    ) : null}
+                    )}
 
-                    {step === "success" ? (
+                    {step === "success" && (
                         <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 p-6 text-center">
                             <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm">
                                 <CheckCircle2 className="h-8 w-8" />
                             </div>
-
-                            <h2 className="text-2xl font-semibold text-neutral-900">
-                                {t.successTitle}
-                            </h2>
-
-                            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-600">
-                                {t.successText}
-                            </p>
-
+                            <h2 className="text-2xl font-semibold text-neutral-900">{t.successTitle}</h2>
+                            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-600">{t.successText}</p>
                             <button
                                 type="button"
                                 onClick={resetAll}
@@ -1163,7 +986,7 @@ export default function PerfectServiceRequestForm({
                                 {t.reset}
                             </button>
                         </div>
-                    ) : null}
+                    )}
                 </div>
 
                 <div className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-neutral-500">
