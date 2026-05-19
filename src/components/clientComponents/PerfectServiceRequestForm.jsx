@@ -240,7 +240,7 @@ const initialForm = {
     budget: "",
     currency: "hkd",
     projectTime: "",
-    paymentMethod: "",
+    paymentMethod: "Debit / Credit Card",
     verificationMethod: "email",
 };
 
