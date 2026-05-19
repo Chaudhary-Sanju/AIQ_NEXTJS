@@ -1358,20 +1358,6 @@ export default function AiExpressPickupForm({
                             {shouldUseHongKongPickup(serviceType) ? (
                                 <div className="space-y-5">
                                     <div className="grid gap-5 md:grid-cols-2">
-                                        <Field
-                                            label="Street / Building"
-                                            icon={MapPin}
-                                            error={errors["pickupAddressHK.street"]}
-                                            color={theme.focusColor}
-                                        >
-                                            <input
-                                                name="pickupAddressHK.street"
-                                                value={form.pickupAddressHK.street}
-                                                onChange={handleChange}
-                                                placeholder="Street number, building name, block"
-                                                className={inputClass(!!errors["pickupAddressHK.street"])}
-                                            />
-                                        </Field>
 
                                         <Field
                                             label="Floor / Unit"
@@ -1387,6 +1373,22 @@ export default function AiExpressPickupForm({
                                                 className={inputClass(!!errors["pickupAddressHK.floor"])}
                                             />
                                         </Field>
+
+                                        <Field
+                                            label="Street / Building"
+                                            icon={MapPin}
+                                            error={errors["pickupAddressHK.street"]}
+                                            color={theme.focusColor}
+                                        >
+                                            <input
+                                                name="pickupAddressHK.street"
+                                                value={form.pickupAddressHK.street}
+                                                onChange={handleChange}
+                                                placeholder="Street number, building name, block"
+                                                className={inputClass(!!errors["pickupAddressHK.street"])}
+                                            />
+                                        </Field>
+
                                     </div>
 
                                     <Field
@@ -1496,20 +1498,6 @@ export default function AiExpressPickupForm({
                             {shouldUseHongKongDelivery(serviceType) ? (
                                 <div className="space-y-5">
                                     <div className="grid gap-5 md:grid-cols-2">
-                                        <Field
-                                            label="Street / Building"
-                                            icon={MapPin}
-                                            error={errors["deliveryAddressHK.street"]}
-                                            color={theme.focusColor}
-                                        >
-                                            <input
-                                                name="deliveryAddressHK.street"
-                                                value={form.deliveryAddressHK.street}
-                                                onChange={handleChange}
-                                                placeholder="Street number, building name, block"
-                                                className={inputClass(!!errors["deliveryAddressHK.street"])}
-                                            />
-                                        </Field>
 
                                         <Field
                                             label="Floor / Unit"
@@ -1525,6 +1513,22 @@ export default function AiExpressPickupForm({
                                                 className={inputClass(!!errors["deliveryAddressHK.floor"])}
                                             />
                                         </Field>
+                                        
+                                        <Field
+                                            label="Street / Building"
+                                            icon={MapPin}
+                                            error={errors["deliveryAddressHK.street"]}
+                                            color={theme.focusColor}
+                                        >
+                                            <input
+                                                name="deliveryAddressHK.street"
+                                                value={form.deliveryAddressHK.street}
+                                                onChange={handleChange}
+                                                placeholder="Street number, building name, block"
+                                                className={inputClass(!!errors["deliveryAddressHK.street"])}
+                                            />
+                                        </Field>
+
                                     </div>
 
                                     <Field

@@ -81,7 +81,7 @@ export default async function Page({ params }) {
                 locale={locale}
                 serviceType="accounting-finance"
                 title={dict.perfectServiceForm["accounting-finance"].title}
-            />s
+            />
 
             <FAQSection
                 locale={locale}

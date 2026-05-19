@@ -30,6 +30,9 @@ const ALLOWED_SERVICE_TYPES = [
     "home-office-services",
 ];
 
+// Updated regex to match backend exactly: +977-XXXXXXXXXX or +852-XXXXXXXX
+const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
+
 const COPY = {
     en: {
         eyebrow: "WORK WITH PROFESSIONAL",
@@ -41,7 +44,7 @@ const COPY = {
 
         bannerTitle: "Need help with a service?",
         bannerText:
-            "Start with a quick request. We’ll only ask for the full details when you’re ready.",
+            "Start with a quick request. We'll only ask for the full details when you're ready.",
         bannerCta: "Request Now",
         bannerPoints: [
             "Quick service review",
@@ -89,8 +92,7 @@ const COPY = {
         phoneMethod: "Phone",
         required: "This field is required.",
         invalidEmail: "Please enter a valid email address.",
-        invalidPhone:
-            "Phone must be a valid Nepal (9XXXXXXXXX) or Hong Kong (5XXXXXXX) number.",
+        invalidPhone: "Phone must be in format +977-XXXXXXXXXX or +852-XXXXXXXX",
         invalidBudget: "Please enter a valid budget amount.",
         invalidOtp: "Please enter the OTP code.",
         invalidServiceType: "Invalid service type.",
@@ -106,16 +108,16 @@ const COPY = {
         ],
         payments: [
             {
-                value: "card / cheque",
-                label: "Card / Cheque",
+                value: "Debit / Credit Card",
+                label: "Debit / Credit Card",
             },
             {
-                value: "bank deposit / transfer",
-                label: "Bank Deposit / Transfer",
+                value: "Online Transfer / Payment",
+                label: "Online Transfer / Payment",
             },
             {
-                value: "online transfer / credit card",
-                label: "Online Transfer / Credit Card",
+                value: "Cash",
+                label: "Cash",
             },
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
@@ -180,8 +182,7 @@ const COPY = {
         phoneMethod: "फोन",
         required: "यो फिल्ड आवश्यक छ।",
         invalidEmail: "कृपया मान्य इमेल लेख्नुहोस्।",
-        invalidPhone:
-            "फोन नम्बर 9XXXXXXXXX वा 5XXXXXXX ढाँचामा हुनुपर्छ।",
+        invalidPhone: "फोन +977-XXXXXXXXXX वा +852-XXXXXXXX ढाँचामा हुनुपर्छ।",
         invalidBudget: "कृपया मान्य बजेट लेख्नुहोस्।",
         invalidOtp: "कृपया OTP कोड लेख्नुहोस्।",
         invalidServiceType: "अवैध सेवा प्रकार।",
@@ -197,16 +198,16 @@ const COPY = {
         ],
         payments: [
             {
-                value: "card / cheque",
-                label: "कार्ड / चेक",
+                value: "Debit / Credit Card",
+                label: "डेबिट / क्रेडिट कार्ड",
             },
             {
-                value: "bank deposit / transfer",
-                label: "बैंक जम्मा / ट्रान्सफर",
+                value: "Online Transfer / Payment",
+                label: "अनलाइन ट्रान्सफर / भुक्तानी",
             },
             {
-                value: "online transfer / credit card",
-                label: "अनलाइन ट्रान्सफर / क्रेडिट कार्ड",
+                value: "Cash",
+                label: "नगद",
             },
         ],
         currencies: ["NPR", "HKD", "USD", "YUAN", "YEN"],
@@ -267,7 +268,7 @@ const COPY = {
         phoneMethod: "电话",
         required: "此栏位为必填。",
         invalidEmail: "请输入有效的电邮地址。",
-        invalidPhone: "电话必须是有效的尼泊尔或香港号码。",
+        invalidPhone: "电话必须是 +977-XXXXXXXXXX 或 +852-XXXXXXXX 格式",
         invalidBudget: "请输入有效的预算金额。",
         invalidOtp: "请输入验证码。",
         invalidServiceType: "服务类型无效。",
@@ -283,16 +284,16 @@ const COPY = {
         ],
         payments: [
             {
-                value: "card / cheque",
-                label: "银行卡 / 支票",
+                value: "Debit / Credit Card",
+                label: "借记卡 / 信用卡",
             },
             {
-                value: "bank deposit / transfer",
-                label: "银行存款 / 转账",
+                value: "Online Transfer / Payment",
+                label: "网上转账 / 在线支付",
             },
             {
-                value: "online transfer / credit card",
-                label: "网上转账 / 信用卡",
+                value: "Cash",
+                label: "现金",
             },
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
@@ -359,21 +360,22 @@ function inputClass(hasError) {
     ].join(" ");
 }
 
-function normalizePhone(value) {
+// Format phone to match backend exactly
+function formatPhone(value) {
     const raw = value.trim();
     const digits = raw.replace(/\D/g, "");
 
-    // Nepal local number: 10 digits -> +977XXXXXXXXXX
-    if (digits.length === 10) {
+    // Nepal: 10 digits -> +977-XXXXXXXXXX
+    if (digits.length === 10 && digits.startsWith("9")) {
         return `+977-${digits}`;
     }
 
-    // Hong Kong local number: 8 digits -> +852XXXXXXXX
+    // Hong Kong: 8 digits -> +852-XXXXXXXX
     if (digits.length === 8) {
         return `+852-${digits}`;
     }
 
-    // Already typed with country code
+    // Already has country code
     if (digits.startsWith("977") && digits.length === 13) {
         return `+977-${digits.slice(3)}`;
     }
@@ -385,13 +387,9 @@ function normalizePhone(value) {
     return raw;
 }
 
-function handlePhoneBlur(name, value, setForm) {
-    const formatted = normalizePhone(value);
-
-    setForm((prev) => ({
-        ...prev,
-        [name]: formatted,
-    }));
+function validatePhone(value) {
+    if (!value || value.trim() === "") return true; // Empty is allowed
+    return PHONE_REGEX.test(value);
 }
 
 export default function ServiceRequestForm({
@@ -538,6 +536,29 @@ export default function ServiceRequestForm({
         setBanner({ type: "", text: "" });
     };
 
+    const handlePhoneBlur = () => {
+        if (form.phone && form.phone.trim()) {
+            const formatted = formatPhone(form.phone);
+
+            if (formatted !== form.phone) {
+                setForm((prev) => ({
+                    ...prev,
+                    phone: formatted,
+                }));
+            }
+
+            // Validate phone format if not empty
+            if (!validatePhone(formatted)) {
+                setErrors((prev) => ({ ...prev, phone: t.invalidPhone }));
+            } else {
+                setErrors((prev) => ({ ...prev, phone: "" }));
+            }
+        } else {
+            // Clear phone error if empty (since it's optional)
+            setErrors((prev) => ({ ...prev, phone: "" }));
+        }
+    };
+
     const validate = () => {
         const nextErrors = {};
 
@@ -547,6 +568,8 @@ export default function ServiceRequestForm({
 
         if (!form.displayName.trim()) {
             nextErrors.displayName = t.required;
+        } else if (form.displayName.trim().length < 2 || form.displayName.trim().length > 100) {
+            nextErrors.displayName = "Display name must be between 2 and 100 characters";
         }
 
         if (!form.email.trim()) {
@@ -555,30 +578,36 @@ export default function ServiceRequestForm({
             nextErrors.email = t.invalidEmail;
         }
 
-        if (
-            form.phone.trim() &&
-            !/^(\+977[- ]?\d{10}|\+852[- ]?\d{8}|\d{10}|\d{8})$/.test(form.phone.trim())
-        ) {
-            nextErrors.phone = t.invalidPhone;
+        // Phone validation based on verification method
+        if (form.verificationMethod === "phone") {
+            // Phone is required when verification method is phone
+            if (!form.phone.trim()) {
+                nextErrors.phone = t.required;
+            } else if (!validatePhone(form.phone)) {
+                nextErrors.phone = t.invalidPhone;
+            }
+        } else if (form.phone && form.phone.trim()) {
+            // If phone is provided (optional), validate format
+            if (!validatePhone(form.phone)) {
+                nextErrors.phone = t.invalidPhone;
+            }
         }
 
         if (!form.address.trim()) {
             nextErrors.address = t.required;
+        } else if (form.address.trim().length < 2 || form.address.trim().length > 255) {
+            nextErrors.address = "Address must be between 2 and 255 characters";
         }
 
         if (!form.workDesc.trim()) {
             nextErrors.workDesc = t.required;
+        } else if (form.workDesc.trim().length < 5 || form.workDesc.trim().length > 500) {
+            nextErrors.workDesc = "Work description must be between 5 and 500 characters";
         }
 
-        if (
-            form.budget === "" ||
-            form.budget === null ||
-            form.budget === undefined
-        ) {
-            nextErrors.budget = t.required;
-        } else {
+        // Budget is optional - only validate if a value is provided
+        if (form.budget !== "" && form.budget !== null && form.budget !== undefined) {
             const budgetValue = Number(form.budget);
-
             if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
                 nextErrors.budget = t.invalidBudget;
             }
@@ -590,10 +619,6 @@ export default function ServiceRequestForm({
 
         if (!form.paymentMethod) {
             nextErrors.paymentMethod = t.required;
-        }
-
-        if (form.verificationMethod === "phone" && !form.phone.trim()) {
-            nextErrors.phone = t.required;
         }
 
         setErrors(nextErrors);
@@ -637,11 +662,14 @@ export default function ServiceRequestForm({
                 serviceType: normalizedServiceType,
                 displayName: form.displayName.trim(),
                 email: form.email.trim().toLowerCase(),
-                phone: form.phone.trim(),
+                phone: form.phone.trim() || null, // Send null if empty
                 address: form.address.trim(),
                 workDesc: form.workDesc.trim(),
-                budget: Number(form.budget),
-                currency: form.currency.toLowerCase(),
+                // Only include budget if it has a value, otherwise send null
+                budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
+                    ? Number(form.budget)
+                    : null,
+                currency: form.currency.toLowerCase(), // Must be lowercase
                 projectTime: form.projectTime,
                 paymentMethod: form.paymentMethod,
                 verificationMethod: form.verificationMethod,
@@ -842,18 +870,17 @@ export default function ServiceRequestForm({
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-
                                 <Field
                                     label={t.phone}
                                     icon={Phone}
                                     error={errors.phone}
-                                    required={false}
+                                    required={form.verificationMethod === "phone"}
                                 >
                                     <input
                                         name="phone"
                                         value={form.phone}
                                         onChange={handleChange}
-                                        onBlur={(e) => handlePhoneBlur("phone", e.target.value, setForm)}
+                                        onBlur={handlePhoneBlur}
                                         placeholder={t.placeholders.phone}
                                         className={`${inputClass(!!errors.phone)} h-12`}
                                     />
@@ -915,6 +942,7 @@ export default function ServiceRequestForm({
                                 label={t.budget}
                                 icon={BadgeDollarSign}
                                 error={errors.budget}
+                                required={false}
                             >
                                 <div className="grid grid-cols-[1fr_110px] overflow-hidden rounded-2xl">
                                     <input
@@ -1026,7 +1054,7 @@ export default function ServiceRequestForm({
                                         {
                                             value: "phone",
                                             label: t.phoneMethod,
-                                            disabled: !form.phone.trim(),
+                                            disabled: !form.phone.trim() || !!errors.phone,
                                             helper:
                                                 form.phone.trim() ||
                                                 t.placeholders.phone,

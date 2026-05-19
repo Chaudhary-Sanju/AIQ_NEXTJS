@@ -28,7 +28,8 @@ const ALLOWED_SERVICE_TYPES = [
     "home-office-services",
 ];
 
-const PHONE_REGEX = /^(\+977[- ]?\d{10}|\+852[- ]?\d{8})$/;
+// Updated regex to match backend exactly: +977-XXXXXXXXXX or +852-XXXXXXXX
+const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
 
 const COPY = {
     en: {
@@ -77,8 +78,7 @@ const COPY = {
         phoneMethod: "Phone",
         required: "This field is required.",
         invalidEmail: "Please enter a valid email address.",
-        invalidPhone:
-            "Phone must be a valid Nepal (9XXXXXXXXX) or Hong Kong (5XXXXXXX) number.",
+        invalidPhone: "Phone must be in format +977-XXXXXXXXXX or +852-XXXXXXXX",
         invalidBudget: "Please enter a valid budget amount.",
         invalidOtp: "Please enter the OTP code.",
         invalidServiceType: "Invalid service type.",
@@ -91,14 +91,17 @@ const COPY = {
             { value: "flexible", label: "Flexible" },
         ],
         payments: [
-            { value: "card / cheque", label: "Card / Cheque" },
             {
-                value: "bank deposit / transfer",
-                label: "Bank Deposit / Transfer",
+                value: "Debit / Credit Card",
+                label: "Debit / Credit Card",
             },
             {
-                value: "online transfer / credit card",
-                label: "Online Transfer / Credit Card",
+                value: "Online Transfer / Payment",
+                label: "Online Transfer / Payment",
+            },
+            {
+                value: "Cash",
+                label: "Cash",
             },
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
@@ -152,8 +155,7 @@ const COPY = {
         phoneMethod: "फोन",
         required: "यो फिल्ड आवश्यक छ।",
         invalidEmail: "कृपया मान्य इमेल लेख्नुहोस्।",
-        invalidPhone:
-            "फोन नम्बर 9XXXXXXXXX वा 5XXXXXXX ढाँचामा हुनुपर्छ।",
+        invalidPhone: "फोन +977-XXXXXXXXXX वा +852-XXXXXXXX ढाँचामा हुनुपर्छ।",
         invalidBudget: "कृपया मान्य बजेट लेख्नुहोस्।",
         invalidOtp: "कृपया OTP कोड लेख्नुहोस्।",
         invalidServiceType: "अवैध सेवा प्रकार।",
@@ -166,14 +168,17 @@ const COPY = {
             { value: "flexible", label: "लचिलो" },
         ],
         payments: [
-            { value: "card / cheque", label: "कार्ड / चेक" },
             {
-                value: "bank deposit / transfer",
-                label: "बैंक जम्मा / ट्रान्सफर",
+                value: "Debit / Credit Card",
+                label: "डेबिट / क्रेडिट कार्ड",
             },
             {
-                value: "online transfer / credit card",
-                label: "अनलाइन ट्रान्सफर / क्रेडिट कार्ड",
+                value: "Online Transfer / Payment",
+                label: "अनलाइन ट्रान्सफर / भुक्तानी",
+            },
+            {
+                value: "Cash",
+                label: "नगद",
             },
         ],
         currencies: ["NPR", "HKD", "USD", "YUAN", "YEN"],
@@ -224,7 +229,7 @@ const COPY = {
         phoneMethod: "电话",
         required: "此栏位为必填。",
         invalidEmail: "请输入有效的电邮地址。",
-        invalidPhone: "电话必须是有效的尼泊尔或香港号码。",
+        invalidPhone: "电话必须是 +977-XXXXXXXXXX 或 +852-XXXXXXXX 格式",
         invalidBudget: "请输入有效的预算金额。",
         invalidOtp: "请输入验证码。",
         invalidServiceType: "服务类型无效。",
@@ -237,14 +242,17 @@ const COPY = {
             { value: "flexible", label: "可灵活安排" },
         ],
         payments: [
-            { value: "card / cheque", label: "银行卡 / 支票" },
             {
-                value: "bank deposit / transfer",
-                label: "银行存款 / 转账",
+                value: "Debit / Credit Card",
+                label: "借记卡 / 信用卡",
             },
             {
-                value: "online transfer / credit card",
-                label: "网上转账 / 信用卡",
+                value: "Online Transfer / Payment",
+                label: "网上转账 / 在线支付",
+            },
+            {
+                value: "Cash",
+                label: "现金",
             },
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
@@ -308,22 +316,22 @@ function inputClass(hasError) {
     ].join(" ");
 }
 
-
-function normalizePhone(value) {
+// Format phone to match backend exactly
+function formatPhone(value) {
     const raw = value.trim();
     const digits = raw.replace(/\D/g, "");
 
-    // Nepal local number: 10 digits -> +977XXXXXXXXXX
-    if (digits.length === 10) {
+    // Nepal: 10 digits -> +977-XXXXXXXXXX
+    if (digits.length === 10 && digits.startsWith("9")) {
         return `+977-${digits}`;
     }
 
-    // Hong Kong local number: 8 digits -> +852XXXXXXXX
+    // Hong Kong: 8 digits -> +852-XXXXXXXX
     if (digits.length === 8) {
         return `+852-${digits}`;
     }
 
-    // Already typed with country code
+    // Already has country code
     if (digits.startsWith("977") && digits.length === 13) {
         return `+977-${digits.slice(3)}`;
     }
@@ -335,13 +343,8 @@ function normalizePhone(value) {
     return raw;
 }
 
-function handlePhoneBlur(name, value, setForm) {
-    const formatted = normalizePhone(value);
-
-    setForm((prev) => ({
-        ...prev,
-        [name]: formatted,
-    }));
+function validatePhone(value) {
+    return PHONE_REGEX.test(value);
 }
 
 export default function PerfectServiceRequestForm({
@@ -487,11 +490,31 @@ export default function PerfectServiceRequestForm({
         setBanner({ type: "", text: "" });
     };
 
+    const handlePhoneBlur = () => {
+        const formatted = formatPhone(form.phone);
+
+        if (formatted !== form.phone) {
+            setForm((prev) => ({
+                ...prev,
+                phone: formatted,
+            }));
+        }
+
+        // Validate phone format
+        if (form.phone && !validatePhone(formatted)) {
+            setErrors((prev) => ({ ...prev, phone: t.invalidPhone }));
+        } else {
+            setErrors((prev) => ({ ...prev, phone: "" }));
+        }
+    };
+
     const validate = () => {
         const nextErrors = {};
 
         if (!form.displayName.trim()) {
             nextErrors.displayName = t.required;
+        } else if (form.displayName.trim().length < 2 || form.displayName.trim().length > 100) {
+            nextErrors.displayName = "Display name must be between 2 and 100 characters";
         }
 
         if (!form.email.trim()) {
@@ -500,30 +523,28 @@ export default function PerfectServiceRequestForm({
             nextErrors.email = t.invalidEmail;
         }
 
-        if (
-            form.phone.trim() &&
-            !/^(\+977[- ]?\d{10}|\+852[- ]?\d{8}|\d{10}|\d{8})$/.test(form.phone.trim())
-        ) {
+        // Phone is now required by backend
+        if (!form.phone.trim()) {
+            nextErrors.phone = t.required;
+        } else if (!validatePhone(form.phone)) {
             nextErrors.phone = t.invalidPhone;
         }
 
         if (!form.address.trim()) {
             nextErrors.address = t.required;
+        } else if (form.address.trim().length < 2 || form.address.trim().length > 255) {
+            nextErrors.address = "Address must be between 2 and 255 characters";
         }
 
         if (!form.workDesc.trim()) {
             nextErrors.workDesc = t.required;
+        } else if (form.workDesc.trim().length < 5 || form.workDesc.trim().length > 500) {
+            nextErrors.workDesc = "Work description must be between 5 and 500 characters";
         }
 
-        if (
-            form.budget === "" ||
-            form.budget === null ||
-            form.budget === undefined
-        ) {
-            nextErrors.budget = t.required;
-        } else {
+        // Budget is optional, but if provided must be positive number
+        if (form.budget !== "" && form.budget !== null && form.budget !== undefined) {
             const budgetValue = Number(form.budget);
-
             if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
                 nextErrors.budget = t.invalidBudget;
             }
@@ -537,8 +558,9 @@ export default function PerfectServiceRequestForm({
             nextErrors.paymentMethod = t.required;
         }
 
-        if (form.verificationMethod === "phone" && !form.phone.trim()) {
-            nextErrors.phone = t.required;
+        // Phone verification requires phone to be valid (already checked above)
+        if (form.verificationMethod === "phone" && !validatePhone(form.phone)) {
+            nextErrors.phone = t.invalidPhone;
         }
 
         setErrors(nextErrors);
@@ -578,14 +600,17 @@ export default function PerfectServiceRequestForm({
                 return;
             }
 
+            // Prepare payload matching backend validator
             const payload = {
                 displayName: form.displayName.trim(),
                 email: form.email.trim().toLowerCase(),
-                phone: form.phone.trim(),
+                phone: form.phone.trim(), // Now required and must match regex
                 address: form.address.trim(),
                 workDesc: form.workDesc.trim(),
-                budget: Number(form.budget),
-                currency: form.currency.toLowerCase(),
+                budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
+                    ? Number(form.budget)
+                    : null, // Send null for empty budget
+                currency: form.currency.toLowerCase(), // Must be lowercase (npr, hkd, usd, yuan, yen)
                 projectTime: form.projectTime,
                 paymentMethod: form.paymentMethod,
                 verificationMethod: form.verificationMethod,
@@ -753,18 +778,17 @@ export default function PerfectServiceRequestForm({
                             </Field>
 
                             <div className="grid gap-5 md:grid-cols-2">
-
                                 <Field
                                     label={t.phone}
                                     icon={Phone}
                                     error={errors.phone}
-                                    required={false}
+                                    required={true} // Now required
                                 >
                                     <input
                                         name="phone"
                                         value={form.phone}
                                         onChange={handleChange}
-                                        onBlur={(e) => handlePhoneBlur("phone", e.target.value, setForm)}
+                                        onBlur={handlePhoneBlur}
                                         placeholder={t.placeholders.phone}
                                         className={`${inputClass(!!errors.phone)} h-12`}
                                     />
@@ -826,6 +850,7 @@ export default function PerfectServiceRequestForm({
                                 label={t.budget}
                                 icon={BadgeDollarSign}
                                 error={errors.budget}
+                                required={false}
                             >
                                 <div className="grid grid-cols-[1fr_110px] overflow-hidden rounded-2xl">
                                     <input
@@ -930,7 +955,7 @@ export default function PerfectServiceRequestForm({
                                         {
                                             value: "phone",
                                             label: t.phoneMethod,
-                                            disabled: !form.phone.trim(),
+                                            disabled: !form.phone.trim() || !!errors.phone,
                                             helper:
                                                 form.phone.trim() ||
                                                 t.placeholders.phone,

@@ -43,12 +43,12 @@ const EXPRESS_LINKS = [
     {
         key: "hkToNepal",
         label: "HK to Kathmandu",
-        href: "/ai-express/hk-to-nepal#pickup-form",
+        href: "/ai-express/hk-to-kathmandu#pickup-form",
     },
     {
         key: "nepalToHk",
         label: "Kathmandu to HK",
-        href: "/ai-express/nepal-to-hk#pickup-form",
+        href: "/ai-express/kathmandu-to-hk#pickup-form",
     },
 ];
 

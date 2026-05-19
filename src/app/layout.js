@@ -74,7 +74,7 @@ export default function RootLayout({ children }) {
                     </CartProvider>
                 </Providers>
 
-                <script
+                {/* <script
                     id="tawk-to"
                     strategy="afterInteractive"
                     dangerouslySetInnerHTML={{
@@ -107,7 +107,7 @@ export default function RootLayout({ children }) {
                         })();
     `,
                     }}
-                />
+                /> */}
             </body>
         </html>
     );
