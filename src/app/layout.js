@@ -2,6 +2,7 @@ import HashScrollHandler from "@/components/clientComponents/dashboard/HashScrol
 import "./globals.css";
 import Providers from "./providers";
 import { CartProvider } from "@/contexts/CartContext";
+import Script from "next/script";
 
 export async function generateMetadata() {
     return {
@@ -74,40 +75,22 @@ export default function RootLayout({ children }) {
                     </CartProvider>
                 </Providers>
 
-                {/* <script
-                    id="tawk-to"
-                    strategy="afterInteractive"
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                        var Tawk_API = Tawk_API || {};
-                        var Tawk_LoadStart = new Date();
+                <Script id="tawk-to" strategy="afterInteractive">
+                    {`
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    (function () {
+      var s1 = document.createElement("script"),
+          s0 = document.getElementsByTagName("script")[0];
 
-                        // Force LEFT position
-                        Tawk_API.customStyle = {
-                            visibility: {
-                            desktop: {
-                                position: 'bl'   // bottom-left
-                            },
-                            mobile: {
-                                position: 'bl'
-                            }
-                            }
-                        };
+      s1.async = true;
+      s1.src = "https://embed.tawk.to/5e8203f635bcbb0c9aabe475/1jp1f0aah";
+      s1.charset = "UTF-8";
+      s1.setAttribute("crossorigin", "*");
 
-                        (function(){
-                            var s1 = document.createElement("script"),
-                                s0 = document.getElementsByTagName("script")[0];
-
-                            s1.async = true;
-                            s1.src = 'https://embed.tawk.to/6a06d1a9e57a6a1c342a4585/1jola605g';
-                            s1.charset = 'UTF-8';
-                            s1.setAttribute('crossorigin','*');
-
-                            s0.parentNode.insertBefore(s1, s0);
-                        })();
-    `,
-                    }}
-                /> */}
+      s0.parentNode.insertBefore(s1, s0);
+    })();
+  `}
+                </Script>
             </body>
         </html>
     );
