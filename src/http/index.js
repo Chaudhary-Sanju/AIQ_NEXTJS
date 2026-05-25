@@ -2,6 +2,56 @@ import axios from "axios";
 import { toast } from "sonner";
 import { fromStorage } from "@/lib/index";
 
+const toMessage = (value, fallback = "Something went wrong.") => {
+    if (!value) return "";
+
+    if (typeof value === "string") return value;
+
+    if (typeof value === "number" || typeof value === "boolean") {
+        return String(value);
+    }
+
+    if (Array.isArray(value)) {
+        const message = value
+            .map((item) => toMessage(item, ""))
+            .filter(Boolean)
+            .join(", ");
+
+        return message || fallback;
+    }
+
+    if (typeof value === "object") {
+        return (
+            value.errorDescription ||
+            value.message ||
+            value.error ||
+            value.errorCode ||
+            value.description ||
+            JSON.stringify(value)
+        );
+    }
+
+    return fallback;
+};
+
+export const getAxiosErrorMessage = (err, fallback = "Something went wrong.") => {
+    const data = err?.response?.data;
+
+    if (!data) {
+        return toMessage(err?.message, fallback) || fallback;
+    }
+
+    return (
+        toMessage(data.message, "") ||
+        toMessage(data.error, "") ||
+        toMessage(data.errors, "") ||
+        toMessage(data.errorDescription, "") ||
+        toMessage(data.errorCode, "") ||
+        toMessage(data, fallback) ||
+        fallback
+    );
+};
+
 const http = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
@@ -10,13 +60,12 @@ const http = axios.create({
     },
 });
 
-
 http.interceptors.request.use(
     (config) => {
         const token = fromStorage("hkmandu");
 
         if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
+            config.headers.Authorization = `Bearer ${token}`;
         }
 
         return config;
@@ -24,34 +73,33 @@ http.interceptors.request.use(
     (err) => Promise.reject(err)
 );
 
-
 http.interceptors.response.use(
     (resp) => {
-        if ("success" in resp.data) {
-            toast.success(resp.data.success);
+        const successMessage = resp?.data?.success;
+
+        if (typeof successMessage === "string" && successMessage.trim()) {
+            toast.success(successMessage);
         }
+
         return resp;
     },
     (err) => {
         if (err.response) {
-            const { status, data } = err.response;
+            const { status } = err.response;
 
             if (status === 401) {
-                console.log("Auth error:", data);
+                console.log("Auth error:", getAxiosErrorMessage(err, "Unauthorized."));
                 return Promise.reject(err);
             }
 
-            if ("error" in data) {
-                if (typeof data.error === "string") {
-                    toast.error(data.error);
-                } else {
-                    for (let k in data.error) {
-                        toast.error(data.error[k]);
-                    }
-                }
+            const message = getAxiosErrorMessage(err, "");
+
+            if (typeof message === "string" && message.trim()) {
+                toast.error(message);
             }
         } else {
-            console.log("Network/Unknown error:", err);
+            console.log("Network/Unknown error:", err?.message || err);
+            toast.error("Network error. Please try again.");
         }
 
         return Promise.reject(err);
