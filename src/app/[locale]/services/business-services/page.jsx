@@ -3,6 +3,7 @@ import { getDictionary, locales } from "@/i18n/getDictionary";
 import FAQSection from "@/components/clientComponents/FAQSection";
 import DynamicPerfectServicesHeroSection from "@/components/clientComponents/DynamicPerfectServicesHeroSection";
 import PerfectServiceRequestForm from "@/components/clientComponents/PerfectServiceRequestForm";
+import ComingSoonBanner from "@/components/clientComponents/ComingSoonBanner";
 
 export async function generateMetadata() {
     return {
@@ -77,10 +78,15 @@ export default async function Page({ params }) {
                 imageName="business.jpg"
             />
 
-            <PerfectServiceRequestForm
+            {/* <PerfectServiceRequestForm
                 locale={locale}
                 serviceType="business-services"
                 title={dict.perfectServiceForm["business-services"].title}
+            /> */}
+
+            <ComingSoonBanner
+                locale={locale}
+                serviceType="business-services"
             />
 
             <FAQSection

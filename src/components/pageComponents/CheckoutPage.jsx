@@ -45,6 +45,18 @@ const UI = {
     address: { en: "Address", ne: "ठेगाना", zh: "地址" },
     landmark: { en: "Landmark", ne: "नजिकको स्थान", zh: "地標" },
 
+    deliveryType: { en: "Delivery Type", ne: "डेलिभरी प्रकार", zh: "送貨類型" },
+    standardDelivery: { en: "Standard Delivery", ne: "सामान्य डेलिभरी", zh: "標準送貨" },
+    expressDelivery: { en: "Express Delivery", ne: "एक्सप्रेस डेलिभरी", zh: "特快送貨" },
+    regularDelivery: { en: "Regular delivery", ne: "सामान्य डेलिभरी", zh: "標準送貨" },
+    fasterDelivery: { en: "Faster delivery", ne: "छिटो डेलिभरी", zh: "更快送貨" },
+    freeAbove: { en: "Free above", ne: "यो भन्दा माथि नि:शुल्क", zh: "滿額免費" },
+    codUnavailable: {
+        en: "Cash on Delivery is not available for this location.",
+        ne: "यो स्थानमा Cash on Delivery उपलब्ध छैन।",
+        zh: "此地區不支援貨到付款。",
+    },
+
     selectCity: { en: "Select City/District", ne: "शहर/जिल्ला छान्नुहोस्", zh: "選擇城市/地區" },
     coupon: { en: "Have a coupon code?", ne: "कुपन कोड छ?", zh: "有優惠券代碼？" },
     apply: { en: "Apply", ne: "लागू गर्नुहोस्", zh: "使用" },
@@ -225,24 +237,6 @@ const safeToastError = (value, fallback = "Something went wrong.") => {
     toast.error(getApiErrorMessage(value, fallback));
 };
 
-const safeToastSuccess = (value, fallback = "Success") => {
-    if (typeof value === "string") {
-        toast.success(value);
-        return;
-    }
-
-    toast.success(getApiErrorMessage(value, fallback));
-};
-
-const safeToastInfo = (value, fallback = "Info") => {
-    if (typeof value === "string") {
-        toast.info(value);
-        return;
-    }
-
-    toast.info(getApiErrorMessage(value, fallback));
-};
-
 const getProduct = (item) => item?.productId || {};
 const getProductId = (item) => getProduct(item)?._id || item?.productId;
 const getQty = (item) => Number(item?.quantity || item?.qty || 1);
@@ -356,6 +350,7 @@ function CheckoutForm({ locale = "en" }) {
         address: "",
         landmark: "",
         paymentMethod: "payme",
+        deliveryType: "standard",
     });
 
     const cartItems = cart?.items || [];
@@ -364,6 +359,22 @@ function CheckoutForm({ locale = "en" }) {
     const selectedZone = useMemo(() => {
         return zones.find((zone) => zone.name === form.cityDistrict);
     }, [zones, form.cityDistrict]);
+
+    const getStandardDeliveryCharge = (zone) => {
+        return Number(zone?.standardDeliveryCharge ?? zone?.deliveryCharge ?? 0);
+    };
+
+    const getExpressDeliveryCharge = (zone) => {
+        return Number(zone?.expressDeliveryCharge ?? zone?.deliveryCharge ?? 0);
+    };
+
+    const getFreeDeliveryThreshold = (zone) => {
+        return Number(zone?.freeDeliveryThreshold ?? 0);
+    };
+
+    const isCodAvailable = (zone) => {
+        return Boolean(zone?.codAvailable);
+    };
 
     const subTotal = useMemo(() => {
         if (cart?.subTotal !== undefined) return Number(cart.subTotal || 0);
@@ -376,12 +387,16 @@ function CheckoutForm({ locale = "en" }) {
     const deliveryCharge = useMemo(() => {
         if (!selectedZone) return 0;
 
-        const threshold = Number(selectedZone?.freeDeliveryThreshold || 0);
+        const threshold = getFreeDeliveryThreshold(selectedZone);
 
         if (threshold > 0 && subTotal >= threshold) return 0;
 
-        return Number(selectedZone?.deliveryCharge || 0);
-    }, [selectedZone, subTotal]);
+        if (form.deliveryType === "express") {
+            return getExpressDeliveryCharge(selectedZone);
+        }
+
+        return getStandardDeliveryCharge(selectedZone);
+    }, [selectedZone, subTotal, form.deliveryType]);
 
     const discountAmount = Number(appliedCoupon?.discountAmount || 0);
     const total = Math.max(subTotal + deliveryCharge - discountAmount, 0);
@@ -453,6 +468,27 @@ function CheckoutForm({ locale = "en" }) {
     }, [isLoggedIn]);
 
     useEffect(() => {
+        if (!selectedZone) return;
+
+        if (!isLoggedIn) {
+            setForm((prev) => ({
+                ...prev,
+                paymentMethod: "payme",
+            }));
+            return;
+        }
+
+        if (!isCodAvailable(selectedZone) && form.paymentMethod === "cod") {
+            setForm((prev) => ({
+                ...prev,
+                paymentMethod: "payme",
+            }));
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedZone, isLoggedIn]);
+
+    useEffect(() => {
         setAppliedCoupon(null);
     }, [subTotal]);
 
@@ -476,9 +512,6 @@ function CheckoutForm({ locale = "en" }) {
             setCurrentOrderId(pending.orderId);
             setCurrentOrderNumber(pending.orderNumber || null);
             setPaymeStatus("PENDING");
-
-            // Manual testing mode:
-            // No auto polling after refresh.
         } catch {
             sessionStorage.removeItem("hkmandu_pending_payme");
         }
@@ -512,7 +545,16 @@ function CheckoutForm({ locale = "en" }) {
         try {
             setZoneLoading(true);
             const res = await http.get("/frontend/martDelivery/");
-            setZones(res?.data?.data || []);
+
+            const data = res?.data?.data;
+
+            if (Array.isArray(data)) {
+                setZones(data);
+            } else if (Array.isArray(data?.deliveryZone)) {
+                setZones(data.deliveryZone);
+            } else {
+                setZones([]);
+            }
         } catch (err) {
             safeToastError(err, "Failed to load delivery zones.");
         } finally {
@@ -521,7 +563,26 @@ function CheckoutForm({ locale = "en" }) {
     };
 
     const updateForm = (field, value) => {
-        setForm((prev) => ({ ...prev, [field]: value }));
+        setForm((prev) => {
+            const next = { ...prev, [field]: value };
+
+            if (field === "cityDistrict") {
+                next.deliveryType = "standard";
+
+                const zone = zones.find((item) => item.name === value);
+
+                if (!isLoggedIn) {
+                    next.paymentMethod = "payme";
+                } else if (zone && !isCodAvailable(zone)) {
+                    next.paymentMethod = "payme";
+                } else if (zone && isCodAvailable(zone)) {
+                    next.paymentMethod = prev.paymentMethod || "cod";
+                }
+            }
+
+            return next;
+        });
+
         setErrors((prev) => ({ ...prev, [field]: "" }));
     };
 
@@ -543,6 +604,18 @@ function CheckoutForm({ locale = "en" }) {
         if (!form.address.trim()) next.address = "Address is required";
         if (!selectedZone) next.cityDistrict = "Please select delivery zone";
         if (!cartItems.length) next.cart = "Cart is empty";
+
+        if (!["standard", "express"].includes(form.deliveryType)) {
+            next.deliveryType = "Please select valid delivery type.";
+        }
+
+        if (
+            selectedZone &&
+            form.paymentMethod === "cod" &&
+            !isCodAvailable(selectedZone)
+        ) {
+            next.paymentMethod = "Cash on Delivery is not available for this location.";
+        }
 
         if (!isLoggedIn && form.paymentMethod !== "payme") {
             next.paymentMethod = "Guest checkout supports PayMe only.";
@@ -897,15 +970,23 @@ function CheckoutForm({ locale = "en" }) {
                 address: form.address.trim(),
                 landmark: form.landmark.trim(),
                 cityDistrict: form.cityDistrict,
+
+                deliveryType: form.deliveryType,
+
                 deliveryZone: {
                     name: selectedZone.name,
+                    standardDeliveryCharge: getStandardDeliveryCharge(selectedZone),
+                    expressDeliveryCharge: getExpressDeliveryCharge(selectedZone),
                     deliveryCharge,
-                    estimatedDeliveryDays: selectedZone.estimatedDeliveryDays,
+                    freeDeliveryThreshold: getFreeDeliveryThreshold(selectedZone),
+                    codAvailable: isCodAvailable(selectedZone),
                 },
+
                 items: cartItems.map((item) => ({
                     productID: getProductId(item),
                     qty: getQty(item),
                 })),
+
                 coupon:
                     isLoggedIn && appliedCoupon
                         ? {
@@ -916,6 +997,7 @@ function CheckoutForm({ locale = "en" }) {
                             discountAmount: appliedCoupon.discountAmount,
                         }
                         : null,
+
                 discountAmount,
                 finalAmount: total,
                 paymentMethod: form.paymentMethod,
@@ -955,11 +1037,6 @@ function CheckoutForm({ locale = "en" }) {
                     orderId: checkoutId,
                     orderNumber: null,
                 });
-
-                // Manual testing mode:
-                // Do not auto-poll. Tester manually clicks:
-                // - Check Payment Status
-                // - Force Success Sandbox Payment
 
                 return;
             }
@@ -1185,9 +1262,65 @@ function CheckoutForm({ locale = "en" }) {
                             </Card>
 
                             <Card
+                                icon={<Truck className="h-5 w-5" />}
+                                title={t("deliveryType", locale)}
+                                index="03"
+                            >
+                                {!selectedZone ? (
+                                    <div className="rounded-2xl bg-orange-50 p-4 text-sm font-medium text-neutral-600">
+                                        {t("selectZoneInfo", locale)}
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-3 md:grid-cols-2">
+                                        <DeliveryOption
+                                            checked={form.deliveryType === "standard"}
+                                            label={t("standardDelivery", locale)}
+                                            price={
+                                                getFreeDeliveryThreshold(selectedZone) > 0 &&
+                                                    subTotal >= getFreeDeliveryThreshold(selectedZone)
+                                                    ? t("free", locale)
+                                                    : money(getStandardDeliveryCharge(selectedZone))
+                                            }
+                                            description={
+                                                getFreeDeliveryThreshold(selectedZone) > 0
+                                                    ? `${t("freeAbove", locale)} ${money(
+                                                        getFreeDeliveryThreshold(selectedZone)
+                                                    )}`
+                                                    : t("regularDelivery", locale)
+                                            }
+                                            onChange={() =>
+                                                updateForm("deliveryType", "standard")
+                                            }
+                                        />
+
+                                        <DeliveryOption
+                                            checked={form.deliveryType === "express"}
+                                            label={t("expressDelivery", locale)}
+                                            price={
+                                                getFreeDeliveryThreshold(selectedZone) > 0 &&
+                                                    subTotal >= getFreeDeliveryThreshold(selectedZone)
+                                                    ? t("free", locale)
+                                                    : money(getExpressDeliveryCharge(selectedZone))
+                                            }
+                                            description={t("fasterDelivery", locale)}
+                                            onChange={() =>
+                                                updateForm("deliveryType", "express")
+                                            }
+                                        />
+                                    </div>
+                                )}
+
+                                {errors.deliveryType && (
+                                    <p className="mt-2 text-xs text-red-500">
+                                        {errors.deliveryType}
+                                    </p>
+                                )}
+                            </Card>
+
+                            <Card
                                 icon={<CreditCard className="h-5 w-5" />}
                                 title={t("paymentMethods", locale)}
-                                index="03"
+                                index="04"
                             >
                                 {!selectedZone ? (
                                     <div className="rounded-2xl bg-orange-50 p-4 text-sm font-medium text-neutral-600">
@@ -1195,7 +1328,7 @@ function CheckoutForm({ locale = "en" }) {
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
-                                        {isLoggedIn && (
+                                        {isLoggedIn && isCodAvailable(selectedZone) && (
                                             <PaymentOption
                                                 checked={form.paymentMethod === "cod"}
                                                 label={t("cod", locale)}
@@ -1204,6 +1337,12 @@ function CheckoutForm({ locale = "en" }) {
                                                     updateForm("paymentMethod", "cod")
                                                 }
                                             />
+                                        )}
+
+                                        {isLoggedIn && !isCodAvailable(selectedZone) && (
+                                            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
+                                                {t("codUnavailable", locale)}
+                                            </div>
                                         )}
 
                                         <PaymentOption
@@ -1225,6 +1364,12 @@ function CheckoutForm({ locale = "en" }) {
                                             <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
                                                 {t("guestPaymeOnly", locale)}
                                             </div>
+                                        )}
+
+                                        {errors.paymentMethod && (
+                                            <p className="text-xs text-red-500">
+                                                {errors.paymentMethod}
+                                            </p>
                                         )}
                                     </div>
                                 )}
@@ -1346,7 +1491,12 @@ function CheckoutForm({ locale = "en" }) {
                                 />
 
                                 <SummaryRow
-                                    label={t("deliveryCharge", locale)}
+                                    label={`${t("deliveryCharge", locale)} ${selectedZone
+                                            ? form.deliveryType === "express"
+                                                ? `(${t("expressDelivery", locale)})`
+                                                : `(${t("standardDelivery", locale)})`
+                                            : ""
+                                        }`}
                                     value={
                                         !selectedZone
                                             ? "-"
@@ -1574,6 +1724,40 @@ function Input({
     );
 }
 
+function DeliveryOption({ checked, label, price, description, onChange }) {
+    return (
+        <label
+            className={[
+                "flex cursor-pointer items-start justify-between gap-4 rounded-2xl border bg-white p-4 transition",
+                checked
+                    ? "border-[#1a4b8f] bg-blue-50/40"
+                    : "border-orange-100 hover:border-orange-200 hover:bg-orange-50/40",
+            ].join(" ")}
+        >
+            <span className="min-w-0">
+                <span className="block text-sm font-bold text-neutral-900">
+                    {label}
+                </span>
+
+                <span className="mt-1 block text-xs font-medium text-neutral-500">
+                    {description}
+                </span>
+
+                <span className="mt-2 block text-sm font-bold text-[#1a4b8f]">
+                    {price}
+                </span>
+            </span>
+
+            <input
+                type="radio"
+                checked={checked}
+                onChange={onChange}
+                className="mt-1 accent-[#1a4b8f]"
+            />
+        </label>
+    );
+}
+
 function PaymentOption({ checked, label, icon, onChange }) {
     return (
         <label
@@ -1613,12 +1797,12 @@ function PaymentOption({ checked, label, icon, onChange }) {
 
 function SummaryRow({ label, value, danger = false }) {
     return (
-        <div className="flex items-center justify-between text-sm text-neutral-600">
-            <span>{label}</span>
+        <div className="flex items-center justify-between gap-4 text-sm text-neutral-600">
+            <span className="min-w-0">{label}</span>
 
             <span
                 className={[
-                    "font-bold",
+                    "shrink-0 font-bold",
                     danger ? "text-red-500" : "text-neutral-900",
                 ].join(" ")}
             >

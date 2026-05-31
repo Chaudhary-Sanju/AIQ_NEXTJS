@@ -7,7 +7,6 @@ import {
     BadgeCheck,
     BriefcaseBusiness,
     Calculator,
-    Home,
     Plane,
     Code2,
     Sparkles,
@@ -22,6 +21,11 @@ const serviceOrder = [
     "constructionRepairServices",
 ];
 
+const comingSoonServiceKeys = [
+    "businessServices",
+    "constructionRepairServices",
+];
+
 const translations = {
     en: {
         title: "R Services",
@@ -29,6 +33,7 @@ const translations = {
             "From business setup to digital solutions, travel support, finance, and home assistance — R Services brings trusted professional help closer to you, all through one simple platform.",
         badge: "Professional Services",
         explore: "Explore Service",
+        comingSoon: "Coming Soon",
         items: {
             businessServices: {
                 title: "Company Register & F&B License",
@@ -69,6 +74,7 @@ const translations = {
             "व्यवसाय सुरु गर्नेदेखि डिजिटल समाधान, यात्रा सहयोग, लेखा–वित्त र घर/अफिस सेवासम्म — R Services ले भरपर्दो व्यावसायिक सहयोग एउटै सरल प्लेटफर्ममा ल्याउँछ।",
         badge: "व्यावसायिक सेवाहरू",
         explore: "सेवा हेर्नुहोस्",
+        comingSoon: "चाँडै आउँदैछ",
         items: {
             businessServices: {
                 title: "कम्पनी दर्ता तथा F&B लाइसेन्स",
@@ -109,6 +115,7 @@ const translations = {
             "从公司设立到数字解决方案、旅游支持、财务管理及家居办公室服务，R服务将可信赖的专业支持整合到一个简单平台。",
         badge: "专业服务",
         explore: "查看服务",
+        comingSoon: "即將推出",
         items: {
             businessServices: {
                 title: "公司注册与餐饮牌照",
@@ -212,6 +219,7 @@ export default function PerfectServicesSection({ locale = "en" }) {
                         const config = serviceConfig[key];
                         const Icon = config.icon;
                         const isOrange = config.tone === "orange";
+                        const isComingSoon = comingSoonServiceKeys.includes(key);
 
                         return (
                             <Link
@@ -226,6 +234,12 @@ export default function PerfectServicesSection({ locale = "en" }) {
                                 <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-orange-100/70 blur-2xl transition group-hover:bg-orange-200/80" />
                                 <div className="pointer-events-none absolute -bottom-12 -left-12 h-32 w-32 rounded-full bg-blue-100/60 blur-2xl transition group-hover:bg-blue-200/70" />
 
+                                {isComingSoon && (
+                                    <div className="absolute right-3 top-3 z-20 rounded-full bg-orange-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-md">
+                                        {t.comingSoon}
+                                    </div>
+                                )}
+
                                 <div className="relative flex min-h-[230px] flex-col">
                                     <div className="flex items-start justify-between gap-3">
                                         <div
@@ -239,9 +253,11 @@ export default function PerfectServicesSection({ locale = "en" }) {
                                             <Icon className="h-6 w-6" />
                                         </div>
 
-                                        <span className="text-2xl leading-none opacity-80 transition group-hover:scale-110">
-                                            {config.emoji}
-                                        </span>
+                                        {!isComingSoon && (
+                                            <span className="text-2xl leading-none opacity-80 transition group-hover:scale-110">
+                                                {config.emoji}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <h3 className="mt-5 text-[15px] font-bold leading-6 text-neutral-950 sm:text-base">
