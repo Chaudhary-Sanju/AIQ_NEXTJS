@@ -11,6 +11,7 @@ import {
     CreditCard,
     Loader2,
     Lock,
+    ImagePlus,
     Mail,
     MapPin,
     Phone,
@@ -18,12 +19,13 @@ import {
     ShieldCheck,
     Sparkles,
     User,
+    X,
 } from "lucide-react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { useDispatch, useSelector } from "react-redux";
 import http from "@/http";
 import { fromStorage, clearStorage } from "@/lib";
-import { setUser, clearUser } from "@/store/userSlice"; // Adjust import path as needed
+import { setUser, clearUser } from "@/store/userSlice";
 
 const ALLOWED_SERVICE_TYPES = [
     "software-development",
@@ -33,8 +35,16 @@ const ALLOWED_SERVICE_TYPES = [
     "home-office-services",
 ];
 
-// Updated regex to match backend exactly: +977-XXXXXXXXXX or +852-XXXXXXXX
 const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
+
+const MAX_SERVICE_IMAGES = 3;
+const MAX_SERVICE_IMAGE_SIZE = 3 * 1024 * 1024;
+const ALLOWED_SERVICE_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+];
 
 const COPY = {
     en: {
@@ -60,6 +70,14 @@ const COPY = {
         phone: "Phone",
         address: "Address",
         workDesc: "Work Description",
+        images: "Reference Images",
+        imageHelp:
+            "Optional. Upload up to 3 images. Each image must be 3MB or smaller.",
+        imageButton: "Choose Images",
+        imageCount: "images selected",
+        invalidImageType: "Only JPG, PNG, and WEBP images are allowed.",
+        invalidImageSize: "Each image must be 3MB or smaller.",
+        invalidImageCount: "You can upload maximum 3 images.",
         budget: "Budget",
         projectTime: "Project Time",
         paymentMethod: "Payment Method",
@@ -124,7 +142,8 @@ const COPY = {
         ],
         currencies: ["HKD", "NPR", "USD", "YUAN", "YEN"],
         captchaRequired: "Please complete reCAPTCHA verification.",
-        loggedInMessage: "You're logged in. Your request will be submitted instantly without OTP verification.",
+        loggedInMessage:
+            "You're logged in. Your request will be submitted instantly without OTP verification.",
     },
 
     ne: {
@@ -150,6 +169,14 @@ const COPY = {
         phone: "फोन",
         address: "ठेगाना",
         workDesc: "कामको विवरण",
+        images: "सन्दर्भ फोटोहरू",
+        imageHelp:
+            "वैकल्पिक। बढीमा ३ फोटो अपलोड गर्नुहोस्। प्रत्येक फोटो ३MB वा कम हुनुपर्छ।",
+        imageButton: "फोटो छान्नुहोस्",
+        imageCount: "फोटो छानिएको छ",
+        invalidImageType: "JPG, PNG, र WEBP फोटो मात्र अनुमति छ।",
+        invalidImageSize: "प्रत्येक फोटो ३MB वा कम हुनुपर्छ।",
+        invalidImageCount: "बढीमा ३ फोटो मात्र अपलोड गर्न मिल्छ।",
         budget: "बजेट",
         projectTime: "परियोजनाको समय",
         paymentMethod: "भुक्तानी विधि",
@@ -214,7 +241,8 @@ const COPY = {
         ],
         currencies: ["NPR", "HKD", "USD", "YUAN", "YEN"],
         captchaRequired: "कृपया reCAPTCHA प्रमाणिकरण पूरा गर्नुहोस्।",
-        loggedInMessage: "तपाईं लग इन हुनुहुन्छ। तपाईंको अनुरोध OTP प्रमाणीकरण बिना तुरुन्तै पेश हुनेछ।",
+        loggedInMessage:
+            "तपाईं लग इन हुनुहुन्छ। तपाईंको अनुरोध OTP प्रमाणीकरण बिना तुरुन्तै पेश हुनेछ।",
     },
 
     zh: {
@@ -238,6 +266,13 @@ const COPY = {
         phone: "电话",
         address: "地址",
         workDesc: "需求描述",
+        images: "参考图片",
+        imageHelp: "可选。最多上传 3 张图片，每张图片必须小于或等于 3MB。",
+        imageButton: "选择图片",
+        imageCount: "张图片已选择",
+        invalidImageType: "只允许 JPG、PNG 和 WEBP 图片。",
+        invalidImageSize: "每张图片必须小于或等于 3MB。",
+        invalidImageCount: "最多只能上传 3 张图片。",
         budget: "预算",
         projectTime: "项目时间",
         paymentMethod: "付款方式",
@@ -391,34 +426,60 @@ function validatePhone(value) {
     return PHONE_REGEX.test(value);
 }
 
+function validateServiceImages(files, t) {
+    if (!files || files.length === 0) return "";
+
+    if (files.length > MAX_SERVICE_IMAGES) {
+        return t.invalidImageCount;
+    }
+
+    const hasInvalidType = files.some(
+        (file) => !ALLOWED_SERVICE_IMAGE_TYPES.includes(file.type)
+    );
+
+    if (hasInvalidType) {
+        return t.invalidImageType;
+    }
+
+    const hasOversizedFile = files.some(
+        (file) => file.size > MAX_SERVICE_IMAGE_SIZE
+    );
+
+    if (hasOversizedFile) {
+        return t.invalidImageSize;
+    }
+
+    return "";
+}
+
 export default function ServiceRequestForm({
     locale = "en",
     serviceType = "software-development",
     title,
-    fetchCart, // Pass fetchCart from parent if needed
+    fetchCart,
 }) {
     const t = COPY[locale] || COPY.en;
     const { executeRecaptcha } = useGoogleReCaptcha();
     const dispatch = useDispatch();
 
-    // Get user from Redux store - adjust based on your actual state structure
     const user = useSelector((state) => state.user?.value || state.user);
     const isLoggedIn = user && Object.keys(user).length > 0 && user._id;
 
-    // Get displayName from user (handle both 'name' and 'displayName' fields)
     const userDisplayName = user?.displayName || user?.name || "";
     const userEmail = user?.email || "";
     const userPhone = user?.phone || "";
 
-    // Auth sync effect
     useEffect(() => {
         const token = fromStorage("hkmandu");
+
         if (!isLoggedIn && token) {
             http.get("frontend/auth/details")
                 .then((res) => {
                     const u = res.data?.user ?? res.data;
+
                     if (u) {
                         dispatch(setUser(u));
+
                         if (fetchCart) {
                             fetchCart();
                         }
@@ -459,8 +520,8 @@ export default function ServiceRequestForm({
     const [resendLoading, setResendLoading] = useState(false);
     const [banner, setBanner] = useState({ type: "", text: "" });
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
+    const [selectedImages, setSelectedImages] = useState([]);
 
-    // Auto-fill form if user is logged in
     useEffect(() => {
         if (isLoggedIn && user && step === "form") {
             setForm((prev) => ({
@@ -558,6 +619,30 @@ export default function ServiceRequestForm({
         otpRefs[0]?.current?.focus();
     };
 
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        const imageError = validateServiceImages(files, t);
+
+        if (imageError) {
+            setSelectedImages([]);
+            setErrors((prev) => ({ ...prev, images: imageError }));
+            e.target.value = "";
+            return;
+        }
+
+        setSelectedImages(files);
+        setErrors((prev) => ({ ...prev, images: "" }));
+        setBanner({ type: "", text: "" });
+    };
+
+    const removeSelectedImage = (indexToRemove) => {
+        setSelectedImages((prev) =>
+            prev.filter((_, index) => index !== indexToRemove)
+        );
+
+        setErrors((prev) => ({ ...prev, images: "" }));
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -609,18 +694,23 @@ export default function ServiceRequestForm({
 
         if (!form.displayName.trim()) {
             nextErrors.displayName = t.required;
-        } else if (form.displayName.trim().length < 2 || form.displayName.trim().length > 100) {
-            nextErrors.displayName = "Display name must be between 2 and 100 characters";
+        } else if (
+            form.displayName.trim().length < 2 ||
+            form.displayName.trim().length > 100
+        ) {
+            nextErrors.displayName =
+                "Display name must be between 2 and 100 characters";
         }
 
-        // Email validation based on verification method
         if (form.verificationMethod === "phone") {
-            // Email is optional when verification method is phone
-            if (form.email && form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+            if (
+                form.email &&
+                form.email.trim() &&
+                !/^\S+@\S+\.\S+$/.test(form.email.trim())
+            ) {
                 nextErrors.email = t.invalidEmail;
             }
         } else {
-            // Email is required for email verification
             if (!form.email.trim()) {
                 nextErrors.email = t.required;
             } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
@@ -628,7 +718,6 @@ export default function ServiceRequestForm({
             }
         }
 
-        // Phone validation based on verification method
         if (form.verificationMethod === "phone") {
             if (!form.phone.trim()) {
                 nextErrors.phone = t.required;
@@ -643,18 +732,30 @@ export default function ServiceRequestForm({
 
         if (!form.address.trim()) {
             nextErrors.address = t.required;
-        } else if (form.address.trim().length < 2 || form.address.trim().length > 255) {
+        } else if (
+            form.address.trim().length < 2 ||
+            form.address.trim().length > 255
+        ) {
             nextErrors.address = "Address must be between 2 and 255 characters";
         }
 
         if (!form.workDesc.trim()) {
             nextErrors.workDesc = t.required;
-        } else if (form.workDesc.trim().length < 5 || form.workDesc.trim().length > 500) {
-            nextErrors.workDesc = "Work description must be between 5 and 500 characters";
+        } else if (
+            form.workDesc.trim().length < 5 ||
+            form.workDesc.trim().length > 500
+        ) {
+            nextErrors.workDesc =
+                "Work description must be between 5 and 500 characters";
         }
 
-        if (form.budget !== "" && form.budget !== null && form.budget !== undefined) {
+        if (
+            form.budget !== "" &&
+            form.budget !== null &&
+            form.budget !== undefined
+        ) {
             const budgetValue = Number(form.budget);
+
             if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
                 nextErrors.budget = t.invalidBudget;
             }
@@ -668,6 +769,12 @@ export default function ServiceRequestForm({
             nextErrors.paymentMethod = t.required;
         }
 
+        const imageError = validateServiceImages(selectedImages, t);
+
+        if (imageError) {
+            nextErrors.images = imageError;
+        }
+
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
     };
@@ -677,29 +784,50 @@ export default function ServiceRequestForm({
 
         if (!validate()) return;
 
-        // For logged-in users, use direct-submit endpoint
         if (isLoggedIn) {
             try {
                 setSubmitLoading(true);
                 setBanner({ type: "", text: "" });
 
-                const payload = {
-                    serviceType: normalizedServiceType,
-                    displayName: form.displayName.trim(),
-                    email: form.email.trim().toLowerCase(),
-                    phone: form.phone.trim() || null,
-                    address: form.address.trim(),
-                    workDesc: form.workDesc.trim(),
-                    budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
-                        ? Number(form.budget)
-                        : null,
-                    currency: form.currency.toLowerCase(),
-                    projectTime: form.projectTime,
-                    paymentMethod: form.paymentMethod,
-                    verificationMethod: "auth",
-                };
+                const payload = new FormData();
 
-                const res = await http.post("/frontend/serviceForm/direct-submit", payload);
+                payload.append("serviceType", normalizedServiceType);
+                payload.append("displayName", form.displayName.trim());
+                payload.append("email", form.email.trim().toLowerCase());
+
+                if (form.phone.trim()) {
+                    payload.append("phone", form.phone.trim());
+                }
+
+                payload.append("address", form.address.trim());
+                payload.append("workDesc", form.workDesc.trim());
+
+                if (
+                    form.budget !== "" &&
+                    form.budget !== null &&
+                    form.budget !== undefined
+                ) {
+                    payload.append("budget", String(Number(form.budget)));
+                }
+
+                payload.append("currency", form.currency.toLowerCase());
+                payload.append("projectTime", form.projectTime);
+                payload.append("paymentMethod", form.paymentMethod);
+                payload.append("verificationMethod", "auth");
+
+                selectedImages.forEach((file) => {
+                    payload.append("images", file);
+                });
+
+                const res = await http.post(
+                    "/frontend/serviceForm/direct-submit",
+                    payload,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
 
                 setStep("success");
                 setBanner({
@@ -711,15 +839,16 @@ export default function ServiceRequestForm({
             } finally {
                 setSubmitLoading(false);
             }
+
             return;
         }
 
-        // For non-logged-in users, require reCAPTCHA
         if (!executeRecaptcha) {
             setErrors((prev) => ({
                 ...prev,
                 captcha: t.captchaRequired,
             }));
+
             return;
         }
 
@@ -750,9 +879,12 @@ export default function ServiceRequestForm({
                 phone: form.phone.trim() || null,
                 address: form.address.trim(),
                 workDesc: form.workDesc.trim(),
-                budget: form.budget !== "" && form.budget !== null && form.budget !== undefined
-                    ? Number(form.budget)
-                    : null,
+                budget:
+                    form.budget !== "" &&
+                        form.budget !== null &&
+                        form.budget !== undefined
+                        ? Number(form.budget)
+                        : null,
                 currency: form.currency.toLowerCase(),
                 projectTime: form.projectTime,
                 paymentMethod: form.paymentMethod,
@@ -797,10 +929,24 @@ export default function ServiceRequestForm({
         setBanner({ type: "", text: "" });
 
         try {
-            const res = await http.post("/frontend/serviceForm/verify-otp", {
-                id: requestMeta?.id,
-                otp,
+            const payload = new FormData();
+
+            payload.append("id", requestMeta?.id || "");
+            payload.append("otp", otp);
+
+            selectedImages.forEach((file) => {
+                payload.append("images", file);
             });
+
+            const res = await http.post(
+                "/frontend/serviceForm/verify-otp",
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
 
             setStep("success");
 
@@ -814,7 +960,9 @@ export default function ServiceRequestForm({
             if (errorData?.lockedUntil) {
                 setBanner({
                     type: "error",
-                    text: `${errorData.success}. Locked until: ${new Date(errorData.lockedUntil).toLocaleString()}`,
+                    text: `${errorData.success}. Locked until: ${new Date(
+                        errorData.lockedUntil
+                    ).toLocaleString()}`,
                 });
             } else {
                 setBanner({ type: "error", text: getErrorText(err) });
@@ -859,8 +1007,10 @@ export default function ServiceRequestForm({
             currency: (t.currencies[0] || "HKD").toLowerCase(),
             verificationMethod: "email",
         });
+
         setErrors({});
         setOtpValues(["", "", "", "", "", ""]);
+        setSelectedImages([]);
         setRequestMeta(null);
         setStep("form");
         setShowForm(false);
@@ -937,11 +1087,11 @@ export default function ServiceRequestForm({
                                         ))}
                                     </div>
 
-                                    {isLoggedIn && (
+                                    {isLoggedIn ? (
                                         <div className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
                                             ✓ {t.loggedInMessage}
                                         </div>
-                                    )}
+                                    ) : null}
                                 </div>
 
                                 <button
@@ -979,7 +1129,9 @@ export default function ServiceRequestForm({
                                     label={t.phone}
                                     icon={Phone}
                                     error={errors.phone}
-                                    required={form.verificationMethod === "phone"}
+                                    required={
+                                        form.verificationMethod === "phone"
+                                    }
                                 >
                                     <input
                                         name="phone"
@@ -987,7 +1139,9 @@ export default function ServiceRequestForm({
                                         onChange={handleChange}
                                         onBlur={handlePhoneBlur}
                                         placeholder={t.placeholders.phone}
-                                        className={`${inputClass(!!errors.phone)} h-12`}
+                                        className={`${inputClass(
+                                            !!errors.phone
+                                        )} h-12`}
                                     />
                                 </Field>
 
@@ -995,7 +1149,9 @@ export default function ServiceRequestForm({
                                     label={t.email}
                                     icon={Mail}
                                     error={errors.email}
-                                    required={form.verificationMethod !== "phone"}
+                                    required={
+                                        form.verificationMethod !== "phone"
+                                    }
                                 >
                                     <input
                                         type="email"
@@ -1042,6 +1198,80 @@ export default function ServiceRequestForm({
                                         !!errors.workDesc
                                     )} min-h-[130px] resize-none py-3`}
                                 />
+                            </Field>
+
+                            <Field
+                                label={t.images}
+                                icon={ImagePlus}
+                                error={errors.images}
+                                required={false}
+                            >
+                                <div className="rounded-2xl border border-dashed border-neutral-200 bg-[#fafbff] p-4">
+                                    <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl bg-white px-4 py-6 text-center transition hover:bg-neutral-50">
+                                        <ImagePlus className="mb-3 h-8 w-8 text-[#4b63ff]" />
+
+                                        <span className="text-sm font-semibold text-neutral-800">
+                                            {t.imageButton}
+                                        </span>
+
+                                        <span className="mt-1 text-xs leading-5 text-neutral-500">
+                                            {t.imageHelp}
+                                        </span>
+
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/jpg,image/png,image/webp"
+                                            multiple
+                                            onChange={handleImageChange}
+                                            className="hidden"
+                                        />
+                                    </label>
+
+                                    {selectedImages.length ? (
+                                        <div className="mt-4 space-y-2">
+                                            <p className="text-xs font-medium text-neutral-500">
+                                                {selectedImages.length}{" "}
+                                                {t.imageCount}
+                                            </p>
+
+                                            {selectedImages.map(
+                                                (file, index) => (
+                                                    <div
+                                                        key={`${file.name}-${file.size}-${index}`}
+                                                        className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2"
+                                                    >
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-medium text-neutral-800">
+                                                                {file.name}
+                                                            </p>
+
+                                                            <p className="text-xs text-neutral-500">
+                                                                {(
+                                                                    file.size /
+                                                                    (1024 *
+                                                                        1024)
+                                                                ).toFixed(2)}{" "}
+                                                                MB
+                                                            </p>
+                                                        </div>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removeSelectedImage(
+                                                                    index
+                                                                )
+                                                            }
+                                                            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-500 transition hover:bg-red-50 hover:text-red-500"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    ) : null}
+                                </div>
                             </Field>
 
                             <Field
@@ -1139,7 +1369,7 @@ export default function ServiceRequestForm({
                                 </Field>
                             </div>
 
-                            {!isLoggedIn && (
+                            {!isLoggedIn ? (
                                 <Field
                                     label={t.verificationMethod}
                                     icon={ShieldCheck}
@@ -1158,7 +1388,9 @@ export default function ServiceRequestForm({
                                             {
                                                 value: "phone",
                                                 label: t.phoneMethod,
-                                                disabled: !form.phone.trim() || !!errors.phone,
+                                                disabled:
+                                                    !form.phone.trim() ||
+                                                    !!errors.phone,
                                                 helper:
                                                     form.phone.trim() ||
                                                     t.placeholders.phone,
@@ -1202,7 +1434,7 @@ export default function ServiceRequestForm({
                                         })}
                                     </div>
                                 </Field>
-                            )}
+                            ) : null}
 
                             {!isLoggedIn && errors.captcha ? (
                                 <p className="text-sm text-red-500">

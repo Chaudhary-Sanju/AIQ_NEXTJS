@@ -70,6 +70,9 @@ export default async function Page({ params }) {
 
     return (
         <>
+
+            <AiExpressServiceCards locale={locale} />
+
             <DeliveryHero
                 locale={locale}
                 dict={dict}
@@ -79,7 +82,6 @@ export default async function Page({ params }) {
                 }}
             />
 
-            <AiExpressServiceCards locale={locale} />
 
             <AboutSection dict={dict} />
 

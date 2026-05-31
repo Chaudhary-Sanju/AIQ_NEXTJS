@@ -89,6 +89,10 @@ export default async function Page({ params }) {
 
     return (
         <>
+            <section id="pickup-form" className="scroll-mt-24">
+                <AiExpressPickupForm locale={locale} serviceType={service} />
+            </section>
+
             <DeliveryHero
                 locale={locale}
                 dict={dict}
@@ -97,10 +101,6 @@ export default async function Page({ params }) {
                     trackOrder: "/support/track-courier",
                 }}
             />
-
-            <section id="pickup-form" className="scroll-mt-24">
-                <AiExpressPickupForm locale={locale} serviceType={service} />
-            </section>
 
             <AboutSection dict={dict} />
 
