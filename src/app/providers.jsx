@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import { makeStore } from "@/store";
+import { RestaurantCartProvider } from "@/contexts/RestaurantCartContext";
 
 export default function Providers({ children }) {
     const storeRef = useRef(null);
@@ -29,7 +30,7 @@ export default function Providers({ children }) {
         >
             <Provider store={storeRef.current}>
                 <PersistGate loading={null} persistor={persistorRef.current}>
-                    {children}
+                    <RestaurantCartProvider>{children}</RestaurantCartProvider>
                 </PersistGate>
 
                 <Toaster position="top-right" richColors closeButton />
