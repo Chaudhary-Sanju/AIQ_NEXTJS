@@ -75,7 +75,7 @@ export default function RootLayout({ children }) {
                     </CartProvider>
                 </Providers>
 
-                {/* <Script id="tawk-to" strategy="afterInteractive">
+                <Script id="tawk-to" strategy="afterInteractive">
                     {`
                     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
                     (function () {
@@ -90,7 +90,7 @@ export default function RootLayout({ children }) {
                     s0.parentNode.insertBefore(s1, s0);
                     })();
                 `}
-                </Script> */}
+                </Script>
             </body>
         </html>
     );
