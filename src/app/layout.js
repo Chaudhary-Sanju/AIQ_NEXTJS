@@ -6,6 +6,8 @@ import Script from "next/script";
 
 export async function generateMetadata() {
     return {
+        metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://hkmandu.com"),
+
         title: "HkMandu (AIQ) – E-Commerce, Courier (HK↔Nepal) & Services Platform",
         description: "HkMandu (AIQ) is an all-in-one platform combining Food Mart e-commerce, courier booking & tracking (Hong Kong ↔ Nepal), and a services marketplace (immigration, company registration, licensing, travel, moving, repairs). Available on web and mobile with multilingual support.",
         icons: {

@@ -5,7 +5,7 @@ import ProductDetailsView from "@/components/pageComponents/ProductDetailsView";
 const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
     process.env.API_URL ||
-    "http://localhost:8000/api";
+    "http://localhost:8000";
 
 const SITE_URL =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -15,6 +15,10 @@ const IMAGE_URL =
     process.env.NEXT_PUBLIC_IMAGE_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     "http://localhost:8000";
+
+const SITE_BASE_URL = SITE_URL.replace(/\/+$/, "");
+const API_BASE_URL = API_URL.replace(/\/+$/, "");
+const IMAGE_BASE_URL = IMAGE_URL.replace(/\/+$/, "");
 
 const pick = (obj, locale = "en") => {
     if (!obj || typeof obj !== "object") return "";
@@ -29,18 +33,27 @@ const stripHtml = (html = "") => {
 };
 
 const getProductImageUrl = (image) => {
-    if (!image) return `${SITE_URL}/og-default.jpg`;
+    if (!image) return `${SITE_BASE_URL}/og-default.jpg`;
 
-    if (String(image).startsWith("http")) {
-        return image;
+    const imageValue = String(image).trim();
+
+    if (!imageValue) return `${SITE_BASE_URL}/og-default.jpg`;
+
+    if (imageValue.startsWith("http://") || imageValue.startsWith("https://")) {
+        return imageValue;
     }
 
-    return `${IMAGE_URL}/uploads/${image}`;
+    const cleanImage = imageValue
+        .replace(/^\/+/, "")
+        .replace(/^uploads\/+/i, "")
+        .replace(/^image\/+/i, "");
+
+    return `${IMAGE_BASE_URL}/image/${cleanImage}`;
 };
 
 async function getProductBySlug(slug) {
     try {
-        const res = await fetch(`${API_URL}/frontend/product/${slug}`, {
+        const res = await fetch(`${API_BASE_URL}/frontend/product/${slug}`, {
             cache: "no-store",
         });
 
@@ -58,13 +71,18 @@ export async function generateMetadata({ params }) {
     const { locale, slug } = await params;
 
     if (!locales.includes(locale)) {
-        return {};
+        return {
+            metadataBase: new URL(SITE_BASE_URL),
+            title: "Product | HKMandu",
+            description: "Buy products from HKMandu.",
+        };
     }
 
     const product = await getProductBySlug(slug);
 
     if (!product) {
         return {
+            metadataBase: new URL(SITE_BASE_URL),
             title: "Product not found | HKMandu",
             description: "The requested product could not be found.",
         };
@@ -86,11 +104,15 @@ export async function generateMetadata({ params }) {
     const averageRating = product?.reviewSummary?.averageRating || 0;
     const totalReviews = product?.reviewSummary?.totalReviews || 0;
 
-    const canonicalUrl = `${SITE_URL}/${locale}/product/${product.slug}`;
+    const productSlug = product?.slug || slug;
+    const canonicalUrl = `${SITE_BASE_URL}/${locale}/product/${productSlug}`;
 
     return {
+        metadataBase: new URL(SITE_BASE_URL),
+
         title: `${name} | HKMandu`,
         description,
+
         keywords: [
             name,
             product?.brandId?.name,
@@ -99,14 +121,16 @@ export async function generateMetadata({ params }) {
             "Hong Kong",
             "Nepali Store",
         ].filter(Boolean),
+
         alternates: {
             canonical: canonicalUrl,
             languages: {
-                en: `${SITE_URL}/en/product/${product.slug}`,
-                ne: `${SITE_URL}/ne/product/${product.slug}`,
-                zh: `${SITE_URL}/zh/product/${product.slug}`,
+                en: `${SITE_BASE_URL}/en/product/${productSlug}`,
+                ne: `${SITE_BASE_URL}/ne/product/${productSlug}`,
+                zh: `${SITE_BASE_URL}/zh/product/${productSlug}`,
             },
         },
+
         openGraph: {
             title: `${name} | HKMandu`,
             description,
@@ -122,12 +146,14 @@ export async function generateMetadata({ params }) {
                 },
             ],
         },
+
         twitter: {
             card: "summary_large_image",
             title: `${name} | HKMandu`,
             description,
             images: [image],
         },
+
         other: {
             "product:price:amount": String(price),
             "product:price:currency": "HKD",
@@ -152,18 +178,24 @@ export default async function Page({ params }) {
 
     if (!product) notFound();
 
-    const name = pick(product?.name, locale);
+    const name = pick(product?.name, locale) || "Product";
     const summary = pick(product?.summary, locale);
     const image = getProductImageUrl(product?.images?.[0]);
     const price = product?.discounted_price || product?.price;
-    const canonicalUrl = `${SITE_URL}/${locale}/product/${product.slug}`;
+    const productSlug = product?.slug || slug;
+    const canonicalUrl = `${SITE_BASE_URL}/${locale}/product/${productSlug}`;
+
+    const productImages =
+        Array.isArray(product?.images) && product.images.length > 0
+            ? product.images.map((img) => getProductImageUrl(img))
+            : [image];
 
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "Product",
         name,
         description: summary || stripHtml(product?.description),
-        image: product?.images?.map((img) => getProductImageUrl(img)) || [image],
+        image: productImages,
         sku: product?._id,
         brand: product?.brandId?.name
             ? {
@@ -187,8 +219,12 @@ export default async function Page({ params }) {
             product?.reviewSummary?.totalReviews > 0
                 ? {
                     "@type": "AggregateRating",
-                    ratingValue: String(product.reviewSummary.averageRating || 0),
-                    reviewCount: String(product.reviewSummary.totalReviews || 0),
+                    ratingValue: String(
+                        product.reviewSummary.averageRating || 0
+                    ),
+                    reviewCount: String(
+                        product.reviewSummary.totalReviews || 0
+                    ),
                 }
                 : undefined,
         review:
