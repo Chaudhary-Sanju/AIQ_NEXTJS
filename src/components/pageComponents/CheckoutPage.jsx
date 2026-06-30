@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
     ArrowLeft,
-    ArrowRight,
     CheckCircle2,
     CreditCard,
     Loader2,
     MapPin,
-    PackageCheck,
     ShieldCheck,
     Tag,
     Trash2,
@@ -19,8 +17,6 @@ import {
     UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
-import { QRCodeCanvas } from "qrcode.react";
-
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser, setUser } from "@/store/userSlice";
 
@@ -36,7 +32,6 @@ const UI = {
     deliveryAddress: { en: "Delivery Address", ne: "डेलिभरी ठेगाना", zh: "送貨地址" },
     paymentMethods: { en: "Payment Methods", ne: "भुक्तानी विधि", zh: "付款方式" },
     orderSummary: { en: "Order Summary", ne: "अर्डर सारांश", zh: "訂單摘要" },
-
     fullName: { en: "Full Name", ne: "पूरा नाम", zh: "全名" },
     email: { en: "Email", ne: "इमेल", zh: "電郵" },
     phone: { en: "Phone Number", ne: "फोन नम्बर", zh: "電話號碼" },
@@ -44,7 +39,6 @@ const UI = {
     city: { en: "City/District", ne: "शहर/जिल्ला", zh: "城市/地區" },
     address: { en: "Address", ne: "ठेगाना", zh: "地址" },
     landmark: { en: "Landmark", ne: "नजिकको स्थान", zh: "地標" },
-
     deliveryType: { en: "Delivery Type", ne: "डेलिभरी प्रकार", zh: "送貨類型" },
     standardDelivery: { en: "Standard Delivery", ne: "सामान्य डेलिभरी", zh: "標準送貨" },
     expressDelivery: { en: "Express Delivery", ne: "एक्सप्रेस डेलिभरी", zh: "特快送貨" },
@@ -56,22 +50,18 @@ const UI = {
         ne: "यो स्थानमा Cash on Delivery उपलब्ध छैन।",
         zh: "此地區不支援貨到付款。",
     },
-
     selectCity: { en: "Select City/District", ne: "शहर/जिल्ला छान्नुहोस्", zh: "選擇城市/地區" },
     coupon: { en: "Have a coupon code?", ne: "कुपन कोड छ?", zh: "有優惠券代碼？" },
     apply: { en: "Apply", ne: "लागू गर्नुहोस्", zh: "使用" },
     remove: { en: "Remove", ne: "हटाउनुहोस्", zh: "移除" },
-
     subTotal: { en: "Sub-total", ne: "उप-योग", zh: "小計" },
     discount: { en: "Discount", ne: "छुट", zh: "折扣" },
     deliveryCharge: { en: "Delivery Charge", ne: "डेलिभरी शुल्क", zh: "送貨費" },
     free: { en: "FREE", ne: "निःशुल्क", zh: "免費" },
     total: { en: "Total", ne: "जम्मा", zh: "總額" },
-
     placeOrder: { en: "Place Order", ne: "अर्डर गर्नुहोस्", zh: "提交訂單" },
     payNow: { en: "Pay Now", ne: "अहिले भुक्तानी गर्नुहोस्", zh: "立即付款" },
     placing: { en: "Processing...", ne: "प्रोसेस हुँदैछ...", zh: "處理中..." },
-
     secure: {
         en: "Your order information is secure and encrypted",
         ne: "तपाईंको अर्डर जानकारी सुरक्षित छ",
@@ -87,46 +77,24 @@ const UI = {
         ne: "भुक्तानी विधि हेर्न शहर वा जिल्ला छान्नुहोस्",
         zh: "選擇城市或地區以查看可用付款方式",
     },
-
     cod: { en: "Cash on Delivery", ne: "डेलिभरीमा नगद", zh: "貨到付款" },
-    payme: { en: "PayMe", ne: "PayMe", zh: "PayMe" },
-    paymeInfo: {
-        en: "Pay securely with PayMe.",
-        ne: "PayMe मार्फत सुरक्षित भुक्तानी गर्नुहोस्।",
-        zh: "使用 PayMe 安全付款。",
+    paymentAsia: { en: "PaymentAsia", ne: "PaymentAsia", zh: "PaymentAsia" },
+    stripe: { en: "Stripe", ne: "Stripe", zh: "Stripe" },
+    paymentAsiaInfo: {
+        en: "Pay securely through PaymentAsia hosted checkout.",
+        ne: "PaymentAsia hosted checkout मार्फत सुरक्षित भुक्तानी गर्नुहोस्।",
+        zh: "透過 PaymentAsia 託管結帳安全付款。",
     },
-    scanQR: {
-        en: "Scan this PayCode with PayMe",
-        ne: "यो PayCode PayMe बाट scan गर्नुहोस्",
-        zh: "使用 PayMe 掃描此 PayCode",
+    stripeInfo: {
+        en: "Pay securely by card using Stripe.",
+        ne: "Stripe मार्फत card प्रयोग गरी सुरक्षित भुक्तानी गर्नुहोस्।",
+        zh: "使用 Stripe 以信用卡安全付款。",
     },
-    openPaymeApp: {
-        en: "Open PayMe",
-        ne: "PayMe खोल्नुहोस्",
-        zh: "開啟 PayMe",
+    guestOnlineOnly: {
+        en: "Guest checkout is available with PaymentAsia or Stripe. Login to use Cash on Delivery.",
+        ne: "अतिथि चेकआउट PaymentAsia वा Stripe संग उपलब्ध छ। नगदमा डेलिभरी प्रयोग गर्न लगइन गर्नुहोस्।",
+        zh: "訪客結帳可使用 PaymentAsia 或 Stripe。登錄以使用貨到付款。",
     },
-    checkPayment: {
-        en: "Check Payment Status",
-        ne: "भुक्तानी स्थिति जाँच गर्नुहोस्",
-        zh: "檢查付款狀態",
-    },
-    simulateSandboxPaid: {
-        en: "Force Success Sandbox Payment",
-        ne: "Sandbox Success force गर्नुहोस्",
-        zh: "強制模擬付款成功",
-    },
-    paymentSuccess: {
-        en: "Payment successful! Redirecting...",
-        ne: "भुक्तानी सफल भयो। पुन: निर्देशित...",
-        zh: "付款成功！正在跳轉...",
-    },
-    paymentFailed: {
-        en: "Payment failed or expired. Please try again.",
-        ne: "भुक्तानी असफल वा म्याद गुज्र्यो। कृपया पुन: प्रयास गर्नुहोस्।",
-        zh: "付款失敗或過期。請重試。",
-    },
-    cancel: { en: "Cancel", ne: "रद्द गर्नुहोस्", zh: "取消" },
-
     emptyCart: { en: "Your cart is empty.", ne: "तपाईंको कार्ट खाली छ।", zh: "購物車是空的。" },
     emptyCartDesc: {
         en: "Add some products to your cart before checkout.",
@@ -134,11 +102,6 @@ const UI = {
         zh: "請先將商品加入購物車再結帳。",
     },
     continueShopping: { en: "Continue Shopping", ne: "किनमेल जारी राख्नुहोस्", zh: "繼續購物" },
-    guestPaymeOnly: {
-        en: "Guest checkout is available with PayMe only. Login to use Cash on Delivery.",
-        ne: "अतिथि चेकआउट केवल PayMe संग उपलब्ध छ। नगदमा डेलिभरी प्रयोग गर्न लगइन गर्नुहोस्।",
-        zh: "訪客結帳僅可使用 PayMe。登錄以使用貨到付款。",
-    },
 };
 
 const t = (key, locale = "en") => UI[key]?.[locale] || UI[key]?.en || key;
@@ -150,7 +113,6 @@ const pick = (obj, locale = "en") => {
 
 const money = (value) => {
     const num = Number(value || 0);
-
     return `HK$ ${num.toLocaleString("en-HK", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -159,26 +121,21 @@ const money = (value) => {
 
 const normalizePhoneNumber = (value) => {
     const raw = String(value || "").trim();
-
     if (!raw) return raw;
 
     const digits = raw.replace(/\D/g, "");
-
     if (digits.length === 10) return `+977-${digits}`;
     if (digits.length === 8) return `+852-${digits}`;
     if (digits.startsWith("977") && digits.length === 13) return `+977-${digits.slice(3)}`;
     if (digits.startsWith("852") && digits.length === 11) return `+852-${digits.slice(3)}`;
-
     return raw;
 };
 
 const getPhoneHelperText = (value) => {
     const digits = String(value || "").replace(/\D/g, "");
-
     if (!digits) return "Enter 10 digits for Nepal or 8 digits for Hong Kong.";
     if (digits.length === 8) return "Hong Kong number will be saved as +852-XXXXXXXX.";
     if (digits.length === 10) return "Nepal number will be saved as +977-XXXXXXXXXX.";
-
     return "Use 10 digits for Nepal or 8 digits for Hong Kong.";
 };
 
@@ -200,58 +157,26 @@ const safeImageUrl = (image) => {
 const getApiErrorMessage = (err, fallback = "Something went wrong.") => {
     const normalize = (value) => {
         if (!value) return "";
-
         if (typeof value === "string") return value;
-
-        if (Array.isArray(value)) {
-            return value.map(normalize).filter(Boolean).join(", ");
-        }
-
+        if (Array.isArray(value)) return value.map(normalize).filter(Boolean).join(", ");
         if (typeof value === "object") {
-            return (
-                value.errorDescription ||
-                value.message ||
-                value.error ||
-                value.errorCode ||
-                value.description ||
-                JSON.stringify(value)
-            );
+            return value.errorDescription || value.message || value.error || value.errorCode || value.description || JSON.stringify(value);
         }
-
         return String(value);
     };
 
     const data = err?.response?.data;
-
-    return (
-        normalize(data?.message) ||
-        normalize(data?.error) ||
-        normalize(data?.errors) ||
-        normalize(data) ||
-        normalize(err?.message) ||
-        fallback
-    );
+    return normalize(data?.message) || normalize(data?.error) || normalize(data?.errors) || normalize(data) || normalize(err?.message) || fallback;
 };
 
 const safeToastError = (value, fallback = "Something went wrong.") => {
     toast.error(getApiErrorMessage(value, fallback));
 };
 
-const getProduct = (item) => item?.productId || {};
-const getProductId = (item) => getProduct(item)?._id || item?.productId;
+const getProduct = (item) => item?.productId || item?.product || {};
+const getProductId = (item) => getProduct(item)?._id || item?.productId || item?.productID;
 const getQty = (item) => Number(item?.quantity || item?.qty || 1);
-
-const getPrice = (item) => {
-    return Number(
-        item?.discounted_price ||
-        item?.discountPrice ||
-        item?.price ||
-        getProduct(item)?.discounted_price ||
-        getProduct(item)?.discountPrice ||
-        getProduct(item)?.price ||
-        0
-    );
-};
+const getPrice = (item) => Number(item?.discounted_price || item?.discountPrice || item?.price || getProduct(item)?.discounted_price || getProduct(item)?.discountPrice || getProduct(item)?.price || 0);
 
 const getProductName = (item, locale) => {
     const product = getProduct(item);
@@ -260,7 +185,6 @@ const getProductName = (item, locale) => {
 
 const getProductImage = (item) => {
     const product = getProduct(item);
-
     const image =
         product?.featuredImage ||
         product?.thumbnail ||
@@ -277,32 +201,6 @@ const getProductImage = (item) => {
     return safeImageUrl(image);
 };
 
-function PayMeRedLogo({ className = "h-8 w-auto" }) {
-    return (
-        <Image
-            src="/images/payme/PayMe-Logo.wine.svg"
-            alt="PayMe"
-            width={120}
-            height={40}
-            className={className}
-            priority
-        />
-    );
-}
-
-function PayMeWhiteIcon({ className = "h-5 w-auto" }) {
-    return (
-        <Image
-            src="/images/payme/PayMe-Icon-White-Logo.wine.svg"
-            alt="PayMe"
-            width={28}
-            height={28}
-            className={className}
-            priority
-        />
-    );
-}
-
 export default function CheckoutPage({ locale = "en" }) {
     return <CheckoutForm locale={locale} />;
 }
@@ -310,37 +208,17 @@ export default function CheckoutPage({ locale = "en" }) {
 function CheckoutForm({ locale = "en" }) {
     const router = useRouter();
     const dispatch = useDispatch();
-
-    const {
-        cart,
-        loading: cartLoading,
-        clearCart,
-        removeItem: removeCartItem,
-        fetchCart,
-    } = useCart();
-
+    const { cart, loading: cartLoading, clearCart, removeItem: removeCartItem, fetchCart } = useCart();
     const user = useSelector((state) => state.user.value);
     const isLoggedIn = user && Object.keys(user).length > 0;
-
-    const pollingIntervalRef = useRef(null);
-    const pollingTimeoutRef = useRef(null);
 
     const [zones, setZones] = useState([]);
     const [zoneLoading, setZoneLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-
     const [couponCode, setCouponCode] = useState("");
     const [couponLoading, setCouponLoading] = useState(false);
     const [appliedCoupon, setAppliedCoupon] = useState(null);
-
     const [errors, setErrors] = useState({});
-
-    const [paymePayment, setPaymePayment] = useState(null);
-    const [paymeStatus, setPaymeStatus] = useState(null);
-
-    const [currentOrderId, setCurrentOrderId] = useState(null);
-    const [currentOrderNumber, setCurrentOrderNumber] = useState(null);
-
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -349,7 +227,7 @@ function CheckoutForm({ locale = "en" }) {
         cityDistrict: "",
         address: "",
         landmark: "",
-        paymentMethod: "payme",
+        paymentMethod: "paymentasia",
         deliveryType: "standard",
     });
 
@@ -360,28 +238,14 @@ function CheckoutForm({ locale = "en" }) {
         return zones.find((zone) => zone.name === form.cityDistrict);
     }, [zones, form.cityDistrict]);
 
-    const getStandardDeliveryCharge = (zone) => {
-        return Number(zone?.standardDeliveryCharge ?? zone?.deliveryCharge ?? 0);
-    };
-
-    const getExpressDeliveryCharge = (zone) => {
-        return Number(zone?.expressDeliveryCharge ?? zone?.deliveryCharge ?? 0);
-    };
-
-    const getFreeDeliveryThreshold = (zone) => {
-        return Number(zone?.freeDeliveryThreshold ?? 0);
-    };
-
-    const isCodAvailable = (zone) => {
-        return Boolean(zone?.codAvailable);
-    };
+    const getStandardDeliveryCharge = (zone) => Number(zone?.standardDeliveryCharge ?? zone?.deliveryCharge ?? 0);
+    const getExpressDeliveryCharge = (zone) => Number(zone?.expressDeliveryCharge ?? zone?.deliveryCharge ?? 0);
+    const getFreeDeliveryThreshold = (zone) => Number(zone?.freeDeliveryThreshold ?? 0);
+    const isCodAvailable = (zone) => Boolean(zone?.codAvailable);
 
     const subTotal = useMemo(() => {
         if (cart?.subTotal !== undefined) return Number(cart.subTotal || 0);
-
-        return cartItems.reduce((sum, item) => {
-            return sum + getPrice(item) * getQty(item);
-        }, 0);
+        return cartItems.reduce((sum, item) => sum + getPrice(item) * getQty(item), 0);
     }, [cart, cartItems]);
 
     const deliveryCharge = useMemo(() => {
@@ -391,36 +255,13 @@ function CheckoutForm({ locale = "en" }) {
 
         if (threshold > 0 && subTotal >= threshold) return 0;
 
-        if (form.deliveryType === "express") {
-            return getExpressDeliveryCharge(selectedZone);
-        }
-
-        return getStandardDeliveryCharge(selectedZone);
+        return form.deliveryType === "express"
+            ? getExpressDeliveryCharge(selectedZone)
+            : getStandardDeliveryCharge(selectedZone);
     }, [selectedZone, subTotal, form.deliveryType]);
 
     const discountAmount = Number(appliedCoupon?.discountAmount || 0);
     const total = Math.max(subTotal + deliveryCharge - discountAmount, 0);
-
-    const successSimulationAllowed = Number(total).toFixed(2).endsWith(".81");
-
-    const stopPaymePolling = () => {
-        if (pollingTimeoutRef.current) {
-            clearTimeout(pollingTimeoutRef.current);
-            pollingTimeoutRef.current = null;
-        }
-
-        if (pollingIntervalRef.current) {
-            clearInterval(pollingIntervalRef.current);
-            pollingIntervalRef.current = null;
-        }
-    };
-
-    useEffect(() => {
-        return () => {
-            stopPaymePolling();
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     useEffect(() => {
         fetchCart();
@@ -453,17 +294,14 @@ function CheckoutForm({ locale = "en" }) {
     }, [dispatch]);
 
     useEffect(() => {
-        if (isLoggedIn) {
-            fillUserInfo(user);
-        }
-
+        if (isLoggedIn) fillUserInfo(user);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoggedIn, user]);
 
     useEffect(() => {
         setForm((prev) => ({
             ...prev,
-            paymentMethod: isLoggedIn ? "cod" : "payme",
+            paymentMethod: isLoggedIn ? "cod" : "paymentasia",
         }));
     }, [isLoggedIn]);
 
@@ -473,7 +311,9 @@ function CheckoutForm({ locale = "en" }) {
         if (!isLoggedIn) {
             setForm((prev) => ({
                 ...prev,
-                paymentMethod: "payme",
+                paymentMethod: ["paymentasia", "stripe"].includes(prev.paymentMethod)
+                    ? prev.paymentMethod
+                    : "paymentasia",
             }));
             return;
         }
@@ -481,7 +321,7 @@ function CheckoutForm({ locale = "en" }) {
         if (!isCodAvailable(selectedZone) && form.paymentMethod === "cod") {
             setForm((prev) => ({
                 ...prev,
-                paymentMethod: "payme",
+                paymentMethod: "paymentasia",
             }));
         }
 
@@ -492,42 +332,6 @@ function CheckoutForm({ locale = "en" }) {
         setAppliedCoupon(null);
     }, [subTotal]);
 
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-
-        const raw = sessionStorage.getItem("hkmandu_pending_payme");
-        if (!raw) return;
-
-        try {
-            const pending = JSON.parse(raw);
-
-            if (!pending?.payment || !pending?.orderId) return;
-
-            if (Date.now() - Number(pending.createdAt || 0) > 15 * 60 * 1000) {
-                sessionStorage.removeItem("hkmandu_pending_payme");
-                return;
-            }
-
-            setPaymePayment(pending.payment);
-            setCurrentOrderId(pending.orderId);
-            setCurrentOrderNumber(pending.orderNumber || null);
-            setPaymeStatus("PENDING");
-        } catch {
-            sessionStorage.removeItem("hkmandu_pending_payme");
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const handlePhoneBlur = () => {
-        const formatted = normalizePhoneNumber(form.phoneNumber);
-
-        setForm((prev) => ({
-            ...prev,
-            phoneNumber: formatted,
-        }));
-    };
-
     const fillUserInfo = (u) => {
         if (!u) return;
 
@@ -535,17 +339,15 @@ function CheckoutForm({ locale = "en" }) {
             ...prev,
             name: prev.name || u?.name || u?.displayName || "",
             email: prev.email || u?.email || "",
-            phoneNumber:
-                prev.phoneNumber ||
-                normalizePhoneNumber(u?.phoneNumber || u?.phone || u?.mobile || ""),
+            phoneNumber: prev.phoneNumber || normalizePhoneNumber(u?.phoneNumber || u?.phone || u?.mobile || ""),
         }));
     };
 
     const loadZones = async () => {
         try {
             setZoneLoading(true);
-            const res = await http.get("/frontend/martDelivery/");
 
+            const res = await http.get("/frontend/martDelivery/");
             const data = res?.data?.data;
 
             if (Array.isArray(data)) {
@@ -571,10 +373,8 @@ function CheckoutForm({ locale = "en" }) {
 
                 const zone = zones.find((item) => item.name === value);
 
-                if (!isLoggedIn) {
-                    next.paymentMethod = "payme";
-                } else if (zone && !isCodAvailable(zone)) {
-                    next.paymentMethod = "payme";
+                if (!isLoggedIn || (zone && !isCodAvailable(zone))) {
+                    next.paymentMethod = "paymentasia";
                 } else if (zone && isCodAvailable(zone)) {
                     next.paymentMethod = prev.paymentMethod || "cod";
                 }
@@ -596,8 +396,7 @@ function CheckoutForm({ locale = "en" }) {
         const formattedPhone = normalizePhoneNumber(form.phoneNumber);
 
         if (formattedPhone && !PHONE_REGEX.test(formattedPhone)) {
-            next.phoneNumber =
-                "Invalid phone number. Use 10 digits for Nepal or 8 digits for Hong Kong.";
+            next.phoneNumber = "Invalid phone number. Use 10 digits for Nepal or 8 digits for Hong Kong.";
         }
 
         if (!form.cityDistrict) next.cityDistrict = "City/District is required";
@@ -609,16 +408,16 @@ function CheckoutForm({ locale = "en" }) {
             next.deliveryType = "Please select valid delivery type.";
         }
 
-        if (
-            selectedZone &&
-            form.paymentMethod === "cod" &&
-            !isCodAvailable(selectedZone)
-        ) {
+        if (!["cod", "paymentasia", "stripe"].includes(form.paymentMethod)) {
+            next.paymentMethod = "Please select a valid payment method.";
+        }
+
+        if (selectedZone && form.paymentMethod === "cod" && !isCodAvailable(selectedZone)) {
             next.paymentMethod = "Cash on Delivery is not available for this location.";
         }
 
-        if (!isLoggedIn && form.paymentMethod !== "payme") {
-            next.paymentMethod = "Guest checkout supports PayMe only.";
+        if (!isLoggedIn && form.paymentMethod === "cod") {
+            next.paymentMethod = "Please login to use Cash on Delivery.";
         }
 
         setErrors(next);
@@ -634,7 +433,6 @@ function CheckoutForm({ locale = "en" }) {
     const resetCartAfterSuccess = async () => {
         await clearCart({ silent: true });
         await fetchCart();
-
         setAppliedCoupon(null);
         setCouponCode("");
     };
@@ -647,17 +445,9 @@ function CheckoutForm({ locale = "en" }) {
 
     const applyCoupon = async () => {
         try {
-            if (!isLoggedIn) {
-                return toast.error("Please login to use coupon codes.");
-            }
-
-            if (!couponCode.trim()) {
-                return toast.error("Please enter coupon code.");
-            }
-
-            if (!subTotal || subTotal <= 0) {
-                return toast.error("Cart subtotal is invalid.");
-            }
+            if (!isLoggedIn) return toast.error("Please login to use coupon codes.");
+            if (!couponCode.trim()) return toast.error("Please enter coupon code.");
+            if (!subTotal || subTotal <= 0) return toast.error("Cart subtotal is invalid.");
 
             setCouponLoading(true);
 
@@ -686,273 +476,27 @@ function CheckoutForm({ locale = "en" }) {
         toast.success("Coupon removed.");
     };
 
-    const normalizePaymePayment = (payme) => {
-        if (!payme) return null;
+    const redirectToHostedPayment = (res) => {
+        const payment = res?.data?.payment || res?.data?.data?.payment || {};
+        const redirectUrl =
+            payment.redirectUrl ||
+            payment.paymentUrl ||
+            payment.url ||
+            res?.data?.redirectUrl ||
+            res?.data?.paymentUrl;
 
-        const paymentRequestId =
-            payme.paymentRequestId ||
-            payme.payment_request_id ||
-            payme.id ||
-            payme.paymentId;
-
-        const webLink =
-            payme.webLink ||
-            payme.weblink ||
-            payme.paymentUrl ||
-            payme.payment_url ||
-            payme.uri ||
-            payme.paymentUri;
-
-        const appLink =
-            payme.appLink ||
-            payme.applink ||
-            payme.deepLink ||
-            payme.deeplink ||
-            webLink;
-
-        const qrValue = webLink || appLink || payme.uri;
-
-        if (!paymentRequestId || !qrValue) return null;
-
-        return {
-            paymentRequestId,
-            uri: qrValue,
-            webLink,
-            appLink,
-            businessLogos: payme.businessLogos || payme.businessLogo || null,
-            statusCode: payme.statusCode,
-            statusDescription: payme.statusDescription,
-            raw: payme,
-        };
-    };
-
-    const savePendingPayme = ({ payment, orderId, orderNumber }) => {
-        if (typeof window === "undefined") return;
-
-        sessionStorage.setItem(
-            "hkmandu_pending_payme",
-            JSON.stringify({
-                payment,
-                orderId,
-                orderNumber,
-                createdAt: Date.now(),
-            })
-        );
-    };
-
-    const clearPendingPayme = () => {
-        if (typeof window === "undefined") return;
-        sessionStorage.removeItem("hkmandu_pending_payme");
-    };
-
-    const isPaidStatus = (status) => {
-        return [
-            "COMPLETED",
-            "PAID",
-            "SUCCESS",
-            "SUCCEEDED",
-            "PR005",
-            "SANDBOX_PAID",
-        ].includes(String(status || "").toUpperCase());
-    };
-
-    const isFailedStatus = (status) => {
-        return [
-            "FAILED",
-            "EXPIRED",
-            "CANCELLED",
-            "CANCELED",
-            "PR004",
-            "PR006",
-            "PR007",
-            "PR008",
-            "SANDBOX_FAILED",
-        ].includes(String(status || "").toUpperCase());
-    };
-
-    const finishSuccessfulPayment = async (
-        orderNumber,
-        status = "COMPLETED",
-        order = null
-    ) => {
-        stopPaymePolling();
-
-        const finalOrderNumber =
-            orderNumber ||
-            order?.orderNumber ||
-            order?.orderId ||
-            order?._id ||
-            null;
-
-        setPaymeStatus(status);
-        clearPendingPayme();
-
-        toast.success(t("paymentSuccess", locale));
-
-        await resetCartAfterSuccess();
-
-        setTimeout(() => {
-            if (isLoggedIn) {
-                router.push(`/${locale}/dashboard?tab=orders`);
-                return;
-            }
-
-            if (finalOrderNumber) {
-                router.push(
-                    `/${locale}/support/track-order?orderNumber=${finalOrderNumber}`
-                );
-                return;
-            }
-
-            router.push(`/${locale}/support/track-order`);
-        }, 1200);
-    };
-
-    const checkPaymeStatusOnce = async (
-        checkoutId,
-        orderNumber,
-        showPendingToast = true
-    ) => {
-        if (!checkoutId) return false;
-
-        try {
-            const res = await http.get(`/frontend/payment/payme-status/${checkoutId}`);
-
-            const status = String(
-                res?.data?.status ||
-                res?.data?.statusCode ||
-                res?.data?.paymentStatus ||
-                res?.data?.data?.status ||
-                res?.data?.data?.statusCode ||
-                ""
-            ).toUpperCase();
-
-            const order =
-                res?.data?.order ||
-                res?.data?.data?.order ||
-                res?.data?.data ||
-                null;
-
-            const resolvedOrderNumber =
-                res?.data?.orderNumber ||
-                order?.orderNumber ||
-                order?.orderId ||
-                orderNumber ||
-                null;
-
-            const paid = Boolean(
-                res?.data?.paid ||
-                res?.data?.isPaid ||
-                res?.data?.data?.paid ||
-                res?.data?.data?.isPaid ||
-                isPaidStatus(status)
-            );
-
-            setPaymeStatus(status || "PENDING");
-
-            if (paid) {
-                await finishSuccessfulPayment(
-                    resolvedOrderNumber,
-                    status || "COMPLETED",
-                    order
-                );
-                return true;
-            }
-
-            if (isFailedStatus(status) || res?.data?.isFailed) {
-                stopPaymePolling();
-                clearPendingPayme();
-
-                toast.error(t("paymentFailed", locale));
-
-                setPaymePayment(null);
-                setPaymeStatus(null);
-                setCurrentOrderId(null);
-                setCurrentOrderNumber(null);
-
-                return false;
-            }
-
-            if (showPendingToast) {
-                toast.info("Payment is still pending.");
-            }
-
-            return false;
-        } catch (err) {
-            console.log("PayMe status check error:", getApiErrorMessage(err));
-
-            if (showPendingToast) {
-                safeToastError(err, "Unable to check PayMe payment status.");
-            }
-
+        if (!redirectUrl) {
+            console.log("Online payment response:", res?.data);
+            toast.error("Payment link not received.");
             return false;
         }
+
+        window.location.href = redirectUrl;
+        return true;
     };
 
-    const simulateSandboxPaymentPaid = async () => {
-        if (!currentOrderId) return;
-
-        try {
-            const res = await http.post(
-                `/frontend/payment/payme-sandbox-mark-paid/${currentOrderId}`
-            );
-
-            const status = String(
-                res?.data?.status || res?.data?.statusCode || "SANDBOX_PAID"
-            ).toUpperCase();
-
-            const order =
-                res?.data?.order ||
-                res?.data?.data?.order ||
-                res?.data?.data ||
-                null;
-
-            const resolvedOrderNumber =
-                res?.data?.orderNumber ||
-                order?.orderNumber ||
-                order?.orderId ||
-                currentOrderNumber ||
-                null;
-
-            const paid = Boolean(
-                res?.data?.paid ||
-                res?.data?.isPaid ||
-                res?.data?.data?.paid ||
-                res?.data?.data?.isPaid ||
-                isPaidStatus(status)
-            );
-
-            if (!paid) {
-                toast.error("Sandbox payment simulation did not return paid status.");
-                return;
-            }
-
-            await finishSuccessfulPayment(resolvedOrderNumber, status, order);
-        } catch (err) {
-            console.log("PayMe sandbox simulate error:", getApiErrorMessage(err));
-
-            safeToastError(err, "Failed to simulate sandbox payment.");
-        }
-    };
-
-    const closePaymeModal = async () => {
-        stopPaymePolling();
-
-        if (currentOrderId) {
-            try {
-                await http.put(`/frontend/payment/payme-cancel/${currentOrderId}`);
-            } catch (err) {
-                console.log("PayMe cancel error:", getApiErrorMessage(err));
-                safeToastError(err, "Failed to cancel PayMe payment.");
-            }
-        }
-
-        clearPendingPayme();
-
-        setPaymePayment(null);
-        setPaymeStatus(null);
-        setCurrentOrderId(null);
-        setCurrentOrderNumber(null);
+    const handlePhoneBlur = () => {
+        updateForm("phoneNumber", normalizePhoneNumber(form.phoneNumber));
     };
 
     const handleOrder = async (e) => {
@@ -970,9 +514,7 @@ function CheckoutForm({ locale = "en" }) {
                 address: form.address.trim(),
                 landmark: form.landmark.trim(),
                 cityDistrict: form.cityDistrict,
-
                 deliveryType: form.deliveryType,
-
                 deliveryZone: {
                     name: selectedZone.name,
                     standardDeliveryCharge: getStandardDeliveryCharge(selectedZone),
@@ -981,12 +523,10 @@ function CheckoutForm({ locale = "en" }) {
                     freeDeliveryThreshold: getFreeDeliveryThreshold(selectedZone),
                     codAvailable: isCodAvailable(selectedZone),
                 },
-
                 items: cartItems.map((item) => ({
                     productID: getProductId(item),
                     qty: getQty(item),
                 })),
-
                 coupon:
                     isLoggedIn && appliedCoupon
                         ? {
@@ -997,47 +537,17 @@ function CheckoutForm({ locale = "en" }) {
                             discountAmount: appliedCoupon.discountAmount,
                         }
                         : null,
-
                 discountAmount,
                 finalAmount: total,
                 paymentMethod: form.paymentMethod,
                 orderNote: form.orderNote.trim(),
+                locale,
             };
 
             const res = await http.post("/frontend/order/", payload);
 
-            if (form.paymentMethod === "payme") {
-                const checkoutId =
-                    res?.data?.checkoutId ||
-                    res?.data?.data?.checkoutId ||
-                    res?.data?.checkout?._id ||
-                    res?.data?.data?._id;
-
-                const payme =
-                    res?.data?.payme ||
-                    res?.data?.payment ||
-                    res?.data?.paymePayment ||
-                    res?.data?.data?.payme;
-
-                const normalizedPayme = normalizePaymePayment(payme);
-
-                if (!checkoutId || !normalizedPayme) {
-                    console.log("PayMe checkout response:", res?.data);
-                    toast.error("PayMe payment link not received.");
-                    return;
-                }
-
-                setPaymePayment(normalizedPayme);
-                setPaymeStatus("PENDING");
-                setCurrentOrderId(checkoutId);
-                setCurrentOrderNumber(null);
-
-                savePendingPayme({
-                    payment: normalizedPayme,
-                    orderId: checkoutId,
-                    orderNumber: null,
-                });
-
+            if (["paymentasia", "stripe"].includes(form.paymentMethod)) {
+                redirectToHostedPayment(res);
                 return;
             }
 
@@ -1047,13 +557,7 @@ function CheckoutForm({ locale = "en" }) {
 
             router.push(`/${locale}/dashboard?tab=orders`);
         } catch (err) {
-            const errorMessage = getApiErrorMessage(err, "Failed to place order.");
-
-            if (process.env.NODE_ENV !== "production") {
-                console.log("Checkout error:", errorMessage);
-            }
-
-            toast.error(errorMessage);
+            toast.error(getApiErrorMessage(err, "Failed to place order."));
         } finally {
             setSubmitting(false);
         }
@@ -1064,12 +568,14 @@ function CheckoutForm({ locale = "en" }) {
             <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-10">
                 <div className="mx-auto max-w-6xl">
                     <div className="h-9 w-52 animate-pulse rounded-xl bg-orange-100" />
+
                     <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px]">
                         <div className="space-y-6">
                             <div className="h-72 animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
                             <div className="h-56 animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
                             <div className="h-48 animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
                         </div>
+
                         <div className="h-[520px] animate-pulse rounded-[28px] bg-white shadow-sm ring-1 ring-orange-100" />
                     </div>
                 </div>
@@ -1079,26 +585,21 @@ function CheckoutForm({ locale = "en" }) {
 
     if (!cartItems.length) {
         return (
-            <section className="relative min-h-[70vh] overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-16">
-                <div className="relative mx-auto max-w-md rounded-[32px] border border-orange-100 bg-white/90 p-8 text-center shadow-[0_24px_70px_rgba(15,42,94,0.12)] backdrop-blur">
-                    <div className="mx-auto mb-5 flex h-18 w-18 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f] ring-8 ring-orange-100/60">
-                        <PackageCheck className="h-9 w-9" />
-                    </div>
-
+            <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-16">
+                <div className="mx-auto max-w-lg rounded-[30px] bg-white p-8 text-center shadow-sm ring-1 ring-orange-100">
                     <h1 className="text-2xl font-bold text-neutral-950">
                         {t("emptyCart", locale)}
                     </h1>
 
-                    <p className="mt-2 text-sm leading-6 text-neutral-500">
+                    <p className="mt-3 text-neutral-500">
                         {t("emptyCartDesc", locale)}
                     </p>
 
                     <Link
                         href={productListHref}
-                        className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] px-6 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e]"
+                        className="mt-6 inline-flex rounded-xl bg-[#1a4b8f] px-5 py-3 text-sm font-bold text-white"
                     >
                         {t("continueShopping", locale)}
-                        <ArrowRight className="h-4 w-4" />
                     </Link>
                 </div>
             </section>
@@ -1106,553 +607,363 @@ function CheckoutForm({ locale = "en" }) {
     }
 
     return (
-        <>
-            <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-8 sm:px-6 lg:px-8">
-                <div className="relative mx-auto max-w-6xl">
-                    <button
-                        type="button"
-                        onClick={() => router.back()}
-                        className="mb-6 inline-flex items-center gap-3 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-[#1a4b8f] shadow-sm transition hover:bg-orange-50"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        Back
-                    </button>
+        <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl">
+                <Link
+                    href={productListHref}
+                    className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#1a4b8f] hover:text-[#0f2a5e]"
+                >
+                    <ArrowLeft className="h-4 w-4" />
+                    {t("continueShopping", locale)}
+                </Link>
 
-                    <div className="mb-7">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1a4b8f] shadow-sm">
-                            <ShieldCheck className="h-4 w-4" />
-                            Secure checkout
-                        </div>
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-neutral-950 sm:text-4xl">
+                        {t("checkout", locale)}
+                    </h1>
 
-                        <h1 className="mt-3 text-[32px] font-bold tracking-tight text-neutral-950 md:text-4xl">
-                            {t("checkout", locale)}
-                        </h1>
-                    </div>
+                    <p className="mt-2 text-neutral-500">
+                        Grocery-style checkout with delivery zone, payment, coupon, and order summary.
+                    </p>
+                </div>
 
-                    <form
-                        onSubmit={handleOrder}
-                        className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start"
-                    >
-                        <div className="space-y-6">
-                            <Card
-                                icon={<UserRound className="h-5 w-5" />}
-                                title={t("generalInfo", locale)}
-                                index="01"
-                            >
-                                <div className="grid gap-5 md:grid-cols-2">
-                                    <Input
-                                        label={t("fullName", locale)}
-                                        required
+                <form onSubmit={handleOrder} className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_410px]">
+                    <div className="space-y-6">
+                        <Card icon={<UserRound className="h-5 w-5" />} title={t("generalInfo", locale)} index="01">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <Field label={t("fullName", locale)} error={errors.name}>
+                                    <input
                                         value={form.name}
-                                        error={errors.name}
-                                        onChange={(v) => updateForm("name", v)}
-                                        placeholder="John Doe"
-                                        disabled={isLoggedIn}
+                                        onChange={(e) => updateForm("name", e.target.value)}
+                                        className={inputClass(errors.name)}
                                     />
+                                </Field>
 
-                                    <Input
-                                        label={t("email", locale)}
-                                        required
+                                <Field label={t("email", locale)} error={errors.email}>
+                                    <input
                                         type="email"
                                         value={form.email}
-                                        error={errors.email}
-                                        onChange={(v) => updateForm("email", v)}
-                                        placeholder="john.doe@example.com"
-                                        disabled={isLoggedIn}
+                                        onChange={(e) => updateForm("email", e.target.value)}
+                                        className={inputClass(errors.email)}
                                     />
+                                </Field>
 
-                                    <div className="md:col-span-2">
-                                        <Input
-                                            label={t("phone", locale)}
-                                            required
-                                            value={form.phoneNumber}
-                                            error={errors.phoneNumber}
-                                            helperText={getPhoneHelperText(form.phoneNumber)}
-                                            onChange={(v) => updateForm("phoneNumber", v)}
-                                            onBlur={handlePhoneBlur}
-                                            placeholder="Nepal: 9800000000 or Hong Kong: 12345678"
-                                            inputMode="tel"
-                                            maxLength={18}
-                                            disabled={isLoggedIn}
-                                        />
-                                    </div>
-
-                                    <div className="md:col-span-2">
-                                        <label className="mb-2 block text-sm font-semibold text-neutral-800">
-                                            {t("note", locale)}
-                                        </label>
-
-                                        <textarea
-                                            value={form.orderNote}
-                                            onChange={(e) =>
-                                                updateForm("orderNote", e.target.value)
-                                            }
-                                            placeholder="Leave a note, e.g. Call before delivery"
-                                            rows={4}
-                                            className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
-                                        />
-                                    </div>
-                                </div>
-                            </Card>
-
-                            <Card
-                                icon={<MapPin className="h-5 w-5" />}
-                                title={t("deliveryAddress", locale)}
-                                index="02"
-                            >
-                                <div className="grid gap-5 md:grid-cols-2">
-                                    <div className="md:col-span-2">
-                                        <label className="mb-2 block text-sm font-semibold text-neutral-800">
-                                            {t("city", locale)}{" "}
-                                            <span className="text-red-500">*</span>
-                                        </label>
-
-                                        <select
-                                            value={form.cityDistrict}
-                                            disabled={zoneLoading}
-                                            onChange={(e) =>
-                                                updateForm("cityDistrict", e.target.value)
-                                            }
-                                            className={[
-                                                "h-12 w-full rounded-2xl border bg-white px-4 text-sm text-neutral-900 outline-none transition focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100",
-                                                errors.cityDistrict
-                                                    ? "border-red-400"
-                                                    : "border-orange-100",
-                                            ].join(" ")}
-                                        >
-                                            <option value="">
-                                                {zoneLoading
-                                                    ? "Loading..."
-                                                    : t("selectCity", locale)}
-                                            </option>
-
-                                            {zones.map((zone) => (
-                                                <option
-                                                    key={zone._id || zone.name}
-                                                    value={zone.name}
-                                                >
-                                                    {zone.name}
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        {errors.cityDistrict && (
-                                            <p className="mt-1 text-xs text-red-500">
-                                                {errors.cityDistrict}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <Input
-                                        label={t("address", locale)}
-                                        required
-                                        value={form.address}
-                                        error={errors.address}
-                                        onChange={(v) => updateForm("address", v)}
-                                        placeholder="Hong Kong"
-                                    />
-
-                                    <Input
-                                        label={t("landmark", locale)}
-                                        value={form.landmark}
-                                        onChange={(v) => updateForm("landmark", v)}
-                                        placeholder="Nearby landmark"
-                                    />
-                                </div>
-                            </Card>
-
-                            <Card
-                                icon={<Truck className="h-5 w-5" />}
-                                title={t("deliveryType", locale)}
-                                index="03"
-                            >
-                                {!selectedZone ? (
-                                    <div className="rounded-2xl bg-orange-50 p-4 text-sm font-medium text-neutral-600">
-                                        {t("selectZoneInfo", locale)}
-                                    </div>
-                                ) : (
-                                    <div className="grid gap-3 md:grid-cols-2">
-                                        <DeliveryOption
-                                            checked={form.deliveryType === "standard"}
-                                            label={t("standardDelivery", locale)}
-                                            price={
-                                                getFreeDeliveryThreshold(selectedZone) > 0 &&
-                                                    subTotal >= getFreeDeliveryThreshold(selectedZone)
-                                                    ? t("free", locale)
-                                                    : money(getStandardDeliveryCharge(selectedZone))
-                                            }
-                                            description={
-                                                getFreeDeliveryThreshold(selectedZone) > 0
-                                                    ? `${t("freeAbove", locale)} ${money(
-                                                        getFreeDeliveryThreshold(selectedZone)
-                                                    )}`
-                                                    : t("regularDelivery", locale)
-                                            }
-                                            onChange={() =>
-                                                updateForm("deliveryType", "standard")
-                                            }
-                                        />
-
-                                        <DeliveryOption
-                                            checked={form.deliveryType === "express"}
-                                            label={t("expressDelivery", locale)}
-                                            price={
-                                                getFreeDeliveryThreshold(selectedZone) > 0 &&
-                                                    subTotal >= getFreeDeliveryThreshold(selectedZone)
-                                                    ? t("free", locale)
-                                                    : money(getExpressDeliveryCharge(selectedZone))
-                                            }
-                                            description={t("fasterDelivery", locale)}
-                                            onChange={() =>
-                                                updateForm("deliveryType", "express")
-                                            }
-                                        />
-                                    </div>
-                                )}
-
-                                {errors.deliveryType && (
-                                    <p className="mt-2 text-xs text-red-500">
-                                        {errors.deliveryType}
-                                    </p>
-                                )}
-                            </Card>
-
-                            <Card
-                                icon={<CreditCard className="h-5 w-5" />}
-                                title={t("paymentMethods", locale)}
-                                index="04"
-                            >
-                                {!selectedZone ? (
-                                    <div className="rounded-2xl bg-orange-50 p-4 text-sm font-medium text-neutral-600">
-                                        {t("paymentInfo", locale)}
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {isLoggedIn && isCodAvailable(selectedZone) && (
-                                            <PaymentOption
-                                                checked={form.paymentMethod === "cod"}
-                                                label={t("cod", locale)}
-                                                icon={<Truck className="h-4 w-4" />}
-                                                onChange={() =>
-                                                    updateForm("paymentMethod", "cod")
-                                                }
-                                            />
-                                        )}
-
-                                        {isLoggedIn && !isCodAvailable(selectedZone) && (
-                                            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
-                                                {t("codUnavailable", locale)}
-                                            </div>
-                                        )}
-
-                                        <PaymentOption
-                                            checked={form.paymentMethod === "payme"}
-                                            label="PayMe"
-                                            icon={<PayMeWhiteIcon className="h-5 w-auto" />}
-                                            onChange={() =>
-                                                updateForm("paymentMethod", "payme")
-                                            }
-                                        />
-
-                                        {form.paymentMethod === "payme" && (
-                                            <div className="rounded-2xl border border-red-100 bg-red-50/70 p-3 text-sm text-red-700">
-                                                {t("paymeInfo", locale)}
-                                            </div>
-                                        )}
-
-                                        {!isLoggedIn && (
-                                            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
-                                                {t("guestPaymeOnly", locale)}
-                                            </div>
-                                        )}
-
-                                        {errors.paymentMethod && (
-                                            <p className="text-xs text-red-500">
-                                                {errors.paymentMethod}
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
-                            </Card>
-                        </div>
-
-                        <aside className="h-fit rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,42,94,0.08)] backdrop-blur lg:sticky lg:top-24">
-                            <h2 className="mb-6 text-lg font-bold text-neutral-950">
-                                {t("orderSummary", locale)}
-                            </h2>
-
-                            <div className="max-h-[300px] space-y-4 overflow-y-auto pr-1">
-                                {cartItems.map((item) => {
-                                    const productId = getProductId(item);
-                                    const qty = getQty(item);
-                                    const price = getPrice(item);
-
-                                    return (
-                                        <div key={productId} className="flex gap-3">
-                                            <div className="relative h-14 w-14 shrink-0 overflow-visible rounded-2xl bg-orange-50">
-                                                <Image
-                                                    src={getProductImage(item)}
-                                                    alt={getProductName(item, locale)}
-                                                    fill
-                                                    sizes="56px"
-                                                    className="rounded-2xl object-cover"
-                                                    unoptimized
-                                                />
-
-                                                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#1a4b8f] px-1 text-[11px] font-bold text-white">
-                                                    {qty}
-                                                </span>
-                                            </div>
-
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate text-sm font-bold text-neutral-900">
-                                                    {getProductName(item, locale)}
-                                                </p>
-
-                                                <p className="mt-1 text-xs text-neutral-500">
-                                                    {qty} × {money(price)}
-                                                </p>
-                                            </div>
-
-                                            <div className="flex shrink-0 items-start gap-2">
-                                                <p className="text-sm font-bold text-neutral-900">
-                                                    {money(price * qty)}
-                                                </p>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeItem(productId)}
-                                                    className="rounded-lg p-1 text-red-400 transition hover:bg-red-50 hover:text-red-600"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            <div className="mt-6 rounded-2xl border border-orange-100 bg-orange-50/50 p-4">
-                                <label className="mb-2 flex items-center gap-2 text-sm font-bold text-neutral-900">
-                                    <Tag className="h-4 w-4 text-[#1a4b8f]" />
-                                    {t("coupon", locale)}
-                                </label>
-
-                                <div className="flex gap-2">
+                                <Field label={t("phone", locale)} error={errors.phoneNumber} hint={getPhoneHelperText(form.phoneNumber)}>
                                     <input
-                                        value={couponCode}
-                                        disabled={!isLoggedIn || !!appliedCoupon}
-                                        onChange={(e) => setCouponCode(e.target.value)}
-                                        placeholder="COUPONCODE"
-                                        className="h-11 min-w-0 flex-1 rounded-xl border border-orange-100 bg-white px-3 text-sm outline-none focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:bg-neutral-100"
+                                        value={form.phoneNumber}
+                                        onChange={(e) => updateForm("phoneNumber", e.target.value)}
+                                        onBlur={handlePhoneBlur}
+                                        className={inputClass(errors.phoneNumber)}
+                                    />
+                                </Field>
+
+                                <Field label={t("note", locale)}>
+                                    <input
+                                        value={form.orderNote}
+                                        onChange={(e) => updateForm("orderNote", e.target.value)}
+                                        className={inputClass()}
+                                    />
+                                </Field>
+                            </div>
+                        </Card>
+
+                        <Card icon={<MapPin className="h-5 w-5" />} title={t("deliveryAddress", locale)} index="02">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <Field label={t("city", locale)} error={errors.cityDistrict}>
+                                    <select
+                                        value={form.cityDistrict}
+                                        onChange={(e) => updateForm("cityDistrict", e.target.value)}
+                                        className={inputClass(errors.cityDistrict)}
+                                        disabled={zoneLoading}
+                                    >
+                                        <option value="">
+                                            {zoneLoading ? "Loading..." : t("selectCity", locale)}
+                                        </option>
+
+                                        {zones.map((zone) => (
+                                            <option key={zone._id || zone.name} value={zone.name}>
+                                                {zone.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </Field>
+
+                                <Field label={t("landmark", locale)}>
+                                    <input
+                                        value={form.landmark}
+                                        onChange={(e) => updateForm("landmark", e.target.value)}
+                                        className={inputClass()}
+                                    />
+                                </Field>
+
+                                <div className="md:col-span-2">
+                                    <Field label={t("address", locale)} error={errors.address}>
+                                        <textarea
+                                            rows={3}
+                                            value={form.address}
+                                            onChange={(e) => updateForm("address", e.target.value)}
+                                            className={`${inputClass(errors.address)} min-h-[96px] resize-none`}
+                                        />
+                                    </Field>
+                                </div>
+                            </div>
+                        </Card>
+
+                        <Card icon={<Truck className="h-5 w-5" />} title={t("deliveryType", locale)} index="03">
+                            {!selectedZone ? (
+                                <div className="rounded-2xl bg-orange-50 p-4 text-sm font-medium text-neutral-600">
+                                    {t("selectZoneInfo", locale)}
+                                </div>
+                            ) : (
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <RadioCard
+                                        checked={form.deliveryType === "standard"}
+                                        title={t("standardDelivery", locale)}
+                                        price={
+                                            getFreeDeliveryThreshold(selectedZone) > 0 &&
+                                                subTotal >= getFreeDeliveryThreshold(selectedZone)
+                                                ? t("free", locale)
+                                                : money(getStandardDeliveryCharge(selectedZone))
+                                        }
+                                        description={t("regularDelivery", locale)}
+                                        onChange={() => updateForm("deliveryType", "standard")}
                                     />
 
-                                    {appliedCoupon ? (
-                                        <button
-                                            type="button"
-                                            onClick={removeCoupon}
-                                            className="h-11 rounded-xl bg-red-500 px-4 text-sm font-bold text-white transition hover:bg-red-600"
-                                        >
-                                            {t("remove", locale)}
-                                        </button>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={applyCoupon}
-                                            disabled={couponLoading || !isLoggedIn}
-                                            className="h-11 rounded-xl bg-[#1a4b8f] px-5 text-sm font-bold text-white transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-70"
-                                        >
-                                            {couponLoading ? (
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                            ) : (
-                                                t("apply", locale)
-                                            )}
-                                        </button>
+                                    <RadioCard
+                                        checked={form.deliveryType === "express"}
+                                        title={t("expressDelivery", locale)}
+                                        price={
+                                            getFreeDeliveryThreshold(selectedZone) > 0 &&
+                                                subTotal >= getFreeDeliveryThreshold(selectedZone)
+                                                ? t("free", locale)
+                                                : money(getExpressDeliveryCharge(selectedZone))
+                                        }
+                                        description={t("fasterDelivery", locale)}
+                                        onChange={() => updateForm("deliveryType", "express")}
+                                    />
+                                </div>
+                            )}
+                        </Card>
+
+                        <Card icon={<CreditCard className="h-5 w-5" />} title={t("paymentMethods", locale)} index="04">
+                            {!selectedZone ? (
+                                <div className="rounded-2xl bg-orange-50 p-4 text-sm font-medium text-neutral-600">
+                                    {t("paymentInfo", locale)}
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {isLoggedIn && isCodAvailable(selectedZone) && (
+                                        <PaymentOption
+                                            checked={form.paymentMethod === "cod"}
+                                            label={t("cod", locale)}
+                                            icon={<Truck className="h-4 w-4" />}
+                                            onChange={() => updateForm("paymentMethod", "cod")}
+                                        />
+                                    )}
+
+                                    {isLoggedIn && !isCodAvailable(selectedZone) && (
+                                        <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
+                                            {t("codUnavailable", locale)}
+                                        </div>
+                                    )}
+
+                                    <PaymentOption
+                                        checked={form.paymentMethod === "paymentasia"}
+                                        label={t("paymentAsia", locale)}
+                                        icon={<CreditCard className="h-4 w-4" />}
+                                        onChange={() => updateForm("paymentMethod", "paymentasia")}
+                                    />
+
+                                    <PaymentOption
+                                        checked={form.paymentMethod === "stripe"}
+                                        label={t("stripe", locale)}
+                                        icon={<CreditCard className="h-4 w-4" />}
+                                        onChange={() => updateForm("paymentMethod", "stripe")}
+                                    />
+
+                                    {form.paymentMethod === "paymentasia" && (
+                                        <InfoBox>{t("paymentAsiaInfo", locale)}</InfoBox>
+                                    )}
+
+                                    {form.paymentMethod === "stripe" && (
+                                        <InfoBox>{t("stripeInfo", locale)}</InfoBox>
+                                    )}
+
+                                    {!isLoggedIn && (
+                                        <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800">
+                                            {t("guestOnlineOnly", locale)}
+                                        </div>
+                                    )}
+
+                                    {errors.paymentMethod && (
+                                        <p className="text-xs text-red-500">
+                                            {errors.paymentMethod}
+                                        </p>
                                     )}
                                 </div>
+                            )}
+                        </Card>
+                    </div>
 
-                                {!isLoggedIn && (
-                                    <p className="mt-2 text-xs font-medium text-neutral-500">
-                                        Coupon codes are available after login.
-                                    </p>
-                                )}
+                    <aside className="h-fit rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,42,94,0.08)] backdrop-blur lg:sticky lg:top-24">
+                        <h2 className="mb-6 text-lg font-bold text-neutral-950">
+                            {t("orderSummary", locale)}
+                        </h2>
 
-                                {appliedCoupon && (
-                                    <p className="mt-2 text-xs font-medium text-green-600">
-                                        Coupon {appliedCoupon.code} applied.
-                                    </p>
-                                )}
-                            </div>
+                        <div className="max-h-[300px] space-y-4 overflow-y-auto pr-1">
+                            {cartItems.map((item) => (
+                                <div
+                                    key={getProductId(item)}
+                                    className="flex gap-3 rounded-2xl border border-orange-100 bg-orange-50/30 p-3"
+                                >
+                                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-white">
+                                        <Image
+                                            src={getProductImage(item)}
+                                            alt={getProductName(item, locale)}
+                                            fill
+                                            sizes="64px"
+                                            className="object-cover"
+                                            unoptimized
+                                        />
+                                    </div>
 
-                            <div className="mt-7 space-y-4">
-                                <SummaryRow
-                                    label={t("subTotal", locale)}
-                                    value={money(subTotal)}
-                                />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="line-clamp-1 text-sm font-bold text-neutral-900">
+                                            {getProductName(item, locale)}
+                                        </p>
 
-                                <SummaryRow
-                                    label={`${t("deliveryCharge", locale)} ${selectedZone
-                                            ? form.deliveryType === "express"
-                                                ? `(${t("expressDelivery", locale)})`
-                                                : `(${t("standardDelivery", locale)})`
-                                            : ""
-                                        }`}
-                                    value={
-                                        !selectedZone
-                                            ? "-"
-                                            : deliveryCharge === 0
-                                                ? t("free", locale)
-                                                : money(deliveryCharge)
-                                    }
-                                />
+                                        <p className="mt-1 text-xs text-neutral-500">
+                                            Qty: {getQty(item)}
+                                        </p>
 
-                                {appliedCoupon && (
-                                    <SummaryRow
-                                        label={`${t("discount", locale)} (${appliedCoupon.code})`}
-                                        value={`- ${money(discountAmount)}`}
-                                        danger
-                                    />
-                                )}
+                                        <p className="mt-1 text-sm font-bold text-[#1a4b8f]">
+                                            {money(getPrice(item) * getQty(item))}
+                                        </p>
+                                    </div>
 
-                                <div className="h-px bg-orange-100" />
-
-                                <div className="flex items-center justify-between">
-                                    <span className="text-lg font-bold text-neutral-950">
-                                        {t("total", locale)}
-                                    </span>
-
-                                    <span className="text-xl font-bold text-[#1a4b8f]">
-                                        {money(total)}
-                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeItem(getProductId(item))}
+                                        className="h-9 w-9 rounded-xl text-neutral-400 hover:bg-red-50 hover:text-red-500"
+                                    >
+                                        <Trash2 className="mx-auto h-4 w-4" />
+                                    </button>
                                 </div>
-                            </div>
+                            ))}
+                        </div>
 
-                            <button
-                                type="submit"
-                                disabled={submitting || !selectedZone}
-                                className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-70"
-                            >
-                                {submitting ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        {t("placing", locale)}
-                                    </>
+                        <div className="mt-6 rounded-2xl border border-orange-100 bg-orange-50/40 p-4">
+                            <p className="mb-3 flex items-center gap-2 text-sm font-bold text-neutral-800">
+                                <Tag className="h-4 w-4 text-[#1a4b8f]" />
+                                {t("coupon", locale)}
+                            </p>
+
+                            <div className="flex gap-2">
+                                <input
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
+                                    placeholder="CODE"
+                                    className="h-11 min-w-0 flex-1 rounded-xl border border-orange-100 bg-white px-3 text-sm outline-none focus:border-[#1a4b8f]"
+                                    disabled={Boolean(appliedCoupon)}
+                                />
+
+                                {appliedCoupon ? (
+                                    <button
+                                        type="button"
+                                        onClick={removeCoupon}
+                                        className="rounded-xl bg-neutral-100 px-4 text-sm font-bold text-neutral-700"
+                                    >
+                                        {t("remove", locale)}
+                                    </button>
                                 ) : (
-                                    <>
-                                        <CheckCircle2 className="h-4 w-4" />
-                                        {form.paymentMethod === "payme"
-                                            ? t("payNow", locale)
-                                            : t("placeOrder", locale)}
-                                    </>
+                                    <button
+                                        type="button"
+                                        onClick={applyCoupon}
+                                        disabled={couponLoading}
+                                        className="rounded-xl bg-[#1a4b8f] px-4 text-sm font-bold text-white disabled:opacity-60"
+                                    >
+                                        {couponLoading ? "..." : t("apply", locale)}
+                                    </button>
                                 )}
-                            </button>
+                            </div>
+                        </div>
 
-                            {!selectedZone && (
-                                <p className="mt-3 text-center text-xs text-neutral-500">
-                                    {t("selectZoneInfo", locale)}
-                                </p>
+                        <div className="mt-7 space-y-4">
+                            <SummaryRow label={t("subTotal", locale)} value={money(subTotal)} />
+
+                            <SummaryRow
+                                label={`${t("deliveryCharge", locale)} ${selectedZone
+                                        ? form.deliveryType === "express"
+                                            ? `(${t("expressDelivery", locale)})`
+                                            : `(${t("standardDelivery", locale)})`
+                                        : ""
+                                    }`}
+                                value={
+                                    !selectedZone
+                                        ? "-"
+                                        : deliveryCharge === 0
+                                            ? t("free", locale)
+                                            : money(deliveryCharge)
+                                }
+                            />
+
+                            {appliedCoupon && (
+                                <SummaryRow
+                                    label={`${t("discount", locale)} (${appliedCoupon.code})`}
+                                    value={`- ${money(discountAmount)}`}
+                                    danger
+                                />
                             )}
 
-                            <div className="mt-5 rounded-2xl bg-orange-50/70 p-4">
-                                <p className="flex items-center justify-center gap-2 text-center text-xs font-medium text-neutral-600">
-                                    <ShieldCheck className="h-4 w-4 text-[#1a4b8f]" />
-                                    {t("secure", locale)}
-                                </p>
+                            <div className="h-px bg-orange-100" />
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-lg font-bold text-neutral-950">
+                                    {t("total", locale)}
+                                </span>
+
+                                <span className="text-xl font-bold text-[#1a4b8f]">
+                                    {money(total)}
+                                </span>
                             </div>
-                        </aside>
-                    </form>
-                </div>
-            </section>
+                        </div>
 
-            {paymePayment && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-4 backdrop-blur-sm">
-                    <div className="flex max-h-[calc(100vh-32px)] w-full max-w-xs flex-col overflow-hidden rounded-[24px] bg-white shadow-2xl sm:max-w-sm">
-                        <div className="border-b border-neutral-100 bg-white px-5 py-4 text-center">
-                            <div className="flex justify-center">
-                                <PayMeRedLogo className="h-7 w-auto" />
-                            </div>
+                        <button
+                            type="submit"
+                            disabled={submitting || !selectedZone}
+                            className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            {submitting ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    {t("placing", locale)}
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    {["paymentasia", "stripe"].includes(form.paymentMethod)
+                                        ? t("payNow", locale)
+                                        : t("placeOrder", locale)}
+                                </>
+                            )}
+                        </button>
 
-                            <h3 className="mt-3 text-base font-bold text-neutral-950">
-                                {t("scanQR", locale)}
-                            </h3>
+                        {!selectedZone && (
+                            <p className="mt-3 text-center text-xs text-neutral-500">
+                                {t("selectZoneInfo", locale)}
+                            </p>
+                        )}
 
-                            <p className="mt-1 text-[11px] font-medium text-neutral-500">
-                                Open PayMe and scan to authorise payment.
+                        <div className="mt-5 rounded-2xl bg-orange-50/70 p-4">
+                            <p className="flex items-center justify-center gap-2 text-center text-xs font-medium text-neutral-600">
+                                <ShieldCheck className="h-4 w-4 text-[#1a4b8f]" />
+                                {t("secure", locale)}
                             </p>
                         </div>
-
-                        <div className="overflow-y-auto px-5 py-5 text-center">
-                            <div className="mx-auto flex w-fit justify-center rounded-[20px] border border-neutral-200 bg-white p-3 shadow-sm">
-                                <QRCodeCanvas
-                                    value={
-                                        paymePayment.webLink ||
-                                        paymePayment.appLink ||
-                                        paymePayment.uri
-                                    }
-                                    size={230}
-                                    level="H"
-                                    includeMargin
-                                />
-                            </div>
-
-                            {paymeStatus && (
-                                <p className="mt-3 text-xs font-semibold text-neutral-500">
-                                    Status: {paymeStatus}
-                                </p>
-                            )}
-
-                            <div className="mt-5 grid gap-2.5">
-                                {paymePayment.webLink && (
-                                    <a
-                                        href={paymePayment.webLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex w-full items-center justify-center rounded-xl bg-[#e60012] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#c90010]"
-                                    >
-                                        {t("openPaymeApp", locale)}
-                                    </a>
-                                )}
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        checkPaymeStatusOnce(
-                                            currentOrderId,
-                                            currentOrderNumber,
-                                            true
-                                        )
-                                    }
-                                    disabled={!currentOrderId}
-                                    className="inline-flex w-full items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-bold text-neutral-800 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                    {t("checkPayment", locale)}
-                                </button>
-
-                                {process.env.NEXT_PUBLIC_PAYME_SANDBOX === "true" &&
-                                    successSimulationAllowed && (
-                                        <button
-                                            type="button"
-                                            onClick={simulateSandboxPaymentPaid}
-                                            disabled={!currentOrderId}
-                                            className="inline-flex w-full items-center justify-center rounded-xl bg-green-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
-                                        >
-                                            {t("simulateSandboxPaid", locale)}
-                                        </button>
-                                    )}
-
-                                <button
-                                    type="button"
-                                    onClick={closePaymeModal}
-                                    className="inline-flex w-full items-center justify-center rounded-xl bg-neutral-100 px-4 py-3 text-sm font-bold text-neutral-700 transition hover:bg-neutral-200"
-                                >
-                                    {t("cancel", locale)}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </>
+                    </aside>
+                </form>
+            </div>
+        </section>
     );
 }
 
@@ -1665,12 +976,12 @@ function Card({ children, title, icon, index }) {
                         {icon}
                     </div>
 
-                    <h2 className="text-lg font-bold text-neutral-950 sm:text-xl">
+                    <h2 className="text-lg font-bold text-neutral-950">
                         {title}
                     </h2>
                 </div>
 
-                <span className="hidden text-xs font-bold uppercase tracking-[0.18em] text-orange-300 sm:block">
+                <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-[#1a4b8f]">
                     {index}
                 </span>
             </div>
@@ -1680,80 +991,62 @@ function Card({ children, title, icon, index }) {
     );
 }
 
-function Input({
-    label,
-    value,
-    onChange,
-    onBlur,
-    error,
-    helperText,
-    placeholder,
-    type = "text",
-    required = false,
-    disabled = false,
-    inputMode,
-    maxLength,
-}) {
+function Field({ label, children, error, hint }) {
     return (
-        <div>
-            <label className="mb-2 block text-sm font-semibold text-neutral-800">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
+        <label className="block">
+            <span className="mb-2 block text-sm font-bold text-neutral-800">
+                {label}
+            </span>
 
-            <input
-                type={type}
-                value={value}
-                disabled={disabled}
-                onChange={(e) => onChange(e.target.value)}
-                onBlur={onBlur}
-                placeholder={placeholder}
-                inputMode={inputMode}
-                maxLength={maxLength}
-                className={[
-                    "h-12 w-full rounded-2xl border bg-white px-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500",
-                    error ? "border-red-400" : "border-orange-100",
-                ].join(" ")}
-            />
+            {children}
 
-            {error ? (
-                <p className="mt-1 text-xs text-red-500">{error}</p>
-            ) : helperText ? (
-                <p className="mt-1 text-xs text-neutral-500">{helperText}</p>
-            ) : null}
-        </div>
+            {hint && !error && (
+                <span className="mt-1 block text-xs text-neutral-400">
+                    {hint}
+                </span>
+            )}
+
+            {error && (
+                <span className="mt-1 block text-xs text-red-500">
+                    {error}
+                </span>
+            )}
+        </label>
     );
 }
 
-function DeliveryOption({ checked, label, price, description, onChange }) {
+function inputClass(hasError) {
+    return `h-12 w-full rounded-xl border bg-white px-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:ring-4 ${hasError
+            ? "border-red-200 focus:border-red-400 focus:ring-red-50"
+            : "border-orange-100 focus:border-[#1a4b8f] focus:ring-blue-50"
+        }`;
+}
+
+function RadioCard({ checked, title, price, description, onChange }) {
     return (
         <label
-            className={[
-                "flex cursor-pointer items-start justify-between gap-4 rounded-2xl border bg-white p-4 transition",
-                checked
-                    ? "border-[#1a4b8f] bg-blue-50/40"
-                    : "border-orange-100 hover:border-orange-200 hover:bg-orange-50/40",
-            ].join(" ")}
+            className={`cursor-pointer rounded-2xl border p-4 transition ${checked
+                    ? "border-[#1a4b8f] bg-blue-50"
+                    : "border-orange-100 bg-white hover:border-[#1a4b8f]/40"
+                }`}
         >
-            <span className="min-w-0">
-                <span className="block text-sm font-bold text-neutral-900">
-                    {label}
-                </span>
+            <input type="radio" className="sr-only" checked={checked} onChange={onChange} />
 
-                <span className="mt-1 block text-xs font-medium text-neutral-500">
-                    {description}
-                </span>
+            <div className="flex items-start justify-between gap-3">
+                <div>
+                    <p className="font-bold text-neutral-900">
+                        {title}
+                    </p>
 
-                <span className="mt-2 block text-sm font-bold text-[#1a4b8f]">
+                    <p className="mt-1 text-xs text-neutral-500">
+                        {description}
+                    </p>
+                </div>
+
+                <span className="text-sm font-bold text-[#1a4b8f]">
                     {price}
                 </span>
-            </span>
-
-            <input
-                type="radio"
-                checked={checked}
-                onChange={onChange}
-                className="mt-1 accent-[#1a4b8f]"
-            />
+            </div>
         </label>
     );
 }
@@ -1761,27 +1054,15 @@ function DeliveryOption({ checked, label, price, description, onChange }) {
 function PaymentOption({ checked, label, icon, onChange }) {
     return (
         <label
-            className={[
-                "flex cursor-pointer items-center justify-between rounded-2xl border bg-white p-4 transition",
-                checked
-                    ? "border-[#1a4b8f] bg-blue-50/40"
-                    : "border-orange-100 hover:border-orange-200 hover:bg-orange-50/40",
-            ].join(" ")}
+            className={`flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition ${checked
+                    ? "border-[#1a4b8f] bg-blue-50"
+                    : "border-orange-100 bg-white hover:border-[#1a4b8f]/40"
+                }`}
         >
-            <span className="flex items-center gap-2.5 font-semibold text-neutral-900">
-                <span
-                    className={[
-                        "flex h-8 w-8 items-center justify-center rounded-full",
-                        label === "PayMe"
-                            ? "bg-[#e60012]"
-                            : checked
-                                ? "bg-[#1a4b8f] text-white"
-                                : "bg-orange-50 text-[#1a4b8f]",
-                    ].join(" ")}
-                >
+            <span className="flex items-center gap-3 text-sm font-bold text-neutral-900">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1a4b8f] text-white">
                     {icon}
                 </span>
-
                 {label}
             </span>
 
@@ -1789,23 +1070,28 @@ function PaymentOption({ checked, label, icon, onChange }) {
                 type="radio"
                 checked={checked}
                 onChange={onChange}
-                className="accent-[#1a4b8f]"
+                className="h-4 w-4 accent-[#1a4b8f]"
             />
         </label>
     );
 }
 
-function SummaryRow({ label, value, danger = false }) {
+function InfoBox({ children }) {
     return (
-        <div className="flex items-center justify-between gap-4 text-sm text-neutral-600">
-            <span className="min-w-0">{label}</span>
+        <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-3 text-sm text-blue-800">
+            {children}
+        </div>
+    );
+}
 
-            <span
-                className={[
-                    "shrink-0 font-bold",
-                    danger ? "text-red-500" : "text-neutral-900",
-                ].join(" ")}
-            >
+function SummaryRow({ label, value, danger }) {
+    return (
+        <div className="flex items-center justify-between gap-4 text-sm">
+            <span className="text-neutral-500">
+                {label}
+            </span>
+
+            <span className={`font-bold ${danger ? "text-red-500" : "text-neutral-900"}`}>
                 {value}
             </span>
         </div>

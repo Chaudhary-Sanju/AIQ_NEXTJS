@@ -136,9 +136,9 @@ const UI = {
     zh: "提交貨到付款訂單",
   },
   payNow: {
-    en: "Pay with PayMe",
-    ne: "PayMe बाट भुक्तानी गर्नुहोस्",
-    zh: "使用 PayMe 付款",
+    en: "Pay with PaymentAsia",
+    ne: "PaymentAsia बाट भुक्तानी गर्नुहोस्",
+    zh: "使用 PaymentAsia 付款",
   },
   placing: {
     en: "Processing...",
@@ -160,30 +160,30 @@ const UI = {
     ne: "डेलिभरीमा नगद",
     zh: "貨到付款",
   },
-  payme: {
-    en: "PayMe",
-    ne: "PayMe",
-    zh: "PayMe",
+  paymentasia: {
+    en: "PaymentAsia",
+    ne: "PaymentAsia",
+    zh: "PaymentAsia",
   },
-  paymeInfo: {
-    en: "Pay securely with PayMe.",
-    ne: "PayMe मार्फत सुरक्षित भुक्तानी गर्नुहोस्।",
-    zh: "使用 PayMe 安全付款。",
+  paymentasiaInfo: {
+    en: "Pay securely with PaymentAsia.",
+    ne: "PaymentAsia मार्फत सुरक्षित भुक्तानी गर्नुहोस्।",
+    zh: "使用 PaymentAsia 安全付款。",
   },
-  guestPaymeOnly: {
-    en: "Guest checkout is available with PayMe only. Login to use Cash on Delivery.",
-    ne: "अतिथि चेकआउट केवल PayMe संग उपलब्ध छ। नगदमा डेलिभरी प्रयोग गर्न लगइन गर्नुहोस्।",
-    zh: "訪客結帳僅可使用 PayMe。登錄以使用貨到付款。",
+  guestPaymentAsiaOnly: {
+    en: "Guest checkout is available with PaymentAsia only. Login to use Cash on Delivery.",
+    ne: "अतिथि चेकआउट केवल PaymentAsia संग उपलब्ध छ। नगदमा डेलिभरी प्रयोग गर्न लगइन गर्नुहोस्।",
+    zh: "訪客結帳僅可使用 PaymentAsia。登錄以使用貨到付款。",
   },
   scanQR: {
-    en: "Scan this PayCode with PayMe",
-    ne: "यो PayCode PayMe बाट scan गर्नुहोस्",
-    zh: "使用 PayMe 掃描此 PayCode",
+    en: "Scan this PayCode with PaymentAsia",
+    ne: "यो PayCode PaymentAsia बाट scan गर्नुहोस्",
+    zh: "使用 PaymentAsia 掃描此 PayCode",
   },
-  openPaymeApp: {
-    en: "Open PayMe",
-    ne: "PayMe खोल्नुहोस्",
-    zh: "開啟 PayMe",
+  openPaymentAsiaApp: {
+    en: "Open PaymentAsia",
+    ne: "PaymentAsia खोल्नुहोस्",
+    zh: "開啟 PaymentAsia",
   },
   checkPayment: {
     en: "Check Payment Status",
@@ -407,30 +407,12 @@ const isFailedStatus = (status) => {
   ].includes(String(status || "").toUpperCase());
 };
 
-function PayMeRedLogo({ className = "h-8 w-auto" }) {
-  return (
-    <Image
-      src="/images/payme/PayMe-Logo.wine.svg"
-      alt="PayMe"
-      width={120}
-      height={40}
-      className={className}
-      priority
-    />
-  );
+function PaymentAsiaRedLogo({ className = "" }) {
+  return <span className={`text-sm font-black text-[#1a4b8f] ${className}`}>PaymentAsia</span>;
 }
 
-function PayMeWhiteIcon({ className = "h-5 w-auto" }) {
-  return (
-    <Image
-      src="/images/payme/PayMe-Icon-White-Logo.wine.svg"
-      alt="PayMe"
-      width={28}
-      height={28}
-      className={className}
-      priority
-    />
-  );
+function PaymentAsiaWhiteIcon({ className = "h-5 w-5" }) {
+  return <CreditCard className={className} />;
 }
 
 export default function RestaurantCheckoutPageView({ locale = "en" }) {
@@ -466,8 +448,8 @@ function RestaurantCheckoutForm({ locale = "en" }) {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const [paymePayment, setPaymePayment] = useState(null);
-  const [paymeStatus, setPaymeStatus] = useState(null);
+  const [paymentasiaPayment, setPaymentAsiaPayment] = useState(null);
+  const [paymentasiaStatus, setPaymentAsiaStatus] = useState(null);
   const [currentCheckoutId, setCurrentCheckoutId] = useState(null);
   const [currentOrderNumber, setCurrentOrderNumber] = useState(null);
 
@@ -521,7 +503,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
   const isCodAvailable = (zone) => Boolean(zone?.codAvailable);
 
-  const stopPaymePolling = () => {
+  const stopPaymentAsiaPolling = () => {
     if (pollingTimeoutRef.current) {
       clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
@@ -570,7 +552,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
     if (user) fillUserInfo(user);
 
-    return () => stopPaymePolling();
+    return () => stopPaymentAsiaPolling();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -593,11 +575,11 @@ function RestaurantCheckoutForm({ locale = "en" }) {
         if (!zone) {
           next.paymentMethod = "";
         } else if (!isLoggedIn) {
-          next.paymentMethod = "payme";
+          next.paymentMethod = "paymentasia";
         } else if (zone.codAvailable) {
           next.paymentMethod = "cod";
         } else {
-          next.paymentMethod = "payme";
+          next.paymentMethod = "paymentasia";
         }
       }
 
@@ -648,8 +630,8 @@ function RestaurantCheckoutForm({ locale = "en" }) {
       next.paymentMethod = "Please select payment method.";
     }
 
-    if (!isLoggedIn && form.paymentMethod !== "payme") {
-      next.paymentMethod = "Guest checkout supports PayMe only.";
+    if (!isLoggedIn && form.paymentMethod === "cod") {
+      next.paymentMethod = "Please login to use Cash on Delivery.";
     }
 
     if (
@@ -676,33 +658,33 @@ function RestaurantCheckoutForm({ locale = "en" }) {
     refreshCart?.();
   };
 
-  const normalizePaymePayment = (payme) => {
-    if (!payme) return null;
+  const normalizePaymentAsiaPayment = (paymentasia) => {
+    if (!paymentasia) return null;
 
     const paymentRequestId =
-      payme.paymentRequestId ||
-      payme.payment_request_id ||
-      payme.id ||
-      payme.paymentId ||
-      payme.checkoutId;
+      paymentasia.paymentRequestId ||
+      paymentasia.payment_request_id ||
+      paymentasia.id ||
+      paymentasia.paymentId ||
+      paymentasia.checkoutId;
 
     const webLink =
-      payme.webLink ||
-      payme.weblink ||
-      payme.paymentUrl ||
-      payme.payment_url ||
-      payme.url ||
-      payme.uri ||
-      payme.paymentUri;
+      paymentasia.webLink ||
+      paymentasia.weblink ||
+      paymentasia.paymentUrl ||
+      paymentasia.payment_url ||
+      paymentasia.url ||
+      paymentasia.uri ||
+      paymentasia.paymentUri;
 
     const appLink =
-      payme.appLink ||
-      payme.applink ||
-      payme.deepLink ||
-      payme.deeplink ||
+      paymentasia.appLink ||
+      paymentasia.applink ||
+      paymentasia.deepLink ||
+      paymentasia.deeplink ||
       webLink;
 
-    const qrValue = webLink || appLink || payme.uri;
+    const qrValue = webLink || appLink || paymentasia.uri;
 
     if (!paymentRequestId && !qrValue) return null;
 
@@ -711,17 +693,17 @@ function RestaurantCheckoutForm({ locale = "en" }) {
       uri: qrValue,
       webLink,
       appLink,
-      statusCode: payme.statusCode,
-      statusDescription: payme.statusDescription,
-      raw: payme,
+      statusCode: paymentasia.statusCode,
+      statusDescription: paymentasia.statusDescription,
+      raw: paymentasia,
     };
   };
 
-  const savePendingPayme = ({ payment, checkoutId, orderNumber }) => {
+  const savePendingPaymentAsia = ({ payment, checkoutId, orderNumber }) => {
     if (typeof window === "undefined") return;
 
     sessionStorage.setItem(
-      "hkmandu_pending_food_payme",
+      "hkmandu_pending_food_paymentasia",
       JSON.stringify({
         payment,
         checkoutId,
@@ -731,9 +713,9 @@ function RestaurantCheckoutForm({ locale = "en" }) {
     );
   };
 
-  const clearPendingPayme = () => {
+  const clearPendingPaymentAsia = () => {
     if (typeof window === "undefined") return;
-    sessionStorage.removeItem("hkmandu_pending_food_payme");
+    sessionStorage.removeItem("hkmandu_pending_food_paymentasia");
   };
 
   const finishSuccessfulPayment = async (
@@ -741,7 +723,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
     status = "COMPLETED",
     order = null
   ) => {
-    stopPaymePolling();
+    stopPaymentAsiaPolling();
 
     const finalOrderNumber =
       orderNumber ||
@@ -751,8 +733,8 @@ function RestaurantCheckoutForm({ locale = "en" }) {
       order?._id ||
       null;
 
-    setPaymeStatus(status);
-    clearPendingPayme();
+    setPaymentAsiaStatus(status);
+    clearPendingPaymentAsia();
 
     toast.success(t("paymentSuccess", locale));
 
@@ -772,7 +754,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
     }, 1200);
   };
 
-  const checkPaymeStatusOnce = async (
+  const checkPaymentAsiaStatusOnce = async (
     checkoutId,
     orderNumber,
     showPendingToast = true
@@ -781,7 +763,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
     try {
       const res = await http.get(
-        `/frontend/foodOrder/payme-status/${checkoutId}`
+        `/frontend/foodOrder/payment-status/${checkoutId}`
       );
 
       const status = String(
@@ -815,7 +797,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
         isPaidStatus(status)
       );
 
-      setPaymeStatus(status || "PENDING");
+      setPaymentAsiaStatus(status || "PENDING");
 
       if (paid) {
         await finishSuccessfulPayment(
@@ -828,13 +810,13 @@ function RestaurantCheckoutForm({ locale = "en" }) {
       }
 
       if (isFailedStatus(status) || res?.data?.isFailed) {
-        stopPaymePolling();
-        clearPendingPayme();
+        stopPaymentAsiaPolling();
+        clearPendingPaymentAsia();
 
         toast.error(t("paymentFailed", locale));
 
-        setPaymePayment(null);
-        setPaymeStatus(null);
+        setPaymentAsiaPayment(null);
+        setPaymentAsiaStatus(null);
         setCurrentCheckoutId(null);
         setCurrentOrderNumber(null);
 
@@ -848,7 +830,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
       return false;
     } catch (err) {
       if (showPendingToast) {
-        safeToastError(err, "Unable to check PayMe payment status.");
+        safeToastError(err, "Unable to check PaymentAsia payment status.");
       }
 
       return false;
@@ -860,7 +842,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
     try {
       const res = await http.post(
-        `/frontend/foodOrder/payme-sandbox-mark-paid/${currentCheckoutId}`
+        `/frontend/foodOrder/sandbox-mark-paid/${currentCheckoutId}`
       );
 
       const status = String(
@@ -900,24 +882,24 @@ function RestaurantCheckoutForm({ locale = "en" }) {
     }
   };
 
-  const closePaymeModal = () => {
-    stopPaymePolling();
-    clearPendingPayme();
+  const closePaymentAsiaModal = () => {
+    stopPaymentAsiaPolling();
+    clearPendingPaymentAsia();
 
-    setPaymePayment(null);
-    setPaymeStatus(null);
+    setPaymentAsiaPayment(null);
+    setPaymentAsiaStatus(null);
     setCurrentCheckoutId(null);
     setCurrentOrderNumber(null);
   };
 
-  const startPaymePollingAfter60Seconds = (checkoutId, orderNumber = null) => {
-    stopPaymePolling();
+  const startPaymentAsiaPollingAfter60Seconds = (checkoutId, orderNumber = null) => {
+    stopPaymentAsiaPolling();
 
     pollingTimeoutRef.current = setTimeout(() => {
-      checkPaymeStatusOnce(checkoutId, orderNumber, false);
+      checkPaymentAsiaStatusOnce(checkoutId, orderNumber, false);
 
       pollingIntervalRef.current = setInterval(() => {
-        checkPaymeStatusOnce(checkoutId, orderNumber, false);
+        checkPaymentAsiaStatusOnce(checkoutId, orderNumber, false);
       }, 10000);
     }, 60000);
   };
@@ -973,55 +955,22 @@ function RestaurantCheckoutForm({ locale = "en" }) {
         finalAmount: total,
         paymentMethod: form.paymentMethod,
         orderNote: form.orderNote.trim(),
+        locale,
       };
 
       const res = await http.post("/frontend/foodOrder", payload);
 
-      if (form.paymentMethod === "payme") {
-        const checkout =
-          res?.data?.checkout ||
-          res?.data?.data?.checkout ||
-          res?.data?.data ||
-          res?.data;
+      if (["paymentasia", "stripe"].includes(form.paymentMethod)) {
+        const payment = res?.data?.payment || res?.data?.data?.payment || {};
+        const redirectUrl = payment.redirectUrl || payment.paymentUrl || payment.url || res?.data?.redirectUrl || res?.data?.paymentUrl;
 
-        const checkoutId =
-          res?.data?.checkoutId ||
-          checkout?.checkoutId ||
-          checkout?._id ||
-          checkout?.id ||
-          checkout?.paymentRequestId;
-
-        const payme =
-          res?.data?.payme ||
-          res?.data?.payment ||
-          res?.data?.paymePayment ||
-          checkout?.payme ||
-          checkout?.payment ||
-          checkout;
-
-        const normalizedPayme = normalizePaymePayment(payme);
-
-        if (!checkoutId && !normalizedPayme) {
-          console.log("Restaurant PayMe response:", res?.data);
-          toast.error("PayMe payment link not received.");
+        if (!redirectUrl) {
+          console.log("Restaurant online payment response:", res?.data);
+          toast.error("Payment link not received.");
           return;
         }
 
-        const finalCheckoutId = checkoutId || normalizedPayme?.paymentRequestId;
-
-        setPaymePayment(normalizedPayme);
-        setPaymeStatus("PENDING");
-        setCurrentCheckoutId(finalCheckoutId);
-        setCurrentOrderNumber(null);
-
-        savePendingPayme({
-          payment: normalizedPayme,
-          checkoutId: finalCheckoutId,
-          orderNumber: null,
-        });
-
-        startPaymePollingAfter60Seconds(finalCheckoutId, null);
-
+        window.location.href = redirectUrl;
         return;
       }
 
@@ -1340,14 +1289,14 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                   <>
                     <p className="mb-4 text-sm text-neutral-500">
                       {isLoggedIn
-                        ? "Choose Cash on Delivery or PayMe for this restaurant order."
-                        : t("guestPaymeOnly", locale)}
+                        ? "Choose Cash on Delivery, PaymentAsia, or Stripe for this restaurant order."
+                        : t("guestPaymentAsiaOnly", locale)}
                     </p>
 
                     <div
                       className={`grid gap-4 ${isLoggedIn
-                          ? "md:grid-cols-2"
-                          : "md:grid-cols-1"
+                          ? "md:grid-cols-3"
+                          : "md:grid-cols-2"
                         }`}
                     >
                       {isLoggedIn && (
@@ -1393,19 +1342,34 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
                       <PaymentCard
                         selected={
-                          form.paymentMethod === "payme"
+                          form.paymentMethod === "paymentasia"
                         }
-                        title={t("payme", locale)}
+                        title={t("paymentasia", locale)}
                         description={
                           isLoggedIn
-                            ? "Pay now securely with PayMe."
-                            : t("paymeInfo", locale)
+                            ? "Pay now securely with PaymentAsia."
+                            : t("paymentasiaInfo", locale)
                         }
-                        logo={<PayMeRedLogo />}
+                        logo={<PaymentAsiaRedLogo />}
                         onClick={() =>
                           updateForm(
                             "paymentMethod",
-                            "payme"
+                            "paymentasia"
+                          )
+                        }
+                      />
+
+                      <PaymentCard
+                        selected={
+                          form.paymentMethod === "stripe"
+                        }
+                        title="Stripe"
+                        description="Pay securely by card with Stripe."
+                        icon={<CreditCard className="h-5 w-5" />}
+                        onClick={() =>
+                          updateForm(
+                            "paymentMethod",
+                            "stripe"
                           )
                         }
                       />
@@ -1547,7 +1511,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                     <CheckCircle2 className="h-4 w-4" />
                     {!form.paymentMethod
                       ? "Select Payment Method"
-                      : form.paymentMethod === "payme"
+                      : ["paymentasia", "stripe"].includes(form.paymentMethod)
                         ? t("payNow", locale)
                         : t("placeOrder", locale)}
                   </>
@@ -1571,14 +1535,14 @@ function RestaurantCheckoutForm({ locale = "en" }) {
         </div>
       </section>
 
-      {paymePayment && (
-        <PayMeModal
+      {paymentasiaPayment && (
+        <PaymentAsiaModal
           locale={locale}
-          payment={paymePayment}
-          status={paymeStatus}
-          onClose={closePaymeModal}
+          payment={paymentasiaPayment}
+          status={paymentasiaStatus}
+          onClose={closePaymentAsiaModal}
           onCheck={() =>
-            checkPaymeStatusOnce(
+            checkPaymentAsiaStatusOnce(
               currentCheckoutId,
               currentOrderNumber,
               true
@@ -1715,7 +1679,7 @@ function SummaryRow({ label, value, danger }) {
   );
 }
 
-function PayMeModal({
+function PaymentAsiaModal({
   locale,
   payment,
   status,
@@ -1738,7 +1702,7 @@ function PayMeModal({
         </button>
 
         <div className="mb-5 flex justify-center">
-          <PayMeRedLogo className="h-11 w-auto" />
+          <PaymentAsiaRedLogo className="h-11 w-auto" />
         </div>
 
         <div className="rounded-3xl border border-pink-100 bg-pink-50 p-5 text-center">
@@ -1752,7 +1716,7 @@ function PayMeModal({
             </div>
           ) : (
             <p className="text-sm text-red-500">
-              PayMe link not available.
+              PaymentAsia link not available.
             </p>
           )}
 
@@ -1771,8 +1735,8 @@ function PayMeModal({
               rel="noreferrer"
               className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#e5007e] text-sm font-bold text-white hover:bg-[#c80070]"
             >
-              <PayMeWhiteIcon />
-              {t("openPaymeApp", locale)}
+              <PaymentAsiaWhiteIcon />
+              {t("openPaymentAsiaApp", locale)}
             </a>
           )}
 

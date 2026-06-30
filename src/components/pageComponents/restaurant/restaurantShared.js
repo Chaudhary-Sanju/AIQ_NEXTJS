@@ -209,20 +209,20 @@ export const restaurantUI = {
     ne: "डेलिभरीमा नगद",
     zh: "貨到付款",
   },
-  payme: {
-    en: "PayMe",
-    ne: "PayMe",
-    zh: "PayMe",
+  paymentasia: {
+    en: "PaymentAsia",
+    ne: "PaymentAsia",
+    zh: "PaymentAsia",
   },
   loggedInCod: {
     en: "Logged-in customers can order with Cash on Delivery.",
     ne: "लगइन भएका ग्राहकले Cash on Delivery प्रयोग गर्न सक्छन्।",
     zh: "已登入客戶可使用貨到付款。",
   },
-  guestPayme: {
-    en: "Guest customers must pay with PayMe.",
-    ne: "गेस्ट ग्राहकले PayMe बाट भुक्तानी गर्नुपर्छ।",
-    zh: "訪客客戶必須使用 PayMe 付款。",
+  guestOnline: {
+    en: "Guest customers must pay with PaymentAsia.",
+    ne: "गेस्ट ग्राहकले PaymentAsia बाट भुक्तानी गर्नुपर्छ।",
+    zh: "訪客客戶必須使用 PaymentAsia 付款。",
   },
   codUnavailable: {
     en: "COD is not available for this delivery location.",
@@ -235,9 +235,9 @@ export const restaurantUI = {
     zh: "提交貨到付款訂單",
   },
   payNow: {
-    en: "Pay with PayMe",
-    ne: "PayMe बाट भुक्तानी गर्नुहोस्",
-    zh: "使用 PayMe 付款",
+    en: "Pay with PaymentAsia",
+    ne: "PaymentAsia बाट भुक्तानी गर्नुहोस्",
+    zh: "使用 PaymentAsia 付款",
   },
   orderNumber: {
     en: "Order Number",

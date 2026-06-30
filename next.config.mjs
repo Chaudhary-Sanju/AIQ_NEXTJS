@@ -10,6 +10,12 @@ const nextConfig = {
         pathname: "/image/**",
       },
       {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "8000",
+        pathname: "/image/**",
+      },
+      {
         protocol: "https",
         hostname: "easehub-rja9.onrender.com",
         pathname: "/image/**",
@@ -17,6 +23,11 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "yalakhom.sanjuchaudhary.com.np",
+        pathname: "/image/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.hkmandu.com",
         pathname: "/image/**",
       },
     ],

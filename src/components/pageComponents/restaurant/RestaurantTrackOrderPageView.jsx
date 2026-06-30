@@ -30,13 +30,13 @@ export default function RestaurantTrackOrderPageView({ locale = "en" }) {
     try {
       if (checkoutId.trim()) {
         const { data } = await http.get(
-          `/frontEnd/foodOrder/payme-status/${checkoutId.trim()}`
+          `/frontend/foodOrder/payment-status/${checkoutId.trim()}`
         );
 
         setOrder(data?.data?.order || data?.order || data?.data || data);
       } else {
         const { data } = await http.get(
-          `/frontEnd/foodOrder/track/${orderNumber.trim()}`
+          `/frontend/foodOrder/track/${orderNumber.trim()}`
         );
 
         setOrder(data?.data || data?.order || data);
