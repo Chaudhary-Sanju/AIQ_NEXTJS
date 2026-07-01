@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hkmandumobile",
+      "sha256_cert_fingerprints": [
+        "40:3E:96:D2:46:80:15:2D:92:E2:80:0B:66:9F:2A:6F:72:57:9C:8F:B5:9D:E8:66:0D:09:5B:A0:38:F6:43:11"]
+    }
+  }
+]
