@@ -23,6 +23,7 @@ import { clearUser, setUser } from "@/store/userSlice";
 import http from "@/http";
 import { clearStorage, fromStorage, imgUrl } from "@/lib";
 import { useCart } from "@/contexts/CartContext";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8}|\d{10}|\d{8})$/;
 
@@ -635,6 +636,7 @@ function CheckoutForm({ locale = "en" }) {
                                     <input
                                         value={form.name}
                                         onChange={(e) => updateForm("name", e.target.value)}
+                                        maxLength={INPUT_LIMITS.name}
                                         className={inputClass(errors.name)}
                                     />
                                 </Field>
@@ -644,6 +646,7 @@ function CheckoutForm({ locale = "en" }) {
                                         type="email"
                                         value={form.email}
                                         onChange={(e) => updateForm("email", e.target.value)}
+                                        maxLength={INPUT_LIMITS.email}
                                         className={inputClass(errors.email)}
                                     />
                                 </Field>
@@ -653,6 +656,7 @@ function CheckoutForm({ locale = "en" }) {
                                         value={form.phoneNumber}
                                         onChange={(e) => updateForm("phoneNumber", e.target.value)}
                                         onBlur={handlePhoneBlur}
+                                        maxLength={INPUT_LIMITS.phone}
                                         className={inputClass(errors.phoneNumber)}
                                     />
                                 </Field>
@@ -661,6 +665,7 @@ function CheckoutForm({ locale = "en" }) {
                                     <input
                                         value={form.orderNote}
                                         onChange={(e) => updateForm("orderNote", e.target.value)}
+                                        maxLength={INPUT_LIMITS.note}
                                         className={inputClass()}
                                     />
                                 </Field>
@@ -692,6 +697,7 @@ function CheckoutForm({ locale = "en" }) {
                                     <input
                                         value={form.landmark}
                                         onChange={(e) => updateForm("landmark", e.target.value)}
+                                        maxLength={INPUT_LIMITS.landmark}
                                         className={inputClass()}
                                     />
                                 </Field>
@@ -702,6 +708,7 @@ function CheckoutForm({ locale = "en" }) {
                                             rows={3}
                                             value={form.address}
                                             onChange={(e) => updateForm("address", e.target.value)}
+                                            maxLength={INPUT_LIMITS.note}
                                             className={`${inputClass(errors.address)} min-h-[96px] resize-none`}
                                         />
                                     </Field>
@@ -863,6 +870,7 @@ function CheckoutForm({ locale = "en" }) {
                                     value={couponCode}
                                     onChange={(e) => setCouponCode(e.target.value)}
                                     placeholder="CODE"
+                                    maxLength={INPUT_LIMITS.coupon}
                                     className="h-11 min-w-0 flex-1 rounded-xl border border-orange-100 bg-white px-3 text-sm outline-none focus:border-[#1a4b8f]"
                                     disabled={Boolean(appliedCoupon)}
                                 />

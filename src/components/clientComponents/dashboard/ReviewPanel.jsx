@@ -17,6 +17,7 @@ import {
 import http from "@/http";
 import { tGet } from "./utils";
 import { imgUrl } from "@/lib";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const safeStr = (v) => (v == null ? "" : String(v));
 
@@ -175,6 +176,7 @@ function ReviewEditModal({ open, reviewItem, locale, onClose, onUpdated }) {
                             minLength={3}
                             rows={5}
                             placeholder="Write your review..."
+                            maxLength={INPUT_LIMITS.note}
                             className="w-full resize-none rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
                         />
                     </div>
@@ -346,6 +348,7 @@ export default function ReviewPanel({ dict, locale = "en" }) {
                                 value={q}
                                 onChange={(e) => setQ(e.target.value)}
                                 placeholder={T.search}
+                                maxLength={INPUT_LIMITS.search}
                                 className="h-12 w-full rounded-2xl border border-orange-100 bg-white pl-11 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
                             />
                         </div>

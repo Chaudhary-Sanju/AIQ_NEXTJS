@@ -20,6 +20,7 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 import http from "@/http";
 import { setInForm } from "@/lib/index";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 /* ---------------------------------- */
 /* Helpers */
@@ -285,6 +286,7 @@ function PasswordInput({
                 onChange={onChange}
                 autoComplete={autoComplete}
                 placeholder={placeholder}
+                maxLength={INPUT_LIMITS.password}
                 className={[
                     "h-12 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
                     hasError ? "border-red-300" : "border-orange-100",
@@ -982,6 +984,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     "Enter your full name"
                                                 )}
                                                 autoComplete="name"
+                                                maxLength={INPUT_LIMITS.name}
                                                 hasError={!!fieldErrors?.name}
                                             />
                                         </Field>
@@ -1002,6 +1005,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                     "you@example.com"
                                                 )}
                                                 autoComplete="email"
+                                                maxLength={INPUT_LIMITS.email}
                                                 hasError={!!fieldErrors?.email}
                                             />
                                         </Field>
@@ -1032,6 +1036,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                         "9812345678"
                                                     )}
                                                     autoComplete="tel"
+                                                    maxLength={INPUT_LIMITS.phone}
                                                     hasError={!!fieldErrors?.phone}
                                                 />
                                             </Field>
@@ -1052,6 +1057,7 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                         "Kathmandu"
                                                     )}
                                                     autoComplete="street-address"
+                                                    maxLength={INPUT_LIMITS.address}
                                                     hasError={!!fieldErrors?.address}
                                                 />
                                             </Field>

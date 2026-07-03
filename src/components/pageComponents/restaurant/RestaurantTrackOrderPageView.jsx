@@ -6,6 +6,7 @@ import { Search, RefreshCw, ReceiptText } from "lucide-react";
 import { toast } from "sonner";
 import http from "@/http";
 import { money, t } from "./restaurantShared";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 export default function RestaurantTrackOrderPageView({ locale = "en" }) {
   const searchParams = useSearchParams();
@@ -79,6 +80,7 @@ export default function RestaurantTrackOrderPageView({ locale = "en" }) {
                 setCheckoutId("");
               }}
               placeholder="FOOD-ORDER-NUMBER"
+              maxLength={INPUT_LIMITS.checkoutId}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-slate-400 focus:bg-white"
             />
 

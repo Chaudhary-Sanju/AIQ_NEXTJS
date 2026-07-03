@@ -19,6 +19,7 @@ import http from "@/http";
 import { inStorage } from "@/lib";
 import { clearGuestCartStorage } from "@/contexts/CartContext";
 import { setInForm } from "@/lib/index";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const Glow = () => (
     <>
@@ -57,6 +58,7 @@ function TextInput({
     onBlur,
     placeholder,
     autoComplete,
+    maxLength,
     required = true,
     hasError = false,
 }) {
@@ -76,6 +78,7 @@ function TextInput({
                 onBlur={onBlur}
                 autoComplete={autoComplete}
                 placeholder={placeholder}
+                maxLength={maxLength}
                 className={[
                     "h-12 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
                     hasError ? "border-red-300" : "border-orange-100",
@@ -109,6 +112,7 @@ function PasswordInput({
                 onChange={onChange}
                 autoComplete="current-password"
                 placeholder={placeholder}
+                maxLength={INPUT_LIMITS.password}
                 className={[
                     "h-12 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
                     hasError ? "border-red-300" : "border-orange-100",

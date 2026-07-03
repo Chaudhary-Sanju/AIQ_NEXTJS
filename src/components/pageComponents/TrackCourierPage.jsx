@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import http from "@/http";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const content = {
     en: {
@@ -206,6 +207,7 @@ export default function TrackCourierPage({ locale = "en" }) {
                                     value={trackingNo}
                                     onChange={(e) => setTrackingNo(e.target.value)}
                                     placeholder={t.placeholder}
+                                    maxLength={INPUT_LIMITS.trackingId}
                                     className="h-14 w-full rounded-2xl border border-orange-100 bg-white pl-12 pr-4 text-sm font-semibold text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
                                 />
                             </div>

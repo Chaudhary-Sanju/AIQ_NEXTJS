@@ -16,6 +16,7 @@ import {
     Sparkles,
 } from "lucide-react";
 import http from "@/http";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 export const ForgetPassword = ({ locale = "en", dict = {} }) => {
     const t = dict?.auth?.forgetPassword || {};
@@ -623,6 +624,7 @@ function Field({
     error,
     type = "text",
     inputClassName = "",
+    maxLength,
 }) {
     return (
         <div>
@@ -640,6 +642,7 @@ function Field({
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
+                    maxLength={maxLength}
                     className={[
                         "h-13 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
                         error ? "border-red-300" : "border-orange-100",
@@ -676,6 +679,7 @@ function PasswordField({
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
+                    maxLength={INPUT_LIMITS.password}
                     className={[
                         "h-13 w-full rounded-2xl border bg-white pl-12 pr-12 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
                         error ? "border-red-300" : "border-orange-100",

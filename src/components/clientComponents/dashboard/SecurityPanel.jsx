@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import http from "@/http";
 import { tGet } from "./utils";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const PASSWORD_REGEX =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
@@ -159,6 +160,7 @@ export default function SecurityPanel({ dict }) {
                     name={name}
                     value={value}
                     onChange={onChange}
+                    maxLength={INPUT_LIMITS.password}
                     className="w-full bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-400"
                     placeholder="••••••••"
                     autoComplete="new-password"

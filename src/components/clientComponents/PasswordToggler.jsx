@@ -1,9 +1,11 @@
 import { setInForm } from "@/lib/index";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 export const PasswordToggler = ({ name, id, placeholder, form, setForm, state, setState }) => {
     return (
         <div className="passwordWrapper relative">
             <input
+                maxLength={INPUT_LIMITS.password}
                 className="rounded-full w-full p-3 border border-gray-300"
                 type={state ? "password" : "text"}
                 name={name}

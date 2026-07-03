@@ -27,6 +27,7 @@ import { setUser, clearUser } from "@/store/userSlice";
 import http from "@/http";
 import { fromStorage, clearStorage } from "@/lib";
 import { useCart } from "@/contexts/CartContext";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const LOCALES = ["en", "ne", "zh"];
 const LABELS = { en: "EN", zh: "粵", ne: "NP" };
@@ -329,6 +330,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     value={desktopSearch}
                                     onChange={(e) => setDesktopSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
+                                    maxLength={INPUT_LIMITS.search}
                                     className="h-10 w-full border bg-orange-50 pl-3 pr-10 text-sm text-neutral-800 outline-none transition-all duration-200 focus:bg-orange-50 xl:h-11 xl:pl-4 xl:pr-12"
                                     style={{ borderRadius: "6px", borderColor: "#fed7aa", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)" }}
                                 />
@@ -585,6 +587,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                                     value={mobileSearch}
                                     onChange={(e) => setMobileSearch(e.target.value)}
                                     placeholder={t("nav.searchPlaceholder", "Search for an item")}
+                                    maxLength={INPUT_LIMITS.search}
                                     className="h-10 w-full border bg-orange-50 pl-3.5 pr-10 text-sm text-neutral-800 outline-none focus:bg-orange-50"
                                     style={{ borderRadius: "6px", borderColor: "#fed7aa" }}
                                 />

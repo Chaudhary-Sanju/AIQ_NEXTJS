@@ -23,6 +23,7 @@ import {
   restaurantPath,
   t,
 } from "./restaurantShared";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 export default function RestaurantPageView({ locale = "en" }) {
   const { addToCart, totalItems } = useRestaurantCart();
@@ -125,6 +126,7 @@ export default function RestaurantPageView({ locale = "en" }) {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={t(locale, "search")}
+                  maxLength={INPUT_LIMITS.search}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-slate-400 focus:bg-white"
                 />
               </div>

@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import http from "@/http";
 import { fromStorage, imgUrl } from "@/lib";
 import { useRestaurantCart } from "@/contexts/RestaurantCartContext";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8}|\d{10}|\d{8})$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -160,6 +161,16 @@ const UI = {
     ne: "डेलिभरीमा नगद",
     zh: "貨到付款",
   },
+  codInfo: {
+    en: "Pay in cash when your order arrives.",
+    ne: "अर्डर आइपुग्दा नगद भुक्तानी गर्नुहोस्।",
+    zh: "訂單送達時以現金付款。",
+  },
+  codLoginInfo: {
+    en: "Login to use Cash on Delivery.",
+    ne: "Cash on Delivery प्रयोग गर्न लगइन गर्नुहोस्।",
+    zh: "請登入以使用貨到付款。",
+  },
   paymentasia: {
     en: "PaymentAsia",
     ne: "PaymentAsia",
@@ -170,10 +181,20 @@ const UI = {
     ne: "PaymentAsia मार्फत सुरक्षित भुक्तानी गर्नुहोस्।",
     zh: "使用 PaymentAsia 安全付款。",
   },
+  stripe: {
+    en: "Stripe",
+    ne: "Stripe",
+    zh: "Stripe",
+  },
+  stripeInfo: {
+    en: "Pay securely by card with Stripe.",
+    ne: "Stripe मार्फत कार्डबाट सुरक्षित भुक्तानी गर्नुहोस्।",
+    zh: "使用 Stripe 以銀行卡安全付款。",
+  },
   guestPaymentAsiaOnly: {
-    en: "Guest checkout is available with PaymentAsia only. Login to use Cash on Delivery.",
-    ne: "अतिथि चेकआउट केवल PaymentAsia संग उपलब्ध छ। नगदमा डेलिभरी प्रयोग गर्न लगइन गर्नुहोस्।",
-    zh: "訪客結帳僅可使用 PaymentAsia。登錄以使用貨到付款。",
+    en: "Guest checkout is available with PaymentAsia or Stripe. Login to use Cash on Delivery.",
+    ne: "अतिथि चेकआउट PaymentAsia वा Stripe संग उपलब्ध छ। नगदमा डेलिभरी प्रयोग गर्न लगइन गर्नुहोस्।",
+    zh: "訪客結帳可使用 PaymentAsia 或 Stripe。登錄以使用貨到付款。",
   },
   scanQR: {
     en: "Scan this PayCode with PaymentAsia",
@@ -1029,23 +1050,23 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
   if (!cartItems.length) {
     return (
-      <section className="relative min-h-[70vh] overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-16">
-        <div className="relative mx-auto max-w-md rounded-[32px] border border-orange-100 bg-white/90 p-8 text-center shadow-[0_24px_70px_rgba(15,42,94,0.12)] backdrop-blur">
-          <div className="mx-auto mb-5 flex h-18 w-18 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f] ring-8 ring-orange-100/60">
-            <PackageCheck className="h-9 w-9" />
+      <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-16">
+        <div className="mx-auto max-w-lg rounded-[30px] bg-white p-8 text-center shadow-sm ring-1 ring-orange-100">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-[#1a4b8f]">
+            <PackageCheck className="h-8 w-8" />
           </div>
 
           <h1 className="text-2xl font-bold text-neutral-950">
             {t("emptyCart", locale)}
           </h1>
 
-          <p className="mt-2 text-sm leading-6 text-neutral-500">
+          <p className="mt-3 text-neutral-500">
             {t("emptyCartDesc", locale)}
           </p>
 
           <Link
             href={restaurantHref}
-            className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] px-6 text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e]"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#1a4b8f] px-5 py-3 text-sm font-bold text-white"
           >
             {t("continueShopping", locale)}
             <ArrowRight className="h-4 w-4" />
@@ -1057,31 +1078,29 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
   return (
     <>
-      <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="relative mx-auto max-w-6xl">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="mb-6 inline-flex items-center gap-3 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-[#1a4b8f] shadow-sm transition hover:bg-orange-50"
+      <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <Link
+            href={restaurantHref}
+            className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#1a4b8f] hover:text-[#0f2a5e]"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
+            {t("continueShopping", locale)}
+          </Link>
 
-          <div className="mb-7">
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1a4b8f] shadow-sm">
-              <ShieldCheck className="h-4 w-4" />
-              Secure restaurant checkout
-            </div>
-
-            <h1 className="mt-3 text-[32px] font-bold tracking-tight text-neutral-950 md:text-4xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-neutral-950 sm:text-4xl">
               {t("checkout", locale)}
             </h1>
+
+            <p className="mt-2 text-neutral-500">
+              Restaurant-style checkout with delivery location, payment method, and order summary.
+            </p>
           </div>
 
           <form
             onSubmit={handleOrder}
-            className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start"
+            className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_410px]"
           >
             <div className="space-y-6">
               <Card
@@ -1089,61 +1108,55 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                 title={t("generalInfo", locale)}
                 index="01"
               >
-                <div className="grid gap-5 md:grid-cols-2">
-                  <Input
-                    label={t("fullName", locale)}
-                    required
-                    value={form.name}
-                    error={errors.name}
-                    onChange={(v) => updateForm("name", v)}
-                    placeholder="John Doe"
-                    disabled={isLoggedIn}
-                  />
-
-                  <Input
-                    label={`${t("email", locale)} (${t(
-                      "optional",
-                      locale
-                    )})`}
-                    type="email"
-                    value={form.email}
-                    error={errors.email}
-                    onChange={(v) => updateForm("email", v)}
-                    placeholder="john.doe@example.com"
-                    disabled={isLoggedIn}
-                  />
-
-                  <div className="md:col-span-2">
-                    <Input
-                      label={t("phone", locale)}
-                      required
-                      value={form.phoneNumber}
-                      error={errors.phoneNumber}
-                      helperText={getPhoneHelperText(form.phoneNumber)}
-                      onChange={(v) => updateForm("phoneNumber", v)}
-                      onBlur={handlePhoneBlur}
-                      placeholder="Nepal: 9800000000 or Hong Kong: 12345678"
-                      inputMode="tel"
-                      maxLength={18}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label={t("fullName", locale)} error={errors.name}>
+                    <input
+                      value={form.name}
+                      onChange={(e) => updateForm("name", e.target.value)}
+                      maxLength={INPUT_LIMITS.name}
                       disabled={isLoggedIn}
+                      className={inputClass(errors.name)}
                     />
-                  </div>
+                  </Field>
 
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-neutral-800">
-                      {t("note", locale)}
-                    </label>
+                  <Field
+                    label={`${t("email", locale)} (${t("optional", locale)})`}
+                    error={errors.email}
+                  >
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => updateForm("email", e.target.value)}
+                      maxLength={INPUT_LIMITS.email}
+                      disabled={isLoggedIn}
+                      className={inputClass(errors.email)}
+                    />
+                  </Field>
 
-                    <textarea
+                  <Field
+                    label={t("phone", locale)}
+                    error={errors.phoneNumber}
+                    hint={getPhoneHelperText(form.phoneNumber)}
+                  >
+                    <input
+                      value={form.phoneNumber}
+                      onChange={(e) => updateForm("phoneNumber", e.target.value)}
+                      onBlur={handlePhoneBlur}
+                      inputMode="tel"
+                      maxLength={INPUT_LIMITS.phone}
+                      disabled={isLoggedIn}
+                      className={inputClass(errors.phoneNumber)}
+                    />
+                  </Field>
+
+                  <Field label={t("note", locale)}>
+                    <input
                       value={form.orderNote}
-                      onChange={(e) =>
-                        updateForm("orderNote", e.target.value)
-                      }
-                      placeholder="Leave a note, e.g. Call before delivery"
-                      rows={4}
-                      className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
+                      onChange={(e) => updateForm("orderNote", e.target.value)}
+                      maxLength={INPUT_LIMITS.note}
+                      className={inputClass()}
                     />
-                  </div>
+                  </Field>
                 </div>
               </Card>
 
@@ -1152,33 +1165,16 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                 title={t("deliveryAddress", locale)}
                 index="02"
               >
-                <div className="grid gap-5 md:grid-cols-2">
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-neutral-800">
-                      {t("city", locale)}{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label={t("city", locale)} error={errors.deliveryLocationId}>
                     <select
                       value={form.deliveryLocationId}
                       disabled={zoneLoading}
-                      onChange={(e) =>
-                        updateForm(
-                          "deliveryLocationId",
-                          e.target.value
-                        )
-                      }
-                      className={[
-                        "h-12 w-full rounded-2xl border bg-white px-4 text-sm text-neutral-900 outline-none transition focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100",
-                        errors.deliveryLocationId
-                          ? "border-red-400"
-                          : "border-orange-100",
-                      ].join(" ")}
+                      onChange={(e) => updateForm("deliveryLocationId", e.target.value)}
+                      className={inputClass(errors.deliveryLocationId)}
                     >
                       <option value="">
-                        {zoneLoading
-                          ? "Loading..."
-                          : t("selectCity", locale)}
+                        {zoneLoading ? "Loading..." : t("selectCity", locale)}
                       </option>
 
                       {zones.map((zone) => (
@@ -1186,84 +1182,54 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                           key={zone._id || zone.id || zone.name}
                           value={zone._id || zone.id}
                         >
-                          {zone.name} — {money(zone.deliveryCharge)}
-                          {Number(
-                            zone.freeDeliveryThreshold || 0
-                          ) > 0
-                            ? ` | ${t(
-                              "freeAbove",
-                              locale
-                            )} ${money(
-                              zone.freeDeliveryThreshold
-                            )}`
-                            : ""}
-                          {zone.codAvailable
-                            ? " | COD"
-                            : " | No COD"}
+                          {zone.name}
                         </option>
                       ))}
                     </select>
+                  </Field>
 
-                    {errors.deliveryLocationId && (
-                      <p className="mt-1 text-xs font-medium text-red-500">
-                        {errors.deliveryLocationId}
-                      </p>
-                    )}
+                  <Field label={t("landmark", locale)}>
+                    <input
+                      value={form.landmark}
+                      onChange={(e) => updateForm("landmark", e.target.value)}
+                      maxLength={INPUT_LIMITS.landmark}
+                      className={inputClass()}
+                    />
+                  </Field>
 
-                    {selectedZone && (
-                      <div className="mt-3 rounded-2xl border border-orange-100 bg-orange-50/60 p-4">
-                        <div className="flex flex-wrap gap-3 text-xs font-semibold text-neutral-700">
-                          <span>
-                            {t("deliveryCharge", locale)}:{" "}
-                            <strong>
-                              {money(
-                                selectedZone.deliveryCharge
-                              )}
-                            </strong>
-                          </span>
-
-                          {Number(
-                            selectedZone.freeDeliveryThreshold ||
-                            0
-                          ) > 0 && (
-                              <span>
-                                {t("freeAbove", locale)}:{" "}
-                                <strong>
-                                  {money(
-                                    selectedZone.freeDeliveryThreshold
-                                  )}
-                                </strong>
-                              </span>
-                            )}
-
-                          <span>
-                            COD:{" "}
-                            <strong>
-                              {selectedZone.codAvailable
-                                ? "Available"
-                                : "Not Available"}
-                            </strong>
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                  <div className="md:col-span-2">
+                    <Field label={t("address", locale)} error={errors.address}>
+                      <textarea
+                        rows={3}
+                        value={form.address}
+                        onChange={(e) => updateForm("address", e.target.value)}
+                        maxLength={INPUT_LIMITS.address}
+                        className={`${inputClass(errors.address)} min-h-[96px] resize-none py-3`}
+                      />
+                    </Field>
                   </div>
 
-                  <Input
-                    label={t("address", locale)}
-                    required
-                    value={form.address}
-                    error={errors.address}
-                    onChange={(v) => updateForm("address", v)}
-                    placeholder="Street, building, room number"
-                  />
+                  {selectedZone && (
+                    <div className="md:col-span-2">
+                      <InfoBox>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                          <span>
+                            {t("deliveryCharge", locale)}: <strong>{deliveryCharge === 0 ? t("free", locale) : money(deliveryCharge)}</strong>
+                          </span>
 
-                  <Input
-                    label={t("landmark", locale)}
-                    value={form.landmark}
-                    onChange={(v) => updateForm("landmark", v)}
-                    placeholder="Nearby landmark"
-                  />
+                          {Number(selectedZone.freeDeliveryThreshold || 0) > 0 && (
+                            <span>
+                              {t("freeAbove", locale)}: <strong>{money(selectedZone.freeDeliveryThreshold)}</strong>
+                            </span>
+                          )}
+
+                          <span>
+                            COD: <strong>{selectedZone.codAvailable ? "Available" : "Not Available"}</strong>
+                          </span>
+                        </div>
+                      </InfoBox>
+                    </div>
+                  )}
                 </div>
               </Card>
 
@@ -1273,120 +1239,76 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                 index="03"
               >
                 {!selectedZone ? (
-                  <div className="rounded-2xl border border-orange-100 bg-orange-50/70 p-5 text-center">
-                    <CreditCard className="mx-auto h-8 w-8 text-[#1a4b8f]" />
-
-                    <p className="mt-3 text-sm font-semibold text-neutral-800">
-                      Select delivery zone first
-                    </p>
-
-                    <p className="mt-1 text-xs text-neutral-500">
-                      Payment options will appear after choosing
-                      delivery location.
-                    </p>
-                  </div>
+                  <InfoBox>{t("selectZoneInfo", locale)}</InfoBox>
                 ) : (
-                  <>
-                    <p className="mb-4 text-sm text-neutral-500">
-                      {isLoggedIn
-                        ? "Choose Cash on Delivery, PaymentAsia, or Stripe for this restaurant order."
-                        : t("guestPaymentAsiaOnly", locale)}
-                    </p>
+                  <div className="space-y-3">
+                    {!isLoggedIn && <InfoBox>{t("guestPaymentAsiaOnly", locale)}</InfoBox>}
 
-                    <div
-                      className={`grid gap-4 ${isLoggedIn
-                          ? "md:grid-cols-3"
-                          : "md:grid-cols-2"
-                        }`}
-                    >
-                      {isLoggedIn && (
-                        <PaymentCard
-                          selected={
-                            form.paymentMethod === "cod"
-                          }
-                          disabled={
-                            !isCodAvailable(selectedZone)
-                          }
-                          title={t("cod", locale)}
-                          description={
-                            isCodAvailable(selectedZone)
-                              ? "Pay cash when your food is delivered."
-                              : t(
-                                "codUnavailable",
-                                locale
-                              )
-                          }
-                          icon={<Truck className="h-5 w-5" />}
-                          onClick={() => {
-                            if (
-                              !isCodAvailable(
-                                selectedZone
-                              )
-                            ) {
-                              toast.error(
-                                t(
-                                  "codUnavailable",
-                                  locale
-                                )
-                              );
-                              return;
-                            }
-
-                            updateForm(
-                              "paymentMethod",
-                              "cod"
-                            );
-                          }}
-                        />
-                      )}
-
-                      <PaymentCard
-                        selected={
-                          form.paymentMethod === "paymentasia"
-                        }
-                        title={t("paymentasia", locale)}
+                    <ul className="space-y-3">
+                      <PaymentOption
+                        checked={form.paymentMethod === "cod"}
+                        disabled={!isLoggedIn || !isCodAvailable(selectedZone)}
+                        label={t("cod", locale)}
                         description={
-                          isLoggedIn
-                            ? "Pay now securely with PaymentAsia."
-                            : t("paymentasiaInfo", locale)
+                          !isLoggedIn
+                            ? t("codLoginInfo", locale)
+                            : !isCodAvailable(selectedZone)
+                              ? t("codUnavailable", locale)
+                              : t("codInfo", locale)
                         }
-                        logo={<PaymentAsiaRedLogo />}
-                        onClick={() =>
-                          updateForm(
-                            "paymentMethod",
-                            "paymentasia"
-                          )
-                        }
+                        icon={<Truck className="h-4 w-4" />}
+                        onChange={() => {
+                          if (!isLoggedIn) {
+                            toast.error(t("codLoginInfo", locale));
+                            return;
+                          }
+
+                          if (!isCodAvailable(selectedZone)) {
+                            toast.error(t("codUnavailable", locale));
+                            return;
+                          }
+
+                          updateForm("paymentMethod", "cod");
+                        }}
                       />
 
-                      <PaymentCard
-                        selected={
-                          form.paymentMethod === "stripe"
-                        }
-                        title="Stripe"
-                        description="Pay securely by card with Stripe."
-                        icon={<CreditCard className="h-5 w-5" />}
-                        onClick={() =>
-                          updateForm(
-                            "paymentMethod",
-                            "stripe"
-                          )
-                        }
+                      <PaymentOption
+                        checked={form.paymentMethod === "paymentasia"}
+                        label={t("paymentasia", locale)}
+                        description={t("paymentasiaInfo", locale)}
+                        icon={<CreditCard className="h-4 w-4" />}
+                        onChange={() => updateForm("paymentMethod", "paymentasia")}
                       />
-                    </div>
+
+                      <PaymentOption
+                        checked={form.paymentMethod === "stripe"}
+                        label={t("stripe", locale)}
+                        description={t("stripeInfo", locale)}
+                        icon={<CreditCard className="h-4 w-4" />}
+                        onChange={() => updateForm("paymentMethod", "stripe")}
+                      />
+                    </ul>
+
+                    {form.paymentMethod === "paymentasia" && (
+                      <InfoBox>{t("paymentasiaInfo", locale)}</InfoBox>
+                    )}
+
+                    {form.paymentMethod === "stripe" && (
+                      <InfoBox>{t("stripeInfo", locale)}</InfoBox>
+                    )}
 
                     {errors.paymentMethod && (
-                      <p className="mt-3 text-xs font-medium text-red-500">
+                      <p className="text-xs font-medium text-red-500">
                         {errors.paymentMethod}
                       </p>
                     )}
-                  </>
+                  </div>
                 )}
               </Card>
             </div>
 
-            <aside className="sticky top-6 rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-[0_24px_70px_rgba(15,42,94,0.10)] backdrop-blur">
-              <div className="mb-5 flex items-center justify-between">
+            <aside className="sticky top-6 rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-sm backdrop-blur">
+              <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1a4b8f]">
                     {t("orderSummary", locale)}
@@ -1403,72 +1325,54 @@ function RestaurantCheckoutForm({ locale = "en" }) {
               <div className="max-h-[310px] space-y-4 overflow-auto pr-1">
                 {cartItems.map((item) => {
                   const food = item.food || {};
-                  const foodId = food._id;
+                  const foodId = food._id || item.foodId || item._id;
                   const qty = Number(item.quantity || 1);
                   const price = getFoodPrice(food, item);
 
                   return (
-                    <div key={foodId} className="flex gap-3">
-                      <div className="relative h-14 w-14 shrink-0 overflow-visible rounded-2xl bg-orange-50">
+                    <div
+                      key={foodId}
+                      className="flex items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/30 p-3"
+                    >
+                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-white">
                         <Image
                           src={safeImageUrl(food.image)}
-                          alt={
-                            pickText(
-                              food.name,
-                              locale,
-                              "Food"
-                            ) || "Food"
-                          }
+                          alt={pickText(food.name, locale, "Food") || "Food"}
                           fill
-                          sizes="56px"
-                          className="rounded-2xl object-cover"
+                          sizes="64px"
+                          className="object-cover"
                           unoptimized
                         />
-
-                        <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#1a4b8f] px-1 text-[11px] font-bold text-white">
-                          {qty}
-                        </span>
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-neutral-900">
-                          {pickText(
-                            food.name,
-                            locale,
-                            "Food"
-                          )}
+                        <p className="line-clamp-1 text-sm font-bold text-neutral-900">
+                          {pickText(food.name, locale, "Food")}
                         </p>
 
                         <p className="mt-1 text-xs text-neutral-500">
-                          {qty} × {money(price)}
+                          Qty: {qty}
                         </p>
-                      </div>
 
-                      <div className="flex shrink-0 items-start gap-2">
-                        <p className="text-sm font-bold text-neutral-900">
+                        <p className="mt-1 text-sm font-bold text-[#1a4b8f]">
                           {money(price * qty)}
                         </p>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            safeRemoveFood?.(foodId)
-                          }
-                          className="rounded-lg p-1 text-red-400 transition hover:bg-red-50 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={() => safeRemoveFood?.(foodId)}
+                        className="h-9 w-9 rounded-xl text-neutral-400 hover:bg-red-50 hover:text-red-500"
+                      >
+                        <Trash2 className="mx-auto h-4 w-4" />
+                      </button>
                     </div>
                   );
                 })}
               </div>
 
               <div className="mt-7 space-y-4">
-                <SummaryRow
-                  label={t("subTotal", locale)}
-                  value={money(subTotal)}
-                />
+                <SummaryRow label={t("subTotal", locale)} value={money(subTotal)} />
 
                 <SummaryRow
                   label={t("deliveryCharge", locale)}
@@ -1496,9 +1400,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
               <button
                 type="submit"
-                disabled={
-                  submitting || !selectedZone || !form.paymentMethod
-                }
+                disabled={submitting || !selectedZone || !form.paymentMethod}
                 className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#1a4b8f] text-sm font-bold text-white shadow-lg shadow-[#1a4b8f]/20 transition hover:bg-[#0f2a5e] disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {submitting ? (
@@ -1556,123 +1458,118 @@ function RestaurantCheckoutForm({ locale = "en" }) {
   );
 }
 
-function Card({ title, icon, index, children }) {
+function Card({ children, title, icon, index }) {
   return (
-    <section className="rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-[0_18px_60px_rgba(15,42,94,0.08)] backdrop-blur">
-      <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-[#1a4b8f]">
-          {icon}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-bold uppercase tracking-[0.16em] text-orange-500">
-            Step {index}
+    <div className="rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-sm backdrop-blur sm:p-6">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-[#1a4b8f]">
+            {icon}
           </div>
 
           <h2 className="text-lg font-bold text-neutral-950">
             {title}
           </h2>
         </div>
+
+        <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-[#1a4b8f]">
+          {index}
+        </span>
       </div>
 
       {children}
-    </section>
-  );
-}
-
-function Input({
-  label,
-  value,
-  onChange,
-  onBlur,
-  type = "text",
-  required,
-  placeholder,
-  error,
-  helperText,
-  inputMode,
-  maxLength,
-  disabled,
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-semibold text-neutral-800">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-
-      <input
-        type={type}
-        value={value}
-        disabled={disabled}
-        inputMode={inputMode}
-        maxLength={maxLength}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        className={[
-          "h-12 w-full rounded-2xl border bg-white px-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100",
-          error ? "border-red-400" : "border-orange-100",
-        ].join(" ")}
-      />
-
-      {error ? (
-        <p className="mt-1 text-xs font-medium text-red-500">{error}</p>
-      ) : helperText ? (
-        <p className="mt-1 text-xs text-neutral-500">{helperText}</p>
-      ) : null}
     </div>
   );
 }
 
-function PaymentCard({
-  selected,
-  disabled,
-  title,
-  description,
-  icon,
-  logo,
-  onClick,
-}) {
+function Field({ label, children, error, hint }) {
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={[
-        "rounded-2xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50",
-        selected
-          ? "border-[#1a4b8f] bg-blue-50 ring-4 ring-[#1a4b8f]/10"
-          : "border-orange-100 bg-white hover:border-[#1a4b8f]/40",
-      ].join(" ")}
-    >
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-[#1a4b8f]">
-          {logo || icon}
-        </div>
+    <label className="block">
+      <span className="mb-2 block text-sm font-bold text-neutral-800">
+        {label}
+      </span>
 
-        <div>
-          <h3 className="font-bold text-neutral-950">{title}</h3>
+      {children}
 
-          <p className="mt-1 text-xs leading-5 text-neutral-500">
-            {description}
-          </p>
-        </div>
-      </div>
-    </button>
+      {hint && !error && (
+        <span className="mt-1 block text-xs text-neutral-400">
+          {hint}
+        </span>
+      )}
+
+      {error && (
+        <span className="mt-1 block text-xs text-red-500">
+          {error}
+        </span>
+      )}
+    </label>
+  );
+}
+
+function inputClass(hasError) {
+  return `h-12 w-full rounded-xl border bg-white px-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:ring-4 disabled:cursor-not-allowed disabled:bg-neutral-100 ${hasError
+    ? "border-red-200 focus:border-red-400 focus:ring-red-50"
+    : "border-orange-100 focus:border-[#1a4b8f] focus:ring-blue-50"
+    }`;
+}
+
+function PaymentOption({ checked, disabled, label, description, icon, onChange }) {
+  return (
+    <li className="list-none">
+      <label
+        className={`flex cursor-pointer items-center justify-between gap-4 rounded-2xl border p-4 transition ${disabled
+          ? "cursor-not-allowed border-neutral-100 bg-neutral-50 opacity-60"
+          : checked
+            ? "border-[#1a4b8f] bg-blue-50"
+            : "border-orange-100 bg-white hover:border-[#1a4b8f]/40"
+          }`}
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1a4b8f] text-white">
+            {icon}
+          </span>
+
+          <span className="min-w-0">
+            <span className="block text-sm font-bold text-neutral-900">
+              {label}
+            </span>
+
+            {description && (
+              <span className="mt-1 block text-xs font-medium text-neutral-500">
+                {description}
+              </span>
+            )}
+          </span>
+        </span>
+
+        <input
+          type="radio"
+          checked={checked}
+          disabled={disabled}
+          onChange={onChange}
+          className="h-4 w-4 shrink-0 accent-[#1a4b8f]"
+        />
+      </label>
+    </li>
+  );
+}
+
+function InfoBox({ children }) {
+  return (
+    <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-3 text-sm text-blue-800">
+      {children}
+    </div>
   );
 }
 
 function SummaryRow({ label, value, danger }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-sm font-medium text-neutral-600">{label}</span>
+    <div className="flex items-center justify-between gap-4 text-sm">
+      <span className="text-neutral-500">
+        {label}
+      </span>
 
-      <span
-        className={[
-          "text-sm font-bold",
-          danger ? "text-red-500" : "text-neutral-950",
-        ].join(" ")}
-      >
+      <span className={`font-bold ${danger ? "text-red-500" : "text-neutral-900"}`}>
         {value}
       </span>
     </div>

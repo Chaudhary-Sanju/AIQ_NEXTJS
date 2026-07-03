@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import http from "@/http";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const PHONE_REGEX =
     /^((\+977-?\d{10})|(\d{10})|(\+852-?[569]\d{7})|([569]\d{7}))$/;
@@ -732,6 +733,7 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                                     "you@example.com"
                                                 )}
                                                 autoComplete="email"
+                                                maxLength={INPUT_LIMITS.email}
                                                 hasError={!!fieldErrors?.email}
                                                 disabled={loadingVerify || loadingResend}
                                             />
@@ -756,6 +758,7 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                                     "9812345678"
                                                 )}
                                                 autoComplete="tel"
+                                                maxLength={INPUT_LIMITS.phone}
                                                 hasError={!!fieldErrors?.phone}
                                                 disabled={loadingVerify || loadingResend}
                                             />

@@ -20,6 +20,7 @@ import { useCart } from "@/contexts/CartContext";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const pick = (obj, locale = "en") => {
     if (!obj) return "";
@@ -389,6 +390,7 @@ export default function ProductsPageView({ locale = "en", dict }) {
                                     value={searchInput}
                                     onChange={(e) => setSearchInput(e.target.value)}
                                     placeholder={t.searchPlaceholder}
+                                    maxLength={INPUT_LIMITS.search}
                                     className="h-12 w-full rounded-2xl border border-orange-100 bg-white pl-11 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
                                 />
                             </div>

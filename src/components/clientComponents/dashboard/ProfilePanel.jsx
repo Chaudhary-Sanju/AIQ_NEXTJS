@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AlertCircle, BadgeCheck, Loader2, MapPin, Phone, Save, UserRound, Mail, ShieldCheck } from "lucide-react";
 import http from "@/http";
 import { tGet } from "./utils";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const PHONE_REGEX =
     /^(\+852[-\s]?\d{4}[-\s]?\d{4}|\+977[-\s]?(9\d{9}|[1-9]\d{7}))$/;
@@ -184,6 +185,7 @@ export default function ProfilePanel({ dict }) {
                             <input
                                 value={profile.name}
                                 onChange={(e) => updateProfile("name", e.target.value)}
+                                maxLength={INPUT_LIMITS.name}
                                 className="input-base"
                                 placeholder="Your full name"
                             />
@@ -194,6 +196,7 @@ export default function ProfilePanel({ dict }) {
                                 <input
                                     value={profile.email}
                                     readOnly
+                                    maxLength={INPUT_LIMITS.email}
                                     className="input-base cursor-not-allowed bg-neutral-50 text-neutral-500"
                                 />
                             </Field>
@@ -206,6 +209,7 @@ export default function ProfilePanel({ dict }) {
                                         handlePhoneBlur(e.target.value, setProfile, setErr, setSuccess)
                                     }
                                     placeholder="+977 9861234567 or +852 9123 4567"
+                                    maxLength={INPUT_LIMITS.phone}
                                     className="input-base"
                                 />
 
@@ -219,6 +223,7 @@ export default function ProfilePanel({ dict }) {
                             <input
                                 value={profile.address}
                                 onChange={(e) => updateProfile("address", e.target.value)}
+                                maxLength={INPUT_LIMITS.address}
                                 className="input-base"
                                 placeholder="Your address"
                             />
@@ -228,6 +233,7 @@ export default function ProfilePanel({ dict }) {
                             <input
                                 value={profile.type}
                                 readOnly
+                                maxLength={INPUT_LIMITS.name}
                                 className="input-base cursor-not-allowed bg-neutral-50 text-neutral-500"
                             />
                         </Field>

@@ -19,6 +19,7 @@ import { useCart } from "@/contexts/CartContext";
 import http from "@/http";
 import { imgUrl } from "@/lib";
 import { TbTruckDelivery } from "react-icons/tb";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 // ========== Helper functions (same as before) ==========
 const pick = (obj, locale = "en") => {
@@ -467,6 +468,7 @@ export default function BulkPurchasePageView({ locale = "en", dict }) {
                                     value={searchInput}
                                     onChange={(e) => setSearchInput(e.target.value)}
                                     placeholder={t.searchPlaceholder}
+                                    maxLength={INPUT_LIMITS.search}
                                     className="h-12 w-full rounded-2xl border border-orange-100 bg-white pl-11 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10"
                                 />
                             </div>
@@ -903,6 +905,7 @@ function ProductCard({
                         onChange={handleManualQtyChange}
                         onBlur={handleManualQtyBlur}
                         placeholder={customText}
+                        maxLength={INPUT_LIMITS.quantity}
                         className="h-10 w-full rounded-xl border border-orange-200 bg-white px-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10 disabled:cursor-not-allowed disabled:bg-neutral-100"
                     />
                 </div>

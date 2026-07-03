@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import http from "@/http";
 import { fromStorage, clearStorage } from "@/lib";
 import { setUser, clearUser } from "@/store/userSlice";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const ALLOWED_SERVICE_TYPES = [
     "software-development",
@@ -751,6 +752,7 @@ export default function PerfectServiceRequestForm({
                                     value={form.displayName}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.displayName}
+                                    maxLength={INPUT_LIMITS.name}
                                     className={`${inputClass(!!errors.displayName)} h-12`}
                                 />
                             </Field>
@@ -763,6 +765,7 @@ export default function PerfectServiceRequestForm({
                                         onChange={handleChange}
                                         onBlur={handlePhoneBlur}
                                         placeholder={t.placeholders.phone}
+                                        maxLength={INPUT_LIMITS.phone}
                                         className={`${inputClass(!!errors.phone)} h-12`}
                                     />
                                 </Field>
@@ -774,6 +777,7 @@ export default function PerfectServiceRequestForm({
                                         value={form.email}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.email}
+                                        maxLength={INPUT_LIMITS.email}
                                         className={`${inputClass(!!errors.email)} h-12`}
                                     />
                                 </Field>
@@ -785,6 +789,7 @@ export default function PerfectServiceRequestForm({
                                     value={form.address}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.address}
+                                    maxLength={INPUT_LIMITS.address}
                                     className={`${inputClass(!!errors.address)} h-12`}
                                 />
                             </Field>
@@ -811,6 +816,7 @@ export default function PerfectServiceRequestForm({
                                         placeholder={t.placeholders.budget}
                                         min="0"
                                         step="0.01"
+                                        maxLength={INPUT_LIMITS.budget}
                                         className={`${inputClass(!!errors.budget)} h-12 rounded-r-none border-r-0`}
                                     />
                                     <select

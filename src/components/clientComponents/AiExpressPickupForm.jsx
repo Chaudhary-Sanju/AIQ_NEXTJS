@@ -32,6 +32,7 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { useDispatch, useSelector } from "react-redux";
 import { fromStorage, clearStorage } from "@/lib";
 import { setUser, clearUser } from "@/store/userSlice";
+import { INPUT_LIMITS } from "@/constants/inputLimits";
 
 const COPY = {
     en: {
@@ -1408,6 +1409,7 @@ export default function AiExpressPickupForm({
                                         value={form.senderName}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.senderName}
+                                        maxLength={INPUT_LIMITS.name}
                                         className={inputClass(!!errors.senderName)}
                                     />
                                 </Field>
@@ -1419,6 +1421,7 @@ export default function AiExpressPickupForm({
                                         onChange={handleChange}
                                         onBlur={(e) => handlePhoneBlur("senderPhone", e.target.value, setForm)}
                                         placeholder="9800000000 or 91234567"
+                                        maxLength={INPUT_LIMITS.phone}
                                         className={inputClass(!!errors.senderPhone)}
                                     />
                                 </Field>
@@ -1437,6 +1440,7 @@ export default function AiExpressPickupForm({
                                     value={form.senderEmail}
                                     onChange={handleChange}
                                     placeholder={t.placeholders.senderEmail}
+                                    maxLength={INPUT_LIMITS.email}
                                     className={inputClass(!!errors.senderEmail)}
                                 />
                             </Field>
@@ -1489,6 +1493,7 @@ export default function AiExpressPickupForm({
                                                 value={form.pickupAddressHK.floor}
                                                 onChange={handleChange}
                                                 placeholder="Floor, flat or unit number"
+                                                maxLength={INPUT_LIMITS.floor}
                                                 className={inputClass(!!errors["pickupAddressHK.floor"])}
                                             />
                                         </Field>
@@ -1504,6 +1509,7 @@ export default function AiExpressPickupForm({
                                                 value={form.pickupAddressHK.street}
                                                 onChange={handleChange}
                                                 placeholder="Street number, building name, block"
+                                                maxLength={INPUT_LIMITS.street}
                                                 className={inputClass(!!errors["pickupAddressHK.street"])}
                                             />
                                         </Field>
@@ -1542,6 +1548,7 @@ export default function AiExpressPickupForm({
                                         value={form.pickupAddress}
                                         onChange={handleChange}
                                         placeholder={pickupAddressPlaceholder}
+                                        maxLength={INPUT_LIMITS.address}
                                         className={inputClass(!!errors.pickupAddress)}
                                     />
                                 </Field>
@@ -1597,6 +1604,7 @@ export default function AiExpressPickupForm({
                                         value={form.receiverName}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.receiverName}
+                                        maxLength={INPUT_LIMITS.name}
                                         className={inputClass(!!errors.receiverName)}
                                     />
                                 </Field>
@@ -1608,6 +1616,7 @@ export default function AiExpressPickupForm({
                                         onChange={handleChange}
                                         onBlur={(e) => handlePhoneBlur("receiverPhone", e.target.value, setForm)}
                                         placeholder="9800000000 or 91234567"
+                                        maxLength={INPUT_LIMITS.phone}
                                         className={inputClass(!!errors.receiverPhone)}
                                     />
                                 </Field>
@@ -1627,6 +1636,7 @@ export default function AiExpressPickupForm({
                                                 value={form.deliveryAddressHK.floor}
                                                 onChange={handleChange}
                                                 placeholder="Floor, flat or unit number"
+                                                maxLength={INPUT_LIMITS.floor}
                                                 className={inputClass(!!errors["deliveryAddressHK.floor"])}
                                             />
                                         </Field>
@@ -1642,6 +1652,7 @@ export default function AiExpressPickupForm({
                                                 value={form.deliveryAddressHK.street}
                                                 onChange={handleChange}
                                                 placeholder="Street number, building name, block"
+                                                maxLength={INPUT_LIMITS.street}
                                                 className={inputClass(!!errors["deliveryAddressHK.street"])}
                                             />
                                         </Field>
@@ -1680,6 +1691,7 @@ export default function AiExpressPickupForm({
                                         value={form.deliveryAddress}
                                         onChange={handleChange}
                                         placeholder={deliveryAddressPlaceholder}
+                                        maxLength={INPUT_LIMITS.address}
                                         className={inputClass(!!errors.deliveryAddress)}
                                     />
                                 </Field>
@@ -1694,6 +1706,7 @@ export default function AiExpressPickupForm({
                                         value={form.packageType}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.packageType}
+                                        maxLength={INPUT_LIMITS.packageType}
                                         className={inputClass(!!errors.packageType)}
                                     />
                                 </Field>
@@ -1707,6 +1720,7 @@ export default function AiExpressPickupForm({
                                         placeholder={t.placeholders.weight}
                                         min="0"
                                         step="0.01"
+                                        maxLength={INPUT_LIMITS.weight}
                                         className={inputClass(!!errors.weight)}
                                     />
                                 </Field>
@@ -1722,6 +1736,7 @@ export default function AiExpressPickupForm({
                                         placeholder={t.placeholders.quantity}
                                         min="1"
                                         step="1"
+                                        maxLength={INPUT_LIMITS.quantity}
                                         className={inputClass(!!errors.quantity)}
                                     />
                                 </Field>
@@ -1738,6 +1753,7 @@ export default function AiExpressPickupForm({
                                         value={form.dimensions}
                                         onChange={handleChange}
                                         placeholder={t.placeholders.dimensions}
+                                        maxLength={INPUT_LIMITS.dimensions}
                                         className={inputClass(!!errors.dimensions)}
                                     />
                                 </Field>
@@ -1812,6 +1828,7 @@ export default function AiExpressPickupForm({
                                     onChange={handleChange}
                                     placeholder={t.placeholders.specialInstructions}
                                     rows={4}
+                                    maxLength={INPUT_LIMITS.note}
                                     className={`${inputClass(!!errors.specialInstructions)} min-h-[110px] resize-none py-3`}
                                 />
                             </Field>
