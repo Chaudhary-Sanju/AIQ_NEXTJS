@@ -723,10 +723,6 @@ function ProductCard({ p, locale, addToCartText, notRatedYetText, reviewText, re
                         <Tag className="h-3 w-3" /> -{discountPercent}%
                     </span>
                 )}
-                {/* FREE DELIVERY badge (top-right) */}
-                <span className="absolute right-2 top-2 z-10 inline-flex items-center rounded-full bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
-                    <TbTruckDelivery className="me-1 h-3 w-3" /> Free Delivery
-                </span>
                 {displayImage ? (
                     <Image src={imgUrl(displayImage)} alt={p.displayName || "Product"} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width: 1024px) 178px, 220px" unoptimized />
                 ) : (
