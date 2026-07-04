@@ -16,9 +16,9 @@ import {
 
 import http from "@/http";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
-const PHONE_REGEX =
-    /^((\+977-?\d{10})|(\d{10})|(\+852-?[569]\d{7})|([569]\d{7}))$/;
+const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
 
 /* ---------------------------------- */
 /* Backend Error Handling */
@@ -291,27 +291,9 @@ function OtpInput({
 }
 
 function normalizePhone(value) {
-    const raw = value.trim();
-    const digits = raw.replace(/\D/g, "");
-
-    if (digits.length === 10) {
-        return `+977-${digits}`;
-    }
-
-    if (digits.length === 8) {
-        return `+852-${digits}`;
-    }
-
-    if (digits.startsWith("977") && digits.length === 13) {
-        return `+977-${digits.slice(3)}`;
-    }
-
-    if (digits.startsWith("852") && digits.length === 11) {
-        return `+852-${digits.slice(3)}`;
-    }
-
-    return raw;
+    return normalizeCountryPhone(value);
 }
+
 
 /* ---------------------------------- */
 /* Page */
@@ -513,7 +495,7 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                     otp: cleanOtp,
                 }
                 : {
-                    phone: phone.trim(),
+                    phone: normalizePhone(phone),
                     verificationMethod: "phone",
                     otp: cleanOtp,
                 };
@@ -745,20 +727,19 @@ export default function VerifyAccount({ locale = "en", dict = {} }) {
                                             label={t("verify.form.phone", "Phone")}
                                             error={fieldErrors?.phone}
                                         >
-                                            <TextInput
-                                                icon={Phone}
-                                                type="text"
-                                                name="phone"
-                                                id="phone"
+                                            <CountryPhoneInput
                                                 value={phone}
-                                                onChange={onPhoneChange}
-                                                onBlur={(e) => setPhone(normalizePhone(e.target.value))}
-                                                placeholder={t(
-                                                    "verify.form.phonePlaceholder",
-                                                    "9812345678"
-                                                )}
-                                                autoComplete="tel"
-                                                maxLength={INPUT_LIMITS.phone}
+                                                onChange={(value) => {
+                                                    setPhone(value);
+                                                    if (fieldErrors?.phone) {
+                                                        setFieldErrors((p) => {
+                                                            const n = { ...p };
+                                                            delete n.phone;
+                                                            return n;
+                                                        });
+                                                    }
+                                                    if (error) setError("");
+                                                }}
                                                 hasError={!!fieldErrors?.phone}
                                                 disabled={loadingVerify || loadingResend}
                                             />

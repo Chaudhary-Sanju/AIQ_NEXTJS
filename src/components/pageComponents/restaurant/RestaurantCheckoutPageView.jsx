@@ -26,8 +26,9 @@ import http from "@/http";
 import { fromStorage, imgUrl } from "@/lib";
 import { useRestaurantCart } from "@/contexts/RestaurantCartContext";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
-const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8}|\d{10}|\d{8})$/;
+const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const UI = {
@@ -272,35 +273,15 @@ const pickText = (value, locale = "en", fallback = "") => {
   );
 };
 
-const normalizePhoneNumber = (value) => {
-  const raw = String(value || "").trim();
-  if (!raw) return raw;
+const normalizePhoneNumber = (value) => normalizeCountryPhone(value);
 
-  const digits = raw.replace(/\D/g, "");
-
-  if (digits.length === 10) return `+977-${digits}`;
-  if (digits.length === 8) return `+852-${digits}`;
-
-  if (digits.startsWith("977") && digits.length === 13) {
-    return `+977-${digits.slice(3)}`;
-  }
-
-  if (digits.startsWith("852") && digits.length === 11) {
-    return `+852-${digits.slice(3)}`;
-  }
-
-  return raw;
-};
 
 const getPhoneHelperText = (value) => {
-  const digits = String(value || "").replace(/\D/g, "");
-
-  if (!digits) return "Enter 10 digits for Nepal or 8 digits for Hong Kong.";
-  if (digits.length === 8) return "Hong Kong number will be saved as +852-XXXXXXXX.";
-  if (digits.length === 10) return "Nepal number will be saved as +977-XXXXXXXXXX.";
-
-  return "Use 10 digits for Nepal or 8 digits for Hong Kong.";
+    const normalized = normalizeCountryPhone(value);
+    if (normalized.startsWith("+977")) return "Nepal selected. Enter 10 digits.";
+    return "Hong Kong selected. Enter 8 digits.";
 };
+
 
 const safeImageUrl = (image) => {
   if (!image) return "/placeholder.png";
@@ -1138,14 +1119,11 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                     error={errors.phoneNumber}
                     hint={getPhoneHelperText(form.phoneNumber)}
                   >
-                    <input
+                    <CountryPhoneInput
                       value={form.phoneNumber}
-                      onChange={(e) => updateForm("phoneNumber", e.target.value)}
-                      onBlur={handlePhoneBlur}
-                      inputMode="tel"
-                      maxLength={INPUT_LIMITS.phone}
+                      onChange={(value) => updateForm("phoneNumber", value)}
                       disabled={isLoggedIn}
-                      className={inputClass(errors.phoneNumber)}
+                      hasError={!!errors.phoneNumber}
                     />
                   </Field>
 

@@ -24,8 +24,9 @@ import http from "@/http";
 import { clearStorage, fromStorage, imgUrl } from "@/lib";
 import { useCart } from "@/contexts/CartContext";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
-const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8}|\d{10}|\d{8})$/;
+const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
 
 const UI = {
     checkout: { en: "Checkout", ne: "चेकआउट", zh: "結帳" },
@@ -120,25 +121,15 @@ const money = (value) => {
     })}`;
 };
 
-const normalizePhoneNumber = (value) => {
-    const raw = String(value || "").trim();
-    if (!raw) return raw;
+const normalizePhoneNumber = (value) => normalizeCountryPhone(value);
 
-    const digits = raw.replace(/\D/g, "");
-    if (digits.length === 10) return `+977-${digits}`;
-    if (digits.length === 8) return `+852-${digits}`;
-    if (digits.startsWith("977") && digits.length === 13) return `+977-${digits.slice(3)}`;
-    if (digits.startsWith("852") && digits.length === 11) return `+852-${digits.slice(3)}`;
-    return raw;
-};
 
 const getPhoneHelperText = (value) => {
-    const digits = String(value || "").replace(/\D/g, "");
-    if (!digits) return "Enter 10 digits for Nepal or 8 digits for Hong Kong.";
-    if (digits.length === 8) return "Hong Kong number will be saved as +852-XXXXXXXX.";
-    if (digits.length === 10) return "Nepal number will be saved as +977-XXXXXXXXXX.";
-    return "Use 10 digits for Nepal or 8 digits for Hong Kong.";
+    const normalized = normalizeCountryPhone(value);
+    if (normalized.startsWith("+977")) return "Nepal selected. Enter 10 digits.";
+    return "Hong Kong selected. Enter 8 digits.";
 };
+
 
 const safeImageUrl = (image) => {
     if (!image) return "/placeholder.png";
@@ -652,12 +643,10 @@ function CheckoutForm({ locale = "en" }) {
                                 </Field>
 
                                 <Field label={t("phone", locale)} error={errors.phoneNumber} hint={getPhoneHelperText(form.phoneNumber)}>
-                                    <input
+                                    <CountryPhoneInput
                                         value={form.phoneNumber}
-                                        onChange={(e) => updateForm("phoneNumber", e.target.value)}
-                                        onBlur={handlePhoneBlur}
-                                        maxLength={INPUT_LIMITS.phone}
-                                        className={inputClass(errors.phoneNumber)}
+                                        onChange={(value) => updateForm("phoneNumber", value)}
+                                        hasError={!!errors.phoneNumber}
                                     />
                                 </Field>
 

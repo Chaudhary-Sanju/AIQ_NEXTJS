@@ -23,6 +23,7 @@ import http from "@/http";
 import { fromStorage, clearStorage } from "@/lib";
 import { setUser, clearUser } from "@/store/userSlice";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { isValidCountryPhone, normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
 const ALLOWED_SERVICE_TYPES = [
     "software-development",
@@ -283,28 +284,13 @@ function inputClass(hasError) {
 }
 
 function formatPhone(value) {
-    if (!value) return value;
-    const raw = value.trim();
-    const digits = raw.replace(/\D/g, "");
-
-    if (digits.length === 10 && digits.startsWith("9")) {
-        return `+977-${digits}`;
-    }
-    if (digits.length === 8) {
-        return `+852-${digits}`;
-    }
-    if (digits.startsWith("977") && digits.length === 13) {
-        return `+977-${digits.slice(3)}`;
-    }
-    if (digits.startsWith("852") && digits.length === 11) {
-        return `+852-${digits.slice(3)}`;
-    }
-    return raw;
+    return normalizeCountryPhone(value);
 }
+
 
 function validatePhone(value) {
     if (!value || value.trim() === "") return false; // Phone is required for non-auth
-    return PHONE_REGEX.test(value);
+    return isValidCountryPhone(value);
 }
 
 export default function PerfectServiceRequestForm({
@@ -759,14 +745,10 @@ export default function PerfectServiceRequestForm({
 
                             <div className="grid gap-5 md:grid-cols-2">
                                 <Field label={t.phone} icon={Phone} error={errors.phone} required={!isLoggedIn}>
-                                    <input
-                                        name="phone"
+                                    <CountryPhoneInput
                                         value={form.phone}
-                                        onChange={handleChange}
-                                        onBlur={handlePhoneBlur}
-                                        placeholder={t.placeholders.phone}
-                                        maxLength={INPUT_LIMITS.phone}
-                                        className={`${inputClass(!!errors.phone)} h-12`}
+                                        onChange={(value) => handleChange({ target: { name: "phone", value } })}
+                                        hasError={!!errors.phone}
                                     />
                                 </Field>
 

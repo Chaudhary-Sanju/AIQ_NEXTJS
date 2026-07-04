@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import http from "@/http";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { isValidCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
 export const ForgetPassword = ({ locale = "en", dict = {} }) => {
     const t = dict?.auth?.forgetPassword || {};
@@ -73,7 +74,7 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
         } else {
             if (!form.phone.trim()) {
                 nextErrors.phone = t.validation?.phoneRequired || "Phone number is required.";
-            } else if (!PHONE_REGEX.test(form.phone.trim())) {
+            } else if (!isValidCountryPhone(form.phone.trim())) {
                 nextErrors.phone =
                     t.validation?.phoneInvalid ||
                     "Phone must be a valid Nepal (+977-XXXXXXXXXX) or Hong Kong (+852-XXXXXXXX) number.";
@@ -413,15 +414,14 @@ export const ForgetPassword = ({ locale = "en", dict = {} }) => {
                                     ) : (
                                         <Field
                                             label={t.phoneLabel || "Phone number"}
-                                            icon={<Phone className="h-5 w-5" />}
-                                            value={form.phone}
-                                            onChange={(value) => handleChange("phone", value)}
-                                            placeholder={
-                                                t.phonePlaceholder ||
-                                                "e.g. +977-9812345678 or +852-91234567"
-                                            }
                                             error={errors.phone}
-                                        />
+                                        >
+                                            <CountryPhoneInput
+                                                value={form.phone}
+                                                onChange={(value) => handleChange("phone", value)}
+                                                hasError={!!errors.phone}
+                                            />
+                                        </Field>
                                     )}
 
                                     <SubmitError error={errors.submit} />
@@ -625,6 +625,7 @@ function Field({
     type = "text",
     inputClassName = "",
     maxLength,
+    children,
 }) {
     return (
         <div>
@@ -632,24 +633,28 @@ function Field({
                 {label}
             </label>
 
-            <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
-                    {icon}
-                </span>
+            {children ? (
+                children
+            ) : (
+                <div className="relative">
+                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+                        {icon}
+                    </span>
 
-                <input
-                    type={type}
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    placeholder={placeholder}
-                    maxLength={maxLength}
-                    className={[
-                        "h-13 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
-                        error ? "border-red-300" : "border-orange-100",
-                        inputClassName,
-                    ].join(" ")}
-                />
-            </div>
+                    <input
+                        type={type}
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        placeholder={placeholder}
+                        maxLength={maxLength}
+                        className={[
+                            "h-13 w-full rounded-2xl border bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1a4b8f] focus:ring-4 focus:ring-[#1a4b8f]/10",
+                            error ? "border-red-300" : "border-orange-100",
+                            inputClassName,
+                        ].join(" ")}
+                    />
+                </div>
+            )}
 
             {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>

@@ -5,35 +5,15 @@ import { AlertCircle, BadgeCheck, Loader2, MapPin, Phone, Save, UserRound, Mail,
 import http from "@/http";
 import { tGet } from "./utils";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { isValidCountryPhone, normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
-const PHONE_REGEX =
-    /^(\+852[-\s]?\d{4}[-\s]?\d{4}|\+977[-\s]?(9\d{9}|[1-9]\d{7}))$/;
+const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
+
 
 function normalizePhone(value) {
-    const raw = value.trim();
-    const digits = raw.replace(/\D/g, "");
-
-    // Nepal local mobile: 10 digits -> +977XXXXXXXXXX
-    if (digits.length === 10) {
-        return `+977-${digits}`;
-    }
-
-    // Hong Kong local: 8 digits -> +852XXXXXXXX
-    if (digits.length === 8) {
-        return `+852-${digits}`;
-    }
-
-    // Already entered with country code
-    if (digits.startsWith("977") && digits.length === 13) {
-        return `+977-${digits.slice(3)}`;
-    }
-
-    if (digits.startsWith("852") && digits.length === 11) {
-        return `+852-${digits.slice(3)}`;
-    }
-
-    return raw;
+    return normalizeCountryPhone(value);
 }
+
 
 function handlePhoneBlur(value, setProfile, setErr, setSuccess) {
     const formatted = normalizePhone(value);
@@ -119,7 +99,7 @@ export default function ProfilePanel({ dict }) {
 
         const phone = normalizePhone(profile.phone);
 
-        if (!PHONE_REGEX.test(phone)) {
+        if (!isValidCountryPhone(phone)) {
             setErr(T.invalidPhone);
             return;
         }
@@ -201,20 +181,15 @@ export default function ProfilePanel({ dict }) {
                                 />
                             </Field>
 
-                            <Field label={T.phone} icon={<Phone className="h-5 w-5" />}>
-                                <input
+                            <Field label={T.phone}>
+                                <CountryPhoneInput
                                     value={profile.phone}
-                                    onChange={(e) => updateProfile("phone", e.target.value)}
-                                    onBlur={(e) =>
-                                        handlePhoneBlur(e.target.value, setProfile, setErr, setSuccess)
-                                    }
-                                    placeholder="+977 9861234567 or +852 9123 4567"
-                                    maxLength={INPUT_LIMITS.phone}
-                                    className="input-base"
+                                    onChange={(value) => updateProfile("phone", value)}
+                                    hasError={!!err && err === T.invalidPhone}
                                 />
 
                                 <p className="mt-2 text-xs leading-5 text-neutral-500">
-                                    +977 9861234567 / +977-9861234567 / +852 9123 4567 / +852-9123-4567
+                                    Select Nepal (+977) or Hong Kong (+852), then enter the local number.
                                 </p>
                             </Field>
                         </div>

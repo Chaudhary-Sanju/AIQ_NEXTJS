@@ -21,6 +21,7 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import http from "@/http";
 import { setInForm } from "@/lib/index";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
 /* ---------------------------------- */
 /* Helpers */
@@ -61,8 +62,7 @@ function getSuccessText(res, fallback) {
 const PASSWORD_REGEX =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-const PHONE_REGEX =
-    /^((\+977-?\d{10})|(\d{10})|(\+852-?[569]\d{7})|([569]\d{7}))$/;
+const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -174,27 +174,9 @@ function Field({ label, children, error }) {
 }
 
 function normalizePhone(value) {
-    const raw = value.trim();
-    const digits = raw.replace(/\D/g, "");
-
-    if (digits.length === 10) {
-        return `+977-${digits}`;
-    }
-
-    if (digits.length === 8) {
-        return `+852-${digits}`;
-    }
-
-    if (digits.startsWith("977") && digits.length === 13) {
-        return `+977-${digits.slice(3)}`;
-    }
-
-    if (digits.startsWith("852") && digits.length === 11) {
-        return `+852-${digits.slice(3)}`;
-    }
-
-    return raw;
+    return normalizeCountryPhone(value);
 }
+
 
 function handlePhoneBlur(value, form, setForm, setFieldErrors, setError) {
     const formatted = normalizePhone(value);
@@ -1015,28 +997,18 @@ export default function Signup({ locale = "en", dict = {} }) {
                                                 label={t("signup.form.phone", "Phone")}
                                                 error={fieldErrors?.phone}
                                             >
-                                                <TextInput
-                                                    icon={Phone}
-                                                    type="text"
-                                                    name="phone"
-                                                    id="phone"
+                                                <CountryPhoneInput
                                                     value={form.phone}
-                                                    onChange={handleInputChange}
-                                                    onBlur={(e) =>
-                                                        handlePhoneBlur(
-                                                            e.target.value,
-                                                            form,
-                                                            setForm,
-                                                            setFieldErrors,
-                                                            setError
-                                                        )
-                                                    }
-                                                    placeholder={t(
-                                                        "signup.form.phonePlaceholder",
-                                                        "9812345678"
-                                                    )}
-                                                    autoComplete="tel"
-                                                    maxLength={INPUT_LIMITS.phone}
+                                                    onChange={(value) => {
+                                                        setForm((prev) => ({ ...prev, phone: value }));
+                                                        setFieldErrors((prev) => {
+                                                            if (!prev?.phone) return prev;
+                                                            const next = { ...prev };
+                                                            delete next.phone;
+                                                            return next;
+                                                        });
+                                                        if (error) setError("");
+                                                    }}
                                                     hasError={!!fieldErrors?.phone}
                                                 />
                                             </Field>

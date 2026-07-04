@@ -33,6 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fromStorage, clearStorage } from "@/lib";
 import { setUser, clearUser } from "@/store/userSlice";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
+import CountryPhoneInput, { isValidCountryPhone, normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
 
 const COPY = {
     en: {
@@ -628,18 +629,9 @@ function handlePhoneBlur(name, value, setForm) {
 }
 
 function normalizePhone(value) {
-    const raw = value.trim();
-    const digits = raw.replace(/\D/g, "");
-
-    if (digits.length === 10) return `+977-${digits}`;
-    if (digits.length === 8) return `+852-${digits}`;
-    if (digits.startsWith("977") && digits.length === 13) return `+977-${digits.slice(3)}`;
-    if (digits.startsWith("852") && digits.length === 11) return `+852-${digits.slice(3)}`;
-    if (digits.startsWith("+977") && digits.length === 13) return `+977-${digits.slice(3)}`;
-    if (digits.startsWith("+852") && digits.length === 11) return `+852-${digits.slice(3)}`;
-
-    return raw;
+    return normalizeCountryPhone(value);
 }
+
 
 function formatHongKongAddress(address) {
     return [
@@ -996,21 +988,9 @@ export default function AiExpressPickupForm({
 
         if (!form.senderName.trim()) nextErrors.senderName = t.required;
 
-        const senderDigits = form.senderPhone.replace(/\D/g, "");
-        const receiverDigits = form.receiverPhone.replace(/\D/g, "");
-
         if (!form.senderPhone.trim()) nextErrors.senderPhone = t.required;
-        else if (![8, 10, 11, 13].includes(senderDigits.length))
-            nextErrors.senderPhone =
-                "Phone number must be 8 digits Hong Kong or 10 digits Nepal.";
-        else if (senderDigits.length === 8 && !/^\d{8}$/.test(senderDigits))
-            nextErrors.senderPhone = "Hong Kong number must contain exactly 8 digits.";
-        else if (senderDigits.length === 10 && !/^\d{10}$/.test(senderDigits))
-            nextErrors.senderPhone = "Nepal number must contain exactly 10 digits.";
-        else if (senderDigits.length === 11 && !/^852\d{8}$/.test(senderDigits))
-            nextErrors.senderPhone = "Hong Kong number format should be 852-XXXXXXXX.";
-        else if (senderDigits.length === 13 && !/^977\d{10}$/.test(senderDigits))
-            nextErrors.senderPhone = "Nepal number format should be 977-XXXXXXXXXX.";
+        else if (!isValidCountryPhone(form.senderPhone))
+            nextErrors.senderPhone = "Select Nepal or Hong Kong and enter a valid phone number.";
 
         if (form.senderEmail.trim() && !/\S+@\S+\.\S+/.test(form.senderEmail)) {
             nextErrors.senderEmail = t.invalidEmail;
@@ -1037,17 +1017,8 @@ export default function AiExpressPickupForm({
         }
 
         if (!form.receiverPhone.trim()) nextErrors.receiverPhone = t.required;
-        else if (![8, 10, 11, 13].includes(receiverDigits.length))
-            nextErrors.receiverPhone =
-                "Phone number must be 8 digits Hong Kong or 10 digits Nepal.";
-        else if (receiverDigits.length === 8 && !/^\d{8}$/.test(receiverDigits))
-            nextErrors.receiverPhone = "Hong Kong number must contain exactly 8 digits.";
-        else if (receiverDigits.length === 10 && !/^\d{10}$/.test(receiverDigits))
-            nextErrors.receiverPhone = "Nepal number must contain exactly 10 digits.";
-        else if (receiverDigits.length === 11 && !/^852\d{8}$/.test(receiverDigits))
-            nextErrors.receiverPhone = "Hong Kong number format should be 852-XXXXXXXX.";
-        else if (receiverDigits.length === 13 && !/^977\d{10}$/.test(receiverDigits))
-            nextErrors.receiverPhone = "Nepal number format should be 977-XXXXXXXXXX.";
+        else if (!isValidCountryPhone(form.receiverPhone))
+            nextErrors.receiverPhone = "Select Nepal or Hong Kong and enter a valid phone number.";
 
         if (!form.packageType.trim()) nextErrors.packageType = t.required;
 
@@ -1415,14 +1386,10 @@ export default function AiExpressPickupForm({
                                 </Field>
 
                                 <Field label={t.senderPhone} icon={Phone} error={errors.senderPhone} color={theme.focusColor}>
-                                    <input
-                                        name="senderPhone"
+                                    <CountryPhoneInput
                                         value={form.senderPhone}
-                                        onChange={handleChange}
-                                        onBlur={(e) => handlePhoneBlur("senderPhone", e.target.value, setForm)}
-                                        placeholder="9800000000 or 91234567"
-                                        maxLength={INPUT_LIMITS.phone}
-                                        className={inputClass(!!errors.senderPhone)}
+                                        onChange={(value) => handleChange({ target: { name: "senderPhone", value } })}
+                                        hasError={!!errors.senderPhone}
                                     />
                                 </Field>
                             </div>
@@ -1610,14 +1577,10 @@ export default function AiExpressPickupForm({
                                 </Field>
 
                                 <Field label={t.receiverPhone} icon={Phone} error={errors.receiverPhone} color={theme.focusColor}>
-                                    <input
-                                        name="receiverPhone"
+                                    <CountryPhoneInput
                                         value={form.receiverPhone}
-                                        onChange={handleChange}
-                                        onBlur={(e) => handlePhoneBlur("receiverPhone", e.target.value, setForm)}
-                                        placeholder="9800000000 or 91234567"
-                                        maxLength={INPUT_LIMITS.phone}
-                                        className={inputClass(!!errors.receiverPhone)}
+                                        onChange={(value) => handleChange({ target: { name: "receiverPhone", value } })}
+                                        hasError={!!errors.receiverPhone}
                                     />
                                 </Field>
                             </div>

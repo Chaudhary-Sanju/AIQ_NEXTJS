@@ -42,9 +42,9 @@ const UI = {
         zh: "全部商品",
     },
     "bulkPurchase": {
-        "en": "Bulk Purchase (Free Delivery)",
-        "ne": "थोक खरिद (निःशुल्क डेलिभरी)",
-        "zh": "批量采购（免费配送）"
+        "en": "Free Delivery",
+        "ne": "निःशुल्क डेलिभरी",
+        "zh": "免费配送"
     },
     "bbqDelivery": {
         "en": "BBQ & Delivery Services",
@@ -57,14 +57,14 @@ const UI = {
         zh: "尼泊尔产品（尼泊尔制造）",
     },
     title: {
-        en: "Bulk Purchase",
-        ne: "थोक खरिद",
-        zh: "批量采购",
+        en: "Free Delivery Products",
+        ne: "निःशुल्क डेलिभरी उत्पादनहरू",
+        zh: "免费配送商品",
     },
     subtitle: {
-        en: "Choose quantity and add products in bulk",
-        ne: "परिमाण छान्नुहोस् र थोकमा उत्पादन थप्नुहोस्",
-        zh: "选择数量并批量加入商品",
+        en: "Shop selected products with free delivery.",
+        ne: "निःशुल्क डेलिभरी भएका उत्पादनहरू खरिद गर्नुहोस्।",
+        zh: "购买支持免费配送的精选商品。",
     },
     searchPlaceholder: {
         en: "Search bulk products...",
@@ -177,9 +177,9 @@ const UI = {
         zh: "自定义数量",
     },
     bulkBadge: {
-        en: "Bulk Purchase",
-        ne: "थोक खरिद",
-        zh: "批量采购",
+        en: "Free Delivery",
+        ne: "निःशुल्क डेलिभरी",
+        zh: "免费配送",
     },
 };
 
@@ -278,27 +278,6 @@ function ProductTabs({ locale, currentCategory, updateQuery, isBulkPurchasePage,
                 {tabsLabels.bulkPurchase}
             </Link>
 
-            <button
-                type="button"
-                onClick={() => setCategory("bbq")}
-                className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${!isBulkPurchasePage && currentCategory === "bbq"
-                    ? "bg-[#1a4b8f] text-white shadow-md shadow-[#1a4b8f]/20"
-                    : "bg-white text-neutral-700 hover:bg-orange-50 hover:text-[#1a4b8f] border border-orange-200"
-                    }`}
-            >
-                {tabsLabels.bbqDelivery}
-            </button>
-
-            <button
-                type="button"
-                onClick={() => setCategory("madeinnepal")}
-                className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${!isBulkPurchasePage && currentCategory === "madeinnepal"
-                    ? "bg-[#1a4b8f] text-white shadow-md shadow-[#1a4b8f]/20"
-                    : "bg-white text-neutral-700 hover:bg-orange-50 hover:text-[#1a4b8f] border border-orange-200"
-                    }`}
-            >
-                {tabsLabels.nepaliProduct}
-            </button>
         </div>
     );
 }
