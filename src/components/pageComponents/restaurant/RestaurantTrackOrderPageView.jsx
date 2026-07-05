@@ -8,20 +8,30 @@ import http from "@/http";
 import { money, t } from "./restaurantShared";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
 
+const getOrderNumberFromSearchParams = (searchParams) =>
+  searchParams.get("orderNumber") || searchParams.get("order") || "";
+
 export default function RestaurantTrackOrderPageView({ locale = "en" }) {
   const searchParams = useSearchParams();
 
-  const [orderNumber, setOrderNumber] = useState(
-    searchParams.get("order") || ""
+  const [orderNumber, setOrderNumber] = useState(() =>
+    getOrderNumberFromSearchParams(searchParams)
   );
-  const [checkoutId, setCheckoutId] = useState(
+  const [checkoutId, setCheckoutId] = useState(() =>
     searchParams.get("checkout") || ""
   );
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(null);
 
-  const fetchOrder = async () => {
-    if (!orderNumber.trim() && !checkoutId.trim()) {
+  const fetchOrder = async (values = {}) => {
+    const currentOrderNumber = String(
+      values.orderNumber ?? orderNumber ?? ""
+    ).trim();
+    const currentCheckoutId = String(
+      values.checkoutId ?? checkoutId ?? ""
+    ).trim();
+
+    if (!currentOrderNumber && !currentCheckoutId) {
       toast.error("Please enter order number.");
       return;
     }
@@ -29,15 +39,15 @@ export default function RestaurantTrackOrderPageView({ locale = "en" }) {
     setLoading(true);
 
     try {
-      if (checkoutId.trim()) {
+      if (currentCheckoutId) {
         const { data } = await http.get(
-          `/frontend/foodOrder/payment-status/${checkoutId.trim()}`
+          `/frontend/foodOrder/payment-status/${currentCheckoutId}`
         );
 
         setOrder(data?.data?.order || data?.order || data?.data || data);
       } else {
         const { data } = await http.get(
-          `/frontend/foodOrder/track/${orderNumber.trim()}`
+          `/frontend/foodOrder/track/${currentOrderNumber}`
         );
 
         setOrder(data?.data || data?.order || data);
@@ -51,17 +61,26 @@ export default function RestaurantTrackOrderPageView({ locale = "en" }) {
   };
 
   useEffect(() => {
-    if (orderNumber || checkoutId) fetchOrder();
+    const nextOrderNumber = getOrderNumberFromSearchParams(searchParams);
+    const nextCheckoutId = searchParams.get("checkout") || "";
+
+    setOrderNumber(nextOrderNumber);
+    setCheckoutId(nextCheckoutId);
+
+    if (nextOrderNumber || nextCheckoutId) {
+      fetchOrder({
+        orderNumber: nextOrderNumber,
+        checkoutId: nextCheckoutId,
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl space-y-6">
         <div className="rounded-2xl bg-gradient-to-r from-slate-950 to-slate-800 p-6 text-white">
-          <h1 className="text-3xl font-bold">
-            {t(locale, "trackOrder")}
-          </h1>
+          <h1 className="text-3xl font-bold">{t(locale, "trackOrder")}</h1>
           <p className="mt-2 text-sm text-slate-300">
             Enter your restaurant order number to check status.
           </p>
@@ -86,7 +105,7 @@ export default function RestaurantTrackOrderPageView({ locale = "en" }) {
 
             <button
               type="button"
-              onClick={fetchOrder}
+              onClick={() => fetchOrder()}
               disabled={loading}
               className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
             >
@@ -114,9 +133,7 @@ export default function RestaurantTrackOrderPageView({ locale = "en" }) {
                     order.orderId ||
                     "Restaurant Order"}
                 </h2>
-                <p className="text-sm text-slate-500">
-                  Current order status
-                </p>
+                <p className="text-sm text-slate-500">Current order status</p>
               </div>
             </div>
 

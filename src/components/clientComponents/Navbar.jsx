@@ -267,7 +267,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                 className="hidden lg:block"
                 style={{ background: "linear-gradient(90deg, #0f2a5e 0%, #1a4b8f 100%)" }}
             >
-                <div className="mx-auto max-w-7xl px-4 lg:px-6">
+                <div className="mx-auto w-full max-w-none px-4 lg:w-[80vw] lg:px-6">
                     <div className="flex h-9 items-center justify-between" style={{ fontSize: "13.3px", letterSpacing: "0.01em" }}>
                         <div className="flex items-center gap-4 text-white/80">
                             <span className="inline-flex items-center gap-1.5">
@@ -303,8 +303,8 @@ export default function Navbar({ locale = "en", dict = {} }) {
 
             {/* Main desktop navbar */}
             <div className="hidden bg-orange-50 lg:block">
-                <div className="mx-auto max-w-7xl px-3 lg:px-4 xl:px-6">
-                    <div className="grid h-[80px] grid-cols-[78px_minmax(200px,1fr)_auto_auto] items-center gap-2 xl:grid-cols-[105px_minmax(280px,430px)_minmax(390px,1fr)_auto] xl:gap-4">
+                <div className="mx-auto w-full max-w-none px-3 lg:w-[80vw] lg:px-4 xl:px-6">
+                    <div className="grid h-[80px] grid-cols-[78px_minmax(220px,1fr)_minmax(280px,auto)_auto] items-center gap-3 xl:grid-cols-[105px_minmax(300px,1.25fr)_minmax(330px,1fr)_auto] xl:gap-5 2xl:grid-cols-[105px_minmax(380px,1.45fr)_minmax(380px,1fr)_auto]">
                         {/* Logo */}
                         <Link href={l("/")} className="group flex flex-col items-center justify-center leading-none">
                             <Image
@@ -346,9 +346,9 @@ export default function Navbar({ locale = "en", dict = {} }) {
                         </form>
 
                         {/* Desktop navigation pills */}
-                        <nav className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap">
+                        <nav className="flex min-w-0 w-full items-center justify-between gap-2 whitespace-nowrap">
                             {/* Express dropdown */}
-                            <div className="relative" ref={desktopExpressRef}>
+                            <div className="relative shrink-0" ref={desktopExpressRef}>
                                 <div className="flex items-center overflow-hidden rounded-full border bg-orange-50" style={{ borderColor: YELLOW_BORDER }}>
                                     <Link
                                         href={l("/ai-express")}
@@ -380,7 +380,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
 
                             {/* Grocery dropdown with multi-language items */}
-                            <div className="relative" ref={desktopGroceryRef}>
+                            <div className="relative shrink-0" ref={desktopGroceryRef}>
                                 <div
                                     className="flex items-center overflow-hidden rounded-full border bg-orange-50"
                                     style={{ borderColor: YELLOW_BORDER }}
@@ -474,7 +474,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                             </div>
 
                             {/* Services dropdown */}
-                            <div className="relative" ref={desktopServicesRef}>
+                            <div className="relative shrink-0" ref={desktopServicesRef}>
                                 <div className="flex items-center overflow-hidden rounded-full border bg-orange-50" style={{ borderColor: YELLOW_BORDER }}>
                                     <button
                                         type="button"
@@ -507,7 +507,7 @@ export default function Navbar({ locale = "en", dict = {} }) {
                         </nav>
 
                         {/* Cart / Auth / Language */}
-                        <div className="flex min-w-max items-center gap-1 whitespace-nowrap xl:gap-2">
+                        <div className="flex min-w-max items-center justify-end gap-1 whitespace-nowrap xl:gap-2">
                             <Link href={l("/cart")} aria-label={t("nav.cartAria", "Cart")} className="relative inline-flex items-center gap-1 rounded-md px-2 py-2 text-[13px] font-medium text-neutral-700 transition-colors duration-150 hover:bg-orange-100 hover:text-[#1a4b8f] xl:gap-1.5 xl:px-3 xl:text-sm">
                                 <ShoppingCart className="h-4 w-4" />
                                 <span>{t("nav.cart", "Cart")}</span>

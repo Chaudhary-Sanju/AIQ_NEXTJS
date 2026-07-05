@@ -15,6 +15,9 @@ import {
   BadgeCheck,
   Truck,
   Tag,
+  Share2,
+  Copy,
+  Check,
 } from "lucide-react";
 
 import http from "@/http";
@@ -201,6 +204,61 @@ const UI = {
     ne: "सुरक्षित चेकआउट",
     zh: "安全结账",
   },
+  shareProduct: {
+    en: "Share this product",
+    ne: "यो उत्पादन शेयर गर्नुहोस्",
+    zh: "分享此商品",
+  },
+  shareHint: {
+    en: "Send it to friends or copy the product link.",
+    ne: "साथीहरूलाई पठाउनुहोस् वा उत्पादन लिङ्क कपी गर्नुहोस्।",
+    zh: "发送给朋友或复制商品链接。",
+  },
+  productLink: {
+    en: "Product link",
+    ne: "उत्पादन लिङ्क",
+    zh: "商品链接",
+  },
+  shareNative: {
+    en: "Share",
+    ne: "शेयर",
+    zh: "分享",
+  },
+  copyLink: {
+    en: "Copy link",
+    ne: "लिङ्क कपी गर्नुहोस्",
+    zh: "复制链接",
+  },
+  copied: {
+    en: "Copied",
+    ne: "कपी भयो",
+    zh: "已复制",
+  },
+  whatsapp: {
+    en: "WhatsApp",
+    ne: "WhatsApp",
+    zh: "WhatsApp",
+  },
+  facebook: {
+    en: "Facebook",
+    ne: "Facebook",
+    zh: "Facebook",
+  },
+  messenger: {
+    en: "Messenger",
+    ne: "Messenger",
+    zh: "Messenger",
+  },
+  telegram: {
+    en: "Telegram",
+    ne: "Telegram",
+    zh: "Telegram",
+  },
+  x: {
+    en: "X",
+    ne: "X",
+    zh: "X",
+  },
 };
 
 function RatingStars({ value = 0, size = "sm" }) {
@@ -252,6 +310,8 @@ export default function ProductDetailsView({
   const [product, setProduct] = useState(initialProduct);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [shareUrl, setShareUrl] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const { addToCart, busy } = useCart();
 
@@ -325,6 +385,34 @@ export default function ProductDetailsView({
       UI.delivery[locale] ||
       UI.delivery.en,
     secure: dict?.productView?.secure || UI.secure[locale] || UI.secure.en,
+    shareProduct:
+      dict?.productView?.shareProduct ||
+      UI.shareProduct[locale] ||
+      UI.shareProduct.en,
+    shareHint:
+      dict?.productView?.shareHint || UI.shareHint[locale] || UI.shareHint.en,
+    productLink:
+      dict?.productView?.productLink ||
+      UI.productLink[locale] ||
+      UI.productLink.en,
+    shareNative:
+      dict?.productView?.shareNative ||
+      UI.shareNative[locale] ||
+      UI.shareNative.en,
+    copyLink:
+      dict?.productView?.copyLink || UI.copyLink[locale] || UI.copyLink.en,
+    copied: dict?.productView?.copied || UI.copied[locale] || UI.copied.en,
+    whatsapp:
+      dict?.productView?.whatsapp || UI.whatsapp[locale] || UI.whatsapp.en,
+    facebook:
+      dict?.productView?.facebook || UI.facebook[locale] || UI.facebook.en,
+    messenger:
+      dict?.productView?.messenger ||
+      UI.messenger[locale] ||
+      UI.messenger.en,
+    telegram:
+      dict?.productView?.telegram || UI.telegram[locale] || UI.telegram.en,
+    x: dict?.productView?.x || UI.x[locale] || UI.x.en,
   };
 
   useEffect(() => {
@@ -360,12 +448,87 @@ export default function ProductDetailsView({
     };
   }, [slug, initialProduct]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const productSlug = product?.slug || slug;
+
+    if (!productSlug) {
+      setShareUrl(window.location.href);
+      return;
+    }
+
+    setShareUrl(`${window.location.origin}/${locale}/product/${productSlug}`);
+  }, [locale, product?.slug, slug]);
+
+  useEffect(() => {
+    if (!copied) return;
+
+    const timer = setTimeout(() => {
+      setCopied(false);
+    }, 1800);
+
+    return () => clearTimeout(timer);
+  }, [copied]);
+
   const name = useMemo(() => pick(product?.name, locale), [product, locale]);
 
   const summary = useMemo(
     () => pick(product?.summary, locale),
     [product, locale]
   );
+
+  const shareTitle = name ? `${name} | HKMandu` : "HKMandu product";
+  const shareText = summary
+    ? `${name} - ${summary}`
+    : "Check this product on HKMandu";
+
+  const copyShareLink = async () => {
+    const url = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
+
+    if (!url) return;
+
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = url;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const handleNativeShare = async () => {
+    const url = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
+
+    if (!url) return;
+
+    if (navigator?.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url,
+        });
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+
+    await copyShareLink();
+  };
 
   const images = useMemo(() => getProductImages(product), [product]);
 
@@ -529,6 +692,48 @@ export default function ProductDetailsView({
                     )}
                   </div>
                 </div>
+
+                <div className="order-3 md:col-start-2">
+                  <div className="rounded-[22px] border border-orange-100 bg-gradient-to-br from-white via-orange-50/70 to-blue-50/50 p-3 shadow-sm shadow-orange-100/70 sm:p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-extrabold text-neutral-950 sm:text-base">
+                          {t.shareProduct}
+                        </h3>
+                        <p className="mt-1 text-xs leading-5 text-neutral-500">
+                          {t.shareHint}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+                        <button
+                          type="button"
+                          onClick={handleNativeShare}
+                          className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#1a4b8f] px-4 text-sm font-extrabold text-white shadow-sm shadow-[#1a4b8f]/20 transition hover:-translate-y-0.5 hover:bg-[#0f2a5e] hover:shadow-md"
+                        >
+                          <Share2 className="h-4 w-4" />
+                          {t.shareNative}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={copyShareLink}
+                          className={`inline-flex h-11 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-extrabold shadow-sm transition ${copied
+                              ? "bg-green-50 text-green-700 ring-1 ring-green-200"
+                              : "bg-white text-neutral-700 ring-1 ring-orange-100 hover:bg-orange-50 hover:text-[#1a4b8f]"
+                            }`}
+                        >
+                          {copied ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                          {copied ? t.copied : t.copyLink}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-col">
@@ -668,6 +873,8 @@ export default function ProductDetailsView({
                   <ShoppingCart className="h-5 w-5" />
                   {busy ? t.adding : t.addToCart}
                 </button>
+
+
               </div>
             </div>
 
