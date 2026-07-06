@@ -14,6 +14,7 @@ import { useCart } from "@/contexts/CartContext";
 
 import http from "@/http";
 import { imgUrl } from "@/lib";
+import ProductShareButton from "@/components/clientComponents/ProductShareButton";
 
 const pick = (obj, locale = "en") => {
     if (!obj) return "";
@@ -369,32 +370,39 @@ function ProductCard({ p, locale }) {
 
     return (
         <div className="group flex h-full w-full flex-col rounded-[24px] border border-orange-100 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(15,42,94,0.10)]">
-            <Link
-                href={href}
-                className="relative block h-[150px] w-full overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50"
-            >
-                {discountPercent ? (
-                    <span className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
-                        <Tag className="h-3 w-3" />
-                        -{discountPercent}%
-                    </span>
-                ) : null}
+            <div className="relative h-[150px] w-full overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50">
+                <Link href={href} className="block h-full w-full">
+                    {discountPercent ? (
+                        <span className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
+                            <Tag className="h-3 w-3" />
+                            -{discountPercent}%
+                        </span>
+                    ) : null}
 
-                {displayImage ? (
-                    <Image
-                        src={imgUrl(displayImage)}
-                        alt={p.displayName || "Product"}
-                        fill
-                        className="object-cover transition duration-500 group-hover:scale-105"
-                        sizes="(max-width: 1024px) 178px, 220px"
-                        unoptimized
-                    />
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-neutral-400">
-                        No Image
-                    </div>
-                )}
-            </Link>
+                    {displayImage ? (
+                        <Image
+                            src={imgUrl(displayImage)}
+                            alt={p.displayName || "Product"}
+                            fill
+                            className="object-cover transition duration-500 group-hover:scale-105"
+                            sizes="(max-width: 1024px) 178px, 220px"
+                            unoptimized
+                        />
+                    ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-neutral-400">
+                            No Image
+                        </div>
+                    )}
+                </Link>
+
+                <ProductShareButton
+                    locale={locale}
+                    slug={p.slug}
+                    title={p.displayName || "Product"}
+                    summary={p.displaySummary || ""}
+                    className="absolute bottom-2 right-2 z-20"
+                />
+            </div>
 
             <Link href={href} className="mt-3 block">
                 <h3 className="line-clamp-1 text-[13px] font-bold text-neutral-950 transition group-hover:text-[#1a4b8f]">
