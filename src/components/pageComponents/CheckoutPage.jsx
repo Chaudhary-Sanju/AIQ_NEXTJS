@@ -890,10 +890,10 @@ function CheckoutForm({ locale = "en" }) {
 
                             <SummaryRow
                                 label={`${t("deliveryCharge", locale)} ${selectedZone
-                                        ? form.deliveryType === "express"
-                                            ? `(${t("expressDelivery", locale)})`
-                                            : `(${t("standardDelivery", locale)})`
-                                        : ""
+                                    ? form.deliveryType === "express"
+                                        ? `(${t("expressDelivery", locale)})`
+                                        : `(${t("standardDelivery", locale)})`
+                                    : ""
                                     }`}
                                 value={
                                     !selectedZone
@@ -966,7 +966,7 @@ function CheckoutForm({ locale = "en" }) {
 
 function Card({ children, title, icon, index }) {
     return (
-        <div className="rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-sm backdrop-blur sm:p-6">
+        <div className="relative overflow-visible rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-sm sm:p-6">
             <div className="mb-6 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-[#1a4b8f]">
@@ -1014,8 +1014,8 @@ function Field({ label, children, error, hint }) {
 
 function inputClass(hasError) {
     return `h-12 w-full rounded-xl border bg-white px-4 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:ring-4 ${hasError
-            ? "border-red-200 focus:border-red-400 focus:ring-red-50"
-            : "border-orange-100 focus:border-[#1a4b8f] focus:ring-blue-50"
+        ? "border-red-200 focus:border-red-400 focus:ring-red-50"
+        : "border-orange-100 focus:border-[#1a4b8f] focus:ring-blue-50"
         }`;
 }
 
@@ -1023,8 +1023,8 @@ function RadioCard({ checked, title, price, description, onChange }) {
     return (
         <label
             className={`cursor-pointer rounded-2xl border p-4 transition ${checked
-                    ? "border-[#1a4b8f] bg-blue-50"
-                    : "border-orange-100 bg-white hover:border-[#1a4b8f]/40"
+                ? "border-[#1a4b8f] bg-blue-50"
+                : "border-orange-100 bg-white hover:border-[#1a4b8f]/40"
                 }`}
         >
             <input type="radio" className="sr-only" checked={checked} onChange={onChange} />
@@ -1052,8 +1052,8 @@ function PaymentOption({ checked, label, icon, onChange }) {
     return (
         <label
             className={`flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition ${checked
-                    ? "border-[#1a4b8f] bg-blue-50"
-                    : "border-orange-100 bg-white hover:border-[#1a4b8f]/40"
+                ? "border-[#1a4b8f] bg-blue-50"
+                : "border-orange-100 bg-white hover:border-[#1a4b8f]/40"
                 }`}
         >
             <span className="flex items-center gap-3 text-sm font-bold text-neutral-900">

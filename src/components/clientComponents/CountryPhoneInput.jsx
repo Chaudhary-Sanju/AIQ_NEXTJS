@@ -19,18 +19,33 @@ export const PHONE_COUNTRIES = [
 ];
 
 export const PHONE_REGEX = /^(\+852-\d{8}|\+977-\d{10})$/;
+export const HONG_KONG_PHONE_REGEX = /^\+852-\d{8}$/;
 
 export const getDigitsOnly = (value = "") =>
   String(value || "").replace(/\D/g, "");
 
 export const onlyDigits = getDigitsOnly;
 
+const hasCountryPrefix = (value, country) => {
+  const raw = String(value || "").trim();
+  const digits = getDigitsOnly(raw);
+  const codeDigits = getDigitsOnly(country.code);
+
+  return (
+    raw.startsWith(country.code) ||
+    (digits.length > country.digits && digits.startsWith(codeDigits))
+  );
+};
+
 const getExplicitCountryCode = (value = "") => {
   const raw = String(value || "").trim();
   const digits = getDigitsOnly(raw);
 
-  if (raw.startsWith("+977") || digits.startsWith("977")) return "+977";
-  if (raw.startsWith("+852") || digits.startsWith("852")) return "+852";
+  const prefixedCountry = PHONE_COUNTRIES.find((country) =>
+    hasCountryPrefix(raw, country)
+  );
+
+  if (prefixedCountry) return prefixedCountry.code;
   if (digits.length === 10) return "+977";
   if (digits.length > 0 && digits.length <= 8) return "+852";
 
@@ -41,21 +56,19 @@ export const parsePhoneValue = (value = "") => {
   const raw = String(value || "").trim();
   const digits = getDigitsOnly(raw);
 
-  if (raw.startsWith("+977") || digits.startsWith("977")) {
-    return {
-      countryCode: "+977",
-      localNumber: digits.startsWith("977")
-        ? digits.slice(3, 13)
-        : digits.slice(0, 10),
-    };
-  }
+  const prefixedCountry = PHONE_COUNTRIES.find((country) =>
+    hasCountryPrefix(raw, country)
+  );
 
-  if (raw.startsWith("+852") || digits.startsWith("852")) {
+  if (prefixedCountry) {
+    const codeDigits = getDigitsOnly(prefixedCountry.code);
+
     return {
-      countryCode: "+852",
-      localNumber: digits.startsWith("852")
-        ? digits.slice(3, 11)
-        : digits.slice(0, 8),
+      countryCode: prefixedCountry.code,
+      localNumber: digits.slice(
+        codeDigits.length,
+        codeDigits.length + prefixedCountry.digits
+      ),
     };
   }
 
@@ -82,15 +95,21 @@ export const getCountryFromPhone = (value = "") => {
 };
 
 export const getLocalPhone = (value = "", country) => {
-  const parsed = parsePhoneValue(value);
+  const matchedCountry =
+    PHONE_COUNTRIES.find((item) => item.code === country?.code) ||
+    PHONE_COUNTRIES[0];
 
-  if (!country || country.code === parsed.countryCode) {
-    return parsed.localNumber;
+  const parsed = parsePhoneValue(value);
+  const explicitCode = getExplicitCountryCode(value);
+
+  if (matchedCountry.code === parsed.countryCode) {
+    return parsed.localNumber.slice(0, matchedCountry.digits);
   }
 
-  const matchedCountry =
-    PHONE_COUNTRIES.find((item) => item.code === country.code) ||
-    PHONE_COUNTRIES[0];
+  // Do not reinterpret a number from another country as a local number.
+  if (explicitCode && explicitCode !== matchedCountry.code) {
+    return "";
+  }
 
   return getDigitsOnly(value).slice(0, matchedCountry.digits);
 };
@@ -113,10 +132,31 @@ export const normalizeCountryPhone = (value = "") => {
   return formatPhoneNumber(parsed.countryCode, parsed.localNumber);
 };
 
+export const normalizeHongKongPhone = (value = "") => {
+  const raw = String(value || "").trim();
+  const explicitCode = getExplicitCountryCode(raw);
+
+  if (explicitCode && explicitCode !== "+852") {
+    return "";
+  }
+
+  const hongKong = PHONE_COUNTRIES[0];
+  const digits = getDigitsOnly(raw);
+  const codeDigits = getDigitsOnly(hongKong.code);
+  const localNumber = hasCountryPrefix(raw, hongKong)
+    ? digits.slice(codeDigits.length, codeDigits.length + hongKong.digits)
+    : digits.slice(0, hongKong.digits);
+
+  return formatPhoneNumber(hongKong.code, localNumber);
+};
+
 export const isValidPhoneNumber = (value = "") => {
   const normalized = normalizeCountryPhone(value);
   return PHONE_REGEX.test(normalized);
 };
+
+export const isValidHongKongPhone = (value = "") =>
+  HONG_KONG_PHONE_REGEX.test(normalizeHongKongPhone(value));
 
 export const isValidCountryPhone = isValidPhoneNumber;
 
@@ -128,21 +168,63 @@ export default function CountryPhoneInput({
   placeholder,
   className = "",
   inputClassName = "",
+  allowedCountryCodes,
 }) {
   const wrapperRef = useRef(null);
 
+  const availableCountries = useMemo(() => {
+    if (!Array.isArray(allowedCountryCodes) || !allowedCountryCodes.length) {
+      return PHONE_COUNTRIES;
+    }
+
+    const allowed = new Set(allowedCountryCodes);
+    const filtered = PHONE_COUNTRIES.filter((country) =>
+      allowed.has(country.code)
+    );
+
+    return filtered.length ? filtered : [PHONE_COUNTRIES[0]];
+  }, [allowedCountryCodes]);
+
+  const isSingleCountry = availableCountries.length === 1;
+
   const [isCountryOpen, setIsCountryOpen] = useState(false);
-  const [selectedCountryCode, setSelectedCountryCode] = useState(
-    () => getExplicitCountryCode(value) || "+852"
-  );
+  const [selectedCountryCode, setSelectedCountryCode] = useState(() => {
+    const explicitCode = getExplicitCountryCode(value);
+
+    if (
+      explicitCode &&
+      availableCountries.some((country) => country.code === explicitCode)
+    ) {
+      return explicitCode;
+    }
+
+    return availableCountries[0].code;
+  });
 
   useEffect(() => {
     const explicitCode = getExplicitCountryCode(value);
+    const explicitCountryIsAllowed = availableCountries.some(
+      (country) => country.code === explicitCode
+    );
+    const selectedCountryIsAllowed = availableCountries.some(
+      (country) => country.code === selectedCountryCode
+    );
 
-    if (explicitCode) {
+    if (explicitCode && explicitCountryIsAllowed) {
       setSelectedCountryCode(explicitCode);
+      return;
     }
-  }, [value]);
+
+    if (!selectedCountryIsAllowed) {
+      setSelectedCountryCode(availableCountries[0].code);
+    }
+  }, [value, availableCountries, selectedCountryCode]);
+
+  useEffect(() => {
+    if (isSingleCountry) {
+      setIsCountryOpen(false);
+    }
+  }, [isSingleCountry]);
 
   useEffect(() => {
     if (!isCountryOpen) return;
@@ -170,9 +252,10 @@ export default function CountryPhoneInput({
 
   const selectedCountry = useMemo(
     () =>
-      PHONE_COUNTRIES.find((item) => item.code === selectedCountryCode) ||
-      PHONE_COUNTRIES[0],
-    [selectedCountryCode]
+      availableCountries.find(
+        (item) => item.code === selectedCountryCode
+      ) || availableCountries[0],
+    [availableCountries, selectedCountryCode]
   );
 
   const localNumber = useMemo(
@@ -191,7 +274,14 @@ export default function CountryPhoneInput({
   };
 
   return (
-    <div ref={wrapperRef} className={`relative w-full ${className}`}>
+    <div
+      ref={wrapperRef}
+      className={[
+        "relative w-full overflow-visible",
+        isCountryOpen ? "z-[9999]" : "z-0",
+        className,
+      ].join(" ")}
+    >
       <div
         className={[
           "flex h-12 w-full items-center rounded-2xl border bg-white text-sm outline-none transition",
@@ -200,38 +290,44 @@ export default function CountryPhoneInput({
           disabled ? "cursor-not-allowed bg-neutral-100 opacity-60" : "",
         ].join(" ")}
       >
-        <button
-          type="button"
-          disabled={disabled}
-          aria-expanded={isCountryOpen}
-          aria-label="Select phone country code"
-          onClick={() => setIsCountryOpen((open) => !open)}
-          className={[
-            "flex h-full min-w-[104px] shrink-0 items-center justify-center gap-2 rounded-l-2xl px-4 font-bold text-[#1a4b8f] outline-none transition",
-            "disabled:cursor-not-allowed",
-          ].join(" ")}
-        >
-          <span>{selectedCountry.code}</span>
+        {isSingleCountry ? (
+          <div className="flex h-full min-w-[104px] shrink-0 items-center justify-center rounded-l-2xl px-4 font-bold text-[#1a4b8f]">
+            {selectedCountry.code}
+          </div>
+        ) : (
+          <button
+            type="button"
+            disabled={disabled}
+            aria-expanded={isCountryOpen}
+            aria-haspopup="listbox"
+            aria-label="Select phone country code"
+            onClick={() => setIsCountryOpen((open) => !open)}
+            className="flex h-full min-w-[104px] shrink-0 items-center justify-center gap-2 rounded-l-2xl px-4 font-bold text-[#1a4b8f] outline-none transition disabled:cursor-not-allowed"
+          >
+            <span>{selectedCountry.code}</span>
 
-          <ChevronDown
-            size={15}
-            className={[
-              "text-neutral-400 transition-transform duration-200",
-              isCountryOpen ? "rotate-180" : "",
-            ].join(" ")}
-          />
-        </button>
+            <ChevronDown
+              size={15}
+              className={[
+                "text-neutral-400 transition-transform duration-200",
+                isCountryOpen ? "rotate-180" : "",
+              ].join(" ")}
+            />
+          </button>
+        )}
 
         <div className="h-6 w-px shrink-0 bg-orange-100" />
 
         <input
           type="text"
-          inputMode="tel"
+          inputMode="numeric"
+          autoComplete="tel"
           value={localNumber}
           disabled={disabled}
           onChange={handleNumberChange}
           placeholder={placeholder || selectedCountry.placeholder}
           maxLength={selectedCountry.digits}
+          aria-label={`${selectedCountry.label} phone number`}
           className={[
             "h-full min-w-0 flex-1 rounded-r-2xl bg-transparent px-4 text-sm text-neutral-900 outline-none placeholder:text-neutral-400",
             "disabled:cursor-not-allowed",
@@ -240,8 +336,12 @@ export default function CountryPhoneInput({
         />
       </div>
 
-      {isCountryOpen ? (
-        <div className="absolute left-0 top-[calc(100%+10px)] z-50 w-[280px] overflow-hidden rounded-[22px] border border-orange-100 bg-white p-2 shadow-[0_18px_45px_rgba(15,42,94,0.16)] ring-1 ring-black/5">
+      {!isSingleCountry && isCountryOpen ? (
+        <div
+          role="listbox"
+          aria-label="Phone country codes"
+          className="absolute left-0 top-[calc(100%+10px)] z-[10000] w-[280px] overflow-hidden rounded-[22px] border border-orange-100 bg-white p-2 shadow-[0_18px_45px_rgba(15,42,94,0.16)] ring-1 ring-black/5"
+        >
           <div className="px-3 pb-2 pt-1">
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-neutral-400">
               Select country
@@ -249,12 +349,14 @@ export default function CountryPhoneInput({
           </div>
 
           <div className="space-y-1">
-            {PHONE_COUNTRIES.map((country) => {
+            {availableCountries.map((country) => {
               const active = country.code === selectedCountry.code;
 
               return (
                 <button
                   type="button"
+                  role="option"
+                  aria-selected={active}
                   key={country.code}
                   onClick={() => handleCountryChange(country)}
                   className={[

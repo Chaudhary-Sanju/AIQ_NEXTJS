@@ -26,9 +26,10 @@ import http from "@/http";
 import { fromStorage, imgUrl } from "@/lib";
 import { useRestaurantCart } from "@/contexts/RestaurantCartContext";
 import { INPUT_LIMITS } from "@/constants/inputLimits";
-import CountryPhoneInput, { normalizeCountryPhone } from "@/components/clientComponents/CountryPhoneInput";
+import CountryPhoneInput, { normalizeHongKongPhone } from "@/components/clientComponents/CountryPhoneInput";
 
-const PHONE_REGEX = /^(\+977-\d{10}|\+852-\d{8})$/;
+const PHONE_REGEX = /^\+852-\d{8}$/;
+const HONG_KONG_COUNTRY_CODES = ["+852"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const UI = {
@@ -273,14 +274,11 @@ const pickText = (value, locale = "en", fallback = "") => {
   );
 };
 
-const normalizePhoneNumber = (value) => normalizeCountryPhone(value);
+const normalizePhoneNumber = (value) => normalizeHongKongPhone(value);
 
 
-const getPhoneHelperText = (value) => {
-    const normalized = normalizeCountryPhone(value);
-    if (normalized.startsWith("+977")) return "Nepal selected. Enter 10 digits.";
-    return "Hong Kong selected. Enter 8 digits.";
-};
+const getPhoneHelperText = () =>
+  "Hong Kong number only. Enter exactly 8 digits.";
 
 
 const safeImageUrl = (image) => {
@@ -610,7 +608,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
     if (formattedPhone && !PHONE_REGEX.test(formattedPhone)) {
       next.phoneNumber =
-        "Invalid phone number. Use 10 digits for Nepal or 8 digits for Hong Kong.";
+        "Invalid Hong Kong phone number. Enter exactly 8 digits.";
     }
 
     if (form.email.trim() && !EMAIL_REGEX.test(form.email.trim())) {
@@ -1122,7 +1120,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
                     <CountryPhoneInput
                       value={form.phoneNumber}
                       onChange={(value) => updateForm("phoneNumber", value)}
-                      disabled={isLoggedIn}
+                      allowedCountryCodes={HONG_KONG_COUNTRY_CODES}
                       hasError={!!errors.phoneNumber}
                     />
                   </Field>
@@ -1438,7 +1436,7 @@ function RestaurantCheckoutForm({ locale = "en" }) {
 
 function Card({ children, title, icon, index }) {
   return (
-    <div className="rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-sm backdrop-blur sm:p-6">
+    <div className="relative overflow-visible rounded-[28px] border border-orange-100 bg-white/95 p-5 shadow-sm sm:p-6">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-[#1a4b8f]">
