@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
     CreditCard,
     Wallet,
@@ -35,7 +36,7 @@ const content = {
             },
             {
                 title: "2. Accepted Payment Methods",
-                body: "Available payment methods may include cash, bank transfer, online payment, or other supported options shown during checkout or service confirmation.",
+                body: "Supported payment methods include PaymentAsia, Stripe, and Cash on Delivery where available. The methods shown at checkout may depend on the order type, customer status, destination, and service availability.",
             },
             {
                 title: "3. Payment Confirmation",
@@ -46,8 +47,8 @@ const content = {
                 body: "Prices may vary depending on product availability, service type, delivery route, parcel weight, distance, urgency, and other applicable charges.",
             },
             {
-                title: "5. Bank Transfer",
-                body: "For bank transfer payments, customers may be required to provide proof of payment. Processing may be delayed until payment is verified.",
+                title: "5. Payment Providers",
+                body: "PaymentAsia and Stripe payments are processed through their respective payment systems. HKMandu may rely on the processor's payment status before confirming an order. Cash on Delivery is collected when the eligible order is delivered.",
             },
             {
                 title: "6. Failed or Pending Payments",
@@ -59,7 +60,7 @@ const content = {
             },
             {
                 title: "8. Refunds",
-                body: "Refund eligibility depends on the product, service, courier status, cancellation timing, and applicable policy. Approved refunds may take time to process.",
+                body: "Refund eligibility depends on the product or service, fulfilment status, cancellation timing, and the applicable Refund & Return Policy. Approved refunds are processed according to the original payment method and payment-provider rules.",
             },
             {
                 title: "9. Payment Security",
@@ -92,7 +93,7 @@ const content = {
             },
             {
                 title: "2. स्वीकार गरिने भुक्तानी माध्यम",
-                body: "भुक्तानी माध्यममा नगद, बैंक ट्रान्सफर, अनलाइन भुक्तानी वा checkout/सेवा पुष्टि गर्दा देखाइएका अन्य विकल्पहरू हुन सक्छन्।",
+                body: "समर्थित भुक्तानी माध्यममा उपलब्धताअनुसार PaymentAsia, Stripe र Cash on Delivery पर्छन्। Checkout मा देखिने विकल्प order type, customer status, destination र service availability अनुसार फरक हुन सक्छ।",
             },
             {
                 title: "3. भुक्तानी पुष्टि",
@@ -103,8 +104,8 @@ const content = {
                 body: "मूल्य उत्पादन उपलब्धता, सेवा प्रकार, डेलिभरी रुट, पार्सल तौल, दूरी, urgency र अन्य शुल्कअनुसार फरक हुन सक्छ।",
             },
             {
-                title: "5. बैंक ट्रान्सफर",
-                body: "बैंक ट्रान्सफरका लागि ग्राहकले भुक्तानी प्रमाण पठाउनुपर्ने हुन सक्छ। भुक्तानी प्रमाणित नभएसम्म प्रक्रिया ढिलो हुन सक्छ।",
+                title: "5. Payment Providers",
+                body: "PaymentAsia र Stripe भुक्तानी सम्बन्धित payment system मार्फत process हुन्छ। Order confirm गर्नु अघि HKMandu ले processor को payment status मा निर्भर गर्न सक्छ। Eligible Cash on Delivery order मा delivery समयमा cash संकलन गरिन्छ।",
             },
             {
                 title: "6. असफल वा Pending भुक्तानी",
@@ -116,7 +117,7 @@ const content = {
             },
             {
                 title: "8. Refund",
-                body: "Refund योग्यता उत्पादन, सेवा, कुरियर स्थिति, cancellation समय र लागू नीतिमा निर्भर हुन्छ। स्वीकृत refund process हुन समय लाग्न सक्छ।",
+                body: "Refund eligibility उत्पादन वा सेवा, fulfilment status, cancellation समय र लागू Refund & Return Policy मा निर्भर हुन्छ। स्वीकृत refund मूल payment method र payment-provider rules अनुसार process हुन्छ।",
             },
             {
                 title: "9. भुक्तानी सुरक्षा",
@@ -149,7 +150,7 @@ const content = {
             },
             {
                 title: "2. 可接受的付款方式",
-                body: "付款方式可能包括现金、银行转账、在线付款，或结账/服务确认时显示的其他支持方式。",
+                body: "支援的付款方式包括在適用情況下使用 PaymentAsia、Stripe 及貨到付款。結帳時顯示的方式可能視訂單類型、客戶狀態、目的地及服務供應情況而有所不同。",
             },
             {
                 title: "3. 付款确认",
@@ -160,8 +161,8 @@ const content = {
                 body: "价格可能因商品库存、服务类型、配送路线、包裹重量、距离、紧急程度和其他适用费用而变化。",
             },
             {
-                title: "5. 银行转账",
-                body: "银行转账付款可能需要客户提供付款证明。在付款验证前，处理可能会延迟。",
+                title: "5. 付款服務供應商",
+                body: "PaymentAsia 及 Stripe 付款會透過各自的付款系統處理。HKMandu 可在確認訂單前依據付款服務供應商的交易狀態。合資格的貨到付款訂單會在送達時收取現金。",
             },
             {
                 title: "6. 失败或待处理付款",
@@ -173,7 +174,7 @@ const content = {
             },
             {
                 title: "8. 退款",
-                body: "退款资格取决于商品、服务、快递状态、取消时间和适用政策。批准的退款可能需要时间处理。",
+                body: "退款資格取決於商品或服務、履行狀態、取消時間及適用的退款及退貨政策。獲批退款會按原付款方式及付款服務供應商規則處理。",
             },
             {
                 title: "9. 付款安全",
@@ -277,6 +278,20 @@ export default function PaymentsPage({ locale = "en" }) {
                                 </article>
                             );
                         })}
+                    </div>
+
+                    <div className="mt-7 flex justify-center">
+                        <Link
+                            href={`/${locale}/support/refund-policy`}
+                            className="inline-flex items-center gap-2 rounded-full bg-[#1a4b8f] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#153f78]"
+                        >
+                            <RefreshCw className="h-4 w-4" />
+                            {locale === "ne"
+                                ? "पूर्ण रिफन्ड नीति हेर्नुहोस्"
+                                : locale === "zh"
+                                  ? "查看完整退款政策"
+                                  : "View full Refund & Return Policy"}
+                        </Link>
                     </div>
                 </div>
             </section>

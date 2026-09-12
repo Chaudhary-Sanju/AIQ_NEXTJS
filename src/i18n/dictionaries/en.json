@@ -1,7 +1,6 @@
 {
   "nav": {
     "logo": "HkMandu",
-
     "servicesTitle": "R Services",
     "services": {
       "software": "Software Development",
@@ -10,27 +9,20 @@
       "travelImmigration": "Travel & Immigration",
       "constructionRepairServices": "Construction & Repair Services"
     },
-
     "searchPlaceholder": "Search for an item",
     "searchAria": "Search",
-
     "hello": "Hello, ",
     "account": "My Account",
     "login": "Login",
     "logout": "Logout",
-
     "cart": "Cart",
     "cartAria": "Cart",
-
     "language": "Language",
     "changeLanguageAria": "Change language",
     "changeLanguageTitle": "Change language",
-
     "openMenuAria": "Open menu",
-
     "organicMart": "A Grocery",
     "aiExpress": "A Express",
-
     "loading": "Loading...",
     "noCategory": "No categories found",
     "dashboard": "Dashboard",
@@ -41,7 +33,6 @@
     "bbqDelivery": "BBQ & Delivery Services",
     "nepaliProduct": "Nepali Product (Made In Nepal)"
   },
-
   "footer": {
     "download": {
       "title": "Download App",
@@ -49,17 +40,16 @@
       "googlePlayAlt": "Google Play",
       "appStoreAlt": "App Store"
     },
-
     "customerService": {
       "title": "Customer Service",
       "items": [
         "Track Order",
         "Track Courier",
         "Shipping and Handling",
-        "Payments"
+        "Payments",
+        "Refund Policy"
       ]
     },
-
     "quickLinks": {
       "title": "Quick Links",
       "items": [
@@ -69,12 +59,10 @@
         "Privacy Policy"
       ]
     },
-
     "payment": {
       "title": "Accepted Payments",
       "stripeAlt": "Stripe"
     },
-
     "support": {
       "title": "Get in Touch",
       "emailLabel": "Email",
@@ -85,10 +73,8 @@
       "phone": "+852-1111-1111",
       "phoneRaw": "+85211111111"
     },
-
     "bottom": "© 2026 HkMandu. All rights reserved."
   },
-
   "aiFaq": {
     "title": "Frequently asked questions",
     "subtitle": "Quick answers to the most common questions.",
@@ -96,7 +82,6 @@
     "collapseAll": "Collapse all",
     "empty": "No FAQs available right now."
   },
-
   "login": {
     "title": "Login",
     "subtitle": "Enter your email and password to continue",
@@ -120,13 +105,11 @@
     "privacy": "Privacy Policy",
     "errorDefault": "Login failed. Please try again."
   },
-
   "signup": {
     "aria": {
       "showPassword": "Show password",
       "hidePassword": "Hide password"
     },
-
     "left": {
       "tagCreate": "Create Account",
       "tagOtp": "Verify OTP",
@@ -141,14 +124,12 @@
       "tipCreate": "Tip: Use a strong password and keep it private.",
       "tipOtp": "Didn’t receive OTP? You can resend it."
     },
-
     "mobile": {
       "titleCreate": "Sign up",
       "titleOtp": "Verify OTP",
       "descCreate": "Fill in your details to create an account",
       "descOtp": "Enter the OTP sent to your email"
     },
-
     "form": {
       "fullName": "Full name",
       "fullNamePlaceholder": "Your full name",
@@ -163,7 +144,6 @@
       "confirmPassword": "Confirm password",
       "confirmPasswordPlaceholder": "Repeat password"
     },
-
     "buttons": {
       "pleaseWait": "Please wait...",
       "createAccount": "Create account",
@@ -171,7 +151,6 @@
       "resendOtp": "Resend OTP",
       "backToSignup": "Back to Signup"
     },
-
     "links": {
       "alreadyHave": "Already have an account?",
       "alreadyRegister": "Already register?",
@@ -179,33 +158,28 @@
       "wantLogin": "Want to login?",
       "login": "Login"
     },
-
     "footer": {
       "agreePrefix": "By creating an account, you agree to our",
       "terms": "Terms",
       "and": "and",
       "privacy": "Privacy Policy"
     },
-
     "otp": {
       "sentTo": "OTP sent to",
       "label": "OTP Code",
       "placeholder": "Enter 6-digit OTP"
     },
-
     "errors": {
       "fixFields": "Please fix the highlighted fields.",
       "unexpected": "Unexpected response from server. Please try again.",
       "otpCheck": "Please check the OTP and try again.",
       "otpResendFail": "Unable to resend OTP. Please check your email."
     },
-
     "success": {
       "register": "Registration successful! OTP has been sent to your email.",
       "otpVerified": "OTP verified successfully! Redirecting to login...",
       "otpResent": "OTP resent successfully. Please check your email."
     },
-
     "validation": {
       "nameMin": "Name must be at least 2 characters.",
       "emailRequired": "Email is required.",
@@ -216,11 +190,9 @@
       "addressRequired": "Address is required."
     }
   },
-
   "productView": {
     "similarProducts": "Similar Products"
   },
-
   "productsPage": {
     "title": "All Products",
     "subtitle": "Browse and search products",
@@ -238,7 +210,6 @@
     "results": "products found",
     "page": "Page"
   },
-
   "verify": {
     "left": {
       "tag": "Verify Account",
@@ -283,7 +254,6 @@
       "otpVerified": "OTP verified successfully! Redirecting to login..."
     }
   },
-
   "perfectServices": {
     "title": "R Services",
     "subtitle": "We provide a complete range of business, travel, and logistics services designed to simplify your everyday needs — all in one place.",
@@ -330,7 +300,6 @@
       }
     }
   },
-
   "deliveryHero": {
     "alt": "Delivery rider",
     "title": "Life Moves Fast. So Do We—Delivering\nAcross Kathmandu and Hong Kong at Your Speed.",
@@ -340,7 +309,6 @@
     "trackOrderLink": "/track-order",
     "whatsappLink": "https://wa.me/852XXXXXXXX"
   },
-
   "aiCourier": {
     "title": "AI Courier System (Hong Kong ↔ Nepal ↔ Hong Kong )",
     "subtitle": "A complete AI-powered courier platform.",
@@ -371,7 +339,6 @@
       }
     ]
   },
-
   "aboutUs": {
     "imageAlt": "Delivery person carrying boxes",
     "title": "About Us",
@@ -392,12 +359,10 @@
       }
     }
   },
-
   "coverage": {
     "title": "Our Coverage",
     "subtitle": "Connecting Hong Kong and Nepal seamlessly with efficient and reliable courier services."
   },
-
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Manage your profile and orders",
@@ -457,7 +422,9 @@
         "payment": "Payment Method"
       }
     },
-    "reviews": { "coming": "Coming next: saved pickup/drop addresses." },
+    "reviews": {
+      "coming": "Coming next: saved pickup/drop addresses."
+    },
     "security": {
       "coming": "Coming next: change password, sessions, logout all devices."
     }
@@ -467,7 +434,6 @@
     "error": "Something went wrong.",
     "close": "Close"
   },
-
   "perfectServicesPage": {
     "software": {
       "hero": {
@@ -540,7 +506,6 @@
       }
     }
   },
-
   "perfectServiceForm": {
     "software-development": {
       "title": {

@@ -26,7 +26,16 @@ export default function Footer({ locale = "en", dict = {} }) {
         "Track Courier",
         "Shipping and Handling",
         "Payments",
+        "Refund Policy",
     ]);
+
+    const customerServiceRoutes = [
+        "/support/track-order",
+        "/support/track-courier",
+        "/support/shipping-and-handling",
+        "/support/payments",
+        "/support/refund-policy",
+    ];
 
     const quickLinks = t("footer.quickLinks.items", [
         "About Us",
@@ -90,14 +99,22 @@ export default function Footer({ locale = "en", dict = {} }) {
                         <p className="text-[11px] uppercase tracking-[1.5px] text-white/30 mb-3">
                             {t("footer.payment.title", "Accepted Payments")}
                         </p>
-                        <Link
-                            href="https://stripe.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center px-3.5 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition-colors"
-                        >
-                            <StripeWordmark />
-                        </Link>
+                        <div className="flex flex-wrap gap-2">
+                            <span className="inline-flex items-center px-3.5 py-2 rounded-lg border border-white/15 bg-white/5 text-xs font-bold text-white/85">
+                                PaymentAsia
+                            </span>
+                            <Link
+                                href="https://stripe.com"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center px-3.5 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition-colors"
+                            >
+                                <StripeWordmark />
+                            </Link>
+                            <span className="inline-flex items-center px-3.5 py-2 rounded-lg border border-white/15 bg-white/5 text-xs font-semibold text-white/75">
+                                Cash / COD
+                            </span>
+                        </div>
                     </div>
 
                     {/* COL 2 — Customer Service */}
@@ -106,10 +123,10 @@ export default function Footer({ locale = "en", dict = {} }) {
                             {t("footer.customerService.title", "Customer Service")}
                         </p>
                         <ul className="space-y-3.5">
-                            {customerService.map((item) => (
-                                <li key={item}>
+                            {customerService.map((item, index) => (
+                                <li key={`${item}-${index}`}>
                                     <Link
-                                        href={l(`/support/${slugify(item)}`)}
+                                        href={l(customerServiceRoutes[index] || "/support/payments")}
                                         className="text-sm font-light text-white/65 hover:text-white transition-colors relative group"
                                     >
                                         {item}
