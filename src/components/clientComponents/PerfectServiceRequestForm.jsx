@@ -242,7 +242,7 @@ const initialForm = {
     budget: "",
     currency: "hkd",
     projectTime: "",
-    paymentMethod: "Debit / Credit Card",
+    paymentMethod: "TBD after Confirmation",
     verificationMethod: "email",
 };
 
@@ -816,7 +816,7 @@ export default function PerfectServiceRequestForm({
                                 </div>
                             </Field>
 
-                            <div className="grid gap-5 md:grid-cols-2">
+                            <div className="grid gap-5 md:grid-cols-1">
                                 <Field label={t.projectTime} icon={Clock3} error={errors.projectTime}>
                                     <select
                                         name="projectTime"
@@ -831,7 +831,7 @@ export default function PerfectServiceRequestForm({
                                     </select>
                                 </Field>
 
-                                <Field label={t.paymentMethod} icon={CreditCard} error={errors.paymentMethod} required={false}>
+                                {/* <Field label={t.paymentMethod} icon={CreditCard} error={errors.paymentMethod} required={false}>
                                     <select
                                         name="paymentMethod"
                                         value={form.paymentMethod}
@@ -842,7 +842,7 @@ export default function PerfectServiceRequestForm({
                                             <option key={item.value} value={item.value}>{item.label}</option>
                                         ))}
                                     </select>
-                                </Field>
+                                </Field> */}
                             </div>
 
                             {!isLoggedIn && (

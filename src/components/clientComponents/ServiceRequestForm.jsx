@@ -350,7 +350,7 @@ const initialForm = {
     budget: "",
     currency: "hkd",
     projectTime: "",
-    paymentMethod: "Debit / Credit Card",
+    paymentMethod: "TBD after Confirmation",
     verificationMethod: "email",
 };
 
@@ -1297,7 +1297,7 @@ export default function ServiceRequestForm({
                                 </div>
                             </Field>
 
-                            <div className="grid gap-5 md:grid-cols-2">
+                            <div className="grid gap-5 md:grid-cols-1">
                                 <Field
                                     label={t.projectTime}
                                     icon={Clock3}
@@ -1326,7 +1326,7 @@ export default function ServiceRequestForm({
                                     </select>
                                 </Field>
 
-                                <Field
+                                {/* <Field
                                     label={t.paymentMethod}
                                     icon={CreditCard}
                                     error={errors.paymentMethod}
@@ -1349,7 +1349,7 @@ export default function ServiceRequestForm({
                                             </option>
                                         ))}
                                     </select>
-                                </Field>
+                                </Field>    */}
                             </div>
 
                             {!isLoggedIn ? (
