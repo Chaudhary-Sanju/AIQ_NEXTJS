@@ -26,6 +26,7 @@ export default function Footer({ locale = "en", dict = {} }) {
         "Track Courier",
         "Shipping and Handling",
         "Payments",
+        "Delivery Policy",
         "Refund Policy",
     ]);
 
@@ -34,6 +35,7 @@ export default function Footer({ locale = "en", dict = {} }) {
         "/support/track-courier",
         "/support/shipping-and-handling",
         "/support/payments",
+        "/support/delivery-policy",
         "/support/refund-policy",
     ];
 
