@@ -15,9 +15,9 @@ import {
 } from "lucide-react";
 
 const CONTACT = {
-    phone: "+852-00000000",
+    phone: "+852-5523-2455",
     whatsapp: "+85200000000",
-    email: "support@hkmandu.com",
+    email: "support@yaloon.com",
     location: "Hong Kong ↔ Nepal",
 };
 

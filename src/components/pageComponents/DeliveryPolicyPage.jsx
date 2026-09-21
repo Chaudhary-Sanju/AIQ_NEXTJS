@@ -101,7 +101,7 @@ const content = {
             },
             {
                 title: "13. Contact",
-                body: "For a delivery issue, contact HKMandu customer support and include your order reference, the delivery address or recipient details needed to identify the order, a short description of the issue, and any relevant photos or supporting information. You can reach us at support@hkmandu.com.",
+                body: "For a delivery issue, contact HKMandu customer support and include your order reference, the delivery address or recipient details needed to identify the order, a short description of the issue, and any relevant photos or supporting information. You can reach us at support@yaloon.com.",
             },
         ],
         noteTitle: "Important",
@@ -192,7 +192,7 @@ const content = {
             },
             {
                 title: "13. सम्पर्क",
-                body: "डेलिभरी समस्याका लागि HKMandu ग्राहक समर्थनलाई सम्पर्क गर्दा अर्डर सन्दर्भ, अर्डर पहिचान गर्न आवश्यक डेलिभरी वा प्राप्तकर्ता विवरण, समस्याको छोटो विवरण र सम्बन्धित फोटो वा प्रमाण समावेश गर्नुहोस्। support@hkmandu.com मा सम्पर्क गर्न सक्नुहुन्छ।",
+                body: "डेलिभरी समस्याका लागि HKMandu ग्राहक समर्थनलाई सम्पर्क गर्दा अर्डर सन्दर्भ, अर्डर पहिचान गर्न आवश्यक डेलिभरी वा प्राप्तकर्ता विवरण, समस्याको छोटो विवरण र सम्बन्धित फोटो वा प्रमाण समावेश गर्नुहोस्। support@yaloon.com मा सम्पर्क गर्न सक्नुहुन्छ।",
             },
         ],
         noteTitle: "महत्त्वपूर्ण",
@@ -283,7 +283,7 @@ const content = {
             },
             {
                 title: "13. 聯絡我們",
-                body: "如有配送問題，請聯絡 HKMandu 客戶服務，並提供訂單編號、識別訂單所需的配送或收件人資料、問題簡述，以及相關相片或證明。您可電郵至 support@hkmandu.com。",
+                body: "如有配送問題，請聯絡 HKMandu 客戶服務，並提供訂單編號、識別訂單所需的配送或收件人資料、問題簡述，以及相關相片或證明。您可電郵至 support@yaloon.com。",
             },
         ],
         noteTitle: "重要提示",

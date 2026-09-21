@@ -204,10 +204,10 @@ export default function Footer({ locale = "en", dict = {} }) {
                                     {t("footer.support.emailLabel", "Email")}
                                 </p>
                                 <Link
-                                    href={`mailto:${t("footer.support.email", "support@hkmandu.com")}`}
+                                    href={`mailto:${t("footer.support.email", "support@yaloon.com")}`}
                                     className="text-sm text-white/80 hover:text-white transition-colors block"
                                 >
-                                    {t("footer.support.email", "support@hkmandu.com")}
+                                    {t("footer.support.email", "support@yaloon.com")}
                                 </Link>
                                 <p className="text-xs text-white/30 mt-1">
                                     {t("footer.support.emailNote", "Reply within 24 hours")}
@@ -228,7 +228,7 @@ export default function Footer({ locale = "en", dict = {} }) {
                                     href={`tel:${t("footer.support.phoneRaw", "+85211111111")}`}
                                     className="text-sm text-white/80 hover:text-white transition-colors block"
                                 >
-                                    {t("footer.support.phone", "+852-1111-1111")}
+                                    {t("footer.support.phone", "+852-5523-2455")}
                                 </Link>
                                 <p className="text-xs text-white/30 mt-1">
                                     {t("footer.support.callNote", "Mon–Fri, 8am–5pm HKT")}
