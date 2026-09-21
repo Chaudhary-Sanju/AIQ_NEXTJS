@@ -204,10 +204,10 @@ export default function Footer({ locale = "en", dict = {} }) {
                                     {t("footer.support.emailLabel", "Email")}
                                 </p>
                                 <Link
-                                    href={`mailto:${t("footer.support.email", "support@yaloon.com")}`}
+                                    href={`mailto:${t("footer.support.email", "support@yaloon.co")}`}
                                     className="text-sm text-white/80 hover:text-white transition-colors block"
                                 >
-                                    {t("footer.support.email", "support@yaloon.com")}
+                                    {t("footer.support.email", "support@yaloon.co")}
                                 </Link>
                                 <p className="text-xs text-white/30 mt-1">
                                     {t("footer.support.emailNote", "Reply within 24 hours")}

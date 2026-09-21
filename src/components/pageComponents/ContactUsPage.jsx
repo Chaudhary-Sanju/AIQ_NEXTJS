@@ -17,7 +17,7 @@ import {
 const CONTACT = {
     phone: "+852-5523-2455",
     whatsapp: "+85200000000",
-    email: "support@yaloon.com",
+    email: "support@yaloon.co",
     location: "Hong Kong ↔ Nepal",
 };
 
