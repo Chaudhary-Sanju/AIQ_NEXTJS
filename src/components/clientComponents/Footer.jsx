@@ -243,7 +243,7 @@ export default function Footer({ locale = "en", dict = {} }) {
             <div className="border-t border-white/10">
                 <div className="mx-auto max-w-7xl px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <span className="text-xs text-white/30">
-                        {t("footer.bottom", "© 2026 Roots Qubit Limited. All rights reserved.")}
+                        {t("footer.bottom", "© 2026 Yen Limited. All rights reserved.")}
                     </span>
                     <div className="flex gap-5">
                         {[
