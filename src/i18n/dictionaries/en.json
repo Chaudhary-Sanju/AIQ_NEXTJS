@@ -57,7 +57,8 @@
         "About Us",
         "Contact Us",
         "Terms & Conditions",
-        "Privacy Policy"
+        "Privacy Policy",
+        "FAQs"
       ]
     },
     "payment": {
@@ -81,7 +82,8 @@
     "subtitle": "Quick answers to the most common questions.",
     "seeAll": "See all",
     "collapseAll": "Collapse all",
-    "empty": "No FAQs available right now."
+    "empty": "No FAQs available right now.",
+    "eyebrow": "Need help?"
   },
   "login": {
     "title": "Login",

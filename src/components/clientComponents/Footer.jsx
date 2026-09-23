@@ -12,15 +12,6 @@ export default function Footer({ locale = "en", dict = {} }) {
 
     const l = (path) => `/${locale}${path}`;
 
-    const slugify = (str) =>
-        String(str)
-            .toLowerCase()
-            .trim()
-            .replace(/&/g, "and")
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-");
-
     const customerService = t("footer.customerService.items", [
         "Track Order",
         "Track Courier",
@@ -44,7 +35,16 @@ export default function Footer({ locale = "en", dict = {} }) {
         "Contact Us",
         "Terms & Conditions",
         "Privacy Policy",
+        "FAQs",
     ]);
+
+    const quickLinkRoutes = [
+        "/about",
+        "/contact",
+        "/terms",
+        "/privacy-policy",
+        "/faqs",
+    ];
 
     return (
         <footer className="bg-[#2a2b68] text-white font-sans">
@@ -145,16 +145,11 @@ export default function Footer({ locale = "en", dict = {} }) {
                             {t("footer.quickLinks.title", "Quick Links")}
                         </p>
                         <ul className="space-y-3.5">
-                            {quickLinks.map((item) => {
-                                const slug = slugify(item);
-                                let href = "/";
-                                if (slug === "about-us") href = l("/about");
-                                else if (slug === "contact-us") href = l("/contact");
-                                else if (slug === "terms-and-conditions") href = l("/terms");
-                                else if (slug === "privacy-policy") href = l("/privacy-policy");
+                            {quickLinks.map((item, index) => {
+                                const href = l(quickLinkRoutes[index] || "/");
 
                                 return (
-                                    <li key={item}>
+                                    <li key={`${item}-${index}`}>
                                         <Link
                                             href={href}
                                             className="text-sm font-light text-white/65 hover:text-white transition-colors relative group"
