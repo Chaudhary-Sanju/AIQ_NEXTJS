@@ -29,9 +29,9 @@
     "settings": "設定",
     "terms": "條款及細則",
     "privacy": "私隱政策",
-    "bulkPurchase": "批量采购（免费配送）",
-    "bbqDelivery": "烧烤与配送服务",
-    "nepaliProduct": "尼泊尔产品（尼泊尔制造）"
+    "bulkPurchase": "批量採購（免費配送）",
+    "bbqDelivery": "燒烤及配送服務",
+    "nepaliProduct": "尼泊爾產品（尼泊爾製造）"
   },
   "footer": {
     "download": {
@@ -44,7 +44,7 @@
       "title": "客戶服務",
       "items": [
         "追蹤訂單",
-        "追蹤快遞",
+        "追蹤速遞",
         "運送及處理",
         "付款",
         "配送政策",
@@ -58,7 +58,7 @@
         "聯絡我們",
         "條款及細則",
         "私隱政策",
-        "常见问题"
+        "常見問題"
       ]
     },
     "payment": {
@@ -78,12 +78,12 @@
     "bottom": "© 2026 Yen Limited. 保留所有權利。"
   },
   "aiFaq": {
-    "title": "常见问题",
-    "subtitle": "常见问题的快速解答。",
+    "title": "常見問題",
+    "subtitle": "常見問題的快速解答。",
     "seeAll": "查看全部",
     "collapseAll": "全部收起",
-    "empty": "目前没有可用的常见问题。",
-    "eyebrow": "需要帮助？"
+    "empty": "目前沒有可用的常見問題。",
+    "eyebrow": "需要協助？"
   },
   "login": {
     "title": "登入",
@@ -121,7 +121,7 @@
       "descCreate": "建立帳戶以管理訂單並使用服務。",
       "descOtp": "輸入已寄到你電郵的 OTP 以啟用帳戶。",
       "passwordRuleTitle": "密碼規則",
-      "passwordRuleText": "至少 8 位，需包含大寫、小寫、數字及特殊字元 (@$!%*?&)。",
+      "passwordRuleText": "8+ chars, uppercase, lowercase, number, special (@$!%*?&).",
       "phoneRuleTitle": "電話格式",
       "phoneRuleText": "尼泊爾: 9876543210\n香港: 51234567",
       "tipCreate": "提示：使用強密碼並妥善保管。",
@@ -198,20 +198,20 @@
   },
   "productsPage": {
     "title": "全部商品",
-    "subtitle": "浏览并搜索商品",
-    "searchPlaceholder": "搜索商品...",
+    "subtitle": "瀏覽並搜尋商品",
+    "searchPlaceholder": "搜尋商品...",
     "sortLabel": "排序方式",
-    "sortDefault": "默认",
+    "sortDefault": "預設",
     "latest": "最新",
     "oldest": "最早",
-    "nameAsc": "名称 A-Z",
-    "nameDesc": "名称 Z-A",
-    "priceAsc": "价格从低到高",
-    "priceDesc": "价格从高到低",
-    "noProducts": "未找到商品。",
-    "addToCart": "加入购物车",
+    "nameAsc": "名稱 A-Z",
+    "nameDesc": "名稱 Z-A",
+    "priceAsc": "價格由低至高",
+    "priceDesc": "價格由高至低",
+    "noProducts": "找不到商品。",
+    "addToCart": "加入購物車",
     "results": "件商品",
-    "page": "页"
+    "page": "頁"
   },
   "verify": {
     "left": {
@@ -258,54 +258,54 @@
     }
   },
   "perfectServices": {
-    "title": "R 服务",
-    "subtitle": "我们提供完整的商业、旅游和物流服务，一站式满足您的日常需求，让一切更简单。",
+    "title": "R Services",
+    "subtitle": "我們提供全面的商業、旅遊及物流服務，一站式滿足您的日常需要，讓一切更簡單。",
     "items": {
       "software": {
-        "title": "软件",
-        "description": "智能数字化解决方案，帮助支持您的日常业务运营。"
+        "title": "軟件",
+        "description": "智能數碼解決方案，協助支援您的日常業務營運。"
       },
       "accounting": {
-        "title": "会计服务",
-        "description": "可靠的会计支持，协助管理账目、报表和财务事务。"
+        "title": "會計服務",
+        "description": "可靠的會計支援，協助管理帳目、報表及財務事務。"
       },
       "companyRegister": {
-        "title": "公司注册",
-        "description": "便捷的公司注册服务，帮助您顺利开展业务。"
+        "title": "公司註冊",
+        "description": "便捷的公司註冊服務，協助您順利開展業務。"
       },
       "fnbLicense": {
-        "title": "餐饮牌照",
-        "description": "提供餐饮业务牌照申请与审批的专业协助。"
+        "title": "餐飲牌照",
+        "description": "提供餐飲業務牌照申請及審批的專業協助。"
       },
       "visaImmigration": {
-        "title": "签证与移民",
-        "description": "为签证办理、文件准备和移民事务提供可靠支持。"
+        "title": "簽證及移民",
+        "description": "為簽證申請、文件準備及移民事務提供可靠支援。"
       },
       "tourTravel": {
-        "title": "旅游服务",
-        "description": "为度假、旅游和商务出行提供便捷的行程规划服务。"
+        "title": "旅遊服務",
+        "description": "為度假、旅遊及商務出行提供便捷的行程規劃服務。"
       },
       "flightTicket": {
-        "title": "机票预订",
-        "description": "快速便捷的国内及国际航班机票预订服务。"
+        "title": "機票預訂",
+        "description": "快速便捷的本地及國際航班機票預訂服務。"
       },
       "bookTransport": {
-        "title": "交通预订",
-        "description": "满足个人和商业需求的简便交通预订方案。"
+        "title": "交通預訂",
+        "description": "滿足個人及商業需要的便捷交通預訂方案。"
       },
       "homeOfficeMoving": {
-        "title": "搬屋与办公室搬迁",
-        "description": "为住宅、办公室和工作空间提供安全有序的搬迁服务。"
+        "title": "搬屋及辦公室搬遷",
+        "description": "為住宅、辦公室及工作空間提供安全有序的搬遷服務。"
       },
       "repairInstallation": {
-        "title": "维修与安装",
-        "description": "为家庭和办公室设备提供专业维修与安装支持。"
+        "title": "維修及安裝",
+        "description": "為家居及辦公室設備提供專業維修及安裝支援。"
       }
     }
   },
   "deliveryHero": {
     "alt": "送貨員",
-    "title": "生活節奏很快，我們也一樣——\n以您的速度配送至尼泊爾和香港。",
+    "title": "生活節奏很快，我們也一樣——\n以您的速度配送至加德滿都及香港。",
     "subtitle": "從本地配送到香港與尼泊爾之間的國際運輸，透過 HkMandu 體驗即時追蹤、快速取件和極速配送服務。",
     "ctaWhatsapp": "WhatsApp 聯絡我們",
     "ctaTrack": "追蹤訂單",
@@ -313,32 +313,32 @@
     "whatsappLink": "https://wa.me/852XXXXXXXX"
   },
   "aiCourier": {
-    "title": "AI 快递系统（香港 ↔ 尼泊尔 ↔ 香港）",
-    "subtitle": "完整的 AI 驱动快递平台。",
+    "title": "AI 速遞系統（香港 ↔ 尼泊爾 ↔ 香港）",
+    "subtitle": "完整的 AI 驅動速遞平台。",
     "cards": [
       {
-        "title": "AI 驱动的快递解决方案",
-        "desc": "通过智能算法与实时数据优化路线、减少延误，并确保跨境包裹安全处理。"
+        "title": "AI 驅動的速遞解決方案",
+        "desc": "透過智能演算法及即時數據優化路線、減少延誤，並確保跨境包裹得到安全處理。"
       },
       {
-        "title": "闪电般快速配送",
-        "desc": "在香港与尼泊尔之间提供超快速服务，结合优化物流与 AI 派单系统。"
+        "title": "極速配送",
+        "desc": "在香港與尼泊爾之間提供極速服務，結合優化物流及 AI 派單系統。"
       },
       {
-        "title": "实时追踪",
-        "desc": "从揽收到送达全程实时追踪，提供即时更新、通知与透明状态。"
+        "title": "即時追蹤",
+        "desc": "由收件至送達全程即時追蹤，提供即時更新、通知及清晰透明的狀態。"
       },
       {
-        "title": "即时取件请求",
-        "desc": "通过精简的 AI 排程系统，在香港或尼泊尔几分钟内发起取件。"
+        "title": "即時取件申請",
+        "desc": "透過簡化的 AI 排程系統，在香港或尼泊爾幾分鐘內提交取件申請。"
       },
       {
-        "title": "跨境专业能力",
-        "desc": "专注香港 ↔ 尼泊尔跨境运输，包含清关协调与国际合规。"
+        "title": "跨境專業服務",
+        "desc": "專注香港 ↔ 尼泊爾跨境運輸，包括清關協調及國際合規。"
       },
       {
-        "title": "标题：由 HkMandu 驱动",
-        "desc": "基于 HkMandu 技术打造，确保可扩展性、可靠性与企业级性能。"
+        "title": "由 HkMandu 技術驅動",
+        "desc": "採用 HkMandu 技術打造，確保可擴展性、可靠性及企業級效能。"
       }
     ]
   },
@@ -363,8 +363,8 @@
     }
   },
   "coverage": {
-    "title": "我们的覆盖范围",
-    "subtitle": "以高效、可靠的快递服务无缝连接香港与尼泊尔。"
+    "title": "我們的服務範圍",
+    "subtitle": "以高效可靠的速遞服務，無縫連接香港與尼泊爾。"
   },
   "dashboard": {
     "title": "儀表板",
@@ -372,7 +372,7 @@
     "tabs": {
       "profile": "個人資料",
       "orders": "訂單",
-      "addresses": "地址",
+      "reviews": "評價",
       "security": "安全"
     },
     "profile": {
@@ -425,8 +425,8 @@
         "payment": "付款方式"
       }
     },
-    "addresses": {
-      "coming": "即將推出：已儲存的取件/送達地址。"
+    "reviews": {
+      "coming": "即將推出：已儲存的取件／送達地址。"
     },
     "security": {
       "coming": "即將推出：更改密碼、管理登入裝置、登出所有裝置。"
@@ -494,20 +494,6 @@
         "alt": "旅遊及移民圖片"
       }
     },
-    "homeOfficeServices": {
-      "hero": {
-        "pill": "可靠的搬遷及安裝方案",
-        "titleLine1": "透過專業服務提升您的空間",
-        "titleHighlight": "家居及辦公服務",
-        "titleSuffix": "。",
-        "subtitle": "從搬遷、安裝到維修與保養，我們幫助您保持家居及辦公環境順暢運作。",
-        "ctaSecondary": "透過 WhatsApp 聯絡",
-        "ctaPrimaryText": "查看服務",
-        "ctaPrimaryLink": "/services/home-office-services",
-        "whatsappLink": "https://wa.me/85200000000",
-        "alt": "家居及辦公服務圖片"
-      }
-    },
     "constructionRepairServices": {
       "hero": {
         "pill": "可靠的建築與維修方案",
@@ -526,37 +512,37 @@
   "perfectServiceForm": {
     "software-development": {
       "title": {
-        "line1": "与我们一起打造您的",
-        "highlight": "软件",
-        "line2": "项目"
+        "line1": "與我們一起打造您的",
+        "highlight": "軟件",
+        "line2": "項目"
       }
     },
     "accounting-finance": {
       "title": {
-        "line1": "让您的",
-        "highlight": "会计财务",
+        "line1": "讓您的",
+        "highlight": "會計財務",
         "line2": "管理更安心"
       }
     },
     "business-services": {
       "title": {
-        "line1": "为您的",
-        "highlight": "企业",
-        "line2": "提供专业成长支持"
+        "line1": "為您的",
+        "highlight": "企業",
+        "line2": "提供專業成長支援"
       }
     },
     "travel-immigration": {
       "title": {
-        "line1": "轻松规划您的",
-        "highlight": "旅游",
-        "line2": "与移民服务"
+        "line1": "輕鬆規劃您的",
+        "highlight": "旅遊",
+        "line2": "及移民服務"
       }
     },
     "home-office-services": {
       "title": {
-        "line1": "升级您的",
-        "highlight": "家居与办公室",
-        "line2": "服务体验"
+        "line1": "升級您的",
+        "highlight": "家居及辦公室",
+        "line2": "服務體驗"
       }
     },
     "construction-repair-services": {
