@@ -316,18 +316,15 @@ import {
 
 // Only these services are currently promoted on the home page.
 // The remaining service definitions and routes stay available for direct URLs.
-const serviceOrder = ["softwareDevelopment", "constructionRepairServices"];
+const serviceOrder = ["softwareDevelopment"];
 
-const comingSoonServiceKeys = [
-  "businessServices",
-  "constructionRepairServices",
-];
+const comingSoonServiceKeys = [];
 
 const translations = {
   en: {
     title: "R Services",
     subtitle:
-      "From custom software solutions to construction, renovation, and repair — R Services connects you with reliable professional support through one simple platform.",
+      "Build websites, mobile apps, and custom software tailored to your business needs with R Services.",
     badge: "Professional Services",
     explore: "Explore Service",
     comingSoon: "Coming Soon",
@@ -368,7 +365,7 @@ const translations = {
   ne: {
     title: "R Services",
     subtitle:
-      "कस्टम सफ्टवेयर समाधानदेखि निर्माण, नवीकरण र मर्मत सेवासम्म — R Services ले भरपर्दो व्यावसायिक सहयोगलाई एउटै सरल प्लेटफर्ममार्फत तपाईं नजिक ल्याउँछ।",
+      "R Services मार्फत तपाईंको व्यवसायका आवश्यकताअनुसार वेबसाइट, मोबाइल एप र कस्टम सफ्टवेयर विकास गर्नुहोस्।",
     badge: "व्यावसायिक सेवाहरू",
     explore: "सेवा हेर्नुहोस्",
     comingSoon: "चाँडै आउँदैछ",
@@ -409,7 +406,7 @@ const translations = {
   zh: {
     title: "R服务",
     subtitle:
-      "由度身訂造的軟件方案，到建築、裝修及維修服務，R Services 透過一個簡單平台，為你連繫可靠的專業支援。",
+      "R Services 為你的業務提供度身訂造的網站、手機應用程式及軟件開發服務。",
     badge: "专业服务",
     explore: "查看服务",
     comingSoon: "即將推出",
@@ -510,7 +507,7 @@ export default function PerfectServicesSection({ locale = "en" }) {
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+        <div className="mx-auto grid max-w-md grid-cols-1 gap-3 sm:gap-4">
           {serviceOrder.map((key) => {
             const item = t.items[key];
             const config = serviceConfig[key];

@@ -19,7 +19,7 @@ export default async function Home({ params }) {
 
       <HeroSlider locale={locale} autoPlay interval={4000} />
 
-      <ServiceRequestForm locale={locale} />
+      {/* <ServiceRequestForm locale={locale} /> */}
       
       <ProductTypeSection locale={locale} type="featuredProduct" limit={6} />
 

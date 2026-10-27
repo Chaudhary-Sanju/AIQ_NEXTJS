@@ -882,8 +882,7 @@ const EXPRESS_LINKS = [
 ];
 
 const VISIBLE_SERVICE_KEYS = new Set([
-  "software",
-  "constructionRepairServices",
+  "software"
 ]);
 
 const SERVICES = [
